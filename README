@@ -5,7 +5,7 @@ Fast alle Skripte wurden im deutschen Firefox-Forum vorgestellt bzw. dort angepa
 Fuer GitHub werden die Skripte in Unterordnern mit entsprechenden README-Dateien abgelegt. 
 
 Zur Installation der Skripte im Firefox muss bei vorhandener Erweiterung userChrome.js das jeweilige Skript in den Chrome-Ordner des Profils verschoben werden.
-Das Einbinden der uc.js-Dateien und anderer Dateien geschieht mit der beigelegten userChrome.js bwz. der Zeile
+Das Einbinden der uc.js-Dateien und anderer Dateien geschieht mit der beigelegten userChrome.js bzw. der Zeile
 
 userChrome.import("*", "UChrm");
 
