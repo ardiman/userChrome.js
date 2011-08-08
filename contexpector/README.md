@@ -3,11 +3,11 @@ Mittels Kontextmenue ein Element einer Webseite/von der Firefoxoberflaeche im DO
 
 Das Ergebnis des Skripts beim Rechtsklick auf ein Webseitenelement:
 
-<img src="https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_web.png" alt="Screenshot Contexpector - Web" />
+![Screenshot Contexpector - Web](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_web.png)
 
 Das Ergebnis des Skripts beim Rechtsklick auf ein Element der Firefoxoberflaeche:
 
-<img src="https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_fx.png" alt="Screenshot Contexpector - Oberflaeche" />
+![Screenshot Contexpector - Oberflaeche](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_fx.png)
 
 ## Voraussetzungen
 Die Erweiterung **DOM Inspector** muss installiert sein. S. https://developer.mozilla.org/En/DOM_Inspector
