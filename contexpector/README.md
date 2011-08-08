@@ -10,7 +10,7 @@ Das Ergebnis des Skripts beim Rechtsklick auf ein Element der Firefoxoberflaeche
 <img src="https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_fx.png" alt="Screenshot Contexpector - Oberflaeche" />
 
 ## Voraussetzungen
-Der Erweiterung DOM Inspector muss installiert sein. S. https://developer.mozilla.org/En/DOM_Inspector
+Die Erweiterung DOM Inspector muss installiert sein. S. https://developer.mozilla.org/En/DOM_Inspector
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
