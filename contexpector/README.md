@@ -1,11 +1,11 @@
 # Contexpector
 Mittels Kontextmenue ein Element einer Webseite/von der Firefoxoberflaeche im DOM Inspector betrachten.
 
-Das Ergebnis des Skripts beim Rechtsklick auf ein Webseitenelement:
+Das **Ergebnis des Skripts** beim Rechtsklick auf ein Webseitenelement:
 
 ![Screenshot Contexpector - Web](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_web.png)
 
-Das Ergebnis des Skripts beim Rechtsklick auf ein Element der Firefoxoberflaeche:
+Das **Ergebnis des Skripts** beim Rechtsklick auf ein Element der Firefoxoberflaeche:
 
 ![Screenshot Contexpector - Oberflaeche](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_contexp_fx.png)
 
