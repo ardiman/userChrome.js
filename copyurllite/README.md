@@ -3,11 +3,11 @@ Mittels Kontextmenue auf eine Seite in unterschiedlicher Syntax verlinken. ggf. 
 Sofern ein Teil markiert wurde, kann die Markierung z.B. als Linkbeschreibung uebernommen werden. 
 Die gewaehlte Zeichenfolghe steht anschliessend ueber die Zwischenablage zur Verfuegung.
 
-Das Ergebnis des Skripts beim Rechtsklick:
+Das **Ergebnis des Skripts** beim Rechtsklick:
 
 ![Screenshot CopyUrlLite - Rechtsklick ohne Markierung](https://github.com/ardiman/userChrome.js/raw/master/copyurllite/scr_copyurlli_rec.png)
 
-Das Ergebnis des Skripts beim Rechtsklick und bestehender Markierung:
+Das **Ergebnis des Skripts** beim Rechtsklick und bestehender Markierung:
 
 ![Screenshot CopyUrlLite - Rechtsklick mit Markierung](https://github.com/ardiman/userChrome.js/raw/master/copyurllite/scr_copyurlli_mar.png)
 
