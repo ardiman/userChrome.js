@@ -1,5 +1,5 @@
 # CopyUrlLite
-Mittels Kontextmenue auf eine Seite in unterschiedlicher Syntax verlinken. ggf. mit Uebernahme des Seitentitels. 
+Mittels Kontextmenue auf eine Seite in unterschiedlicher Syntax verlinken, ggf. mit Uebernahme des Seitentitels. 
 Sofern ein Teil markiert wurde, kann die Markierung z.B. als Linkbeschreibung uebernommen werden. 
 Die gewaehlte Zeichenfolghe steht anschliessend ueber die Zwischenablage zur Verfuegung.
 
