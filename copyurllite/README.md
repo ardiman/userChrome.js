@@ -5,11 +5,11 @@ Die gewaehlte Zeichenfolghe steht anschliessend ueber die Zwischenablage zur Ver
 
 Das Ergebnis des Skripts beim Rechtsklick:
 
-![Screenshot CopyUrlLite - Rechtsklick ohne Markierung](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_copyurlli_rec.png)
+![Screenshot CopyUrlLite - Rechtsklick ohne Markierung](https://github.com/ardiman/userChrome.js/raw/master/copyurllite/scr_copyurlli_rec.png)
 
 Das Ergebnis des Skripts beim Rechtsklick und bestehender Markierung:
 
-![Screenshot CopyUrlLite - Rechtsklick mit Markierung](https://github.com/ardiman/userChrome.js/raw/master/contexpector/scr_copyurlli_mar.png)
+![Screenshot CopyUrlLite - Rechtsklick mit Markierung](https://github.com/ardiman/userChrome.js/raw/master/copyurllite/scr_copyurlli_mar.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
