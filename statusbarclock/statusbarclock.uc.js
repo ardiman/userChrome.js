@@ -27,8 +27,10 @@ function Clock() {
      setTimeout("Clock()", (60- sec)*1000);
   }
 
-// letztes Kindelement der Statusbar finden
+// letztes Kindelement der Statusbar/Add-on Bar finden
+// In Firefox 5 und mit installierter Erweiterung Status-4-Evar diese Zeile aktivieren:
 var ClockStatus = document.getElementById("status-bar").lastChild;
+//Ohne o.g. Erweiterung diese Zeile aktivieren:
 // var ClockStatus = document.getElementById("addon-bar").lastChild;
 var ClockLabel = document.createElement("label");
 ClockLabel.setAttribute("id", "statusbar-clock-display");
