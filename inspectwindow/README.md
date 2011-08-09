@@ -5,6 +5,9 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot InspectWindow](https://github.com/ardiman/userChrome.js/raw/master/inspectwindow/scr_inswin.png)
 
+## Voraussetzungen
+Die Erweiterung **DOM Inspector** muss installiert sein. S. https://developer.mozilla.org/En/DOM_Inspector
+
 ## Installation
-Die Erweiterung **DOM Inspector** muss installiert sein. Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.
 
