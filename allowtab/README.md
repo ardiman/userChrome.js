@@ -1,5 +1,5 @@
 # Allow Tab
-Hiermit werden dem Tab-Kontextmenü einige neue Eintraege/Funktionen spendiert, mit denen man z.B. 
+Hiermit werden dem Tab-Kontextmenue einige neue Eintraege/Funktionen spendiert, mit denen man z.B. 
 alle Bilder, oder alle Javascripts und noch paar andere Sachen auf der angezeigten Seite aus-/einschalten kann. 
 Das Ergebnis wird erst nach einem Reload des Tabs sichtbar.
 
