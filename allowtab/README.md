@@ -5,7 +5,7 @@ Das Ergebnis wird erst nach einem Reload des Tabs sichtbar.
 
 Das **Ergebnis des Skripts** im Kontextmenue ist im Screenshot zu sehen:
 
-![Screenshot Add Restart Button](https://github.com/ardiman/userChrome.js/raw/master/allowtab/scr_allowtab.png)
+![Screenshot Allow Tab](https://github.com/ardiman/userChrome.js/raw/master/allowtab/scr_allowtab.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
