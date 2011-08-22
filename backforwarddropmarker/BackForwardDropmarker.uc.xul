@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+%23back-forward-dropmarker {
+  -moz-appearance: none;
+  padding: 0;
+  -moz-padding-end: 2px;
+  -moz-margin-start: -20px;
+  border: none;
+  -moz-image-region: rect(0, 13px, 11px, 0);
+}
+
+%23back-forward-dropmarker:not([disabled="true"]):hover:active,
+%23back-forward-dropmarker[open="true"] {
+  -moz-image-region: rect(0, 26px, 11px, 13px);
+}
+
+%23back-forward-dropmarker > .toolbarbutton-icon {
+  display: -moz-box;
+  margin: 0;
+}
+
+%23back-forward-dropmarker > .toolbarbutton-menu-dropmarker {
+  display: none;
+}
+
+%23back-forward-dropmarker[disabled="true"] {
+  opacity: .35;
+}
+
+%23back-forward-dropmarker {
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAALCAYAAABhwJ3wAAAAB3RJTUUH2gkcFwAL5hVzwgAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAAF1SURBVHjanZTNSsNAEMdnt6k1pgdzVfBB+hRCe9CLN70FK4VAi3gJeFZ8jt76DAV9Bc9GKlQEbZvmY9eZOgtrTA9m4c/sTJb57ezsRkDN0b2dSjQCJVnC+qxRiqXHo44S/0dsIAbgsHZQDY5R8gKVonKWcmoWZIN2US6qZYHWPE9MVXVBwImaDGqj9rgqqmbJx1dwRcUvkBDiQEr54jgOzUFrDXmeg1LqEOdxVUXjh/sjyL6m0PQQg5wCc2cL3EK70w0un03/pA3ChPMoinqu64LneUCWfIqXqtFGF/2zdHRz+ggeum0EoSWf4vY6WapoPRwOJyhKDmTJp3jF0W2aPi/8t3jhX42C4ydYzYEs+RTno6N18KdHlBSPaYKgXhiG2yBmp3T+yaf249kKguvByd3rcr+P/owvQm7WVl4GA9sCsSvKuF/qQ/lpK8nO0b7Dz9VO+bsyTa01rLdk1OB85raZB6vwweraIAtmNlz+M5CAIGS/AWNntJOVwq5bAAAAAElFTkSuQmCC);
+}
+
+" type="text/css"?>
+
+
+<overlay id="bfmarker-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <toolbaritem id="unified-back-forward-button">
+	<toolbarbutton id="back-forward-dropmarker" type="menu" 
+			disabled="false" tooltiptext="Letzte Seiten"
+			onbroadcast="if (this.disabled) this.disabled =
+			document.getElementById('Browser:Back').hasAttribute('disabled') &amp;&amp;
+			document.getElementById('Browser:Forward').hasAttribute('disabled');">
+		<menupopup context=""
+				position="after_start"
+				onpopupshowing="return FillHistoryMenu(event.target);"
+				oncommand="gotoHistoryIndex(event); event.stopPropagation();"
+				onclick="checkForMiddleClick(this, event);"/>
+			<observes element="Browser:Back" attribute="disabled"/>
+			<observes element="Browser:Forward" attribute="disabled"/>
+	</toolbarbutton>	
+  </toolbaritem>
+</overlay> 
