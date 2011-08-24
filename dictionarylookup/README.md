@@ -1,7 +1,6 @@
 # Dictionary Lookup
-Ein Eigenbau (inkl. Name) von loshombre auf Basis einer Erweiterung, die sich um 
-Uebersetzungen und Woerterbuch EN-DE und umgekehrt (natuerlich auch andere) ueber die TU Chemnitz, 
-sowie eine Suche bei Wikipedia kuemmert.
+Kuemmert sich um Uebersetzungen und Woerterbuch EN-DE und umgekehrt (natuerlich auch andere) ueber die TU Chemnitz, 
+sowie um eine Suche bei Wikipedia.
 
 Das Hauptkontextmenue bekommt zwei neue Eintraege: "Uebersetze" und "Suche in Wikipedia". 
 Das markierte Wort wird in der jeweiligen "Gegensprache" uebersetzt (passiert automatisch) und noch so einiges mehr, 
