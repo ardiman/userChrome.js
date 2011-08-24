@@ -15,9 +15,11 @@ Dazu muss man in Zeile 14 den Eintrag von 'button' in 'menu' aendern:
 Das **Ergebnis des Skripts** ist in den Screenshots zu sehen:
 
 Als Buttons:
+
 ![Screenshot External Applications Buttons](https://github.com/ardiman/userChrome.js/raw/master/externalapplications/scr_ext_apps_btn.png)
 
 Als Menue:
+
 ![Screenshot External Applications Menue](https://github.com/ardiman/userChrome.js/raw/master/externalapplications/scr_ext_apps_menu.png)
 
 
