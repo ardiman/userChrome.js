@@ -1,5 +1,5 @@
 # Drag and go
-Wird über Mausgesten gesteuert. Links "anfassen" und "fallen lassen" oeffnet den Link in einem neuen Tab. 
+Wird ueber Mausgesten gesteuert. Links "anfassen" und "fallen lassen" oeffnet den Link in einem neuen Tab. 
 Erspart Add-Ons wie QuickDrag etc. 
 
 ## Installation
