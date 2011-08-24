@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay>
+<overlay id="DictionaryLookup-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript"><![CDATA[
+var DictionaryLookup = {
+
+	onLoad: function() 
+	{
+		this.initialized = true;
+		document.getElementById("contentAreaContextMenu").addEventListener(
+		   "popupshowing",DictionaryLookup.onContextMenu,false);
+	},
+  
+	onContextMenu: function()
+	{
+		var focusedWindow = document.commandDispatcher.focusedWindow;
+		var strSearch = focusedWindow.getSelection().toString().replace(/^\s*|\s*$/g,'');
+		var nLength = strSearch.length;
+
+		if( nLength == 0 || nLength > 40 ) 
+			{
+				// Nothing or too long text selected -> hide menu options
+				document.getElementById("dictLookupSeperator").hidden = true;
+				document.getElementById("dictLookupDictCtrl").hidden = true;
+				document.getElementById("dictLookupWikiCtrl").hidden = true;
+			}
+		else 
+			{
+				var bundle = document.getElementById("dictlookupLocale");
+
+				// enable menu options
+				document.getElementById("dictLookupSeperator").hidden = false;
+				document.getElementById("dictLookupDictCtrl").hidden = false;
+				document.getElementById("dictLookupWikiCtrl").hidden = false;
+				
+				// display selected text, too
+				document.getElementById("dictLookupDictCtrl").label =
+				bundle.getString("translate") + ": \"" + strSearch + "\"";
+				document.getElementById("dictLookupWikiCtrl").label = 
+				bundle.getString("wikipediaLookup") + ": \"" + strSearch + "\"";
+			}
+	},
+
+	dictLookup: function() 
+	{
+		// what a nice command:
+		var strSearch = document.commandDispatcher.focusedWindow.getSelection().toString().replace(/^\s*|\s*$/g,'');
+		var bundle = document.getElementById("dictlookupLocale");
+		var DICTIONARY_URL = "http://dict.tu-chemnitz.de/dings.cgi?lang=de&mini=1&count=50&service=&opterrors=0&query=";
+
+		var strAddr = DICTIONARY_URL + encodeURIComponent(strSearch);
+        //getBrowser().selectedTab = getBrowser().addTab(DICTIONARY_URL + encodeURIComponent(strSearch));
+		window.open( strAddr,
+					'querybox',
+					'status=no,resizable=yes,scrollbars=yes,toolbar=no,location=no,menubar=no,width=300,height=400');
+	},
+  
+	wikiLookup: function() 
+	{
+		var strSearch = document.commandDispatcher.focusedWindow.getSelection().toString().replace(/^\s*|\s*$/g,'');
+		var bundle = document.getElementById("dictlookupLocale");
+		var LEXICON_URL = "http://de.wikipedia.org/wiki/Spezial:Search?go=Artikel&search=";
+		//http://dict.leo.org/?lp=ende&from=fx3&search=
+		//"http://dict.leo.org/" + lang + "de?lang=" + sitelang + "&search=" + query;
+
+		getBrowser().selectedTab = getBrowser().addTab(LEXICON_URL + encodeURIComponent(strSearch));
+	},
+};
+
+window.addEventListener("load", function(e) { DictionaryLookup.onLoad(e); }, false);  
+
+]]></script>  
+  <popup id="contentAreaContextMenu">
+    <menuseparator id="dictLookupSeperator" />
+    <menuitem id="dictLookupDictCtrl" label="Übersetze" oncommand="DictionaryLookup.dictLookup();"/>
+    <menuitem id="dictLookupWikiCtrl" label="Suche in Wikipedia"  oncommand="DictionaryLookup.wikiLookup();"/>
+  </popup>
+</overlay>
+
+
