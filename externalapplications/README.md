@@ -10,6 +10,7 @@ Es gibt auch immer einen passenden Tooltip dazu.
 
 Ist es einem zu viel mit den ganzen Buttons in der Leiste, kann man das ganze wunderbar zu einem Menuepunkt zusammenfassen.
 Dazu muss man in Zeile 14 den Eintrag von 'button' in 'menu' aendern:
+
     type: 'button', //'menu' or 'button'
 
 Das **Ergebnis des Skripts** ist in den Screenshots zu sehen:
