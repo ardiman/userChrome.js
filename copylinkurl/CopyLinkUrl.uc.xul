@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay>
+<!--
+// ==UserScript==
+// @name           CopyLinkUrl.uc.xul
+// @description    Copy the URLs of the selected links to clipboard.
+// @include        main
+// @version        1.0 First Edition (German)
+// @compatibility  Firefox 5.0
+// @author         loshombre [Möge die Macht der dunklen Seite immer mit euch sein!]
+// @Note           Particularly handy for grabbing Rapidshare or Megaupload links and pasting them into your favorite download manager. 
+// @Note           Original Code by Jason Fah 
+// @Note           This script based on Firefox Addon Copy Link URL http://www.bluelightdev.com/projects/copy-link-url
+// @Note           Mozilla Public License, Version 1.1 http://www.mozilla.org/MPL/MPL-1.1.html 
+// ==/UserScript==
+ -->
+<overlay id="copylinkurl" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript"><![CDATA[
+var gCopyLinkURL = {
+
+	Init : function() {
+	  var contextMenu = document.getElementById("contentAreaContextMenu");
+	  if (contextMenu)
+	    contextMenu.addEventListener("popupshowing", gCopyLinkURL.CopyLinkURLShowHideMenu, false);
+	}
+,
+	//Only show the Copy Selected Links menu if text is selected
+	CopyLinkURLShowHideMenu : function(event) {
+	  var show = document.getElementById("copyselectedlinks");
+	  show.hidden = !(gContextMenu.isContentSelected);
+	  //show.hidden = !(gContextMenu.isTextSelected);
+	}
+,
+	//I do not take credit for the function below, credit goes to JackieKu
+	GetLinks : function(bSelected /*, reMask*/) {
+		var focusedWindow = document.commandDispatcher.focusedWindow;
+		var focusedDoc = document.commandDispatcher.focusedWindow.document;
+		var argc = gCopyLinkURL.GetLinks.arguments.length;
+		var argv = gCopyLinkURL.GetLinks.arguments;
+		var reMask;
+
+		var selLinks = new Array();
+		var i, j = 0;
+
+		if (argc > 1)
+			reMask = new RegExp(argv[1], 'i');
+
+		for (i = 0;i < focusedDoc.links.length;i++) {
+			if ((!bSelected || focusedWindow.getSelection().containsNode(focusedDoc.links[i], true)) &&
+				(argc <= 1 || focusedDoc.links[i].href.match(reMask)))
+			{
+				selLinks[j] = focusedDoc.links[i].href;
+				j++;
+			}
+		}
+
+		return selLinks;
+
+	}
+,
+	//I do not take credit for the function below, credit goes to JackieKu
+	OnCommand : function(cmd) {
+		var links;
+		var i;
+
+		switch (cmd) {
+			case 'all':
+				links = gCopyLinkURL.GetLinks(false);
+				break;
+			case 'sel':
+				links = gCopyLinkURL.GetLinks(true);
+				break;
+			default:
+				return;
+		}
+
+		if (links.length == 0) {
+			alert("No links found in the selected text");
+			return;
+		}
+
+		var copytext = '';
+
+		for (i = 0;i < links.length;i++)
+			copytext += links[i] + gCopyLinkURL.EOL();
+			
+		gCopyLinkURL.CopyToClipboard(copytext);
+	}
+,
+	//I do not take credit for the function below, credit goes to JackieKu
+	EOL : function() {
+		platform = navigator.platform.toLowerCase();
+		if (platform.indexOf('win') != -1)
+			return "\r\n"; //CR LF
+		else if (platform.indexOf('mac') != -1)
+			return "\r"; //CR
+		else if (platform.indexOf('unix') != -1
+				|| platform.indexOf('linux') != -1
+				|| platform.indexOf('sun') != -1)
+			return "\n"; //LF
+	}
+,
+	//I do not take credit for the function below, credit goes to JackieKu
+	CopyToClipboard : function(copyThis) {
+		var str = Components.classes["@mozilla.org/supports-string;1"].createInstance(Components.interfaces.nsISupportsString);
+		if (!str) return false;
+		str.data = copyThis; // unicode string?
+
+		var trans = Components.classes["@mozilla.org/widget/transferable;1"].createInstance(Components.interfaces.nsITransferable);
+		if (!trans) return false; //no transferable widget found
+
+		trans.addDataFlavor("text/unicode");
+		trans.setTransferData("text/unicode", str, copyThis.length*2);
+
+		var clipid=Components.interfaces.nsIClipboard;
+		var clip = Components.classes["@mozilla.org/widget/clipboard;1"].getService(clipid);
+		if (!clip) return false; // couldn't get the clipboard
+
+		clip.setData(trans, null, clipid.kGlobalClipboard);
+		return true;
+	}
+};
+
+window.addEventListener("load", gCopyLinkURL.Init, false);
+
+]]></script>
+             <popup id="contentAreaContextMenu">
+		        <menuitem id="copyselectedlinks" class="menuitem-iconic" label="Link-Auswahl kopieren" oncommand="gCopyLinkURL.OnCommand('sel');" insertafter="context-copy"/>
+	         </popup>
+</overlay>
