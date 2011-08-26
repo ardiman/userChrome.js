@@ -1,8 +1,8 @@
 # Options Menu
 Es gibt einen neuen Menuepunkt unter "Extras", ueber dem man direkt an die Einstellungsoptionen aller installierten 
-Add-ons, die diese haben, gelangt.
+Add-ons, die diese haben, gelangt. Ausserdem gibt es einen Button, der neben der Searchbar eingesetzt wird.
 
-Durch Anpassung der folgenden Zeilen laesst sich der Dropmarker (s. Pfeil im Screenshot) bzw das gesamte Puzzle-Symbol daneben ausblenden
+Durch Anpassung der folgenden Zeilen laesst sich der Dropmarker (s. Pfeil im Screenshot) bzw. das gesamte Puzzle-Symbol daneben ausblenden
 
     SHOW_BUTTON:		true,
     MENU_BUTTON:		true,
