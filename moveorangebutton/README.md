@@ -1,7 +1,7 @@
 # Move Orange Button
 Der seit Firefox 4 bekannte Appbutton wird hiermit links neben der Urlbar in die Navbar verschoben.
 
-Das **Ergebnis des Skripts**:
+Das **Ergebnis des Skripts** (oben ohne, unten mit Skript):
 
 ![Screenshot Move Orange Button](https://github.com/ardiman/userChrome.js/raw/master/moveorangebutton/scr_moveorgbtn.png)
 
