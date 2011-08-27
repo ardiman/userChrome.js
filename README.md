@@ -3,7 +3,7 @@ Hier entsteht eine Sammlung fuer die Firefox-Erweiterung userChrome.js.
 
 Fast alle Skripte wurden im deutschen Firefox-Forum vorgestellt bzw. dort angepasst.
 
-Fuer GitHub werden die Skripte in Unterordnern mit entsprechenden README-Dateien abgelegt. Gelegentlich liegen die README-Dateien im markdown-Format mit der Dateiendung `md` (ebenfalls einfache Textdateien) vor.
+Fuer GitHub werden die Skripte in Unterordnern mit entsprechenden README-Dateien abgelegt. Es handelt sich dabei um Textdateien im markdown-Format mit der Dateiendung `md`.
 
 # Installation
 Zur Installation der Skripte im Firefox muss bei vorhandener Erweiterung userChrome.js das jeweilige Skript in den Chrome-Ordner des Profils verschoben werden.
