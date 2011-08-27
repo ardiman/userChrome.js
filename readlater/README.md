@@ -5,7 +5,7 @@ In der Statusbar gibts einen neuen Button, mit dem man dann das ganze bedienen, 
 (einzeln, oder alles zusammen). Dazu kommt noch das Datum und Uhrzeit. 
 Beim Wiederherstellen der gespeicherten Seiten kommt man wieder genau an die Stelle, an der man es gespeichert hat. 
 Gespeichert wird alles so lange, bis man es loescht oder wieder aufruft. Es geht nichst verloren, egal wie oft der Firefox 
-beendet und neu gestartet wurde (Speicherung erfolgt in prefs.js im Schluesssel `userChrome.ReadLater`.
+beendet und neu gestartet wurde (Speicherung erfolgt in prefs.js im Schluesssel `userChrome.ReadLater`).
 
 Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
 
