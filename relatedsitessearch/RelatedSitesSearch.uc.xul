@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23ssQuery {
+  -moz-appearance: none;
+  margin-top: 0px;
+  margin-bottom: -8px;
+}
+
+" type="text/css"?>
+
+<!DOCTYPE overlay>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"><![CDATA[
+if(!com) var com={};
+if(!com.vj) com.vj={};
+if(!com.vj.ss) com.vj.ss={};
+
+com.vj.ss = {
+	relSearch: function(event){
+		var curUrl = content.location;
+		if(event.button==0){
+			var ioService = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService); 
+			var refURI = ioService.newURI("http://quicklink.to", null, null);
+			var searchURI = "http://www.similarsites.com/search?searchType=631&searchURL=" + curUrl;
+			var newTabURI = "http://quicklink.to/urlredirect.php?url=" + encodeURIComponent(searchURI);
+			gBrowser.selectedTab = gBrowser.addTab(newTabURI, refURI, null);
+			//gBrowser.selectedTab = gBrowser.addTab("http://www.google.com/search?q=related:" + encodeURIComponent(curUrl));
+		}
+	},
+		
+	ssSearch: function(event){
+		var qry = document.getElementById("ssQuery").value;
+		var curUrl = content.location;
+		curUrl = curUrl+"";
+		if(curUrl.match("https://")){curUrl = curUrl.substring(8);}
+		else if(curUrl.match("http://")){curUrl = curUrl.substring(7);}
+		if(curUrl.indexOf("/")!=-1){
+			curUrl = curUrl.substring(0,curUrl.indexOf("/"));
+		}
+		if(event.type=="change" || event.button==0){
+			if(curUrl.match("about:")){
+				gBrowser.selectedTab = gBrowser.addTab("http://www.google.com/search?q=" + encodeURI(qry));
+			}else{
+				gBrowser.selectedTab = gBrowser.addTab("http://www.google.com/search?q=site:" + encodeURIComponent(curUrl) + " " + encodeURI(qry));
+			}
+		}
+	}
+}
+
+]]></script>
+<statusbar id="status-bar">
+<textbox id="ssQuery" size="10" onchange="com.vj.ss.ssSearch(event)"/>
+<statusbarpanel class="statusbarpanel-menu-iconic" id="ssPanel"
+     type="menu-button"
+     tooltiptext="Suche innerhalb der Website"	 image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1QoXBhgIgRQ8YgAAArNJREFUOMudjF9olWUcxz%2FP877nfd%2Ft7Dj11PTI2lZLs6FO7Yh%2FAouJMAgjdiNUXgSBpQhSkDdRN2WloIR44UR24cQbI4VKaCEoLpBqsUg0W3%2FWiWLLne2cs53zvud9nvfXhSxi0IV9rr7fL3w%2Fas0HY%2B3fH3p0fN3hmytr1diYKBQbW5IwxNYNST1ivifGYsKIOBZl67FjQybUm8M1AQg8l9KMMF22TM4GVMpQmYVKSXDjGjZMqMxZpksKEyWI1pjJ27i%2BHzBZglIIM2WgCs%2Fo69SW%2BDjLHOJSlZNf5fnp50aoAFNADPjAXAvq5Y9qcrovAKBw51cGvylS6egmm3VwNCgPWv%2F6gYeTiI2b1mGsgAKF4tzQ7%2Bj29ntnTMh7n0%2Bg16ylexWszlkeTMe4cyG28zG%2BtM3cGrmJEkFJghJLEsXo8fEQgMGzl8k%2BkadtmcPKrGZtRrMo7bA8l8J3Erq2tPP1b0WMTahWY4wVxKZwO9pcAK6M3mVrr0NzJuEhFLNhQpMLTqBp1AoB6gH4vmt939GgWNWZVm7hdml0wzVvanXD8h7HgT8mDJ9pWLpE05VxqYqQBhRQr1myT3%2Fynefh%2B74ntbix1T2154H1AI%2B8%2BG7Vy%2Bzypqe0k1uhyTYp5kTIABnABZIwKhav7trIv9DzoVwYO1QYKTpNaaFiNImClFIEShGEEYuBiwOfnmcB%2Fwi%2BuDpw4kb%2FmWJLWwpf16mFhsgY6rGlKfCTvfuP8HhXR3qhQC0cenYeGHv%2B%2BFuduZxPQELGcTm67%2F3yts3rJd2gm%2FOF%2FUyWgz29H%2F4yyH%2FR5m3IP7nlpWd39Lz6HLR0z%2B9Dh58S8%2B1r8uPbDXKsr3U390t%2FX8PHMjMgdvR1GXkjkIPbW3vvW%2FLOzswl%2B2e%2F1G%2B8IkN7U8L%2F4UA%2BfVmiCyLDL8jf9zAuPaKruPMAAAAASUVORK5CYII%3D"
+     onclick="com.vj.ss.ssSearch(event)"
+     context="ss-conMenu"
+     >
+</statusbarpanel>
+<statusbarpanel class="statusbarpanel-menu-iconic" id="relPanel"
+     type="menu-button"
+     tooltiptext="Suche nach ähnlichen Websites"     image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAACXBIWXMAAA9hAAAPYQGoP6dpAAACyklEQVR42gXBSWhUZwAH8P%2B3vG3emzWZSTRNCAGN0SZQS0tE8eDSCm2pt3ooFlrMQcSTBxGhPVTaQy0UrDct9CB6EDypiBoQxK2xmojLRJtE65pklmTmLd%2F7Fn8%2F8ufJ8YM%2F%2Fy1okTFGCKFGEiO1DqlOjFZaa8p4KpErVZbaqWEWT6in7bLhXU42EElI0xBiYcMna9esXtFZysVCpJI%2BmX418zpsztUsv8RTTRLtOG6h3mx4juzvK%2Fz%2By6HhQXAOSqE0NJASXLiCfQeOtELJKaVSiI6MnYbtob7imZN7yyUoDaUxM4NsHsKgUAa3QcAps7kxJl%2FK1xbnVbz8w7ffFwPYMCkhY%2Ft%2BvH33HWX5SLUHBocN7w5DaedznHMeRZGbybluZ1el4llI48h2Mq6TXZaLcepo7d%2B%2BX2cZzXJFTQ1VSkkphZC1RnOh3jIErpOhBn%2F8duDor4c3fjrk2USliUolYVwmku3YOTZ%2B44lQVpDPvno9u3XLR74HI%2BFxDA0EX33%2B4ccjg3HUqFZn0hTFQhfb9vWeq9enraAzVert%2FJv%2Fnv4%2FOjri%2B9AaVMPj6O0Ndnw24nkr7%2FxzP040%2B%2FKb%2FZevPZY0sHxPKlatvrt05WEttgdWd7kuCMABi2F4XXl%2BXkzce8w2bN01fqNKrYKGooRx4zeWwonJqVNnzjcWRW9PTz5gFqPaQCN79fokDYKAQvkO13FMpWCmFbcaScRaYfbYiYvf7f1JWwyAY6G70hGGIZdSKkOTJIGW27dtGh0ZmJq88%2BDRs7kXsz0rSps3r48FwAGKe1PTQhLOuMvtrIJDsLxuVXlsd8UhX7TbYAww8DKggABqbRz%2F65ybqVBCCAUzhgC0Xm9GESiQ95H14DIQg6UY1242d%2B46%2BnJBGuZwmFTFLe4XBNjps%2BMTt%2B72dPq9H3T39%2FcpZWbnXv774GH1%2Bdt27DGnQ0nzHm1dWyvKNudkAAAAAElFTkSuQmCC"
+     onclick="com.vj.ss.relSearch(event)"
+     context="ss-conMenu"
+     >
+</statusbarpanel>
+</statusbar>
+</overlay>
