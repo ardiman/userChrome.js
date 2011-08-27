@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<overlay id="statusbaroverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript">
+
+function exampleTabSelected(event) {
+  var browser = gBrowser.selectedBrowser;
+  // browser is the XUL element of the browser that's just been selected
+setColor();
+}
+
+function toggleSpellCheckEverything()
+{
+var element = document.getElementById('spellcheckEverythingButton');
+if (content.document.body.contentEditable == 'true')
+	{ 	
+		content.document.body.contentEditable = 'false';
+		element.style.color = 'black'; 
+		element.tooltipText = '(Deaktiviert) | Hier klicken, um Seiten-Rechtsschreibung zu aktivieren';
+	}
+	else {	content.document.body.contentEditable = 'true';
+		element.style.color = 'green';
+		element.tooltipText = '(Aktiviert) | Hier klicken, um Seiten-Rechtsschreibung zu deaktivieren';
+	}
+}
+
+function setColor()
+{
+var element = document.getElementById('spellcheckEverythingButton');
+if (content.document.body.contentEditable == 'true')
+	{ 	
+		element.style.color = 'green';
+		element.tooltipText = '(Aktiviert) | Hier klicken, um Seiten-Rechtsschreibung zu deaktivieren';
+		
+	}
+	else {	
+		element.style.color = 'black'; 
+		element.tooltipText = '(Deaktiviert) | Hier klicken, um Seiten-Rechtsschreibung zu aktivieren';
+	}
+}
+
+// During initialisation
+var container = gBrowser.tabContainer;
+container.addEventListener("TabSelect", exampleTabSelected, false);
+
+</script> 
+    <statusbar id="status-bar">
+	<hbox align="center">
+       	<label 	id="spellcheckEverythingButton"
+		value="RSP"
+		style="color:black;"
+		onclick="toggleSpellCheckEverything();"
+		tooltiptext="(Deaktiviert) | Hier klicken, um Seiten-Rechtsschreibung zu aktivieren" />
+	</hbox>
+    </statusbar>
+</overlay>
