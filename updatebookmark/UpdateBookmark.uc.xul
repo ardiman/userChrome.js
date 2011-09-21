@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE overlay>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript"><![CDATA[
+let UpdateBookmark = {
+
+  onCommand: function(event) {
+  
+    var node = event.target.parentNode.triggerNode;    
+  
+	if (node._placesNode && PlacesUtils.nodeIsBookmark( node._placesNode ) ) {
+		var activeContent = top.window.document.getElementById("content");
+        var activeBrowser = activeContent.selectedBrowser;
+		var newValue = activeBrowser.currentURI.spec;		
+		var newURI = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService).newURI(newValue, null, null);
+		PlacesUtils.bookmarks.changeBookmarkURI(node._placesNode.itemId, newURI);	
+	}
+
+  }
+};
+  
+]]></script>
+	<menupopup id="placesContext">
+		<menuitem id="updateBookmark_item" label="Update" tooltiptext="ACHTUNG! Dieses Lesezeichen wird mit der aktuell geöffneten Seite überschrieben" insertafter="placesContext_newSeparator" oncommand="UpdateBookmark.onCommand(event)"/>		
+		<menuseparator insertafter="updateBookmark_item"/>
+	</menupopup>		
+	
+	<menupopup id="appmenu_bookmarksToolbarPopup">
+		<menuitem id="updateBookmark_item_2" label="Update" tooltiptext="ACHTUNG! Dieses Lesezeichen wird mit der aktuell geöffneten Seite überschrieben" oncommand="UpdateBookmark.onCommand(event)"/>		
+	</menupopup>	
+	
+</overlay>
