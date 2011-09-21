@@ -1,5 +1,5 @@
 # User Agent Switcher Lite
-Das Menue sitzt im Toolbarmenue "Extras". Scriptersatz für das Add-on "User Agent Switcher".
+Das Menue sitzt im Toolbarmenue "Extras". Scriptersatz fuer das Add-on "User Agent Switcher".
 
 Das **Ergebnis des Skripts**:
 
