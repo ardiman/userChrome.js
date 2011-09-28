@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay>
+<!--
+// ==UserScript==
+// @name           WebScreenShot.uc.xul
+// @namespace      http://d.hatena.ne.jp/Griever
+// @include        main
+// @version        0.0.2
+// ==/UserScript==
+ -->
+<overlay id="ss_overlay"  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<menupopup id="menu_ToolsPopup">
+		<menu id="WebScreenShotMenu" label="Screenshot Menü" insertbefore="menu_preferences">
+			<menupopup>
+				<menuitem label="Ganze Seite" oncommand="new WebScreenShot().fullCapture()"/>
+				<menuitem label="Aktuelle Ansicht" oncommand="new WebScreenShot().pageCapture();"/>
+				<menuitem label="Freie Markierung" oncommand="new WebScreenShot().clippingCapture();"/>
+				<menuitem label="Markierter Ausschnitt" oncommand="new WebScreenShot().clickCapture();"/>
+			</menupopup>
+		</menu>
+	</menupopup>
+	<popup id="contentAreaContextMenu">
+		<menuitem id="WebScreenShotOnImage"
+		          label="Grafik als Base64 kopieren"
+		          insertafter="context-copyimage"
+		          oncommand="new WebScreenShot().imageCapture(gContextMenu.target);"/>
+	</popup>
+	<script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+
+document.getElementById('contentAreaContextMenu').addEventListener('popupshowing', function func(event) {
+	if (event.target != event.currentTarget) return;
+	document.getElementById('WebScreenShotOnImage').hidden = !gContextMenu.onImage && !gContextMenu.onCanvas;
+}, false);
+
+
+window.WebScreenShot = function(){
+	this.init();
+};
+
+
+window.WebScreenShot.prototype = {
+	init: function() {
+		this.browser = gBrowser.mCurrentBrowser;
+		this.statusField = document.getElementById('statusbar-display');
+	},
+
+	handleEvent: function(event) {
+		switch(event.type) {
+			case 'mousedown':
+				this.browser.removeEventListener('mousedown', this, true);
+				this.x = event.screenX;
+				this.y = event.screenY;
+				this.innerTop = content.mozInnerScreenY;
+				this.innerLeft = content.mozInnerScreenX;
+				this.innerBottom = this.innerTop + content.innerHeight;
+				this.innerRight = this.innerLeft + content.innerWidth;
+				this.box.openPopupAtScreen(this.x, this.y);
+				this.browser.addEventListener('mousemove', this, true);
+				this.browser.addEventListener('mouseup', this, true);
+				break;
+
+			case 'mousemove':
+				var moveX = event.screenX;
+				var moveY = event.screenY;
+				
+				if (moveX <= this.innerLeft) moveX = this.innerLeft;
+				else if (moveX >= this.innerRight) moveX = this.innerRight;
+				if (moveY <= this.innerTop) moveY = this.innerTop;
+				else if (moveY >= this.innerBottom) moveY = this.innerBottom;
+				if (this.x > moveX || this.y > moveY)
+					this.box.moveTo(this.x > moveX? moveX : this.x, this.y > moveY? moveY : this.y);
+				this.box.width  = Math.abs(moveX - this.x);
+				this.box.height = Math.abs(moveY - this.y);
+				this.statusField.label = this.box.width + 'x' + this.box.height;
+				break;
+
+			case 'mouseup':
+				this.browser.removeEventListener('mousemove', this, true);
+				this.browser.removeEventListener('mouseup', this, true);
+				var borderWidth = Math.round( (this.box.boxObject.width - this.box.clientWidth) / 2);
+				var x = this.box.boxObject.screenX - content.mozInnerScreenX + content.scrollX + borderWidth;
+				var y = this.box.boxObject.screenY - content.mozInnerScreenY + content.scrollY + borderWidth;
+				var w = this.box.boxObject.width  - borderWidth;
+				var h = this.box.boxObject.height - borderWidth;
+				this.capture(content, x, y, w, h);
+				this.box.removeEventListener('popuphiding', this, false);
+				this.box.parentNode.removeChild(this.box);
+				this.resetCursor();
+				break;
+
+			case 'mouseover':
+				this.target = event.target;
+				this.highlight();
+				this.relatedTarget = this.target;
+				this.statusField.label = this.target.offsetWidth + 'x' + this.target.offsetHeight;
+				break;
+
+			case 'click':
+				this.relatedTarget = this.target;
+				this.lowlight();
+				var win = this.target.ownerDocument.defaultView;
+				var rect = this.target.getBoundingClientRect();
+				this.capture(win, rect.left + win.scrollX, rect.top + win.scrollY, rect.width, rect.height, false);
+				
+				this.browser.removeEventListener('mouseover', this, true);
+				this.browser.removeEventListener('click', this, true);
+				break;
+
+			case 'popuphiding':
+				break;
+		}
+		event.preventDefault();
+		event.stopPropagation();
+	},
+
+	highlight: function() {
+		if (this.relatedTarget) 
+			this.lowlight();
+		this.defStyle = this.target.getAttribute('style');
+		this.target.style.setProperty('outline', '2px solid red', 'important');
+		this.target.style.setProperty('outline-offset', '1px', 'important');
+	},
+
+	lowlight: function() {
+		if (this.defStyle == null)
+			this.relatedTarget.removeAttribute('style');
+		else 
+			this.relatedTarget.setAttribute('style', this.defStyle || '');
+	},
+
+	getWindowList: function() {
+		this.windowList = (function(win) {
+			var array = win.document.body instanceof HTMLFrameSetElement? []: [win];
+			for (var i = 0, l = win.frames.length; i < l; i++) {
+				array.push.apply(array, arguments.callee(win.frames[i]));
+			}
+			return array;
+		})(window.content);
+	},
+
+	setCursor: function() {
+		this.rootList = this.windowList.map(function(win) win.document.documentElement);
+		this.rootList.forEach(function(root) {
+			root.style.setProperty('cursor', 'crosshair', 'important');
+		});
+	},
+	
+	resetCursor: function() {
+		this.rootList.forEach(function(root){
+			if (root)
+				root.style.setProperty('cursor', '', '');
+		});
+	},
+
+	capture: function(win, x, y, w, h) {
+		var tab = gBrowser.addTab();
+		var browser = gBrowser.getBrowserForTab(tab);
+		browser.addEventListener('load', function(event) {
+			browser.removeEventListener('load', arguments.callee, true);
+			var doc = browser.contentDocument;
+			var canvas = doc.body.appendChild(doc.createElement('canvas'));
+			canvas.style.display = 'inline';
+			canvas.width = w;
+			canvas.height = h;
+			var ctx = canvas.getContext("2d");
+			ctx.drawWindow(win, x, y, x + w, y + h, "rgb(255,255,255)");
+			gBrowser.selectedTab = tab;
+		}, true);
+	},
+
+	imageCapture: function(img) {
+		var base64;
+		if (img instanceof HTMLCanvasElement) {
+			base64 = img.toDataURL("image/png");
+		} else {
+			var scrollbox = document.createElement('scrollbox');
+			scrollbox.hidden = true;
+			document.documentElement.appendChild(scrollbox);
+			var canvas = scrollbox.appendChild( document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas') );
+			canvas.style.display = 'inline';
+			canvas.width = img.width;
+			canvas.height = img.height;
+			var ctx = canvas.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+			base64 = canvas.toDataURL("image/png");
+			scrollbox.parentNode.removeChild(scrollbox);
+		}
+		Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(base64);
+		alert('Copy is Base64 Code.');
+	},
+
+	clickCapture: function() {
+		this.browser.addEventListener('mouseover', this, true);
+		this.browser.addEventListener('click', this, true);
+	},
+
+	clippingCapture: function() {
+		this.box = document.createElement('tooltip');
+		this.box.style.cssText = [
+			'-moz-appearance: none;',
+			'background-color: rgba(0, 0, 0, 0.05);',
+			'max-width: none;',
+			'padding: 0;',
+			'margin: 0;',
+			'border: 1px dashed #00FF00;',
+			'cursor: crosshair;'
+		].join(' ');
+		this.box.width = 1;
+		this.box.height = 1;
+		document.getElementById('mainPopupSet').appendChild(this.box);
+		this.browser.addEventListener('mousedown', this, true);
+		this.box.addEventListener('popuphiding', this, false);
+		
+		this.getWindowList();
+		this.setCursor();
+	},
+
+	pageCapture: function() {
+		this.capture(content, content.scrollX, content.scrollY, content.innerWidth, content.innerHeight);
+	},
+
+	fullCapture: function() {
+		this.capture(content, 0, 0, content.innerWidth + content.scrollMaxX, content.innerHeight + content.scrollMaxY);
+	},
+};
+
+
+	]]></script>
+</overlay>
