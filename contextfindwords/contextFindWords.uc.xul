@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+
+<overlay id="contextFindWords"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<!--
+// Context Find Word - Find In page Selected Words //
+
+ --> 
+  <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+    var contextFind = {
+      findWords: function() {
+        var findbar, textbox;
+        var selected = this._getselection();
+        var findbar = document.getElementById('FindToolbar');
+        if('gFindBar' in window && 'onFindAgainCommand' in gFindBar){ //fx3
+          gFindBar._findField.value = selected;
+          if(gFindBar.hidden)
+            gFindBar.onFindCommand();
+          var evt = document.createEvent("UIEvents");
+          evt.initUIEvent("input", true, false, window, 0);
+          gFindBar._findField.dispatchEvent(evt);
+        }else{ //fx2
+          textbox = document.getElementById("find-field");
+          textbox.value = selected;
+          if(findbar.hidden)
+            gFindBar.onFindCmd();
+          gFindBar.find();
+        }
+      },
+      
+      _getFocusedWindow: function(){
+          var focusedWindow = document.commandDispatcher.focusedWindow;
+          if (!focusedWindow || focusedWindow == window)
+              return window._content;
+          else
+              return focusedWindow;
+      },
+      
+      _getselection: function() {
+          var targetWindow = this._getFocusedWindow();
+          var sel = Components.lookupMethod(targetWindow, 'getSelection').call(targetWindow);
+          // for textfields
+          if (sel && !sel.toString()) {
+            var node = document.commandDispatcher.focusedElement;
+            if (node &&
+                (node.type == "text" || node.type == "textarea") &&
+                'selectionStart' in node &&
+                node.selectionStart != node.selectionEnd) {
+                var offsetStart = Math.min(node.selectionStart, node.selectionEnd);
+                var offsetEnd   = Math.max(node.selectionStart, node.selectionEnd);
+                return node.value.substr(offsetStart, offsetEnd-offsetStart);
+            }
+          }
+          return sel ? sel.toString().replace(/\s/g,' ').replace(/^[\ ]+|[\ ]+$/g,'').replace(/[\ ]+/g,' ') : "";
+      }
+    }
+    
+    document.getElementById('contentAreaContextMenu').addEventListener('popupshowing', function(aEvent) {
+      if(aEvent.originalTarget != document.getElementById('contentAreaContextMenu')) return;
+      var selected = contextFind._getselection();
+      if (selected.length > 15) selected = selected.substr(0,15) + "...";
+
+      var mitem = document.getElementById("contextFindInPageWords");
+      if(selected !='' ){
+        mitem.label="Wörter finden: \"" + selected + "\"";
+        mitem.setAttribute('hidden', 'false');
+      }else{
+        mitem.setAttribute('hidden', 'true');
+      }
+    }, false);
+
+  ]]></script>
+
+  // This is for the right click menu.
+  <popup id="contentAreaContextMenu">
+    <menuitem id="contextFindInPageWords"
+              accesskey="F"
+              label="Wörter finden: "
+              oncommand="contextFind.findWords();"
+              insertafter="context-searchselect"/>
+  </popup>
+</overlay>
