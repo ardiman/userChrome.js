@@ -1,5 +1,5 @@
 # Context Find Words
-Markieren und Suche eines Wortes auf der Seite über das Kontextmenue.
+Markieren und Suche eines Wortes auf der Seite ueber das Kontextmenue.
 
 Das **Ergebnis des Skripts**:
 
