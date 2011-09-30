@@ -19,8 +19,10 @@
       windowList.id = "inspect-window-list";
       windowList.setAttribute("onpopupshowing", "inspectWindow.showList(this);");
       windowList.setAttribute("oncommand", "inspectWindow.inspect(event);");
-
-      var inspectItem = document.getElementById("menu_inspector");
+// ab Firefox 7:
+      var inspectItem = document.getElementById("webDeveloperMenu");
+// geht noch im Firefox 6.0:
+//    var inspectItem = document.getElementById("menu_inspector");
       inspectItem.parentNode.insertBefore(inspectMenu, inspectItem.nextSibling);
 
     })();
