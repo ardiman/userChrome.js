@@ -1,0 +1,53 @@
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript">
+<![CDATA[
+
+var ucjs_searchButton = {
+  buttonName: [
+    "Google",
+    "Amazon.de",
+	"Yahoo",
+	"Wikipedia (de)"
+  ],
+  init: function() {
+    var searchbar = document.getElementById("searchbar");
+    if (!searchbar) return;
+    var bss = Cc['@mozilla.org/browser/search-service;1'].getService(Ci.nsIBrowserSearchService);
+    for (var i = this.buttonName.length - 1; i >= 0; i--) {
+      var engine = bss.getEngineByName(this.buttonName[i]);
+      if (!engine) continue;
+      var button = document.createElement("toolbarbutton");
+      button.engine = engine;
+      button.setAttribute("image", engine.iconURI.spec);
+      button.setAttribute("label", engine.name);
+      button.setAttribute("tooltiptext", engine.name);
+      button.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+      button.setAttribute("oncommand", "ucjs_searchButton.search(event)");
+      button.setAttribute("onclick", "checkForMiddleClick(this, event)");
+      searchbar.parentNode.insertBefore(button, searchbar.nextSibling);
+    }
+  },
+  search: function(event) {
+    var searchbar = document.getElementById("searchbar");
+    var qStr = searchbar.hasAttribute("empty") ? "" : searchbar.value;
+    var engine = event.target.engine;
+    var submission = engine.getSubmission(qStr, null);
+    try {
+      var inNewTab = gBrowser.mPrefs.getBoolPref("browser.search.openintab");
+    } catch (e) {
+      inNewTab = false;
+    }
+    inNewTab = (event && (event.altKey || event.button == 1)) ^ inNewTab;
+    if (inNewTab && (gBrowser.currentURI.spec != 'about:blank' || gBrowser.webProgress.isLoadingDocument)) {
+      gBrowser.loadOneTab(submission.uri.spec, null, null, submission.postData);
+    } else {
+      loadURI(submission.uri.spec, null, submission.postData, false);
+    }
+    //searchbar.value = "";
+  },
+};
+ucjs_searchButton.init();
+
+]]>
+</script>
+</overlay>
