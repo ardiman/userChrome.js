@@ -3,7 +3,7 @@ Der reine Profilname erscheint in der Titlebar.
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot Set Current Profilename To Titlebar](https://github.com/ardiman/userChrome.js/raw/master/setcurrentprofilenametotitlebar/scr_profilenametitlebar.png
+![Screenshot Set Current Profilename To Titlebar](https://github.com/ardiman/userChrome.js/raw/master/setcurrentprofilenametotitlebar/scr_profilenametitlebar.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
