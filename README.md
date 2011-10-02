@@ -9,8 +9,8 @@ Die Ergebnisse der fuer neuere Firefox-Versionen aktualisierten Skripte sehen vi
 werden nur bei extremen Unterschieden aktualisiert. 
 
 # Testumgebung
-- Win XP SP 3/ Firefox 7
-- Win XP SP 3/ Firefox 6
+- Win XP SP 3/ Firefox 7 (ab 01.10.2011)
+- Win XP SP 3/ Firefox 6 (bis 30.09.2011)
 
 Sollte ein Skript nicht funktionieren, bitte im Quelltext nachschauen, was in der jeweiligen Firefoxversion angepasst 
 werden muss bzw. in der Historie des Skriptes stoebern.
