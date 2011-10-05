@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="EscCloseTab-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var EscCloseTab = {
+  onLoad: function() {
+    // initialization code
+    this.initialized = true;
+    this.strings = document.getElementById("EscCloseTab-strings");
+  },
+
+  onMenuItemCommand: function(e) {
+    var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                  .getService(Components.interfaces.nsIPromptService);
+    promptService.alert(window, this.strings.getString("helloMessageTitle"),
+                                this.strings.getString("helloMessage"));
+  },
+
+  onToolbarButtonCommand: function(e) {
+    // just reuse the function above.  you can change this, obviously!
+    EscCloseTab.onMenuItemCommand(e);
+  }
+};
+
+EscCloseTab.onFirefoxLoad = function(event) {
+  document.getElementById("contentAreaContextMenu")
+          .addEventListener("popupshowing", function (e){ EscCloseTab.showFirefoxContextMenu(e); }, false);
+};
+
+EscCloseTab.showFirefoxContextMenu = function(event) {
+  // show or hide the menuitem based on what the context menu is on
+  document.getElementById("context-EscCloseTab").hidden = gContextMenu.onImage;
+};
+
+window.addEventListener("load", function () { EscCloseTab.onFirefoxLoad(); }, false);
+	
+]]></script> 
+
+  <keyset id="mainKeyset">
+    <key id="key_stop" oncommand="BrowserCloseTabOrWindow()"/>
+  </keyset>
+
+
+
+</overlay>
