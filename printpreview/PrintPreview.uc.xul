@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23print-button-popup { 
+font-weight: bold; 
+}
+
+" type="text/css"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd" >
+%browserDTD;
+]>
+
+<overlay id="printpreviewoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<toolbarpalette id="BrowserToolbarPalette">
+	<toolbarbutton id="print-button" type="menu-button">
+		<menupopup>
+			<menuitem id="print-button-popup" label="&printCmd.label;" tooltiptext="&printCmd.label;" accesskey="&printCmd.accesskey;"/>
+			<menuitem label="&printPreviewCmd.label;" tooltiptext="&printPreviewCmd.label;" oncommand="PrintUtils.printPreview(PrintPreviewListener); event.stopPropagation();" accesskey="&printPreviewCmd.accesskey;"/>
+			<menuseparator/>
+			<menuitem label="&printSetupCmd.label;" tooltiptext="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
+		</menupopup>
+	</toolbarbutton>
+</toolbarpalette>
+
+<popup id="contentAreaContextMenu">
+	<menu id="context-print-menu" label="&printCmd.label;" accesskey="&printCmd.accesskey;" insertafter="context-stop">
+		<menupopup>
+			<menuitem id="context-print-menu-print" label="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
+			<menuitem id="context-print-menu-preview" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" oncommand="PrintUtils.printPreview(PrintPreviewListener);"/>
+			<menuseparator/>
+			<menuitem id="context-print-menu-printSetup" label="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
+		</menupopup>
+	</menu>
+</popup>
+
+</overlay>
