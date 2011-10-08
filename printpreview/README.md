@@ -1,6 +1,6 @@
 # Print Preview
-Basiert auf der fast gleichnamigen Erweiterung. Leider funktioniert das "Drucken-Menue" momentan nicht direkt mit einem 
-Toolbarbutton, aber im Hauptkontextmenue dafuer umso besser
+Basiert auf der fast gleichnamigen Erweiterung. Der Toolbarbutton orientiert sich am Home-Button. sofern dieser in der 
+Menueleiste vorhanden ist, ansonsten ist der Button ganz rechts in der Menueleiste zu finden.
 
 Das **Ergebnis des Skripts**:
 
