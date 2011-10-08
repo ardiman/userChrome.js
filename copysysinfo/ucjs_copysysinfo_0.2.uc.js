@@ -123,16 +123,16 @@ var ucjs_copysysinfo = {
 				break;
 			case "TEMPLATE":
 					//【UserAgent】
-				txt = "\u3010\u0055\u0073\u0065\u0072\u0041\u0067\u0065\u006e\u0074\u3011" + "\n" +
+				txt = "Useragent" + "\n" +
 					window.navigator.userAgent+" BuildID: " + window.navigator.buildID + "\n" +
 					//【導入している拡張とそのバージョン】
-					"\n" + "\u3010\u5c0e\u5165\u3057\u3066\u3044\u308b\u62e1\u5f35\u3068\u305d\u306e\u30d0\u30fc\u30b8\u30e7\u30f3\u3011" + "\n" +
+					"\n" + "Erweiterungen" + "\n" +
 					ucjs_copysysinfo.getAddonsInfo("extension") + "\n" +
 					//【使用しているテーマ】
-					"\n" + "\u3010\u4f7f\u7528\u3057\u3066\u3044\u308b\u30c6\u30fc\u30de\u3011" + "\n" +
+					"\n" + "Themes" + "\n" +
 					ucjs_copysysinfo.getAddonsInfo("theme") + "\n" +
 					//【導入しているプラグインとそのバージョン】
-					"\n" + "\u3010\u5c0e\u5165\u3057\u3066\u3044\u308b\u30d7\u30e9\u30b0\u30a4\u30f3\u3068\u305d\u306e\u30d0\u30fc\u30b8\u30e7\u30f3\u3011" + "\n" +
+					"\n" + "Plugins" + "\n" +
 					ucjs_copysysinfo.getAddonsInfo("plugin") +"\n";
 				break;
 		}
