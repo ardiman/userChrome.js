@@ -51,8 +51,8 @@ var ucjs_copysysinfo = {
 		  cmd: "TEMPLATE"},
 	],
 
-	STR_SELECTED:	"\u0028\u9078\u629e\u0029",	// (選択)
-	STR_DISABLE:	"\u0028\u7121\u52b9\u0029",	// (無効)
+	STR_SELECTED:	"\u0020\u0028\u0061\u0075\u0073\u0067\u0065\u0077\u00e4\u0068\u006c\u0074\u0029",	// (選択)
+	STR_DISABLE:	" (deaktiviert)",	// (無効)
 	STR_SEP:		" \t",						// 項目の区切り
 	
 	init:function() {
