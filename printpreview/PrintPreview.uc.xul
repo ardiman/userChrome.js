@@ -21,7 +21,7 @@ list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYA
 <overlay id="printpreviewoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <toolbar id="nav-bar">
-	<toolbarbutton id="print-toolbarbutton" type="menu" class="toolbarbutton-1" insertafter="home-button">
+	<toolbarbutton id="print-toolbarbutton" type="menu" class="toolbarbutton-1" insertafter="urlbar-container">
 		<menupopup>
 			<menuitem id="print-button-popup" label="&printCmd.label;" tooltiptext="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
 			<menuitem label="&printPreviewCmd.label;" tooltiptext="&printPreviewCmd.label;" oncommand="PrintUtils.printPreview(PrintPreviewListener); event.stopPropagation();" accesskey="&printPreviewCmd.accesskey;"/>
