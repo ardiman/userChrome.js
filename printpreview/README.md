@@ -1,6 +1,6 @@
 # Print Preview
-Basiert auf der fast gleichnamigen Erweiterung. Der Toolbarbutton orientiert sich am Home-Button, sofern dieser in der 
-Menueleiste vorhanden ist, ansonsten ist der Button ganz rechts in der Menueleiste zu finden.
+Basiert auf der fast gleichnamigen Erweiterung. Der Toolbarbutton befindet sich mit einer erneuerten Version des Skriptes rechts
+neben der Urlbar (frueher orientierte sich das Skript am Home-Button).
 
 Das **Ergebnis des Skripts** (Kontextmenue und Toolbarbutton):
 
