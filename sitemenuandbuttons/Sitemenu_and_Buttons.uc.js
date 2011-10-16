@@ -37,9 +37,9 @@ var utl={
 	SHOWUTL_BUTTON:			true,	// 「上の階層に移動する」ボタンを表示する
 	UTL_BUTTON_TYPE:		false,	//　ボタンの形式	true: メニュー・ボタン
 									//					false: コンテクスト・メニュー・ボタン
-	SHOWTOPBOTTOM_BUTTON:	true,	// 「ページの最初か最後に移動」ボタンを表示する
-//	TARGEBUTTON:	"home-button",	// ボタンのターゲット
-	TARGEBUTTON:	"unified-back-forward-button",	// ボタンのターゲット
+	SHOWTOPBOTTOM_BUTTON:	false,	// 「ページの最初か最後に移動」ボタンを表示する
+	TARGETOOLBAR:	"urlbar",	// ボタンのターゲット
+//	TARGEBUTTON:	"unified-back-forward-button",	// ボタンのターゲット
 	TARGETMENU:		"context-back",	// コンテントエリア・コンテクスト・メニューのターゲット
 	// --------------------------------------------------------------------------------------
 
@@ -132,7 +132,7 @@ var utl={
 
 	// ボタンを作る
 	mkButton: function() {
-		var TargetButton = document.getElementById(this.TARGEBUTTON);
+		var TargetButton = document.getElementById(this.TARGETOOLBAR);
 
 		if (this.SHOWUTL_BUTTON) {		// 「上の階層に移動する」ボタン
 			var utlButton = document.createElement("toolbarbutton");
