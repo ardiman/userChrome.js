@@ -7,6 +7,10 @@ Die Reihenfolge, Browserposition: links, rechts, oben, unten, geteilt
 Wenn man noch etwas anderes haben will, kann man es natuerlich dazu packen. Nur wie diese Option in der Scriptsprache des 
 Firefox genannt wird, sollte man wissen. Hilfreich dabei ist das Add-on "DOM Inspector". 
 
+Die Standard-Buttons, deren Id man in dem Array `currentSet`hinzufuegen will, muessen ueber 
+`Ansicht/Symbolleisten/Anpassen` von der normalen Menueleiste entfernt werden. Andere Funktionen muessen ggf. ueber 
+laengere Skriptanweisungen programmiert werden. In dieser Version des Skriptes gibt es ab Zeile 78 zwei Beispiele.
+
 Das **Ergebnis des Skripts**:
 
 ![Screenshot Vertical Toolbar](https://github.com/ardiman/userChrome.js/raw/master/verticaltoolbar/scr_verttoolbar.png)
