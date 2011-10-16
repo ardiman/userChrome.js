@@ -8,7 +8,8 @@ Menuepunkt kann man uebers Kontextmenue unternehmen.
 Darueber hinaus kann man mit dem anderen Navbar-Button (ja nach Wahl) innerhalb der aktuellen Seite ganz nach oben, bzw. 
 unten springen. Die gleiche Moeglichkeit bietet sich auch ueber das Kontextmenue.
 
-Das **Ergebnis des Skripts**:
+Das **Ergebnis des Skripts** (durch  Skriptaenderungen orientiert sich der Button nun an der Urlbar, deshalb gibt 
+es einige Abweichungen bei den Screenshots vom tatsaechlichen Aussehen):
 
 ![Screenshot Sitemenu & Buttons Seitenmenue](https://github.com/ardiman/userChrome.js/raw/master/sitemenuandbuttons/scr_sab_seitenmenuebutton.jpg)
 
