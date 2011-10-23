@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23weatherWidget-toolbarbutton {
+	list-style-image: url(data:image/jpeg;base64,%2F9j%2F4AAQSkZJRgABAQAAAQABAAD%2F2wBDAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys%2FRD84QzQ5Ojf%2F2wBDAQoKCg0MDRoPDxo3JR8lNzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzf%2FwAARCAAQABADASIAAhEBAxEB%2F8QAFwAAAwEAAAAAAAAAAAAAAAAAAwQFBv%2FEACAQAAMAAgICAwEAAAAAAAAAAAECAwQRAAUSIQZBURP%2FxAAVAQEBAAAAAAAAAAAAAAAAAAABBP%2FEAB8RAAIABQUAAAAAAAAAAAAAAAERAAIEE1EUITFBYf%2FaAAwDAQACEQMRAD8A0Px9cbs4h8iGJtUX%2BlawWju2hskkbJJ398PQwwO86%2BMI4qNTJj4WhFUOjRQR6G%2FYJBHJnWSyeqUKsbiniFrKmJVl8gNH2F%2FfzjWLC%2Bd3mBdp3aq5MSFGNRERQ6knbAfQPECr18xJFpHvzYLLiW7TmnEolNx4OeWklH%2F%2F2Q%3D%3D);
+}
+
+%23weatherWidget-toolbarbutton > dropmarker {
+ display: none;
+}
+
+
+" type="text/css"?>
+
+<overlay id="weather-info" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript"><![CDATA[
+var weatherWidget = {   
+  getWeatherInfo: function() {
+    var weatherWindowReference = 
+	window.openDialog("HIER KOMMT DIE URL DEINER REGION VOM WETTERKONTOR HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=480,height=420");
+  }
+}  
+function getWeatherInfo()
+{
+	var weatherWindowReference = window.openDialog("http://www.niederschlagsradar.de/image.ashx?type=loop1stunde&jaar=&regio=homepage&tijdid=201108290235&time=", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+}  
+var weatherWindow = {
+getweatherWindow: function() {
+	var weatherWindowReference = window.openDialog("http://www.dwd.de/wundk/wetter/de/Deutschland.jpg", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+  }
+}  
+function getweatherWindow()
+{
+	var weatherWindowReference = window.openDialog("http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+}   
+var weatherMaps = {
+getweatherMaps: function() {
+	var weatherWindowReference = window.openDialog("http://www.br-online.de/wetter/img/wetterkarten/aroona_map_europa_0.png?timestamp=1314909067", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+  }
+}  
+function getweatherMaps()
+{
+	var weatherWindowReference = window.openDialog("http://www.dwd.de/wundk/wetter/de/Deutschland_morgen_spaet.jpg", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+}   
+var weatherForecast = {
+  getWeatherForecast: function() {
+    var weatherWindowReference = window.openDialog("http://www.wetterkontor.net/de/wetter/deutschland.asp?dayno=0", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=485,height=660");
+  }
+}
+function getweatherForecast()
+{
+	var weatherWindowReference = window.openDialog("http://www.br-online.de/wetter/img/wetterkarten/aroona_map_europa_3.png?timestamp=1314909285", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+}
+var weatherExpectation = {
+  getWeatherExpectation: function() {
+    var weatherWindowReference = window.openDialog("http://www.unwetterzentrale.de/images/map/deutschland_index.png", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+  }
+}
+
+function getweatherExpectation()
+{
+	var weatherWindowReference = window.openDialog("http://www.meteoalarm.eu/map.php?iso=euro&data=0&type=0&rnd=1314579932", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=572,height=570");
+}
+
+var weatherMenu = {
+  popupContextMenu: function(popup) {
+    var menupopup = document.getElementById("weatherWidgetmenu");
+  }
+}  
+
+function getWeatherMenu() 
+{
+    var weatherWindowReference = window.openDialog("HIER KOMMT DIE URL DEINER REGION VOM MSN WETTER HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=615,height=430");
+}
+
+var weatherLocal = {
+  getWeatherLocal: function() {
+    var weatherWindowReference = window.openDialog("http://www.wetterkontor.net/de/deutschland_aktuell.asp?id=0&page=0&sort=0", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=485,height=660");
+  }
+}
+
+function getWeatherLocal() 
+{
+    var weatherWindowReference = window.openDialog("HIER KOMMT DIE URL DEINES BUNDESLANDES VOM WETTERKONTOR HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=485,height=660");
+}  
+  
+]]></script> 
+  <toolbar id="main-menubar">
+    <toolbaritem id="weatherWidget-toolbaritem">
+      <toolbarbutton id="weatherWidget-toolbarbutton" tooltiptext="Lokale und globale Wetter Infos" style="cursor: pointer;"
+       type="menu" 
+	   onpopupshowing="event.stopPropagation(); weatherMenu.popupContextMenu(this)"
+	   ondblclick="if (event.button == 0) { event.stopPropagation(); getWeatherMenu()}"
+	   onclick="if (event.button == 1) { event.stopPropagation(); getWeatherLocal()}"
+	   onmousedown="if (event.button == 2) { event.stopPropagation(); weatherWidget.getWeatherInfo()}"> 
+	    <menupopup id="weatherWidgetmenu">
+		    <menu label="DE Wetterdaten"> 
+                <menupopup id="weatherWidgetdatamenu">		 
+		            <menuitem label="DE Wetterdaten aktuell" oncommand="event.preventDefault(); weatherLocal.getWeatherLocal()"/>
+		            <menuitem label="DE Wetterdaten Vorhersage" oncommand="event.preventDefault(); weatherForecast.getWeatherForecast()"/>
+				</menupopup>
+			</menu> 	
+			<menu label="DE Wetterkarten">
+			    <menupopup id="weatherWidgetmapsmenu">
+		            <menuitem label="DE Wetter aktuell" oncommand="event.preventDefault(); weatherWindow.getweatherWindow()"/>
+		            <menuitem label="DE Vorhersage" oncommand="event.preventDefault(); getweatherMaps()"/>
+		            <menuitem label="DE Unwetterwarnung" oncommand="event.preventDefault(); weatherExpectation.getWeatherExpectation()"/>
+                    <menuitem label="DE Regenradar aktuell" oncommand="event.preventDefault(); getWeatherInfo()"/>
+                    <menuitem label="DE Regenradarprognose" oncommand="event.preventDefault(); getweatherWindow()"/>
+				</menupopup>	
+			</menu>
+			<menu label="EU Wetterkarten">
+			    <menupopup id="weatherWidgetmapmenu">
+		            <menuitem label="EU Wetter aktuell" oncommand="event.preventDefault(); weatherMaps.getweatherMaps()"/>
+		            <menuitem label="EU Vorhersage" oncommand="event.preventDefault(); getweatherForecast()"/>
+		            <menuitem label="EU Unwetterwarnung" oncommand="event.preventDefault(); getweatherExpectation()"/>
+				</menupopup>
+			</menu>	 
+        </menupopup>
+      </toolbarbutton>
+    </toolbaritem>
+  </toolbar> 
+</overlay>
