@@ -1,0 +1,13 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+@-moz-document domain(www.wetterkontor.net) {
+.link_trend,.contentbox,.contentbox2,#mainbox,.mainbox,#globalNav,.lmenu,#___plusone_0,.rmenu,.footer_2011,.contentblock3,.text_klein,.divider,/*.header,*/#banner_470,.wk_details_header,.rmenu_noshadow,.link_rain,HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:nth-child(2) > DIV > DIV:nth-child(14),HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:first-child,HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:last-child, /*Vorhersage DE*/  /*HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:nth-child(2) > DIV > DIV:nth-child(9),*/.cbox_229,HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:nth-child(2) > DIV > H2, HTML > BODY > TABLE > TBODY > TR:nth-child(3) > TD,.wk_details_header,.subheader,HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:nth-child(2) > DIV > TABLE:nth-child(16) > TBODY > TR:first-child > TD:last-child > A,HTML > BODY > TABLE > TBODY > TR:nth-child(2) > TD:nth-child(2) > DIV > TABLE:nth-child(16) > TBODY > TR:first-child > TD:last-child > IMG {
+display: none !important;
+}
+HTML > BODY > TABLE {
+width: 470px !important;
+max-width: 470px !important;
+}
+body{
+overflow: hidden!important;
+}
+}
