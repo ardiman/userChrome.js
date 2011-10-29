@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="closerepeatedtabs-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<!--
+// ==UserScript==
+// @name           CloseRepeatTabs.uc.xul
+// @namespace      CloseRepeatTabs@NeoEGM.com
+// @description    Close Repeat Tabs
+// @include        main
+// @author         NeoEGM 
+// @modified by    alan 
+// @version 1.0.2.1
+// ==/UserScript==
+-->
+
+	<script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+function CloseRepeatedTabs(checkAnchors)
+{
+	
+	var num = gBrowser.browsers.length;
+
+	var msg = "";
+
+	for (var i = 0; i < num; i++)
+	{
+		var a = gBrowser.getBrowserAtIndex(i);
+
+		try
+		{
+			for (var j = 0; j < num; j++)
+			{
+				if (j != i)
+				{
+					var b = gBrowser.getBrowserAtIndex(j);
+
+					if (a.currentURI.spec == b.currentURI.spec || (checkAnchors == true && a.currentURI.spec.split("#")[0] == b.currentURI.spec.split("#")[0]))
+					{
+						//gBrowser.alert(a.currentURI.spec);
+
+						if (msg != "")
+							msg += "\n";
+						msg += b.currentURI.spec;
+
+						gBrowser.removeTab(gBrowser.tabContainer.childNodes[j]);
+						num--;
+						j--;
+						//Not executing "i--" because there won't be tabs equal before the one on i
+					}
+				}
+			}
+		}
+		catch(e)
+		{
+			Components.utils.reportError(e);
+		}
+	}
+
+	if (msg != "")
+		alert("Geschlossene Tabs:\n\n" + msg);
+	else
+		alert("Keine gleichen Tabs gefunden");
+}
+]]></script>
+	<window id="main-window">
+	    <commandset id="closerepeatedtabs-commandset">
+	        <command id="closerepeatedtabs-command"
+	            oncommand="CloseRepeatedTabs();" />
+	    </commandset>
+	    <keyset id="closerepeatedtabs-keyset">
+			<key
+				id="closerepeatedtabs-key"
+				modifiers="accel,alt"
+				key="W"
+				command="closerepeatedtabs-command"
+			/>
+		</keyset>
+	</window>
+	<menupopup id="tabContextMenu">
+		<menuitem
+			insertafter="context_closeTab"
+			label="Gleiche Tabs schließen"
+			accesskey="G"
+			command="closerepeatedtabs-command"
+			key="closerepeatedtabs-key"
+		/>
+	</menupopup>
+</overlay>
