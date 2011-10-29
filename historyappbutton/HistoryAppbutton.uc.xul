@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23ffh-appbutton {
+    -moz-appearance: none;
+    background: transparent;
+    background-clip: padding-box;
+    border-radius: 0 0 4px 4px;
+    border: 1px solid rgba(83,42,6,.9);
+    border-top: none;
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.25) inset,
+        0 0 0 1px rgba(255,255,255,.25) inset;
+    color: white;
+    text-shadow:
+        0 0 1px rgba(0,0,0,.7),
+        0 1px 1.5px rgba(0,0,0,.5);
+    font-weight: bold;
+    padding: 5px 1em 5px 1em;
+    margin: 0 12px 0 0;
+    position: relative;
+    min-width: 7em;
+    max-width: 7em;
+}	
+
+%23ffh-appbutton:hover:not(:active):not([open]) {
+    background-image:
+        -moz-radial-gradient(center bottom, farthest-side, rgba(252,240,89,.5) 10%, rgba(252,240,89,0) 90%),
+        -moz-radial-gradient(center bottom, farthest-side, rgb(236,133,0), rgba(255,229,172,0));
+    border-color: rgba(83,42,6,.9);
+    box-shadow:
+        0 1px 0 rgba(255,255,255,.1) inset,
+        0 0 1.5px 1px rgba(250,234,169,.7) inset,
+        0 -1px 0 rgba(250,234,169,.5) inset;
+}
+
+%23ffh-appbutton:hover:active,
+%23ffh-appbutton[open] {
+    border-radius: 0;
+    box-shadow:
+        0 2px 3px rgba(0,0,0,.4) inset,
+        0 1px 1px rgba(0,0,0,.2) inset;
+}
+
+%23ffh-appbutton > .button-box {
+    border-style: none;
+    padding: 0;
+}   		
+
+%23ffh-appbutton > .button-box > .button-menu-dropmarker {
+    list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAHCAYAAADam2dgAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A%2FwD%2FoL2nkwAAAAlwSFlzAAAcIAAAHCABzQ%2BbngAAAAd0SU1FB9oGCgsoOOaGefgAAACGSURBVBjTdc8xCsJAAETRp6kkKqwgGKy0CN5DPIKFeF5PYWGlB7CJSXZZGwUR%2FTDNDAwzA4wx8Z8Gpk3TnFJK8Vt9318wg3lZlrsY4z1%2F0LbtGVssYIg6hHBIKT1yzjnGeMce61cOCmyqqjp2XXcLIRxQv3yDj4EFVljiigvSrycFRu%2BGN08PhkZJ2TW5PwAAAABJRU5ErkJggg%3D%3D);
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    -moz-margin-start: .5em;
+}
+
+.titlebar-placeholder[type="caption-buttons"] {
+    margin-left: 9em;
+}
+
+%23ffh-popup {
+    -moz-appearance: none;
+    background: white;
+    border: 1px solid ThreeDShadow;
+    padding: 2px;
+}
+
+%23ffh-popup > menuseparator {
+    -moz-appearance: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    -moz-margin-start: -moz-calc(2em + 6px);
+    padding: 0;
+    border-top: 1px solid #d6e5f5;
+    border-bottom: none;
+}
+
+" type="text/css"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd" >
+%browserDTD;
+]>
+
+<overlay id="ffh-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+
+
+<hbox id="titlebar-buttonbox-container">
+
+    <button
+        id="ffh-appbutton"
+        insertbefore="titlebar-buttonbox"
+        label="Chronik"
+        type="menu"
+        >
+
+        <menupopup
+            id="ffh-popup"
+            placespopup="true"
+            oncommand="this.parentNode._placesView._onCommand(event);"
+            onpopupshowing="if (!this.parentNode._placesView) new HistoryMenu(event);"
+            >
+
+            <menuitem
+                label="&showAllHistoryCmd2.label;"
+                command="Browser:ShowAllHistory"
+                key="showAllHistoryKb"
+                />
+
+            <menuseparator/>
+
+            <menuitem
+                label="&clearRecentHistory.label;"
+                key="key_sanitize"
+                command="Tools:Sanitize"
+                />
+
+            <menuseparator class="hide-if-empty-places-result"/>
+
+            <menuitem
+                class="restoreLastSession"
+                label="&historyRestoreLastSession.label;"
+                oncommand="restoreLastSession();"
+                disabled="true"
+                />
+
+            <menu
+                class="recentlyClosedTabsMenu"
+                label="&historyUndoMenu.label;"
+                disabled="true"
+                >
+
+                <menupopup
+                    onpopupshowing="document.getElementById('ffh-appbutton')._placesView.populateUndoSubmenu();"
+                    />
+
+            </menu>
+
+            <menu
+                class="recentlyClosedWindowsMenu"
+                label="&historyUndoWindowMenu.label;"
+                disabled="true"
+                >
+
+                <menupopup
+                    onpopupshowing="document.getElementById('ffh-appbutton')._placesView.populateUndoWindowSubmenu();"
+                    />
+
+            </menu>
+
+            <menuseparator/>
+
+        </menupopup>
+
+    </button>
+
+</hbox>
+
+</overlay>
