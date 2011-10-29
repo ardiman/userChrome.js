@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+
+<overlay id="copy-pure-text"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/x-javascript"><![CDATA[	
+'use strict';
+var copyPureText = {
+	cptIds: null,
+	contextMenues: null,
+
+	init: function(evt) {
+	
+		const THUNDERBIRD_ID = '{3550f703-e582-4d05-9a08-453d09bdfdc6}';  
+		
+		var appInfo = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo);  
+		
+		if(appInfo.ID == THUNDERBIRD_ID) {
+			copyPureText.cptIds = ['copypuretext-context-menu', 'copypuretext-compose-context-menu'];
+			copyPureText.contextMenues = ['mailContext', 'msgComposeContext'];
+			// running under Thunderbird
+			copyPureText.relocateItemAfterCopyMenu('msgComposeContext');
+		}
+		else {  
+			// running under Firefox or SeaMonkey
+			// do nothing because the default values are set this way		  
+			copyPureText.cptIds = ['copypuretext-context-menu'];
+			copyPureText.contextMenues = ['contentAreaContextMenu'];
+		} 
+		
+		copyPureText.addCopyAsTextItem();
+	},
+	
+	addCopyAsTextItem: function()
+	{
+		// add listener for enabling/disabling 'Copy As text' menu item
+		for (var i=0 ; i<copyPureText.contextMenues.length ; i++) {
+			var oContext = document.getElementById(copyPureText.contextMenues[i]);
+			if(oContext){
+				oContext.addEventListener("popupshowing", copyPureText.onPopupShowing, false);
+			}
+		}
+	},
+
+	/*
+	ThunderBird, Copy item in messengercompose.xul does not have an id set.
+	This function will put the 'Copy As Text' just after the 'Copy' menu item.
+	*/
+	relocateItemAfterCopyMenu: function(targetElement)	{
+		var oContext = document.getElementById(targetElement);
+
+		if(oContext) {
+
+			var cptItem = document.getElementById('copypuretext-thunderbird-msgComposeContext');
+			oContext.removeChild(cptItem);
+			
+			var index = -1;
+			
+			// traverse all children of target object and find the index of Copy menu-item
+			for (var i=0 ; i<oContext.children.length ; i++)
+			{
+				var mnuItem = oContext.children.item(i)
+				// Copy menu-item has attribute command='cmd_copy' set.
+				if (mnuItem.hasAttribute('command') && mnuItem.attributes['command'].value == 'cmd_copy')
+				{
+					index = i;
+					break;
+				}
+			}
+			
+			if (index > -1 && index < oContext.children.length-1) {
+				// insert the 'Copy As Text' menu-item after the 'Copy' menu-item
+				oContext.insertBefore(cptItem, oContext.children.item(index+1));
+			}
+			else {
+				oContext.appendChild(cptItem);
+			}
+			
+		}
+	},
+	
+	perform: function() {
+		var prefService = null;
+
+		// Format
+		try 
+		{
+			prefService = gPrefService;
+		}
+		catch(err)
+		{
+			// gPrefService not available in ThunderBird
+			prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("");
+		}
+
+		try{
+			// Get String
+			var str = this.getSelectedText() + "";
+			
+			
+			// Copy to clipboard
+			if(str != null && str.length > 0) {
+				const clipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);  
+				clipboardHelper.copyString(str);
+			}
+		}
+		catch(err) { alert("An unknown error occurred\n"+ err); }
+	},
+
+	shouldShowMenu: function () {
+		// Check if there is some text selected
+		try{		
+			var str = this.getSelectedText();
+			if(str != null && str.length > 0)
+			{
+				return true;
+			}
+					
+		}catch(err) { }
+		
+		return false;
+	},
+
+	getSelectedText: function () {
+		var focusedWindow = document.commandDispatcher.focusedWindow;
+		var searchStr 		= focusedWindow.getSelection.call(focusedWindow);
+		searchStr 			= searchStr.toString();
+		
+		return searchStr;
+	},
+
+	onPopupShowing: function (evt) {
+		var cm = evt.target;
+
+		// traverse all children of target object
+		for (var i=0 ; i<cm.children.length ; i++)
+		{
+			var mItem = cm.children.item(i)
+			
+			// locate copy-pure-text menu item
+			if (mItem.id.indexOf('copypuretext-') == 0)
+			{
+				// and collapse it
+				mItem.collapsed = !copyPureText.shouldShowMenu();
+				break;
+			}
+			
+		}
+	}
+
+};
+
+window.addEventListener
+(
+  "load", 
+  copyPureText.init,
+  false
+);
+
+]]></script>	
+	<keyset id="mainKeyset">
+		<key id="key_copyPureText" modifiers="accel,shift" key="C" oncommand="copyPureText.perform()" />
+	</keyset>
+		
+	<!-- Context Menu -->
+	<popup id="contentAreaContextMenu">
+		<menuitem id="copypuretext-context-menu" label="Text kopieren" key="key_copyPureText"
+					accesskey="T" class="menuitem-iconic" insertafter="context-copy" oncommand="copyPureText.perform()" />
+	</popup>
+</overlay>
