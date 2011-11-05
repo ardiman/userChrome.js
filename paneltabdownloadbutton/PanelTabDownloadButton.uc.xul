@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23downloadarrowpanel-button {
+list-style-image: url(data:image/gif;base64,R0lGODlhEAAQAPcAAAAAAP%2F%2F%2Fx4dHiIhIignKCUkJUFAQeDf4JGQke%2Fu8ODf4RkZGjw8PhwcHScnKCYmJy8vMC0tLiwsLSsrLCoqK%2BDg5H19fz4%2BPzw8PTY2N8jIy4aGiIKChFBQUU9PUE5OT0xMTUFBQj8%2FQOvr7dvb3dfX2fv7%2FPn5%2Bvb29%2FPz9PHx8u%2Fv8O3t7uvr7Onp6ujo6efn6OXl5uTk5ePj5OLi493d3tzc3c7Oz87P1FtcYG9wdMrLz1xdYHt8f29wc8HCxb6%2FwuPk59rb3tbX2s%2FQ08zP1VxdX3V2eNna3NLT1c%2FQ0svMzsXGyMPExrK1us7R1ho9c3J0d3Fzdra4u9TW2VNvlFpdYcTHyxpKhkhNUxpTkBpSj0htlVqBqz1HUUdMUdnd4fT19u%2Fw8efo6eTl5uHi49%2Fg4d7f4Nrb3Nna29bX2NPU1c%2FQ0c7P0MzNzsLDxL%2FAwRphoxpioxpbmkt8qFeErhpusxprrhpprFSKtlaIsxpxthpwtE2HtE%2BKt0uCrlCLuFKLt9ja2y0vLxscHFNUVEBBQT9AQPv8%2FPP09PLz8%2Bzt7enq6ujp6eDh4d7f39na2tbX1ykqKScoJyQlIyMjIikpKO%2Fv6z8%2FPkREQ3FvbPTx7Xt6eYKBgIGAf%2Bvn5Obi39LPzf36%2BOLd2t3Y1dnU0dbRztbS0PHs6v39%2Fff39%2FLy8vDw8O%2Fv7%2Bzs7Ovr6%2Brq6unp6ebm5uXl5eTk5OLi4uDg4NfX14mJiXFxcVZWVlVVVVNTU1JSUlBQUE9PT01NTUhISERERENDQ0JCQkFBQT8%2FPz4%2BPj09PTw8PDs7Ozo6Ojk5OTg4ODU1NTExMTAwMC4uLiwsLCsrKykpKScnJyYmJiUlJSQkJCIiIiEhISAgIB0dHRsbGxgYGBQUFP%2F%2F%2FwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAOAALAAAAAAQABAAAAj%2FAHMVQwbsBg1HZMq8gTMGQbFguHZFs5ahCQkkQZZIk9RmQzVnxXRR2%2FYMyBAqFTRYo7SEQzYIwnpd6zZtCg4iQn5oE8DEQgMKInxp%2B3bNSZEnYK4MmrCjxwIHDD5g80Yohw4fUaTwMHIkBLcHGDxciwCtQKVsA7JNIqDNkgRsyEA8u%2BUq1gtZs2bUOvDIESRmzIBlaBUgFaITqsKkUJFATAtjzH41e2UikSJWLBjBiDFDhi1Myjosg3ViFatFLmLQMFPjUZpDx3gle4FixYhGtBTYEBSpxBpDBnZdkJWiBYwZZ9CoScJGiRtiwwphuiRqE6pPoEaRKmXqVKhMxTpZJKnSpY6ePIEA%2Benzhw6XLJ44fYGCRcscOXjs7OFzJ84WL5oEBAA7);
+}
+
+" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://mozapps/locale/downloads/downloads.dtd">
+<overlay id="downloadintab-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"><![CDATA[
+var downloadintab = {
+OpenCustomLink: function(event,url) {
+if((event.button == 1)) {
+var newPage = getBrowser().addTab(url);
+getBrowser().selectedTab = newPage;
+}
+else {
+loadURI(url);
+}
+}
+}
+
+
+]]></script>
+<toolbar id="nav-bar">
+<toolbarbutton
+class="toolbarbutton-1"
+insertafter="urlbar-container"
+id="downloadarrowpanel-button"
+label="&downloads.title;"
+tooltiptext="&downloads.title;"
+onmouseover="DOAPdownloadonarrowpanel.onLoad()"
+popup="downloadarrowpanel-panel" 
+onclick="if (event.button == 1) {downloadintab.OpenCustomLink(event,'chrome://mozapps/content/downloads/downloads.xul');}"/>
+
+</toolbar>
+
+<popupset>
+<panel id="downloadarrowpanel-panel" noautohide="false"  type="arrow" >
+<vbox>
+
+<iframe id="downloadarrowpanel-iframe" src="chrome://mozapps/content/downloads/downloads.xul" width="480" height="280" />  
+
+</vbox>
+</panel>
+</popupset>
+
+</overlay>
