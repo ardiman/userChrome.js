@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<overlay id="supportMoz-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"><![CDATA[
+
+function f1keyset()
+{
+openUILinkIn("http://support.mozilla.com/de/home?as=u", "tab");
+
+}
+
+var SupportMoz = {
+
+	onLoad: function() 
+	{
+		this.initialized = true;
+		document.getElementById("contentAreaContextMenu").addEventListener(
+		   "popupshowing",SupportMoz.onContextMenu,false);
+	},
+  
+	onContextMenu: function()
+	{
+		var focusedWindow = document.commandDispatcher.focusedWindow;
+		var strSearch = focusedWindow.getSelection().toString().replace(/^\s*|\s*$/g,'');
+
+			
+				// Nothing or too long text selected -> hide menu options
+				document.getElementById("supportMozSeperator").hidden = true;
+				document.getElementById("supportMoz").hidden = true;
+
+
+				// enable menu options
+				document.getElementById("supportMozSeperator").hidden = false;
+				document.getElementById("supportMoz").hidden = false;
+		
+	},
+	
+	helpMoz: function() 
+	{
+		var strSearch = document.commandDispatcher.focusedWindow.getSelection().toString().replace(/^\s*|\s*$/g,'');
+		var MOZILLA_URL = "http://support.mozilla.com/de/search?q_tags=desktop&product=desktop&q=";
+
+		getBrowser().selectedTab = getBrowser().addTab(MOZILLA_URL + encodeURIComponent(strSearch));
+	},
+};
+
+window.addEventListener("load", function(e) { SupportMoz.onLoad(e); }, false);
+
+]]></script>
+  <window id="main-window">
+    <keyset id="f1-keyset">
+      <key xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" keycode="VK_F1" oncommand="f1keyset()"/>
+    </keyset>
+  </window>
+  
+  <popup id="contentAreaContextMenu">
+    <menuseparator id="supportMozSeperator" />
+	<menuitem id="supportMoz" label="Suche in Firefox Hilfe"  oncommand="SupportMoz.helpMoz();"/>
+  </popup>
+</overlay>
