@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23reliby-toolbar {
+	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAB3RJTUUH1gQPFAkakt%2BqmwAAAAlwSFlzAAAnEAAAJxABlGlRGQAAAARnQU1BAACxjwv8YQUAAAKaSURBVHjalVNbSBRhGD1z3XV3ZnVXzdxMVGK9kGvSVUpkW30yZSGQeogQBCl6sCLaIgiC0h6DCoou9LBRRg%2F10IutFQiGWJFJqER5oU1dU3dHt53LzjSzNVJQkd%2FAMN%2F3%2F%2BfMd873%2F8Sng7DSLpSmUqgEUEFRKGKt4LksxG0c3kDDA%2BIIJvCXILorwBY4QIkWyL4XUJ7VgdbrawkG23LcaHHloSm3AI9oK4JEOyax2uirh3twL25EzyCmXcb%2BVROY0VuPxskOLGhXcOw3CcZLOwtSiqFcUeBjLKhmGLj08pSu%2FyZxEW9XSHzYvKEKT9d7cIg4jHsrBN0ACx7FkoAclYTHmYvm%2FCLsKdsC0s7hOqZxlLiDpNlJZQ1COdnwEh3%2F8OQ2UBSy4OGHJqhaEL2aPi1zzfBEvoTQf2m%2FBZz7SXL1V2MjJ7CsXUNhWkLYV1lKZ9i7Mt25fi2pIDYzF5ZV8WRDeGjMWL%2Brd9LchoDdgWqiE0NG7d0B3N%2B4HQOkAXZ5q%2Fp3XDgd8O5r5MsbavhNu2sDmZyzv2eX12NsFkUcHxmEqpvaZnYRjaA7mUA1afy5orXFyfJc2lJCf2iWRVndThdrYTqNza3AeGQCT%2FTPQpOAkjAgLMBBGm0zcxFo42NILcaRSkhQ4glYi%2FPBZTv8JmBxFo9lGV%2FNfCSBaUmEQENKadLn2fREVQO8uAxFWIbmYkFl2VbM1FSMyiIyzLz9FeTxWkzQsS%2FRXmkmHtAVQv0mpcGkOxMo4RGfioZNgH4e5mgSz83cuDOUive0oiSDoy9f15X7ap2WknXAGhvUPAbD50PzopA8ZQLUJXxknVDMXFgCqxAYTo%2Bxx%2B%2F10GC6ON7mJygCwnw8rMhqsKHvxxj%2FFMP6LbZvBfkd0TXxLpRGNwAAAAAASUVORK5CYII%3D);
+}
+
+" type="text/css"?>
+
+<overlay id="reliby-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/x-javascript"><![CDATA[
+var reliby = {
+
+	_console: false,
+
+	init: function() {
+	},
+
+	reloadLiveBookmarks: function() {
+		try {
+			this.trace("Try to reload all livemarks using livemark-service");
+			var cc = Components.classes["@mozilla.org/browser/livemark-service;2"];
+			var livemarks = cc.getService(Components.interfaces.nsILivemarkService);
+			livemarks.reloadAllLivemarks();
+			var txt = "Alle Dynamischen Lesezeichen werden nun aktualisiert";
+			this.updateStatusbar(txt);
+		} catch(ex) {
+			this.trace(ex);
+		}
+	},
+
+	updateStatusbar: function(aTxt) {
+		this.trace(aTxt);
+		var stat = document.getElementById("statusbar-display");
+		if (stat)
+			stat.label = aTxt;
+	},
+
+	trace: function(aMsg) {
+		if (!this._console) {
+			this._console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+		}
+		this._console.logStringMessage("reliby: " + aMsg);
+	}
+
+};
+
+window.addEventListener("load", function(e) {reliby.init(e)}, false);
+	
+]]></script>	
+	<menu id="bookmarksMenuPopup">
+		<menuitem id="reliby-menu" class="menuitem-iconic" label="Dynamische Lesezeichen aktualisieren" tooltiptext="Alle Dynamischen Lesezeichen aktualisieren" oncommand="reliby.reloadLiveBookmarks()" insertbefore="organizeBookmarksSeparator"/>
+	</menu>
+	<toolbar id="status-bar">
+		<toolbarbutton id="reliby-toolbar" class="toolbarbutton-1" label="Dynamische Lesezeichen aktualisieren" tooltiptext="Alle Dynamischen Lesezeichen aktualisieren" oncommand="reliby.reloadLiveBookmarks();" />
+	</toolbar>
+</overlay>
