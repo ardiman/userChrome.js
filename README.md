@@ -18,8 +18,10 @@ werden muss bzw. in der Historie des Skriptes stoebern.
 
 # Installation
 Zur Aktivierung der Skripte im Firefox muss 
+
 - die **Erweiterung userChrome.js** installiert und lauffaehig sein 
 - das jeweilige Skript in den Chrome-Ordner des Profils verschoben werden 
+
 Das Einbinden der uc.js-Dateien und anderer Dateien geschieht mit der beigelegten userChrome.js (diese Datei muss ebenfalls in 
 den Chrome-Ordner des Profils) bzw. der Zeile
 
