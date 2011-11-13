@@ -17,15 +17,18 @@ Sollte ein Skript nicht funktionieren, bitte im Quelltext nachschauen, was in de
 werden muss bzw. in der Historie des Skriptes stoebern.
 
 # Installation
-Zur Installation der Skripte im Firefox muss bei vorhandener Erweiterung userChrome.js das jeweilige Skript in den Chrome-Ordner des Profils verschoben werden.
-Das Einbinden der uc.js-Dateien und anderer Dateien geschieht mit der beigelegten userChrome.js bzw. der Zeile
+Zur Aktivierung der Skripte im Firefox muss 
+- die **Erweiterung userChrome.js** installiert und lauffaehig sein 
+- das jeweilige Skript in den Chrome-Ordner des Profils verschoben werden 
+Das Einbinden der uc.js-Dateien und anderer Dateien geschieht mit der beigelegten userChrome.js (diese Datei muss ebenfalls in 
+den Chrome-Ordner des Profils) bzw. der Zeile
 
     userChrome.import("*", "UChrm");
 
 darin.
 
 # Downloads
-- userChrome.js: http://userchromejs.mozdev.org/
+- die benoetigte Erweiterung userChrome.js: http://userchromejs.mozdev.org/
 
 
 # Quellen
