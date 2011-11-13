@@ -1,0 +1,373 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+
+<overlay id="liveIPAddresStatusBar" 
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var realIPAddress;//Exported value for realIPAddress
+var refreshEveryMilliSeconds = 1000000;//Set here the default value to check for IP changes (in milliseconds)
+var NumberOfIPFinders = 3;
+var isValidIPv4 = false;
+
+/***************************************************************************
+	Get user's value, check for valid input and if OK call 
+	convertMinutesToMilliSeconds.
+***************************************************************************/
+function setRefreshRateDialog()
+{
+	var input = prompt('Bitte geben Sie einen Wert in Minuten ein, wie oft Sie die IP-Änderungen überprüfen möchten.\nGültige Werte im Bereich 17 - 1422.')
+	if (input>=17 && input<=1422)
+	{
+		convertMinutesToMilliSeconds(input)
+	}
+	else if (input<17 || input>1422 || input=="" || input==null)
+	{
+		alert('Ungütige Eingabe.  Der Wert ist immer noch auf den Standardwert festgelegt. Bitte versuchen Sie es erneut.');
+		refreshEveryMilliSeconds = 1000000;
+		updateliveipaddress();
+	}
+}
+
+/***************************************************************************
+  As the name of the function tells, this converts user's input refresh time
+  from minutes to milliseconds, and the passes the control to the 
+  updateliveipaddress function.
+***************************************************************************/
+function convertMinutesToMilliSeconds(valueFromsetRefreshRateDialog)
+{
+	refreshEveryMilliSeconds = valueFromsetRefreshRateDialog * 60 * 1000;
+	updateliveipaddress();
+}
+
+/***************************************************************************
+	This function is called when:
+	i) the user right clicks on a page in FF and chooses "Copy Live IP 
+	Address" or 
+	ii) the user chooses the corresponding selection from the Tools |
+	Live IP Address | Copy Live IP Address option.
+***************************************************************************/
+function copyIPAddressInfoBox()
+{
+	prompt('Ihre Live IP-Adresse ist:', realIPAddress)
+}
+
+/***************************************************************************
+	This function is called when the user double-clicks on the Live IP Address 
+	status bar section, which automatically copies our Live IP into the clipboard.
+***************************************************************************/
+function copyIPAddressToClipBoard()
+{
+	const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+	gClipboardHelper.copyString(realIPAddress);
+	
+}
+
+/***************************************************************************
+	This is the first thing that is being called from the XUL file.
+***************************************************************************/
+function updateliveipaddress()
+{
+	randomNumberGenerator()
+	self.setTimeout('updateliveipaddress()', refreshEveryMilliSeconds);//Remember to check for IP changes
+}
+
+window.addEventListener("load", updateliveipaddress, false);
+
+/***************************************************************************
+	This function will create a random number in the range 0 to 
+	NumberOfIPFinders. As you will notice each IPFinder has intentionally
+	its own modular function.
+***************************************************************************/
+function randomNumberGenerator()
+{
+	var randomNumber;
+
+	randomNumber = Math.floor(NumberOfIPFinders*Math.random())
+
+	if 	(randomNumber == 0)
+	{
+		makeRequestIpFooComXML('http://www.ipfoo.com/xml/', '');
+	}
+	else if (randomNumber == 1)
+	{
+		makeRequestShowMyIPComXML('http://www.showmyip.com/xml/', '');
+	}
+	else if (randomNumber == 2)
+	{
+		makeRequestIntelCommsXML('http://liveipaddress.intelcomms.net/show/', '');			
+	}
+}
+
+/***************************************************************************
+	Is being called when the random generated number equals to 0
+
+	Start of http://www.ipfoo.com/xml/
+
+	Thanks to Brad B See comments "Excellent Script" at Live IP Address site:
+	https://addons.mozilla.org/extensions/moreinfo.php?application=firefox&id=1731&&page=comments
+	for providing us the URL : www.ipfoo.com/xml/
+***************************************************************************/
+function makeRequestIpFooComXML(url, parameters)
+{
+	http_request = false;
+	http_request = new XMLHttpRequest();
+	
+	if (http_request.overrideMimeType)
+	{
+		http_request.overrideMimeType('text/xml');
+	}
+	if (!http_request)
+	{
+		var linkstatusmessage = alert(document.getElementById('liveipaddress-strings').getString("ImpossibleCreation"));
+		return false;
+	}
+
+	http_request.onreadystatechange = wwwipfoocom;
+	http_request.open('GET', url + parameters, true);
+	http_request.send(null);
+}
+function wwwipfoocom()
+{
+	if (http_request.readyState == 4)
+	{
+		if (http_request.status == 200)
+		{
+			var xmlobject = http_request.responseXML;
+			var root = xmlobject.getElementsByTagName('ip_address')[0];
+			var element = root.getElementsByTagName("ip");
+			var liveipvalue = element[0].firstChild.nodeValue;
+
+			//Call function to check if liveipvalue has the correct IPv4 format
+			checkIPFormat(liveipvalue);
+
+			if (isValidIPv4==true)
+			{
+				if (liveipvalue != "undefined")
+				{
+					realIPAddress = liveipvalue; //This assignment is used only by the copyIPAddressInfoBox().
+					/****************/
+					//The following line passes the value of IP Address straight in FF's LiveIPAddressPanel bar.
+					document.getElementById('liveIPAddresStatusBar').label = liveipvalue;
+					/****************/
+					document.getElementById('liveIPAddresStatusBar').setAttribute("tooltiptext", "Änderung der IP-Adresse alle "+ Math.floor(refreshEveryMilliSeconds/60000) + " Minuten prüfen");
+					return realIPAddress;
+				}
+				else {}
+			}
+			else
+			{
+				alert(document.getElementById('liveipaddress-strings').getString("RequestProblem"));
+			}
+		}//End of status 200
+	}//End of readyState 4
+	return realIPAddress
+}//End of http://www.ipfoo.com/xml/
+
+/***************************************************************************
+	Is being called when the random generated number equals to 1
+
+	Start of http://www.showmyip.com
+
+	The following two functions are being used for the www.showmyip.com
+***************************************************************************/
+function makeRequestShowMyIPComXML(url, parameters)
+{
+	http_request = false;
+	http_request = new XMLHttpRequest();
+	
+	if (http_request.overrideMimeType)
+	{
+		http_request.overrideMimeType('text/xml');
+	}
+	if (!http_request)
+	{
+		var linkstatusmessage = alert(document.getElementById('liveipaddress-strings').getString("ImpossibleCreation"));
+		return false;
+	}
+
+	http_request.onreadystatechange = wwwshowmyipcom;
+	http_request.open('GET', url + parameters, true);
+	http_request.send(null);
+}
+
+function wwwshowmyipcom()
+{
+	if (http_request.readyState == 4)
+	{
+		if (http_request.status == 200)
+		{
+			var xmlobject = http_request.responseXML;
+			var root = xmlobject.getElementsByTagName('ip_address')[0];
+			var element = root.getElementsByTagName("ip");
+			var liveipvalue = element[0].firstChild.nodeValue;
+
+			//Call function to check if liveipvalue has the correct IPv4 format
+			checkIPFormat(liveipvalue);
+			if (isValidIPv4==true)
+			{
+				/****************/
+				//The following line passes the IP straight in FF's LiveIPAddressPanel bar.
+				document.getElementById('liveIPAddresStatusBar').label = liveipvalue;
+				/****************/
+
+				//(Double check) Usually "undefined" is the value we get if we have reached the daily limit (=300 times).
+				if (liveipvalue != "undefined")
+				{
+					realIPAddress = liveipvalue; //This assignment is used only by the copyIPAddressInfoBox().
+					document.getElementById('liveIPAddresStatusBar').setAttribute("tooltiptext", "Änderung der IP-Adresse alle "+ Math.floor(refreshEveryMilliSeconds/60000) + " Minuten prüfen");
+				}
+				else {}
+			}
+			else {}
+		}
+		else
+		{
+			alert(document.getElementById('liveipaddress-strings').getString("RequestProblem"));
+		}
+	}
+}//End of http://www.showmyip.com
+
+/***************************************************************************
+	Is being called when the random generated number equals to 2
+
+	Start of http://liveipaddress.intelcomms.net/show/
+***************************************************************************/
+function makeRequestIntelCommsXML(url, parameters)
+{
+	http_request = false;
+	http_request = new XMLHttpRequest();
+	
+	if (http_request.overrideMimeType)
+	{
+		http_request.overrideMimeType('text/xml');
+	}
+	if (!http_request)
+	{
+		var linkstatusmessage = alert(document.getElementById('liveipaddress-strings').getString("ImpossibleCreation"));
+		return false;
+	}
+
+	http_request.onreadystatechange = wwwintelcommsnet;
+	http_request.open('GET', url + parameters, true);
+	http_request.send(null);
+}
+function wwwintelcommsnet()
+{
+	if (http_request.readyState == 4)
+	{
+		if (http_request.status == 200)
+		{
+			var xmlobject = http_request.responseXML;
+			var root = xmlobject.getElementsByTagName('ip_address')[0];
+			var element = root.getElementsByTagName("ip");
+			var liveipvalue = element[0].firstChild.nodeValue;
+
+			//Call function to check if liveipvalue has the correct IPv4 format
+			checkIPFormat(liveipvalue);
+
+			if (isValidIPv4==true)
+			{
+				if (liveipvalue != "undefined")
+				{
+					realIPAddress = liveipvalue; //This assignment is used only by the copyIPAddressInfoBox().
+					/****************/
+					//The following line passes the value of IP Address straight in FF's LiveIPAddressPanel bar.
+					document.getElementById('liveIPAddresStatusBar').label = liveipvalue;
+					/****************/
+					return realIPAddress;
+					updateStatusBar(realIPAddress);
+				}
+				else {}
+			}
+			else
+			{
+				alert(document.getElementById('liveipaddress-strings').getString("RequestProblem"));
+			}
+		}//End of status 200
+	}//End of readyState 4
+	document.getElementById('liveIPAddresStatusBar').setAttribute("tooltiptext", "Änderung der IP-Adresse alle "+ Math.floor(refreshEveryMilliSeconds/60000)+ " Minuten prüfen");
+	return realIPAddress
+}//End of http://liveipaddress.intelcomms.net/show/
+
+
+/***************************************************************************
+	Checks if IP Address has a valid IPv4 format
+
+	That means, the string returned from the Web IP finders:
+	1. should have 4 dots
+	2. numbers in the range 0-255 should be before and after each dot
+***************************************************************************/
+function checkIPFormat(liveipvalue)
+{
+	//Split returned IP as per its dots
+	var value = liveipvalue.split('.');
+	
+	//A valid IPv4 IP has 4 dots
+	if (value.length != 4)
+	{
+		isValidIPv4 = false;
+		return isValidIPv4;
+	}
+	else
+	{
+		for (var i=0;i<4;i++)
+		{
+			var i = parseInt(value[i],10);
+			
+			//And each number before and after the dot should be in the range 0-255
+			if (i<0 || i>255)
+			{
+				isValidIPv4 = false;
+			}
+			else
+			{
+				isValidIPv4 = true;
+			}
+		}
+	}
+	//Uncomment the following for debugging.
+	//alert(isValidIPv4);
+	return isValidIPv4
+}//End of checkIPFormat(liveipvalue) method
+	
+]]></script>
+<!-- This is for the Tools | Live IP Address | (Copy Live IP Address && Force Update Now && Set Update Interval) menu. -->
+<menupopup id="menu_ToolsPopup">
+        <menu id="live-ip-address" insertafter="devToolsSeparator" accesskey="L" label="Live IP-Adresse">
+          <menupopup id="new-popup">
+            <menuitem label="Live IP-Adresse kopieren" accesskey="k" oncommand="copyIPAddressInfoBox();"/>
+			<menuitem label="Jetzt aktualisieren" accesskey="A" oncommand="updateliveipaddress();"/>
+            <menuitem label="Interval der Aktualisierung" accesskey="I" oncommand="setRefreshRateDialog();"/>
+          </menupopup>
+        </menu>
+</menupopup>
+
+<!-- This is for the Status bar. -->
+<popupset>
+	<menupopup id="liveIPAddresStatusBarPopUpMenu">
+		<menuitem label="Jetzt aktualisieren" onclick="updateliveipaddress();"/>
+		<menuitem label="Interval der Aktualisierung" onclick="setRefreshRateDialog();"/>
+	</menupopup>
+</popupset>
+
+
+<statusbar id="addon-bar">
+	<statusbarpanel id="liveIPAddresStatusBar"
+					label="Abrufen Ihrer Live IP-Adresse...."
+					tooltiptext="Zeigt Ihre Live IP-Adresse"
+					context="liveIPAddresStatusBarPopUpMenu"
+					onclick="copyIPAddressToClipBoard()"
+	/>
+</statusbar>
+
+
+
+
+<!-- This is for the right click list. -->
+<popup id="contentAreaContextMenu">
+  <menuitem id="context-item1" label="Live IP-Adresse kopieren" oncommand="copyIPAddressInfoBox();"/>
+</popup>
+
+
+</overlay>
