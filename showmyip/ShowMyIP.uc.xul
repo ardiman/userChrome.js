@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="showmyip-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script src="overlay.js"/>
+<script type="application/x-javascript"><![CDATA[
+
+if(!de) var de={};
+if(!de.tsql) de.tsql={};
+if(!de.tsql.showmyip) de.tsql.showmyip={};
+
+de.tsql.showmyip = function(){
+  var pub = {};
+  var http_request = false;
+  var oldip = null;
+  pub.aktivieren = function(){
+    doRequest('http://www.tsql.de/ipxml.php');
+  };
+  ergebnisverarbeiten = function(){
+	var ip = http_request.responseXML.getElementsByTagName("showmyip")[0].getAttribute("ip");
+	var change = false;
+	if(oldip == null){
+		oldip = ip;
+		change = true;
+	
+	} else if(oldip != ip){
+		oldip = ip;
+		change = true;
+	}
+	
+	if(change){	
+		setLabel(ip);
+	}
+  };
+  setLabel = function(text){
+	document.getElementById('showmyip-panel').setAttribute("label",text);
+  };
+  doRequest = function(url){
+    http_request = false;
+    if (window.XMLHttpRequest) {
+        http_request = new XMLHttpRequest();
+        if (http_request.overrideMimeType) {
+            http_request.overrideMimeType('text/xml');
+        }
+    } else if (window.ActiveXObject) {
+        try {
+            http_request = new ActiveXObject("Msxml2.XMLHTTP");
+        } catch(e) {
+            try {
+                http_request = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch(e) {}
+        }
+    }
+    if (!http_request) {
+        alert('Es kann kein Request Objekt erzeugt werden.');
+        return false;
+    }
+    http_request.onreadystatechange = myHandler;
+    http_request.open('GET', url, true);
+    http_request.send(null);  
+  };
+  myHandler = function(){
+     if (http_request.readyState == 4) {
+        if (http_request.status == 200) {
+            ergebnisverarbeiten();
+        } else{
+		//	setLabel('loading');
+		}
+		
+        //window.setTimeout(function() { pub.aktivieren() },3000);
+    }  
+  };
+  
+  pub.start = function(){
+	window.setTimeout(function() { pub.aktivieren() },2000);
+  };
+  return pub;  
+}();
+
+de.tsql.showmyip.start();
+
+]]></script>
+ <statusbar id="addon-bar">
+	<statusbarpanel onclick="de.tsql.showmyip.aktivieren();" id="showmyip-panel" label="IP-Adresse laden...." />
+ </statusbar>
+</overlay>
+
+
+
