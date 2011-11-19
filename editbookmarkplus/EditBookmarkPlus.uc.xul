@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+
+<overlay id="edit-bookmark-plus"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+'use strict';
+var editBookmarkPlus = {
+	init: function() {
+		var p =  document.getElementById('editBookmarkPanel');
+		if (p) {
+			p.addEventListener('load', this.handlePopupLoad, false);
+			p.addEventListener('popupshown', this.handlePopupShown, false);
+		}
+		else {
+			this.handlePopupLoad(null);
+			this.performOnShown();
+		}
+		
+	},
+	
+	handlePopupLoad: function(evt) {
+		var folderTreeRow = document.getElementById('editBMPanel_folderTreeRow');	
+		folderTreeRow.flex=10;
+		folderTreeRow.align='';
+		
+		var btnExpandFolder = document.getElementById('editBMPanel_foldersExpander');
+		btnExpandFolder.addEventListener('command', editBookmarkPlus.handleExpandFolderButtonClick, false);
+		
+		var folderMenuList = document.getElementById('editBMPanel_folderMenuList');
+		folderMenuList.addEventListener('command', editBookmarkPlus.handleTreeSelectionChanged, false);
+
+		var p = document.getElementById('hboxEditBookmarkPlus');
+		if (p) {
+			// Skip for bm-props2.xul
+			var parent = p.parentNode;
+			parent.removeChild(p);
+			// Sea Monkey: insert the 'Resizer Panel' as the first item in BottomButtonsPanel
+			parent.insertBefore(p, parent.children.item(0));
+		}
+		
+		p =  document.getElementById('editBookmarkPanel');
+		if (p) {
+			p.removeEventListener('load', this.handlePopupLoad, false);
+		}
+		
+		p = document.getElementById('editBookmarkPanelContent')
+		p.style.minWidth = '30.75em'; // Corresponds to 492px for base Size=16pt
+		p.flex = '1';
+	},
+	
+	handlePopupShown: function(evt) {
+		// Do not handle drop-down popup events
+		if (evt.target.id != 'editBookmarkPanel')
+			return;
+			
+		editBookmarkPlus.performOnShown();
+	},
+
+	handleExpandFolderButtonClick: function(evt) {
+		editBookmarkPlus.ensureSelectionVisible();
+	},
+	
+	handleTreeSelectionChanged: function(evt) {
+		editBookmarkPlus.ensureSelectionVisible();
+	},
+	
+	ensureSelectionVisible: function ()	{
+		var folderTreeRow = document.getElementById('editBMPanel_folderTreeRow');	
+		
+		if (!folderTreeRow.collapsed) {
+			var tree = document.getElementById('editBMPanel_folderTree');
+			var numRanges = tree.view.selection.getRangeCount();
+			if (numRanges > 0) {
+				var start = new Object();
+				var end = new Object();
+				tree.view.selection.getRangeAt(0,start,end);
+				tree.treeBoxObject.ensureRowIsVisible(start.value);
+			}
+			if (tree.flex != '1')
+			{
+				tree.flex = '1';
+				tree.style.minHeight = '9.375em'; // Corresponds to 150px for base Size=16pt
+			}
+		}
+	},
+
+	onPopupUnload: function () {
+	},
+	
+	getPrefService: function() {
+		var prefService = null;
+		try {
+			prefService = gPrefService;
+		}
+		catch(err)
+		{
+			// gPrefService not available in Seamonkey
+			prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("");
+		}
+		return prefService;
+	}
+};
+window.addEventListener
+(
+  'load', 
+  function(e) { editBookmarkPlus.init(); }, 
+  false
+);
+	
+]]></script>	
+	<popupset id="mainPopupSet">
+		<panel id="editBookmarkPanel" >
+			<hbox id="editBookmarkPanelBottomButtons">
+				<hbox id="hboxEditBookmarkPlus" flex="1" align="left" insertbefore="editBookmarkPanelDoneButton">
+					<resizer id="resizerEditBookmarkPlus" dir="bottomleft" element="editBookmarkPanelContent" style="cursor: sw-resize;" command="editBookmarkPlus.handleTreeSelectionChanged" height="20px" width="20px"/>
+				</hbox>
+			</hbox>
+		</panel>
+
+	</popupset>
+		
+	
+</overlay>
