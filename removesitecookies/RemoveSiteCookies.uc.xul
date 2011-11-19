@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23removecookies-toolbar-button {
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAAK%2FINwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAK1UExURf79%2FP%2F%2B%2Ff78%2FMqCWbhyUKJgRrdwT9CghbZwT9SLX%2Fnq34BIO6FiSaJjSKdiR4pNPPTl3Pz07rhtS7hvS%2Batg6ZmTZpiS6ViR9uTZLNrSrJpSb13UrNwUrVzUeixhpJWQtGMYtONYv748umyheGld%2BKldfHi2rZ4WK1sUJ5jTZ9hSLJ2WNmVZ%2F%2F%2B%2FPHAlL59Wv3488mJY%2F38%2B7x%2BW7d3V%2Fz17tKTaZ9cRahsUcBzTrR5XI9TQOKfbd%2BjeOmyg%2BqwgL%2BJcrFxU8J4VK1sTtiedMB7V%2Fbj2MF5VPv07%2BKnefDh2cqBWu7Env%2F9%2FM%2BNZc%2BOZc2PZtiTZeOyi71zUMd%2BV%2FXv7fXRree1jseIYrZ%2FYfHEmbp0U%2Bmse%2B7d1diYbNGLYPzy5sF%2FW8qFXbx6VsmEXMmFXuGqg%2Be6mItQPrZzVYxUQvDj27h7XPjn2q1wVdKeeteYb9CZfuq2iMmDW4dOP4tSQYBJO9mQYMigj4dKO8V4UZ5eRZVbRrlxTvTk3OWuiaZmSZdaRrBtTrRzU9SbctqSZf338cuBVsR4UsB3Ud2kevjp3p5dRrR1VYxTQr5%2BWv328NyjesN9VoNIOLqIc5daQr5zT9iWcOyue4hQQbdtS%2BvAnd%2BbbIpSQfrs39uliMqQcM2CWsqGXpBUQ%2Bm5kduohbqFcMiGX719XIZLO65qTffo3bFvUZpbRMyGXfz07easgtOLX8qKZIlOPLJuT6BfRqBcRZhcR4xSQcuPae2ygLp2U%2B3JodKVbLZ5YLl2U8aSeZ9hSaNhR8yMZfTm3em2h6pmSfru4s2AV9SceMR3UsuEX4ZOP%2BSrfoNKPLJyVKpqTtqieeitgvC4hciHYdOOZeO0ks%2BPbZ9eRIdQQPbt6adkSbpyT%2BmqeqVmT%2FXUsqZkSZtgSu67lurZ0uOqfsmCWP%2F%2F%2F8pKcBwAAADndFJOU%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FALLDDRIAAAD%2FSURBVHjaYngGBj7K4XsgLAYQUTFl6ZOLC5bchwo8kiuIc1HZm7fzbFQYWODSotsaminusuq9hmkggfQ5%2Bvznbvbv5i2bWaM9GyiwIXDN5qzIAGPHkjNzxYKeMUz3bjJnSUpVPZqfk7jczF6PYWHVtsVb71Svu2t3VaHFc9dlhlNC5y1MHkwW3ug3LbirKGYGQwfflU3%2BF6xrnR9mnradeNiG4XoPM2fzPbYQrYxJ5cUHV4gwPFsW3d7QJ8PCIc78dO2OkyCH7ZOSlI%2FYMuvYfp7KxmsggQOrLDt1XFlZp3KXOkA8V%2Bh0In77yhvJVuww385vVRQ9JC1RD2IDBBgAuJeMrpJGdGsAAAAASUVORK5CYII%3D);
+}
+
+" type="text/css"?>
+
+<overlay id="removecookies-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+
+(function() {
+	function endsWith(string, text) {
+		var pos = string.indexOf(text);
+		if (pos != -1 && string.length - pos == text.length) {
+		return true;
+		} else {
+		return false;
+		}
+	}
+
+	function beginsWith(string, text) {
+		var pos = string.indexOf(text);
+		if (pos == 0) {
+		return true;
+		} else {
+		return false;
+		}
+	}
+
+	function cleanThisSiteCookies() {
+		var cookieManager = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager);
+
+		// Get the URL, and convert it to UPPERCASE for easy matching
+		var urlbar = document.getElementById("urlbar");
+		var current_url = urlbar.value;
+		if(!current_url) 
+			return;
+		current_url = current_url.toUpperCase()
+		
+
+		// Add a "." before the URL, as some cookies are stored as .www.domain.com
+		if(beginsWith(current_url, "HTTP://") && current_url.length>7) {
+			//alert("beginswith 1 true " + current_url);
+			var s=current_url;
+			current_url = s.substring(0, 7) + "." + s.substring(7);
+		} else 	if(beginsWith(current_url, "HTTPS://") && current_url.length>8) {
+				//alert("beginswith 1 true " + current_url);
+				var s=current_url;
+				current_url = s.substring(0, 8) + "." + s.substring(8);
+		}
+
+		//alert(current_url);
+		var iter = cookieManager.enumerator;
+		var cookie_count = 0;
+		while (iter.hasMoreElements()) {
+			var cookie = iter.getNext();
+			if (cookie instanceof Components.interfaces.nsICookie) {
+				//alert(current_url + " instanceOf " + cookie.host + current_url.indexOf(cookie.host));
+				if (current_url.indexOf(cookie.host.toUpperCase()) != -1) {
+					cookieManager.remove(cookie.host, cookie.name, cookie.path, cookie.blocked);
+					cookie_count++;
+				}
+			}
+		}
+		setStatusMessage(cookie_count + " Cookie(s) gelöscht", 1000*3);
+	}
+
+
+	function setStatusMessage(msg, timeToClear) {
+		statusBar = document.getElementById("statusbar-display");
+		if (!statusBar) return;
+
+		var oldmsg = statusBar.label;
+		statusBar.label = msg;
+		if(timeToClear) setTimeout( function() { setStatusMessage(oldmsg, 0); }, timeToClear);
+	}     
+
+	function show_alert(title, message) {
+	   var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+									  .getService(Components.interfaces.nsIPromptService);
+	   promptService.alert(window, title, message);
+	}
+
+	var listeners = {
+		onCommand: function(e) {
+			cleanThisSiteCookies();
+		}
+	};
+
+	var namespace=function(c,f,b){var e=c.split(f||"."),g=b||window,d,a;for(d=0,a=e.length;d<a;d++){g=g[e[d]]=g[e[d]]||{}}return g};
+	namespace("com.dwipal.removecookies").listeners = listeners;
+	
+})();
+
+(function() {
+
+	onFirefoxLoad = function(event) {
+	  document.getElementById("contentAreaContextMenu")
+			  .addEventListener("popupshowing", function (e){ showFirefoxContextMenu(e); }, false);
+	};
+
+	showFirefoxContextMenu = function(event) {
+	  // show or hide the menuitem based on what the context menu is on
+	  document.getElementById("context-removecookies").hidden = gContextMenu.isContentSelected;
+	};
+	window.addEventListener("load", onFirefoxLoad, false);
+	console.log('rc loaded');
+})();
+
+]]></script>	
+  <popup id="contentAreaContextMenu">
+    <menuitem id="context-removecookies" label="Cookies dieser Seite löschen"
+              accesskey=""
+              insertafter="context-stop"
+              oncommand="com.dwipal.removecookies.listeners.onCommand(event);"/>
+  </popup>
+
+  <toolbar id="status-bar">
+  <toolbarbutton id="removecookies-toolbar-button" class="toolbarbutton-1"
+    label="Cookies löschen" tooltiptext="Cookies dieser Seite löschen"
+    oncommand="com.dwipal.removecookies.listeners.onCommand(event);"/>
+  </toolbar>
+</overlay>
