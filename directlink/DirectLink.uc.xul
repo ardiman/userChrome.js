@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="directlink" 
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript"><![CDATA[
+window.addEventListener("load", directLinkInitOverlay, false);
+
+function directLinkInitOverlay() {
+  var menu = document.getElementById("contentAreaContextMenu");
+  menu.addEventListener("popupshowing", directLinkContextPopupShowing, false);
+}
+
+function directLinkContextPopupShowing() {
+  gContextMenu.showItem("directlink-search", gContextMenu.isTextSelected);
+}
+
+function openAsUrlDispatch(service) {
+
+  var selectedText = window.content.getSelection();
+  var charlen = 150;
+  var URL = '';
+    
+  const browser = getBrowser();
+  
+  selectedText = selectedText.toString();
+  
+  if (charlen < selectedText.length) {
+	alert("Zu viele Zeichen wurden ausgewählt!\nBitte maximal " + charlen + " Zeichen auswählen und erneut versuchen.");
+	return;
+  }
+  
+  //clean unused spaces  
+  selectedText = selectedText.replace(/^\s+/, "");
+  selectedText = selectedText.replace(/\s+$/, "");
+  selectedText = selectedText.replace(/\s+/g, " ");
+
+  switch (service) {
+  case "wikipedia" :
+	URL = 'http://de.wikipedia.org/wiki/' + selectedText;
+	break;
+  case "lucky" :
+  	URL = 'http://www.google.com/search?btnI=I%27m+Feeling+Lucky&q='
+  		+ selectedText;
+  	break;
+  case "open" :
+  	URL = selectedText;
+  	break;
+  default :
+	alert("Es wurde ein Fehler festgestellt");
+	return;
+  }
+  
+  getBrowser().selectedTab = getBrowser().addTab(URL);
+  
+  // Make sure we get the focus
+  window.content.focus();
+}	
+
+]]></script>
+  <popup id="contentAreaContextMenu">
+	<menuseparator/>
+	<menu id="directlink-search" label="Direkt Link">
+	<menupopup>
+	  <menuitem id="directlink-open" label="Öffnen" oncommand="openAsUrlDispatch('open');"/>
+	  <menuitem id="directlink-wikipedia" label="Wikipedia" oncommand="openAsUrlDispatch('wikipedia');"/>	  
+	  <menuitem id="directlink-lucky" label="Auf gut Glück" oncommand="openAsUrlDispatch('lucky');"/>
+	</menupopup>
+	</menu>
+  </popup>
+
+</overlay>
