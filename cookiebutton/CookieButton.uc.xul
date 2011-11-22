@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="chrome://global/skin/"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23cookiebuttonIcon {
+	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAADAFBMVEUBAAD%2F%2Fsv%2F%2Fpn%2F%2FmX%2F%2FjP9%2FQD%2Fy%2F7%2Fy8v%2Fy5n%2Fy2X%2FzDP9ywD%2Fmf7%2Fmcv%2FmZn%2FmGX%2FmDP9mAD%2FZf7%2FZcv%2FZZj%2FZWX%2FZTP9ZQD%2FM%2F7%2FM8v%2FM5j%2FM2X%2FMzP9MgD9AP39AMv9AJj9AGX9ADL9AADL%2F%2F%2FL%2F8vM%2F5nL%2F2XM%2FzPL%2FQDLy%2F%2FMzMzLy5jMy2bLyzLMywDLmf%2FLmMvLmJjMmGbLmDLMmQDLZf%2FMZsvMZpjMZmbLZTLMZQDLM%2F%2FLMsvLMpjLMmXLMjLMMgDLAP3MAMvMAJjMAGXMADLMAACZ%2F%2F%2BZ%2F8uZ%2F5mY%2F2WZ%2FzOY%2FQCZzP%2BYy8uYy5iZzGaYyzKZzACZmf%2BYmMuZmZmYmGWZmDOYlwCYZf%2BYZsyYZZiYZWWZZTOYZQCYM%2F%2BYMsuZM5iZM2WZMzOYMgCYAP2YAMyYAJeYAGWYADKYAABl%2F%2F9l%2F8tl%2F5hl%2F2Vm%2FzNl%2FQBly%2F9mzMxmzJhmzGZlyzJmzABlmP9mmcxlmJhlmGVmmTNlmABlZf9mZsxlZZhmZmZlZTJmZQBlM%2F9lMstlM5llMmVlMjJmMgBlAP1lAMxlAJhmAGVmADJmAAAz%2F%2F8z%2F8wz%2F5gz%2F2Yz%2FzMy%2FQAzzP8yy8syy5gyy2UyyzIzzAAzmf8ymMszmZkzmWUzmTMymAAzZv8yZcszZpkyZWUyZTIzZgAzM%2F8yMsszM5kyMmUzMzMyMQAyAP0yAMwyAJgyAGYyADEyAAAA%2Ff0A%2FcsA%2FZgA%2FWUA%2FTIA%2FQAAy%2F0AzMwAzJkAzGUAzDMAzAAAmP0AmcwAmJgAmGUAmDIAmAAAZf0AZswAZZgAZmYAZjIAZgAAMv0AM8wAMpgAM2YAMjIAMgAAAP0AAMwAAJgAAGYAADLuAADcAAC6AACqAACIAAB2AABUAABEAAAiAAAQAAAA7gAA3AAAugAAqgAAiAAAdgAAVAAARAAAIgAAEAAAAO4AANwAALoAAKoAAIgAAHYAAFQAAEQAACIAABDu7u7d3d27u7uqqqqIiIh3d3dVVVVEREQiIiIREREAAAARpvBFAAAAAXRSTlMAQObYZgAAAIFJREFUeNpFj8ERBSEIQ0M9XK1lr3ZhEXZBP3u1HjYB%2F3zHYciDZNSgkyqGX00M1tfYWBLkwLNmqOPcpD2wVzsENg4cBLVuObivUdxQOcB7fHUKN2RZmME5o2TBRGD4wQMBl6hgegtccRogZ4uFLV3vQKdcIFJTlKE%2Fd6WU%2Fb%2Ff%2FQcNujgKecIRkQAAAABJRU5ErkJggg%3D%3D);
+}
+
+" type="text/css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript"><![CDATA[
+var cookiebutton = {
+	openManager : function() {
+		window.open("chrome://browser/content/preferences/cookies.xul",
+				"cookie", "chrome,dialog,centerscreen,dependent");
+	}
+}	
+	
+]]></script>	
+	<toolbar id="main-menubar">
+		<toolbarbutton
+			id="cookiebuttonIcon"
+			class="toolbarbutton-1"
+			oncommand="cookiebutton.openManager()"
+			label="Cookies"
+			tooltiptext="Cookie Manager öffnen"/>
+	</toolbar>
+</overlay>
