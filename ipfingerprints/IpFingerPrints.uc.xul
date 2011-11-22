@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<overlay id="ipfingerprints-ext" 
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript"><![CDATA[
+if("undefined" == typeof(IPFingerPrintsChrome)) {
+		var IPFingerPrintsChrome = {};
+};
+
+IPFingerPrintsChrome.BrowserOverlay = {
+	IPFingerPrints : function (aEvent) {
+		var baseURL = content.document.location.hostname;
+		var curDomain =  baseURL.replace(/^www\./i, "");
+
+		var newPage		= "http://www.ip-adress.com/ip_lokalisieren/"+curDomain;
+
+		if (gBrowser) {
+			gBrowser.selectedTab = gBrowser.addTab(newPage);
+		} else { 
+				window.open(newPage);
+		}
+	}
+};
+
+]]></script>	
+	<statusbar id="status-bar">
+		<statusbarpanel id="GoToHostlogrPanel" class="statusbarpanel-menu-iconic"
+			tooltiptext="Lokalisierung dieser Seite anzeigen"	src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAADKklEQVR4XoWRa0xTdxjGn9Mr9MDhVqlVhEG4jBqbjQb1C%2BC2Iga31mGIi%2Fsi3mKMmwmOiHYxcyzRuMVbAkOTBTZmR4C4zUsiqOkySiFtxQuIsdwmYHugtKUcCrPY%2Flcawgwx%2BvvyJm%2BePO%2F75MFyhKs%2FU364s6b6mwttPXUt1qn6Fqvn5Lnr3Zu2HfkeImkG3sRq1eEv9X%2Fen%2BFm5onfHyD%2FvnhJggFCSJAQbpaQK7%2BbXYkpG3fiFSgssiKtuOLSjxfPqBRxGHNMgPP5kRAXi1WyuLAsEAyClkhg6BrCnj2f7%2FbarXUAwEOY%2BOyt2rLjwZccrt02w9rjwLB9FhTFh3uKg511YdLNgR2fQnaaDJqSQ98CSFoykGcV7Ogf9cT%2B0WbBwJgfI%2BwcNihTkJYsRXwsA4aJgkgogm%2FOj0nXNN7NVCQx8txP%2FzdIWVewNi0RwYAYtqFx9NpYmB%2BNhK8LBIAkUhSOMRcyMFmeYCJkIluVlQsAgnAAJprJVaaDieLB%2BqgXTbd6cXrYiXM%2FGXDycCHUeWvBcX70PHXgt%2BsmJK5MxRQ3H7P0gY9zP3%2FhD4CieJjm5sBOcnC6fXg6OAnjvWcINQH7BIfaX9sQJYmEWBwZ0rk8Sx8M2TpbZ2a3f%2FKXqQN3LaMQCGkIeBQkdAQ6ukdh6h5B%2FVUz%2FhlzYZv6fSSvkaPV96zz1RpXbN5xtmPMNZ9hd3pDmWlIIoQQCvjh%2BngUhYW9NI6GSEzD63hsc%2FTUFgBgF2uEs721%2BisKmM3OTIUiXYbMd6TISEkIz6SVMchRrEEMEwv2%2BaDP0dekA8BiOXxa9oGqsKJv%2F7Fr5Osf%2FiaVp26T42fukiPf3SGlB%2FUkff3%2BJ%2BAzW%2FAW4uXJ6%2FbmqXc1nD5%2Fw%2F9FxSXnextLf2ES0g8sRMUb4CmVhbRKpRIC4Ococ4uMxk5vVdWp%2B1KpPAcAFAqFSKX6WAKAwnKio6MzmptvsO3tlumbNw1eg8EYHBwcIAMD%2FaSx8ep8Q0Ozp6vrAVdT8%2FMwADleQ2JRUfFljUar12i2N5aXH31YWal7rNOd6Csr22dRqwuvaLUl%2Bvz8jy4vaLHIf%2FpzUf7PQgtUAAAAAElFTkSuQmCC"
+			onclick="IPFingerPrintsChrome.BrowserOverlay.IPFingerPrints()"
+			style="cursor:pointer;"/>
+	</statusbar>
+	<popup id="contentAreaContextMenu">
+	  <menuitem
+		id="context-item4"
+		class="menuitem-iconic"
+		insertafter="context-stop"
+		label="Lokalisierung dieser Seite anzeigen" 
+		oncommand="IPFingerPrintsChrome.BrowserOverlay.IPFingerPrints();" 
+		image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAADKklEQVR4XoWRa0xTdxjGn9Mr9MDhVqlVhEG4jBqbjQb1C%2BC2Iga31mGIi%2Fsi3mKMmwmOiHYxcyzRuMVbAkOTBTZmR4C4zUsiqOkySiFtxQuIsdwmYHugtKUcCrPY%2Flcawgwx%2BvvyJm%2BePO%2F75MFyhKs%2FU364s6b6mwttPXUt1qn6Fqvn5Lnr3Zu2HfkeImkG3sRq1eEv9X%2Fen%2BFm5onfHyD%2FvnhJggFCSJAQbpaQK7%2BbXYkpG3fiFSgssiKtuOLSjxfPqBRxGHNMgPP5kRAXi1WyuLAsEAyClkhg6BrCnj2f7%2FbarXUAwEOY%2BOyt2rLjwZccrt02w9rjwLB9FhTFh3uKg511YdLNgR2fQnaaDJqSQ98CSFoykGcV7Ogf9cT%2B0WbBwJgfI%2BwcNihTkJYsRXwsA4aJgkgogm%2FOj0nXNN7NVCQx8txP%2FzdIWVewNi0RwYAYtqFx9NpYmB%2BNhK8LBIAkUhSOMRcyMFmeYCJkIluVlQsAgnAAJprJVaaDieLB%2BqgXTbd6cXrYiXM%2FGXDycCHUeWvBcX70PHXgt%2BsmJK5MxRQ3H7P0gY9zP3%2FhD4CieJjm5sBOcnC6fXg6OAnjvWcINQH7BIfaX9sQJYmEWBwZ0rk8Sx8M2TpbZ2a3f%2FKXqQN3LaMQCGkIeBQkdAQ6ukdh6h5B%2FVUz%2FhlzYZv6fSSvkaPV96zz1RpXbN5xtmPMNZ9hd3pDmWlIIoQQCvjh%2BngUhYW9NI6GSEzD63hsc%2FTUFgBgF2uEs721%2BisKmM3OTIUiXYbMd6TISEkIz6SVMchRrEEMEwv2%2BaDP0dekA8BiOXxa9oGqsKJv%2F7Fr5Osf%2FiaVp26T42fukiPf3SGlB%2FUkff3%2BJ%2BAzW%2FAW4uXJ6%2FbmqXc1nD5%2Fw%2F9FxSXnextLf2ES0g8sRMUb4CmVhbRKpRIC4Ococ4uMxk5vVdWp%2B1KpPAcAFAqFSKX6WAKAwnKio6MzmptvsO3tlumbNw1eg8EYHBwcIAMD%2FaSx8ep8Q0Ozp6vrAVdT8%2FMwADleQ2JRUfFljUar12i2N5aXH31YWal7rNOd6Csr22dRqwuvaLUl%2Bvz8jy4vaLHIf%2FpzUf7PQgtUAAAAAElFTkSuQmCC"
+		/>
+	</popup>
+</overlay>
