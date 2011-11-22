@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<overlay id="filetitle-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/x-javascript">
+<![CDATA[
+getDefaultFileName =
+function(aDefaultFileName, aURI, aDocument, aContentDisposition)
+{
+
+  try {
+    fileType = aDocument.contentType;
+  }
+  catch (e) {
+    // nepodarilo se zjistit typ dokumentu 
+  }
+
+   // 1) look for a filename in the content-disposition header, if any
+  if (aContentDisposition) {
+    const mhpContractID = "@mozilla.org/network/mime-hdrparam;1";
+    const mhpIID = Components.interfaces.nsIMIMEHeaderParam;
+    const mhp = Components.classes[mhpContractID].getService(mhpIID);
+    var dummy = { value: null };  // Need an out param...
+    var charset = getCharsetforSave(aDocument);
+
+    var fileName = null;
+    try {
+      fileName = mhp.getParameter(aContentDisposition, "filename", charset,
+                                  true, dummy);
+    }
+    catch (e) {
+      try {
+        fileName = mhp.getParameter(aContentDisposition, "name", charset, true,
+                                    dummy);
+      }
+      catch (e) {
+      }
+    }
+    if (fileName)
+      return fileName;
+  }
+
+  if (aDocument && fileType == "text/html") {
+    var docTitle = validateFileName(aDocument.title).replace(/^\s+|\s+$/g, "");
+    if (docTitle) {
+      // 3) Use the document title
+      return docTitle;
+    }
+  }
+
+  try {
+    var url = aURI.QueryInterface(Components.interfaces.nsIURL);
+    if (url.fileName != "") {
+      // 2) Use the actual file name, if present
+      var textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
+                                   .getService(Components.interfaces.nsITextToSubURI);
+      return validateFileName(textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName));
+    }
+  } catch (e) {
+    // This is something like a data: and so forth URI... no filename here.
+  }
+
+  if (aDefaultFileName)
+    // 4) Use the caller-provided name, if any
+    return validateFileName(aDefaultFileName);
+
+  // 5) If this is a directory, use the last directory name
+  var path = aURI.path.match(/\/([^\/]+)\/$/);
+  if (path && path.length > 1)
+    return validateFileName(path[1]);
+
+  try {
+    if (aURI.host)
+      // 6) Use the host.
+      return aURI.host;
+  } catch (e) {
+    // Some files have no information at all, like Javascript generated pages
+  }
+  try {
+    // 7) Use the default file name
+    return getStringBundle().GetStringFromName("DefaultSaveFileName");
+  } catch (e) {
+    //in case localized string cannot be found
+  }
+  // 8) If all else fails, use "index"
+  return "index";
+};
+]]>
+  </script>
+</overlay> 
