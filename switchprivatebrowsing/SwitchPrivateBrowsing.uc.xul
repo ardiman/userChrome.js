@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/css" href="chrome://global/skin/" ?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23switchpb-toolbar-button {
+  -moz-appearance: none;
+  opacity: 0.9;
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAC5UlEQVQ4jaWTzWtcVRjGn3PvuTNz7r2TyXzdZDpjOpPaiBYCYksVYjfSLCKIa4sWunHlX%2BGq0j%2BgG1eKlLpwIaiYSgsFayJSRhNCPlqjSTMzmel85Nw7536ce08XpWlxJfRdPi88PIvfjyil8DJHt25dUZ3dVSzvXyPPwgc7XWNigqXKju0BwOHh2PTccdSYLUX%2FLdCuL7%2FWBgjiqkRLDKeH2uDHxnmbl%2BfpSC%2BGbaMctqfPqKPT55hrOeSnfLVQWbp8AZYzoQWp4Avy6edfxpVSIej3xwNrIlOun5o1Ts7UYJkm%2BGgIXwggScA5R7fXw7A3jFRMeook2b7LTaqrIDCLJVZ7Nc9SlGLscRx2OshlbVSmp%2BFxjs3NTXR7PYRhhEmnaBBNqzDLhtjYCigBcwv5PFtrNiGOPJHWtX3Xc%2BvOCce4sLAAz%2FOwsroKPvCifC63u7X5sJYt5NibZ99CFEhOY1891AkpU4ntxaWLc7msja%2BuXtV8y3rcbrcnhe%2BDUdb%2F6LOPi9x1MeIuVu%2F%2B%2BsAPwtlIJOvUwc5Or1s%2Fb06ap7f%2FXP87Y5hr5957n3f7nXAsBJJEoVAshSt3fvsmjGRWyPG8XS7O7D96hECo62TlxqL6dmMRc2ffRbvVQiIldF1HnCSo1xtQhODfvT1EcYJQShipNIqlEjZ%2Bbx6UG9UqPTFlAneaP%2F%2BzVXtnqupkbdsGCMHBQQtpxpAohTQzUSmVIOMEw9EIG%2FebIvDoEgCQvdsfquVb91C4eM9p%2FtH8Tij3bSOT0b3xGBRERFJBUsKYZYP3B3HEo5UwoJdqZ6Z2AYA%2BI%2BrU643uybmZhR9u3n7jaDD6gMSZnoTxdRiGEL57aSQPyyrRvn9lvrr%2BIonHC454SO63PkGHz0KGHCAAy6QBAMIPQPCUdNNMQ8oYSUJACIF23JR4qOd%2BQYr6IJoOjRyrAY0QaBrBC9Hz319r2wCAQKZQZOuoWncRJ5n%2FbSN5WZ2fALHrX39DB%2BNZAAAAAElFTkSuQmCC); 
+}
+%23main-window[privatebrowsingmode=temporary] %23switchpb-toolbar-button {
+  -moz-appearance: none;
+  opacity: 1.0;
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABnRSTlMAAAAAAABupgeRAAAACXBIWXMAAArrAAAK6wGCiw1aAAACJklEQVR4nJWSy2sTYRTFzzeZTN6j1Uls6Nik0aRNrUHQFsmixCRSRETswpUbl27cuOhCt%2BKqxf%2Bg4EIQEaT1WQRb%2B1gouEhfaUMfiU06pknTzDRjMsnMuBAhtAj1t7r3nMvdnAP8L742ejDGNiuEHByaoWOXHRd7rJ%2B%2BiixriveHbl3rP2bjhEyiXtfNlm6pnPw4NznzPSdW4OMZ9wmKDA91neGj6ZLEuf3e4O2TnMflZBRZ3hawsmZNJCSrNmszvq6i4XRwpeI7em0jGwlk3i6NdVghpxraioFhqL5L9p9ljE8gk3FUq1FZGaBg6HIvuK1v6OQ63s8PzC%2Flp6fmlNoHp%2Bt8JHbPbjMIeQhCY3VpRBIXaGPU0RJ39mSXl%2FP0rii52OReeXk793hfTKY3lbpabT31oFLB1sbIjvBI1xmbbZEYPV2usanJIl35BZ4b7%2FQ%2B6Qk%2Bp8k3yiBW5FBhFwYCf2c4GHzaUNm62sfQzmrl7noWhrM85WuT%2FZ5Sbi9ucYT5072b6XaOI2YLhILHH%2BhVEbIYa1eDD4effS6WQdOMsbDv%2BDI9emdwtSjdz0iRgqB1X1%2B0Meps4Ry8pt7A9HEMj76cyQgAQMIXTDej7NDIDmPEjSvoaOdNdpJK%2FVBktLZwLGcWirkX41pN%2BRscAEADoNTxagKEbFEEqvbHLRBAP5A0oDdrug61eT1UDQq6rkM7avMASlVRqx1%2B9G9YO%2FHx9NHvfwMdkuGY3%2FcwzAAAAABJRU5ErkJggg%3D%3D);
+}
+%23main-window[privatebrowsingmode=permanent] %23switchpb-toolbar-button {
+  -moz-appearance: none;
+  opacity: 1.0;
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAABnRSTlMAAAAAAABupgeRAAAACXBIWXMAAArrAAAK6wGCiw1aAAACJklEQVR4nJWSy2sTYRTFzzeZTN6j1Uls6Nik0aRNrUHQFsmixCRSRETswpUbl27cuOhCt%2BKqxf%2Bg4EIQEaT1WQRb%2B1gouEhfaUMfiU06pknTzDRjMsnMuBAhtAj1t7r3nMvdnAP8L742ejDGNiuEHByaoWOXHRd7rJ%2B%2BiixriveHbl3rP2bjhEyiXtfNlm6pnPw4NznzPSdW4OMZ9wmKDA91neGj6ZLEuf3e4O2TnMflZBRZ3hawsmZNJCSrNmszvq6i4XRwpeI7em0jGwlk3i6NdVghpxraioFhqL5L9p9ljE8gk3FUq1FZGaBg6HIvuK1v6OQ63s8PzC%2Flp6fmlNoHp%2Bt8JHbPbjMIeQhCY3VpRBIXaGPU0RJ39mSXl%2FP0rii52OReeXk793hfTKY3lbpabT31oFLB1sbIjvBI1xmbbZEYPV2usanJIl35BZ4b7%2FQ%2B6Qk%2Bp8k3yiBW5FBhFwYCf2c4GHzaUNm62sfQzmrl7noWhrM85WuT%2FZ5Sbi9ucYT5072b6XaOI2YLhILHH%2BhVEbIYa1eDD4effS6WQdOMsbDv%2BDI9emdwtSjdz0iRgqB1X1%2B0Meps4Ry8pt7A9HEMj76cyQgAQMIXTDej7NDIDmPEjSvoaOdNdpJK%2FVBktLZwLGcWirkX41pN%2BRscAEADoNTxagKEbFEEqvbHLRBAP5A0oDdrug61eT1UDQq6rkM7avMASlVRqx1%2B9G9YO%2FHx9NHvfwMdkuGY3%2FcwzAAAAABJRU5ErkJggg%3D%3D);
+  display: none;
+}
+
+%23main-window[privatebrowsingmode=temporary] %23urlbar {
+  -moz-appearance: none;
+  background-color: %23FFEC8B;
+}
+%23main-window[privatebrowsingmode=permanent] %23urlbar {
+  -moz-appearance: none;
+  background-color: %23FFEC8B;
+}
+
+" type="text/css"?>
+
+<overlay id="switchpb-browser-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+if ("undefined" == typeof(switchpb)) {
+   var switchpb = {};
+};
+
+switchpb.BrowserOverlay = {
+
+   onLoad : function(aEvent) {
+   },
+
+   switchPB : function(aEvent) {
+      let pbs = Components.classes["@mozilla.org/privatebrowsing;1"]
+                  .getService(Components.interfaces.nsIPrivateBrowsingService);
+      pbs.privateBrowsingEnabled = !pbs.privateBrowsingEnabled;
+   }
+   
+}; 
+
+window.addEventListener("load", switchpb.BrowserOverlay.onLoad(), false);	
+
+]]></script>
+  <toolbar id="status-bar">
+   <toolbarbutton id="switchpb-toolbar-button" 
+      class="toolbarbutton-1"
+      label="Private Browsing" 
+      tooltiptext="Schaltet den Privaten Modus Ein/Aus"
+	  style="cursor:pointer;"
+      oncommand="switchpb.BrowserOverlay.switchPB(event)"/>
+  </toolbar>
+
+</overlay>
