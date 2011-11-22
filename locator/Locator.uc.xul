@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<overlay id="locator" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+    <script type="application/x-javascript"><![CDATA[
+var DEBUG = false;
+
+var SELECTED_TEXT = "";
+
+var MAP_TYPE = -1;
+
+var DEFAULT_LOCATION = "";
+
+var locatorOptions = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+
+function changeMapType(mapType)
+{
+	setSelectedText();
+
+	MAP_TYPE = mapType;
+}
+
+function locateOnMap()
+{
+	try
+	{
+		if(MAP_TYPE == -1)
+		{
+			setSelectedText();
+		}
+
+		document.getElementById('contentAreaContextMenu').hidePopup();
+
+		switch(MAP_TYPE)
+		{
+			case 3 :
+			{
+				var newLocation = prompt("Bitte legen Sie den Standardort fest:",DEFAULT_LOCATION)
+
+				if(newLocation != null)
+				{
+					DEFAULT_LOCATION = newLocation;
+
+					locatorOptions.setCharPref("locator.options.location",newLocation);
+				}
+
+				break;
+			}
+			case 1 :
+			{
+				gBrowser.selectedTab = gBrowser.addTab("http://maps.google.com?q="+SELECTED_TEXT);
+
+				break;
+			}
+			case 0 :
+			{
+
+			}
+			case -1 :
+			
+		}
+
+		MAP_TYPE = -1;
+	}
+	catch(e)
+	{
+		if(DEBUG)
+		{
+			alert("Error: (locateOnMap)\n"+e);
+		}
+	}
+}
+
+function setSelectedText()
+{
+	try
+	{
+		SELECTED_TEXT = "";
+
+		if(gContextMenu.onTextInput)
+		{
+			var oTextBox = gContextMenu.target;
+
+			SELECTED_TEXT = oTextBox.value.substring(oTextBox.selectionStart, oTextBox.selectionEnd);
+		}
+		else
+		{
+			if(gContextMenu.searchSelected)
+			{
+				SELECTED_TEXT = gContextMenu.searchSelected();
+			}
+			else
+			{
+				SELECTED_TEXT = getBrowserSelection();
+			}
+		}
+
+		SELECTED_TEXT = SELECTED_TEXT.replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '');
+
+		if(SELECTED_TEXT == "")
+		{
+			SELECTED_TEXT = DEFAULT_LOCATION;
+		}
+	}
+	catch(e)
+	{
+		if(DEBUG)
+		{
+			alert("Error: (setSelectedText)\n"+e);
+		}
+	}
+}
+
+DEFAULT_LOCATION = locatorOptions.getCharPref("locator.options.location");	
+	
+var SRC = 'http://jacos.net/locator/3.0/?q=';
+
+function setBrowserSource()
+{
+	try
+	{
+		document.getElementById('locatorBrowser').contentWindow.location = SRC+escape(opener.window.SELECTED_TEXT);
+	}
+	catch(e)
+	{
+		if(DEBUG)
+		{
+			alert("Error at setBrowserSource:\n"+e);
+		}
+	}
+}	
+	
+]]></script>
+ 	<popupid
+ 			id="contentAreaContextMenu">
+		<menu
+				id="locatorMenu"
+				class="menu-iconic"
+		    	image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A%2FwD%2FoL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9kHBQgSMCwl2qIAAAHvSURBVDjLnZLda5JhGMZ%2Fvvq%2BWvnR56xtpURrUGMQa2wrooNAOip2FgQdtZMo6KQg%2BjqLqJMI%2Bgu2WP9ALShzeNKgVtTcMpM5p7Z0c%2FMjnb76vk8HnZjTQV5n18N1%2F7jum8fIRpm2yqZzLoftSW%2Fb7psmSRouaVqxouthQK8PG%2Bq87HbY7twY7Lt1qadbtioKBVVlbDZUfTQ1%2FXg%2Bk7sPVGoHjLXGpiiee6cGnl051qOYJQmEQJEkju9rk7bI8qA%2FlvhU1rRQ7YxUa%2FbbrSMXjx5WDELgjca5POHDG42DEFw40iW7HLaRDfvWmk67tWu72Qy6zoP307yLxolkc5xxdWJXFNwOu3smlaZpg1xZzWv63zsNtTvZabEw1O4EQBeCTEktbtpgIZN7%2BTG5fGLAuYe7J%2Fu52tfLDosZgM%2BpFcJrmdf1gH%2BOWKxW52K5356zh1x77bKMVZExSRKrZZXrb%2FyBL8mVawIKTQEC1sNrWX%2B2rJ73HHTZTQYDFeC2f%2BrXaCA4LGC%2BvoHU4CN9G58NPZxcTGgAH5ZS4nkg%2BBT42iDbEEBeVV%2BMzgTDqgHG50I%2F0%2BulMZpIavKefrsQe5XIF%2FBGFn1A7H8BJAvFyYkfkcr31YyPFtV9%2BkBHFuhvFbDLbDQuAx2tAhQgCGzbLPQHVby6Rr%2FJeuQAAAAASUVORK5CYII%3D"
+				insertafter="context-bookmarkpage"
+				label="Suche mit Google Maps"
+	            onclick="setTimeout('locateOnMap()',200);" >
+  			<menupopup
+					id="locatorMenupopup">
+	  			<menuitem
+	  					label="Im Tab öffnen"
+	  					oncommand="changeMapType(1);" />
+	  			<menuitem
+	  					label="Standardort festlegen"
+	  					oncommand="changeMapType(3);" />
+			</menupopup>
+  		</menu>
+	</popupid>
+</overlay>
