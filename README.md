@@ -1,5 +1,5 @@
 # Einleitung
-Hier entsteht eine Sammlung für die Firefox-Erweiterung userChrome.js. 
+Hier entsteht eine Sammlung für die Firefox-Erweiterung userChromeJS.
 
 Fast alle Skripte wurden im deutschen Firefox-Forum vorgestellt bzw. dort angepasst.
 
@@ -19,7 +19,7 @@ werden muss bzw. in der Historie des Skriptes stöbern.
 # Installation
 Zur Aktivierung der Skripte im Firefox muss 
 
-- die **Erweiterung userChrome.js** installiert und lauffähig sein
+- die **Erweiterung userChromeJS** installiert und lauffähig sein
 - eine **Datei namens userChrome.js** für den Import der Skripte sorgen (weiter unten dazu mehr)
 - das jeweilige Skript in den Chrome-Ordner des Profils kopiert werden
 
@@ -31,9 +31,14 @@ der Erweiterung verwechseln) muss ebenfalls in den Chrome-Ordner des Profils ein
 darin sorgt für den Import aller userChrome-Skripte.
 
 # Downloads
-- die benötigte **Erweiterung** userChrome.js: http://userchromejs.mozdev.org/
+- die benötigte **Erweiterung** userChromeJS: http://userchromejs.mozdev.org/
 - eine beispielhafte **Datei** userChrome.js: https://github.com/ardiman/userChrome.js/blob/master/userChrome.js
 
+# Hinweis
+Seit Firefox 8.0 gibt es eine Art Skriptcache. Dies führt dazu, dass Änderungen von Skripten (Konfiguration/Texte usw.) nach 
+einem "normalen" Neustart nicht aktiv werden. Es gibt 2 Skripte, die dieses Problem durch Löschen des Skriptcaches lösen können:
+- https://github.com/ardiman/userChrome.js/tree/master/addrestartbutton
+- https://github.com/ardiman/userChrome.js/tree/master/restartfirefoxbutton
 
 # Quellen
 - http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=90403
