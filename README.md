@@ -36,7 +36,8 @@ darin sorgt für den Import aller userChrome-Skripte.
 
 # Hinweis
 Seit Firefox 8.0 gibt es eine Art Skriptcache. Dies führt dazu, dass Änderungen von Skripten (Konfiguration/Texte usw.) nach 
-einem "normalen" Neustart nicht aktiv werden. Es gibt 2 Skripte, die dieses Problem durch Löschen des Skriptcaches lösen können:
+einem "normalen" Neustart nicht aktiv werden. Es gibt Skripte, die dieses Problem durch Löschen des Skriptcaches lösen können:
+
 - https://github.com/ardiman/userChrome.js/tree/master/addrestartbutton
 - https://github.com/ardiman/userChrome.js/tree/master/restartfirefoxbutton
 
