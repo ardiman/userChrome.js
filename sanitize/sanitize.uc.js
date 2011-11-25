@@ -1,6 +1,6 @@
 WindowHook.register("chrome://browser/content/sanitize.xul", function(aWindow) {
   with(aWindow) {
-    userChrome.log("sanitize.uc.js verhindert bewusst bestimmte Änderungen in dem Fenster zum Löschen der Chronik (aufgerufen mit Strg+Umschalt+Entf).");
+    // Aenderungen in dem Fenster zum Loeschen der Chronik (aufgerufen mit Strg+Umschalt+Entf)
     document.getElementsByAttribute("preference", "privacy.cpd.history")[0].disabled = true;
     document.getElementsByAttribute("preference", "privacy.cpd.formdata")[0].disabled = true;
     document.getElementsByAttribute("preference", "privacy.cpd.cookies")[0].disabled = true;    
@@ -12,11 +12,10 @@ WindowHook.register("chrome://browser/content/sanitize.xul", function(aWindow) {
 
 WindowHook.register("chrome://browser/content/preferences/sanitize.xul", function(aWindow) {
   with(aWindow) {
-    userChrome.log("sanitize.uc.js verhindert bewusst bestimmte Änderungen in dem Fenster Extras/Einstellungen/Datenschutz/Angaben zum Löschen der Chronik.");
+    // Aenderungen in dem Fenster Extras/Einstellungen/Datenschutz/Angaben zum Loeschen der Chronik
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.cookies")[0].checked = false;
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.formdata")[0].checked = false;
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.history")[0].checked = false;
-
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.history")[0].disabled = true;
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.formdata")[0].disabled = true;
     document.getElementsByAttribute("preference", "privacy.clearOnShutdown.cookies")[0].disabled = true;
