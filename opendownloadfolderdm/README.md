@@ -3,7 +3,7 @@ Hiermit bekommt der Download Manager einen Label-Button, mit dem man den Downloa
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot Open Download Folder_DM](https://github.com/ardiman/userChrome.js/raw/master/opendownloadbuttondm/scr_opendownloadbuttondm.png)
+![Screenshot Open Download Folder_DM](https://github.com/ardiman/userChrome.js/raw/master/opendownloadfolderdm/scr_opendownloadfolderdm.png)
 
 
 ## Installation
