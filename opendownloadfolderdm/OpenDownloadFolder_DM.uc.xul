@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23download-folder-button {
+	margin-top: 5px;
+}
+
+" type="text/css"?>
+  
+
+<overlay id="downloadfolder-overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+    <script type="application/x-javascript"><![CDATA[
+var DownloadFolderButton = {
+    1: function () {
+		var folder;
+		  if (gDownloadsView.selectedItem) {
+				var f = getLocalFileFromNativePathOrUrl(gDownloadsView.selectedItem.getAttribute("file"));
+				try {
+				 // Show the directory containing the file and select the file
+				 if (f.exists()) {
+					f.reveal();
+					return;
+				 }
+			   } catch (e) {
+				 // If reveal fails for some reason (e.g., it's not implemented on unix or
+				 // the file doesn't exist), try using the parent if we have it.
+				 let parent = f.parent.QueryInterface(Ci.nsILocalFile);
+				 if (!parent)
+				   //return;
+			 
+				 try {
+				   // "Double click" the parent directory to show where the file should be
+				   parent.launch();
+				 } catch (e) {
+				   // If launch also fails (probably because it's not implemented), let the
+				   // OS handler try to open the parent
+				   openExternal(parent);
+				 }
+			   }
+
+				 //return;
+		 }
+		
+		var pref = Components.classes["@mozilla.org/preferences-service;1"]
+							.getService(Components.interfaces.nsIPrefBranch);
+		
+		var dirService = Components.classes["@mozilla.org/file/directory_service;1"].
+									getService(Components.interfaces.nsIProperties);
+		
+		if(pref.getBoolPref("browser.download.useDownloadDir")) {
+		// Firefox is going to check where to save by file according to the folderList
+			switch (pref.getIntPref("browser.download.folderList")) {
+				case 0: // the desktop
+				var desktop = dirService.get("Desk", Components.interfaces.nsILocalFile);
+				folder = desktop;
+				break;
+			case 1: // the downloads folder
+				var dm = Components.classes["@mozilla.org/download-manager;1"]
+                   .getService(Components.interfaces.nsIDownloadManager);
+
+				folder = dm.userDownloadsDirectory;
+				
+				break;
+			case 2: // the last folder specified for a download
+				folder = pref.getComplexValue("browser.download.dir", Components.interfaces.nsILocalFile);
+				break;
+			}
+		
+		} else {
+			// Users are manually pointing out a directory to save to
+			folder = pref.getComplexValue("browser.download.lastDir", Components.interfaces.nsILocalFile);
+		}
+		
+		if (folder) {
+			try {
+				folder.reveal();
+			} catch (ex) {
+				// if nsILocalFile::Reveal failed (eg it currently just returns an
+				// error on unix), just open the folder in a browser window
+				alert(ex);
+			}
+		} else {
+			alert("Ordner kann nicht geöffnet werden!");
+		}
+
+	}
+}
+	
+]]></script>  
+  <windowdragbox id="search" align="center">
+	<button
+		id="download-folder-button"
+		label="Download Ordner öffnen"
+		position="1"
+		oncommand="DownloadFolderButton[1]()"
+		/>
+  </windowdragbox>
+  
+</overlay>
