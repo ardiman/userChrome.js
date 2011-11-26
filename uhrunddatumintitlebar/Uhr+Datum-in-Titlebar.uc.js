@@ -1,7 +1,7 @@
 /* :::::::: Anzeige Dokument / WoTag/ Dat / Uhrzeit ::::::::::::::: */
 
 /*--------------------------------------------------------
-    Anzeige erfolgt deutsch und mit f√ºhrenden
+    Anzeige erfolgt deutsch und mit fuehrenden
     Nullen bei Datum, Stunden und Minuten
   --------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ function doDatUhr() {
   var second = D.getSeconds();
   var date = day + ", " + (D.getDate() < 10 ? "0" +D.getDate() : D.getDate()) + ". " + month + " " +  year;           
   var time = (hour < 10 ? "0" +hour : hour) + ":" + (minute < 10 ? "0" +minute : minute) + ":" + (second < 10 ? "0" +second : second);
-  var timestr = ".........................................................>>>> " + date + ", " + time+ " Uhr  <<<<..............................................."; 
+  var timestr = "†††††††††††††††††††††††††††††††††††††††††††††††††††††††††>>>> " + date + ", " + time+ " Uhr <<<<"; 
   document.title = timestr;
   
 }
