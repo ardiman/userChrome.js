@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23pagezoom-button {
+	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAASdAAAEnQB3mYfeAAAAyNJREFUOE91k2lMU0EUhQfaSkurQI0opWACKFKrjSEWQVwRBcQaoSECgtW4ggsaFZVoFLESiBYUcfkhcUks4oKCC0HBNcSoVHBhp4ALBQvKGpHocd5TCTFwk5M3uTPnm7nz7liQoYNP0xKq0VRWVF%2BpzFQtw6wfSHPoyM%2FVY8nJNbEnSo%2Bk3f6cfrrIlJCoNy5S7bhBuJIYOi8dDiIkXOkOVXiG8ca9VpRXA29rgDdU5VVArbEbR08W9bhNicimAM%2F%2FIVzG7LUwrePyLTPy77fh2t025BZ04kp%2BJwoffQQTLwxmJCS%2FhNhJnUcBkwdBOPOFDtFNETH5OHamFCmZb5B6qhKH099if6oBF7LLWMClnJfYnVSESd7aX8RiYgoFCBkInydUZNq4xGFGoA5Rm3Kg2XobuxIfoM5oxqfmDrS1d7OAdvr93NyOsnfNkHutq6RebwbgwrGb%2F9rKQYPAsGQsXq6Du3cSgiPP4ElJBUrL6lHfYGIBDY0mPH9VhQePDZjgub6XWIq3UD9XSUbNNRF%2BAPYlZaHpQws2x5%2FDWI%2Bt4EtjMUISg6gNmSxAE5MOMiIIxDoQxE4FIvDQMhXMIjZzWgnPD4tC97ALmSgsNsA%2FJBlEtBJqzXE2F71BR01LYCmmZnEwHctSmRImW9rOMxJbNab6xqGz80%2B9TPT%2F6Md5%2FSOERKch%2FoAeMp%2B9sHZcDYHjCvDsQ38RvmsCA7Dn2fjetHaOhaN8G95XfhgA9PX1o7rOjLMXSiBVaGEvO4Rx8gSIJ2yHQBJhIhybUPZXWnIlG8VucT2j3Q%2Bi8OF7FtDV1YOu7l6ErbkO1xl6TPO%2FCtnsLLgo0%2BGoOALrMQG51Or8rxckIvuAbAdFBi7mlKP4aSMiN96nkO%2Boa%2FiGpZpn8Ap%2BgulBd6BYkAsHWXwd4YjU1GwxuCM97Zwi81RReT%2BXra2Al6oeB442sKcpePgFc8JqMVv9Gm5KXQ1XIGXehGioNyHnieamesw8925BeFV3wMpWaDNasHZnBZRBxR%2Bd5Ttz%2F%2B7MduBwwZB9BLZTt0gmrtKOlK5P5ouD6G1zmAsb%2F7%2FpN0RXtXU6Z7TkAAAAAElFTkSuQmCC);
+}
+
+" type="text/css"?>
+
+<overlay id="tbutton" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var PageZoomButtons = {
+
+  zoomIn: function pageZoomButtons_zoomIn() {
+    try {
+      ZoomManager.prototype.getInstance().enlarge();
+    } catch(e) {
+      FullZoom.enlarge();
+    }
+  },
+
+  zoomOut: function pageZoomButtons_zoomOut() {
+    try {
+      ZoomManager.prototype.getInstance().reduce();
+    } catch(e) {
+      FullZoom.reduce();
+    }
+  },
+
+  zoomNormal: function pageZoomButtons_zoomNormal() {
+    try {
+      ZoomManager.prototype.getInstance().reset();
+    } catch(e) {
+      FullZoom.reset();
+    }
+  },
+
+  onClick: function pageZoomButtons_onClick(aEvent) {
+    switch (aEvent.button) {
+      case 0: this.zoomIn(); break;
+      case 1: this.zoomNormal(); break;
+      case 2: this.zoomOut();
+    }
+  },
+
+  onScroll: function pageZoomButtons_onScroll(aEvent) {
+    if (aEvent.detail > 0) {
+      this.zoomOut();
+    } else {
+      this.zoomIn();
+    }
+  },
+
+  initButtons: function pageZoomButtons_initButton(aEvent) {
+    var buttons = ["pagezoom-button", "pagezoom-button-scroll"]
+    var button = null;
+    for (var i in buttons) {
+      button = document.getElementById(buttons[i]);
+      if (button) {
+        button.addEventListener("DOMMouseScroll", function(aEvent) {
+          PageZoomButtons.onScroll(aEvent);
+        }, false);
+      }
+    }
+  }
+}
+
+function initZoomButtonsFirstRun()
+{
+ var test_ids =
+ [
+	"status-bar",
+ ];				
+ // keep trying until we find the gui
+ var i;
+ for (i = 0; i < test_ids.length; i++)
+ {
+  if (!document.getElementById(test_ids[i]))
+   {
+    setTimeout(initZoomButtonsFirstRun, 100);
+    return;
+   }
+ }
+}
+
+function initZoomButtons(){
+ // just delay it a little bit
+ setTimeout(initZoomButtonsFirstRun, 100);
+ PageZoomButtons.initButtons();
+}
+
+window.addEventListener("load", initZoomButtons, false);
+
+]]></script>
+  <toolbar id="nav-bar">
+
+    <toolbarbutton class="toolbarbutton-1"
+                   id="pagezoom-button"
+                   label="Zoom"
+				   insertafter="urlbar-container"
+                   context=""
+                   tooltip="pagezoom-button-tooltip"
+                   oncommand="if (event.shiftKey) PageZoomButtons.zoomNormal();"
+                   onclick="PageZoomButtons.onClick(event);">
+      <tooltip id="pagezoom-button-tooltip">
+        <vbox>
+          <label value="Links-Klick: Vergrößern" />
+		  <label value="Links-Klick + Scrollen: Vergrößern" />
+		  <menuseparator/>
+          <label value="Rechts-Klick: Verkleinern" />
+		  <label value="Rechts-Klick + Scrollen: Verkleinern" />
+		  <menuseparator/>
+          <label value="Mittel-Klick: Normal" />
+          <label value="Shift + Links-Klick: Normal" />
+        </vbox>
+      </tooltip>
+    </toolbarbutton>
+
+  </toolbar>
+
+</overlay>
+
