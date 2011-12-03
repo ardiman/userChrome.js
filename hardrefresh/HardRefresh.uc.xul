@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<overlay id="hardrefresh-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+if(!org) var org={};
+if(!org.ttg) org.ttg={};
+if(!org.ttg.hardrefresh) org.ttg.hardrefresh={};
+
+window.addEventListener("load", function() { org.ttg.hardrefresh.init(); }, false);
+
+org.ttg.hardrefresh = {
+	init: function() {
+		var contextMenu = document.getElementById("contentAreaContextMenu");  
+		if (contextMenu)  
+			contextMenu.addEventListener("popupshowing", function () {org.ttg.hardrefresh.showHideMenuItem()}, false);
+	},
+	
+	showHideMenuItem: function(event) {  
+		var show = document.getElementById("context-hardrefresh");  
+		show.hidden = (gContextMenu.isTextSelected || gContextMenu.onLink ||gContextMenu.onImage || gContextMenu.onTextInput);  
+	},
+	
+	refresh : function () {
+		content.window.location.reload(true);
+	}
+}	
+
+]]></script>		
+		<popup id="contentAreaContextMenu">  
+			<menuitem id="context-hardrefresh"
+				label="Aktualisieren"
+				insertafter="context-reload" 
+				accesskey="A"
+				oncommand="org.ttg.hardrefresh.refresh()"
+			/>  
+		</popup> 
+</overlay>
