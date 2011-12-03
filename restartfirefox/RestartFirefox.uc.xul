@@ -72,7 +72,7 @@ var restartFirefox = {
 	},
 
 // main restart logic
-	ourRestart : function() {
+	ourRestart : function(e) {
 		restartFirefox.init();
 		if(restartFirefox.warnOnRestart) {
 			if(restartFirefox.ver>=3) if(!restartFirefox.ourDialog()) return;
@@ -91,7 +91,11 @@ var restartFirefox = {
                                  "restart");
     if (cancelQuit.data)
       return; // somebody canceled our quit request
-
+		// bei Mittel- oder Rechtsklick Scriptcache leeren
+		if (e.button !=0 ) {
+			let xRE = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
+			xRE.invalidateCachesOnRestart();
+		}
 		Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(nsIAppStartup)
 			.quit(nsIAppStartup.eRestart | nsIAppStartup.eAttemptQuit);
 	},
@@ -153,17 +157,17 @@ window.addEventListener("load", restartFirefox.localizeWindows, false);
 	<menuitem id="restartfirefox-fileMenu"
 			class="menuitem-iconic"
 			label="Neustart"
-			oncommand="restartFirefox.ourRestart();"
+			onclick="restartFirefox.ourRestart(event);"
 			insertbefore="appmenu-quit"/>
   </vbox>
 
   <menupopup id="menu_FilePopup">
-    <menuitem id="restartfirefox-fileMenu2" label="Neustart" oncommand="restartFirefox.ourRestart();" insertbefore="menu_FileQuitItem"/>
+    <menuitem id="restartfirefox-fileMenu2" label="Neustart" onclick="restartFirefox.ourRestart(event);" insertbefore="menu_FileQuitItem"/>
   </menupopup>
 
   <toolbar id="main-menubar">
           <toolbarbutton id="restartfirefox-button" class="toolbarbutton-1" 
-          oncommand="restartFirefox.ourRestart();" tooltiptext="Neustart" 
+          onclick="restartFirefox.ourRestart(event);" tooltiptext="Neustart" 
           label="Restart" />
   </toolbar>
 
