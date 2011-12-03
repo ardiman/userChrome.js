@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<overlay id="printimageOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var printImageUrl = "";
+var printImageNewWindow = "";
+
+var printImage = {
+
+	
+	load: function() {
+		var menu = document.getElementById("contentAreaContextMenu");
+		try {
+			menu.addEventListener("popupshowing",printImage.popuphandler,false);
+		}
+		catch(e) {}
+	},
+	
+	
+	popuphandler: function() {
+		document.getElementById("printimage-context").hidden = true;
+		if( gContextMenu.onImage ) {
+			var imgNode = gContextMenu.target;
+			printImageUrl = imgNode.getAttribute("src");
+			if (printImageUrl) {	
+				document.getElementById("printimage-context").hidden = false;
+			}
+		}
+	},
+	
+	
+	print: function() {
+		printImageNewWindow = document.commandDispatcher.focusedWindow.open(makeURLAbsolute(document.commandDispatcher.focusedWindow.document.location,printImageUrl));
+		printImageNewWindow.focus();
+		setTimeout('printImageNewWindow.print()',1000);
+		return;
+	}
+};
+
+window.addEventListener("load", printImage.load, false);
+	
+]]></script>
+<popup id="contentAreaContextMenu">
+  <menuitem id="printimage-context" label="Grafik drucken..." accesskey="d" 
+  insertafter="context-viewimage" oncommand="printImage.print();"/>
+</popup>
+
+</overlay>
+
