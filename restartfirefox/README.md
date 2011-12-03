@@ -1,6 +1,7 @@
 # Restart Firefox
 Kombination aus verschiedenen Skripten. Hiermit kann der Firefox-Neustart via Menübarbutton, unter "Datei" in der Toolbar und im Appmenü 
-durchgeführt werden.
+durchgeführt werden. Mit Mittel- oder Rechtsklick auf einen der Menüeinträge bzw. auf den Button wird zusätzlich der Cache von userChrome.js 
+gelöscht.
 
 Das **Ergebnis des Skripts**:
 
