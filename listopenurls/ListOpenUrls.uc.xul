@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="listopenurls-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/x-javascript"><![CDATA[
+function ListOpenURLs()
+{
+	var dumpPrevious;
+	
+	if (confirm("Möchten Sie auch eine Liste der zuvor angezeigten Seiten?"))
+		dumpPrevious = true;
+
+	var num = gBrowser.browsers.length;
+
+	var msg = "";
+
+	for (var i = 0; i < num; i++)
+	{
+		var a = gBrowser.getBrowserAtIndex(i);
+
+		try
+		{
+			if (msg != "")
+				msg += "\n";
+			
+			msg += a.currentURI.spec;
+			
+			if (dumpPrevious)
+				for (var j = 0; j < a.sessionHistory.count; j++)
+					if (j != a.sessionHistory.index)	//Skip current
+					{
+						var b = a.sessionHistory.getEntryAtIndex(j, false);
+					
+						msg += "\n\t" + b.URI.spec;
+					}
+		}
+		catch(e)
+		{
+			Components.utils.reportError(e);
+		}
+	}
+
+	alert("Offene Seiten:\n\n" + msg);
+}
+
+]]></script>	
+	<window id="main-window">
+	    <commandset id="listopenurls-commandset">
+	        <command id="listopenurls-command"
+	            oncommand="ListOpenURLs();" />
+	    </commandset>
+	</window>
+	<menupopup id="menu_ToolsPopup">
+		<menuitem
+			insertafter="devToolsSeparator"
+			label="URL Liste öffnen"
+			accesskey="L"
+			command="listopenurls-command"
+		/>
+	</menupopup>
+</overlay>
