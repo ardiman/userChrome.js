@@ -31,7 +31,7 @@ display: none;
 // @version        2009/12/12 23:00 Google翻訳仕様変更
 // @version        2009/07/30 12:00 選択テキストがアルファベットでないなら DefaultJapaneseToOther で翻訳
 // @version        2009/05/09 12:00 3.6a1preでポップアップ表示されないのを修正, Yahoo!翻訳を追加. Windows live translator動かないので削
-// @version        2008/09/14 19:00 取り敢えずWindows live translator対応したけど, なにやらおかしいかも.
+// @version        2008/09/14 19:00 取り敢えずWindows live translator対応したけど,なにやらおかしいかも.
 // @version        2008/07/31 01:00 menupopupノードを引数にするようにした
 // @version        2008/05/04 22:00 shft+中クリックで現在設定しているエンジンの次のものを選択
 // @version        2008/03/15 00:00 3/12の退行バグ コンテンツのインプットエリア等の翻訳ができなくなっていたのを修正
@@ -62,7 +62,7 @@ display: none;
   <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
     var popupTranslate = {
       // 足切り1024文字
-      MaximumStringLength : 1024,
+      MaximumStringLength : 2024,
       //選択テキストがアルファベットでないなら DefaultJapaneseToOther で翻訳
       DefaultJapaneseToOther : "Yahoo Translate 日英",
 
@@ -137,6 +137,24 @@ display: none;
           code:"UTF-8",
           xpath:'.//div[@id="result"]/div'
         },
+		
+		{
+          Description:"Bing Auto DE",
+          method:'GET',
+          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/v2/ajax.svc/TranslateArray?appId=%2246846E697D3BC6FA50998483EF31894654002928%22&from=%22%22&to=%22de%22&a=&texts=[%22%%SEL%%%22]",
+          code:"UTF-8",
+          start:"\"TranslatedText\":\"",
+          end:"\",\"TranslatedTextSentenceLengths\"",
+        },
+
+        {
+          Description:"Bing Auto EN",
+          method:'GET',
+          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/v2/ajax.svc/TranslateArray?appId=%2246846E697D3BC6FA50998483EF31894654002928%22&from=%22%22&to=%22en%22&a=&texts=[%22%%SEL%%%22]",
+          code:"UTF-8",
+          start:"\"TranslatedText\":\"",
+          end:"\",\"TranslatedTextSentenceLengths\"",
+        }
       ],
 
       init: function(){
@@ -322,7 +340,7 @@ display: none;
         if (typeof engine.cookie != 'undefined')
           self.cleanThisSiteCookies(engine.action, engine.cookie.match(/(.*)=.*/)[1]);
 
-        self.show("Prefetch, Bitte warten");
+        self.show("Prefetch,Bitte warten");
         this.GM_xmlhttpRequest({
           method: 'GET',
           overrideMimeType:"text/html; charset="+engine.code,
@@ -526,7 +544,7 @@ display: none;
         else
           popup.showPopup(node,-1,-1,"popup",null,null);
         setTimeout(function(){popupTranslate.sizeChange();},0);
-        this.timer = setTimeout(function(){popup.hidePopup();},60000);//最大30秒で消す
+        this.timer = setTimeout(function(){popup.hidePopup();},40000);//最大30秒で消す
       },
 
       setValue: function(val){
@@ -540,7 +558,7 @@ display: none;
       sizeChange: function(){
         var popup = document.getElementById("translationResult");
         var box = document.getElementById("translationResultPopupBox");
-        popup.sizeTo(450, Math.max(box.boxObject.height*1.0+5,23));
+        popup.sizeTo(650, Math.max(box.boxObject.height*1.0+5,23));
       },
 
       menuPopup: function(refNode){
@@ -679,7 +697,7 @@ display: none;
 
   <popupset id="mainPopupSet">
     <popup id="translationResult"
-           style="-moz-appearance:tooltip;display:-moz-popup;font:message-box;background-color:InfoBackground;color:InfoText;border: 1px solid InfoText;width:450px;font-size:14px;">
+           style="-moz-appearance:tooltip;display:-moz-popup;font:message-box;background-color:InfoBackground;color:InfoText;border: 1px solid InfoText;width:650px;font-size:14px;">
       <vbox id="translationResultPopupBox">
         <label id="translationResultPopupLabel" flex="1" onclick="popupTranslate.copyToClipboard(this.textContent);"/>
       </vbox>
@@ -688,13 +706,13 @@ display: none;
   <window id="main-window">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
   <window id="messengerWindow">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
 </overlay>
