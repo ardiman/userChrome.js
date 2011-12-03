@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23historystatebutton-toolbar-button {
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAC9klEQVR42nWTa0iTURzGn3dubm7KmtOpaep0amBpREpeUPuihrUMi0JQy0v0TfMSQU2zAsPCjCiCTEpnJRmJGV3AvASZECE6SXKi80puc%2Byd0zmn62wjydv75bznec7%2Fx%2F%2Bc8xwKm77KmzcSyXBFKBSGc9jsPTbNtLw8qdVqh8jv7QpZeff%2F66lNxQfYbPaPuNg4p7DQUDCZTLtusVgwPDyMzu6uVTI9RCD9OwFenc44dWZ8fBy%2FR0aMpPCzTSeg5OioKJ7ZbEb3155mAji7E2AkPzdPUlf%2FFFar9aBGOz9g0z2E7hFenqKfiUmJeN3SoiSAkJ0AfXw%2BP1qv14PFYvEoUGKywkJgk0Q3Hk1JRWOTfIIAAnYCMI6lpbHetbfL%2FHz9ropEIruuVqtB03q1VHpCIG%2BS0wQg3BZQVVWVKg4Sf5Ael4LD4YCiHDbpACaTCR1fOtDf30%2FLrsn4WwCXSoqTgwLFn6RSKZwoHhoeK9HbNWf3YpJEyL4owarViLa2NmjmtSWVFddrNgAKi4qenExPz9%2B%2FLwK5Wb2Y8fAB5S1wdDCtwW7dHOobYzCoGMDb1ta6%2B7W1BeuAouJLElee68i5nByMjS6jvMkEZqgPnFkMRw7WrFgZmkJlFhfiYDaeNzTAsGAIqa25p7QDSi%2BXxTCZTt8SEhIwrHPDe2UAKI4zXJiOBpcsVjBWzEgVq7BXYEDf9z4YFxdj71bf6f0H8KcNtCoyMgJUYAR6Bvwwu%2BYClpMDYIufL2MRseFTgGoQikEFuFxeAAFMrJ9B%2FoWCGYFQ4OMdHAb3hEz0dOuhUlthuwiJD4XDsXzM97wAPTuJ0dHRefmzRuGGQywpK02Zmp76GCwJBs8%2FFAFHMgBnjsM0m6DqfAN67BeUSiW8RF6Zjx48fLklB%2BfzcmvpBbpQ4L4LDAYDbt72xwj9jAqLS0swGoxw47nVyxsa87YNkoeHJzc%2BMT6bFFcTx9Xm20JEIm0lW9FrNbpbQ4OKZotl9Y9Op12x1fwFxgovIIKa1zMAAAAASUVORK5CYII%3D);
+}
+
+" type="text/css"?>
+
+
+<overlay id="historystatebutton-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+    <script type="application/x-javascript"><![CDATA[
+
+var historystatebutton = {
+	init: function() {
+	
+	},
+	
+  onLoad: function() {
+    // initialization code
+    this.initialized = true;
+    this.strings = document.getElementById("historystatebutton-strings");
+    this.state = false;
+    UninstallObserver.register();
+   
+    var btnInstalled = false;
+    if (prefs.prefHasUserValue("extensions.historystatebutton.boolpref")) {
+        btnInstalled = prefs.getBoolPref("extensions.historystatebutton.boolpref");
+    }
+    if (!btnInstalled) {
+        // here install button
+					var navbar = document.getElementById("nav-bar");
+					var currentSet = document.getElementById("nav-bar").currentSet;
+        	if (navbar != null && document.getElementById("historystatebutton-toolbar-button") == null) {
+				    var newset;
+				        
+				        if (currentSet && currentSet.indexOf('historystatebutton-toolbar-button') == -1) {
+				            newset = currentSet + ',historystatebutton-toolbar-button';
+				            navbar.setAttribute('currentset', newset);
+				            navbar.currentSet = newset;
+				            document.persist('nav-bar', 'currentset');
+				            prefs.setBoolPref("extensions.historystatebutton.boolpref", true);
+				            //promptService.alert(window,"1 Install to", newset);
+                    setTimeout(function() {
+                    try {
+                       BrowserToolboxCustomizeDone(true);
+                    }
+                    catch (e) {}
+                    }, 5000);
+				        }
+				        else if (!currentSet) {
+				            newset = navbar.getAttribute('defaultset') + ',historystatebutton-toolbar-button';
+				            navbar.setAttribute('currentset', newset);
+				            navbar.currentSet = newset;
+				            document.persist('nav-bar', 'currentset');
+				            prefs.setBoolPref("extensions.historystatebutton.boolpref", true);
+                    setTimeout(function() {
+                    try {
+                       BrowserToolboxCustomizeDone(true);
+                    }
+                    catch (e) {}
+                    }, 5000);
+				        }
+
+				
+				}
+		}
+
+	changeButtonImg();
+    
+  },
+
+  onMenuItemCommand: function(e) {
+  	var isEnabled = prefs.getBoolPref("places.history.enabled");
+    if (isEnabled){
+        prefs.setBoolPref("places.history.enabled",false);
+        prefs.setIntPref("browser.urlbar.default.behavior",2);
+    }else{
+  	    prefs.setBoolPref("places.history.enabled",true);
+  	    prefs.setIntPref("browser.urlbar.default.behavior",0);
+  	}
+    changeButtonImg();
+  },
+
+  onToolbarButtonCommand: function(e) {
+    historystatebutton.onMenuItemCommand(e);
+  }
+};
+
+window.addEventListener("load", function () { historystatebutton.onLoad(); }, false);
+
+function changeButtonImg(){
+		var isEnabled = prefs.getBoolPref("places.history.enabled");
+	  if (isEnabled){
+	    	  document.getElementById("historystatebutton-toolbar-button").setAttribute("style", "list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAC9klEQVR42nWTa0iTURzGn3dubm7KmtOpaep0amBpREpeUPuihrUMi0JQy0v0TfMSQU2zAsPCjCiCTEpnJRmJGV3AvASZECE6SXKi80puc%2Byd0zmn62wjydv75bznec7%2Fx%2F%2Bc8xwKm77KmzcSyXBFKBSGc9jsPTbNtLw8qdVqh8jv7QpZeff%2F66lNxQfYbPaPuNg4p7DQUDCZTLtusVgwPDyMzu6uVTI9RCD9OwFenc44dWZ8fBy%2FR0aMpPCzTSeg5OioKJ7ZbEb3155mAji7E2AkPzdPUlf%2FFFar9aBGOz9g0z2E7hFenqKfiUmJeN3SoiSAkJ0AfXw%2BP1qv14PFYvEoUGKywkJgk0Q3Hk1JRWOTfIIAAnYCMI6lpbHetbfL%2FHz9ropEIruuVqtB03q1VHpCIG%2BS0wQg3BZQVVWVKg4Sf5Ael4LD4YCiHDbpACaTCR1fOtDf30%2FLrsn4WwCXSoqTgwLFn6RSKZwoHhoeK9HbNWf3YpJEyL4owarViLa2NmjmtSWVFddrNgAKi4qenExPz9%2B%2FLwK5Wb2Y8fAB5S1wdDCtwW7dHOobYzCoGMDb1ta6%2B7W1BeuAouJLElee68i5nByMjS6jvMkEZqgPnFkMRw7WrFgZmkJlFhfiYDaeNzTAsGAIqa25p7QDSi%2BXxTCZTt8SEhIwrHPDe2UAKI4zXJiOBpcsVjBWzEgVq7BXYEDf9z4YFxdj71bf6f0H8KcNtCoyMgJUYAR6Bvwwu%2BYClpMDYIufL2MRseFTgGoQikEFuFxeAAFMrJ9B%2FoWCGYFQ4OMdHAb3hEz0dOuhUlthuwiJD4XDsXzM97wAPTuJ0dHRefmzRuGGQywpK02Zmp76GCwJBs8%2FFAFHMgBnjsM0m6DqfAN67BeUSiW8RF6Zjx48fLklB%2BfzcmvpBbpQ4L4LDAYDbt72xwj9jAqLS0swGoxw47nVyxsa87YNkoeHJzc%2BMT6bFFcTx9Xm20JEIm0lW9FrNbpbQ4OKZotl9Y9Op12x1fwFxgovIIKa1zMAAAAASUVORK5CYII%3D)");
+	  	    document.getElementById("historystatebutton-toolbar-button").setAttribute("tooltiptext", "Chronik deaktivieren");
+	  	}else{
+	        document.getElementById("historystatebutton-toolbar-button").setAttribute("style", "list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAC%2BUlEQVR42nWTXUhTcRjGn7OdfehctanTWalzUwNTU6J0itZNdeM0usgstbQiKL8%2F6CoIAmtKWWbZjZQfpaWkQhCBlWaaEBFOqXAq06n4teHmdHqm65yNJL%2FOzf%2Bc5znv7%2Fzf9zx%2FApsudVlpPL3cFIvFIXwubz%2BjWVeWxwwGwwB9e7e4sKjj%2F%2FeJTcWHeDze96gjR9lyuRwkSTp0m82GQe0gvnR1rdKPh2nIz50ADYkJqrNj%2BjEMDQ1bbBT1gdFJDudEZESEgKIodHV%2FbaQByTsBBlPPX1DU1tfBbrdHzhmMGkZ3F4tCJZ6SHzExSrS0tmppQOBOAF16aprvm6Ym%2BqukkGSTwY4WVm1%2FdgmF5tiYWDS8bhylAX7bAh5VVMydS04WP31WBR%2BpDyQSiUOfmpqi50BBpUpEc3OzITsry31bQElJyYosQMZRJajA5%2FNBEE6bbgdWqxXtH9sxPDxM5WTncLcA8gryrwf4yx6rVCqwCQFqqrTo%2BTzt8KKPSZB2TYFVuwVtbW0Y1Y%2FdKL2nrtwAyMnNnTmdlOQRejAMGak9mPCQgvAWOXcwPgsf4zSqa6Oh6e%2FD25aW2Yfl5Z7rgNz8PIWbwG3wYno6RoaWcaveCjJICi6H5czBmh3UgB63U10hk%2FPwoqYG5gVzYPn9B1oHoLC4KJok2d1xcXH4bRTindYPBJ8LF9K5wSWbHSxqBadkOhwQmdH7rReWxUVlmbq05x%2FA12Q26cLDw0D4h6Gzbx8m11zAYTsBTPz2shahDNEDOg36Nf1wdRX40YDR9RlcvnplQuQuknrLgyGOS0Fnxzx0M3YwP0IhJRCl3A1D50uYJpmUDhnqnte6bxhiQVHhSf24%2Fr1cIYfANwh%2Bx88AXL7TXLFC96kZppFf0Gq18JJ4pTypqHy1JQeXMjPKTQumHJF4D1gsFoTejsOI%2BQkdFpeWYDFbIBQIq%2BtqajO3DZKHh6drbHxsGl2sph03xmdCRNAL3cr83KzxzoCmv9FmW50yGucopuYvanstIKXxu8AAAAAASUVORK5CYII%3D)");
+	        document.getElementById("historystatebutton-toolbar-button").setAttribute("tooltiptext", "Chronik aktivieren");
+	  }
+}
+
+var UninstallObserver =
+{
+    observe: function(subject, topic, data)
+    {
+        if (topic == "quit-application-granted"){
+        	prefs.setBoolPref("extensions.historystatebutton.boolpref", false);
+        	}
+            this.unregister();
+    },
+   
+    register: function()
+    {
+        var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+        observerService.addObserver(this, "quit-application-granted", false);
+    },
+   
+    unregister: function()
+    {
+        var observerService = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+        observerService.removeObserver(this,"quit-application-granted");
+    }
+}
+
+var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+
+historystatebutton.onFirefoxLoad = function(event) {
+ 
+  document.getElementById("contentAreaContextMenu")
+          .addEventListener("popupshowing", function (e){ historystatebutton.showFirefoxContextMenu(e); }, false);
+};
+
+historystatebutton.showFirefoxContextMenu = function(event) {
+  // show or hide the menuitem based on what the context menu is on
+  document.getElementById("context-historystatebutton").hidden = gContextMenu.onImage;
+};
+
+window.addEventListener("load", function () { historystatebutton.onFirefoxLoad(); }, false);
+
+]]></script> 	
+  <toolbar id="main-menubar">
+  <toolbarbutton id="historystatebutton-toolbar-button" class="toolbarbutton-1"
+    label="History state" tooltiptext="Chronik vorübergehend deaktivieren!"
+    oncommand="historystatebutton.onToolbarButtonCommand()"/>
+  </toolbar>
+
+</overlay>
