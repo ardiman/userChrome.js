@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<overlay id="clearHistory-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/x-javascript" src="chrome://browser/content/sanitize.js"/>
+    <script type="application/x-javascript">
+    <![CDATA[
+    if(!com) var com={};
+    if(!com.youpinadi) com.youpinadi={};
+    if(!com.youpinadi.clearHistory) com.youpinadi.clearHistory={};
+
+    com.youpinadi.clearHistory = {
+        clearHistory: function()
+        {
+            let s = new Sanitizer();
+            try
+            {
+                s.clearItem('history');
+            }
+            catch(err)
+            {
+                alert('Es gab einen Fehler beim Löschen der Chronik');
+            }
+        }
+    }
+    ]]>
+    </script>
+    <menupopup id="goPopup">
+      <menuitem label="Chronik löschen"
+                key="clear-history-key" 
+                insertafter="endHistorySeparator" 
+                oncommand="com.youpinadi.clearHistory.clearHistory();" />
+		<menuseparator/>		
+    </menupopup>
+</overlay>
