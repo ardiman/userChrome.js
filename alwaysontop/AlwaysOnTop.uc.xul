@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23alwaysontop-button{
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAADa0lEQVR4Xi2QTUxcVRiG33PuuQwzhQBTmMEA1Y62NEYtRWoaLDixDQvsRmNcGF1rY7qpXdE0ISamiWlYGN1rlcZEMam4sJbG2EXTVAO1AaQdfko6FAaGmbk%2FzL333HPPZ0f6rr58yfPmzcOGh4exb18XcrlFAKx2D5755PQ58BgFYag1gSKlSUURuTsucQbSoYexsbHxmZmZq0JKieP9%2FUinUrh27Tfs7zqatRKHs%2Bs7qtzWUseiCNDEEGkNM20gv%2BEQoo2Wvt5XnJmZu78Ixhg838exY0fhWttwHSuc%2FNtyby841QPtcQRKA0QQHEwIhvnldeqsz4u069hhGJJgjCdNwU9EoYwNDA6GlfL2ESu%2BGd%2FeYxO3fMQZwZOaVir1PjP3qLLlsIONgjuO4%2FleFaLv1SMfnzz1%2FucFR4IDeM4woGSA4z3p5jBSCCWhXpUw%2Futf9p3K4XXODRhMwqnuOJoIwuSq%2FYfbHvIW4WBHAkGoEVE9NAExYeDe4gaocB9JI%2BSPSy5VbIe1HjJp2w9sABBgHFu2wo07m7jXwPC%2FdiLUUvPzaLOE3rYAglV1o1HG2wNJfPB6kz7zs6wkk20QRATOGUyDgbTahXdxMLb7V6HCa73J6OyJQV02F%2Fj3S5d0%2BvmdoKM7A0G1gPC0CCAGBoCeLvClBI8xJJdmY8H1P9orxia3XtzwC%2BbWZpMb1Qq0NlgNYdAAfKng%2BiFcL0DV9xGvB%2FqzL6H5x%2BuxzOXLiRQ4vnmm66s0eTd3bAkBrVRTgiNfslEoOjCZQmsDIdvdiJ4XUjjgLiKx8i%2B5y6tKx2KGx4CXnZKXisdP3jJ5UZQsT717SMPKxtESN9GTaUF3ZwO4rsJSIerOfofmq5NMJxJ1LuMg0niP9KeRVz03r%2FUVLhVkgrZw%2Bs0EPnyjFfuTATo7UvAl4e5cDgICIMCTIfNJQ3KOqta8KiWLtE6w0dHRC0NDQ58RAcIU0FEEIQTm5%2BYwn8vNrk5M3GIPHuTeaW%2FP9tn2W1tEGBfi23wQTD8CVnixWLR834dSIVYfPgympqbmRkZGvh45f%2F7UFxcvDtwsFD6K9u69lMlk%2FowAREphVsrf7wNfloFJMT09PbG0tPSs67pyeXn5BoB%2F1tbWtjq7ugDG0FJXhyfC8FM%2Bv%2BApdUUCVCR6bANgAP4DpWLmLO6W%2Bl8AAAAASUVORK5CYII%3D);
+}
+
+
+" type="text/css"?>
+
+
+<overlay id="alwaysontop" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+function alwaysontop_logxxx(msg) {
+	var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+		.getService(Components.interfaces.nsIConsoleService);
+		
+	consoleService.logStringMessage(msg);
+}
+
+function alwaysontop_coremakeAlwaysOnTop(window, onTop)
+{
+	try {
+
+	Components.utils.import("resource://gre/modules/ctypes.jsm");
+	var lib = ctypes.open("user32.dll");
+	var funcActiveWindow = 0;
+	try
+	{
+		 funcActiveWindow = lib.declare("GetActiveWindow", ctypes.winapi_abi, ctypes.int32_t);
+	}
+	catch (ex)
+	{
+		funcActiveWindow = lib.declare("GetActiveWindow", ctypes.stdcall_abi, ctypes.int32_t);
+	}
+	
+	if (funcActiveWindow != 0)
+	{
+		var activeWindow = funcActiveWindow();
+		
+		var funcSetWindowPos = 0;
+		try
+		{
+			funcSetWindowPos = lib.declare("SetWindowPos",
+								ctypes.winapi_abi,
+								ctypes.bool,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.uint32_t);
+		}
+		catch(ex)
+		{
+			funcSetWindowPos = lib.declare("SetWindowPos",
+								ctypes.stdcall_abi,
+								ctypes.bool,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.int32_t,
+								ctypes.uint32_t);		
+		}
+		
+		var hwndAfter = -2;
+		if (onTop)
+			hwndAfter = -1;
+		funcSetWindowPos(activeWindow, hwndAfter, 0, 0, 0, 0, 19);
+	}
+
+	lib.close();
+	
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+
+window.addEventListener("load", alwaysontop_load, false);
+window.addEventListener("unload", alwaysontop_unload, false);
+
+var alwaysontop_oldWindowWidth = 0;
+var alwaysontop_oldWindowHeight = 0;
+
+function alwaysontop_log(msg) {
+	var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
+		.getService(Components.interfaces.nsIConsoleService);
+		
+	consoleService.logStringMessage(msg);
+}
+
+function alwaysontop_resize()
+{
+	try
+	{
+		var nMinDiffForUpdate = 100;
+		if ((Math.abs(alwaysontop_oldWindowWidth - window.outerWidth) > nMinDiffForUpdate) &&
+			(Math.abs(alwaysontop_oldWindowHeight - window.outerHeight) > nMinDiffForUpdate))
+		{
+			if ((window.outerWidth - alwaysontop_oldWindowWidth > nMinDiffForUpdate) &&
+				(window.outerHeight - alwaysontop_oldWindowHeight > nMinDiffForUpdate))
+			{
+				alwaysontop_updateAlwaysonTop();
+			}
+			
+			alwaysontop_oldWindowWidth = window.outerWidth;
+			alwaysontop_oldWindowHeight = window.outerHeight;			
+		}
+		
+		setTimeout(alwaysontop_resize, 100);
+	}
+	catch(ex) {alwaysontop_log(ex);}
+}
+
+function alwaysontop_load()
+{
+	window.removeEventListener("load", alwaysontop_load, false);
+	
+	alwaysontop_addToolbarButton();
+	
+	alwaysontop_resize();
+	
+	alwaysontop_initAlwaysonTop();
+}
+
+function alwaysontop_unload()
+{
+	window.removeEventListener("unload", alwaysontop_unload, false);
+	
+	alwaysontop_saveAlwaysonTop();
+}
+
+function alwaysontop_addToolbarButton()
+{
+	try {
+
+	var bAddButton = true;
+	try
+	{
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefBranch);
+		bAddButton = prefs.getBoolPref("E6C93316-271E-4b3d-8D7E-FE11B4350AEB");
+	}
+	catch(ex) { }
+	
+//	if (bAddButton)
+	{
+		var buttonId = "alwaysontop-button";
+		var navbar = document.getElementById("nav-bar");
+		if (!navbar || navbar.currentSet.indexOf(buttonId) != -1)
+			return;
+
+		var navigatorToolbox = document.getElementById("navigator-toolbox");
+		if (!navigatorToolbox)
+			return;
+
+		var navigatorToolbar = navigatorToolbox.firstChild;
+		while (navigatorToolbar)
+		{
+			if (navigatorToolbar.currentSet && navigatorToolbar.currentSet.indexOf(buttonId) != -1)
+				return;
+
+			navigatorToolbar = navigatorToolbar.nextSibling;
+		}
+
+		navbar.insertItem(buttonId, navbar.lastChild, null, false);
+		document.persist("nav-bar", "currentset");
+		
+		try
+		{
+			var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefBranch);
+			prefs.setBoolPref("E6C93316-271E-4b3d-8D7E-FE11B4350AEB", false);
+		}
+		catch(ex) { }		
+	}
+	
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+
+function alwaysontop_safeChangeAttrib(elem, attribute, value)
+{
+	try
+	{
+		elem.setAttribute(attribute, value);
+	}
+	catch(ex)
+	{
+	}
+}
+
+function alwaysontop_makeAlwaysonTop()
+{
+	try {
+	var btn = document.getElementById("alwaysontop-button");
+	var cmd = document.getElementById("alwaysontop-command");
+	
+	var sChecked = (cmd.getAttribute("checked") == "true") ? "false" : "true";
+	var bChecked = (sChecked == "true") ? true : false;
+	
+	alwaysontop_safeChangeAttrib(cmd, "checked", sChecked);
+	alwaysontop_safeChangeAttrib(btn, "checked", sChecked);
+
+	alwaysontop_coremakeAlwaysOnTop(window, bChecked);
+
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+
+function alwaysontop_initAlwaysonTop()
+{
+	try {
+	var btn = document.getElementById("alwaysontop-button");
+	var cmd = document.getElementById("alwaysontop-command");
+	
+	var bChecked = alwaysontop_readBoolPref("ontop");
+	var sChecked = (bChecked == true) ? "true" : "false";
+
+	alwaysontop_safeChangeAttrib(btn, "checked", sChecked);
+	alwaysontop_safeChangeAttrib(cmd, "checked", sChecked);
+
+	alwaysontop_coremakeAlwaysOnTop(window, bChecked);
+
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+
+function alwaysontop_saveAlwaysonTop()
+{
+	try {
+	var cmd = document.getElementById("alwaysontop-command");
+	var bChecked = (cmd.getAttribute("checked") == "true") ? true : false;
+
+	alwaysontop_writeBoolPref("ontop", bChecked);
+
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+
+function alwaysontop_updateAlwaysonTop()
+{
+	try {
+	var cmd = document.getElementById("alwaysontop-command");
+	
+	var sChecked = cmd.getAttribute("checked");
+	var bChecked = (sChecked == "true") ? true : false;
+
+	alwaysontop_coremakeAlwaysOnTop(window, bChecked);
+
+	} catch (ex) {
+		alwaysontop_log(ex);
+	}
+}
+	
+]]></script>	
+	<keyset id="mainKeyset">
+		<key key="t" command="alwaysontop-command" modifiers="control,alt" id="alwaysontop-key"/>	
+	</keyset>
+	
+	<commandset id="mainCommandSet">
+		<command
+			id="alwaysontop-command"
+			oncommand="alwaysontop_makeAlwaysonTop()"
+		/>
+	</commandset>
+	
+	<toolbar id="main-menubar">
+		<toolbarbutton
+			id="alwaysontop-button"
+			class="toolbarbutton-1"
+			label="Always on Top"
+			type="checkbox"
+			autocheck="false"
+			tooltiptext='Setzen/Entfernen "Immer im Vordergrund" Stil für dieses Fenster'
+			oncommand="alwaysontop_makeAlwaysonTop()"
+		/>
+	</toolbar>
+	
+	<menupopup id="menu_viewPopup">
+		<menuitem
+			id="alwaysontop-menuitem"
+			insertafter="fullScreenItem"
+			label="Immer im Vordergrund"
+			type="checkbox"
+			autocheck="false"
+			key="alwaysontop-key"
+			tooltiptext='Setzen/Entfernen "Immer im Vordergrund" Stil für dieses Fenster'
+			command="alwaysontop-command"
+		/>
+	</menupopup>	
+</overlay> 
