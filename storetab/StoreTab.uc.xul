@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23storeTab-button {
+list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj333vRCS4iAlEtvUhUIIFJCi4AUkSYqIQkQSoghodkVUcERRUUEG8igiAOOjoCMFVEsDIoK2AfkIaKOg6OIisr74Xuja9a89%2BbN%2FrXXPues852zzwfACAyWSDNRNYAMqUIeEeCDx8TG4eQuQIEKJHAAEAizZCFz%2FSMBAPh%2BPDwrIsAHvgABeNMLCADATZvAMByH%2Fw%2FqQplcAYCEAcB0kThLCIAUAEB6jkKmAEBGAYCdmCZTAKAEAGDLY2LjAFAtAGAnf%2BbTAICd%2BJl7AQBblCEVAaCRACATZYhEAGg7AKzPVopFAFgwABRmS8Q5ANgtADBJV2ZIALC3AMDOEAuyAAgMADBRiIUpAAR7AGDIIyN4AISZABRG8lc88SuuEOcqAAB4mbI8uSQ5RYFbCC1xB1dXLh4ozkkXKxQ2YQJhmkAuwnmZGTKBNA%2Fg88wAAKCRFRHgg%2FP9eM4Ors7ONo62Dl8t6r8G%2FyJiYuP%2B5c%2BrcEAAAOF0ftH%2BLC%2BzGoA7BoBt%2FqIl7gRoXgugdfeLZrIPQLUAoOnaV%2FNw%2BH48PEWhkLnZ2eXk5NhKxEJbYcpXff5nwl%2FAV%2F1s%2BX48%2FPf14L7iJIEyXYFHBPjgwsz0TKUcz5IJhGLc5o9H%2FLcL%2F%2Fwd0yLESWK5WCoU41EScY5EmozzMqUiiUKSKcUl0v9k4t8s%2BwM%2B3zUAsGo%2BAXuRLahdYwP2SycQWHTA4vcAAPK7b8HUKAgDgGiD4c93%2F%2B8%2F%2FUegJQCAZkmScQAAXkQkLlTKsz%2FHCAAARKCBKrBBG%2FTBGCzABhzBBdzBC%2FxgNoRCJMTCQhBCCmSAHHJgKayCQiiGzbAdKmAv1EAdNMBRaIaTcA4uwlW4Dj1wD%2FphCJ7BKLyBCQRByAgTYSHaiAFiilgjjggXmYX4IcFIBBKLJCDJiBRRIkuRNUgxUopUIFVIHfI9cgI5h1xGupE7yAAygvyGvEcxlIGyUT3UDLVDuag3GoRGogvQZHQxmo8WoJvQcrQaPYw2oefQq2gP2o8%2BQ8cwwOgYBzPEbDAuxsNCsTgsCZNjy7EirAyrxhqwVqwDu4n1Y8%2BxdwQSgUXACTYEd0IgYR5BSFhMWE7YSKggHCQ0EdoJNwkDhFHCJyKTqEu0JroR%2BcQYYjIxh1hILCPWEo8TLxB7iEPENyQSiUMyJ7mQAkmxpFTSEtJG0m5SI%2BksqZs0SBojk8naZGuyBzmULCAryIXkneTD5DPkG%2BQh8lsKnWJAcaT4U%2BIoUspqShnlEOU05QZlmDJBVaOaUt2ooVQRNY9aQq2htlKvUYeoEzR1mjnNgxZJS6WtopXTGmgXaPdpr%2Bh0uhHdlR5Ol9BX0svpR%2BiX6AP0dwwNhhWDx4hnKBmbGAcYZxl3GK%2BYTKYZ04sZx1QwNzHrmOeZD5lvVVgqtip8FZHKCpVKlSaVGyovVKmqpqreqgtV81XLVI%2BpXlN9rkZVM1PjqQnUlqtVqp1Q61MbU2epO6iHqmeob1Q%2FpH5Z%2FYkGWcNMw09DpFGgsV%2FjvMYgC2MZs3gsIWsNq4Z1gTXEJrHN2Xx2KruY%2FR27iz2qqaE5QzNKM1ezUvOUZj8H45hx%2BJx0TgnnKKeX836K3hTvKeIpG6Y0TLkxZVxrqpaXllirSKtRq0frvTau7aedpr1Fu1n7gQ5Bx0onXCdHZ4%2FOBZ3nU9lT3acKpxZNPTr1ri6qa6UbobtEd79up%2B6Ynr5egJ5Mb6feeb3n%2Bhx9L%2F1U%2FW36p%2FVHDFgGswwkBtsMzhg8xTVxbzwdL8fb8VFDXcNAQ6VhlWGX4YSRudE8o9VGjUYPjGnGXOMk423GbcajJgYmISZLTepN7ppSTbmmKaY7TDtMx83MzaLN1pk1mz0x1zLnm%2Beb15vft2BaeFostqi2uGVJsuRaplnutrxuhVo5WaVYVVpds0atna0l1rutu6cRp7lOk06rntZnw7Dxtsm2qbcZsOXYBtuutm22fWFnYhdnt8Wuw%2B6TvZN9un2N%2FT0HDYfZDqsdWh1%2Bc7RyFDpWOt6azpzuP33F9JbpL2dYzxDP2DPjthPLKcRpnVOb00dnF2e5c4PziIuJS4LLLpc%2BLpsbxt3IveRKdPVxXeF60vWdm7Obwu2o26%2FuNu5p7ofcn8w0nymeWTNz0MPIQ%2BBR5dE%2FC5%2BVMGvfrH5PQ0%2BBZ7XnIy9jL5FXrdewt6V3qvdh7xc%2B9j5yn%2BM%2B4zw33jLeWV%2FMN8C3yLfLT8Nvnl%2BF30N%2FI%2F9k%2F3r%2F0QCngCUBZwOJgUGBWwL7%2BHp8Ib%2BOPzrbZfay2e1BjKC5QRVBj4KtguXBrSFoyOyQrSH355jOkc5pDoVQfujW0Adh5mGLw34MJ4WHhVeGP45wiFga0TGXNXfR3ENz30T6RJZE3ptnMU85ry1KNSo%2Bqi5qPNo3ujS6P8YuZlnM1VidWElsSxw5LiquNm5svt%2F87fOH4p3iC%2BN7F5gvyF1weaHOwvSFpxapLhIsOpZATIhOOJTwQRAqqBaMJfITdyWOCnnCHcJnIi%2FRNtGI2ENcKh5O8kgqTXqS7JG8NXkkxTOlLOW5hCepkLxMDUzdmzqeFpp2IG0yPTq9MYOSkZBxQqohTZO2Z%2Bpn5mZ2y6xlhbL%2BxW6Lty8elQfJa7OQrAVZLQq2QqboVFoo1yoHsmdlV2a%2FzYnKOZarnivN7cyzytuQN5zvn%2F%2FtEsIS4ZK2pYZLVy0dWOa9rGo5sjxxedsK4xUFK4ZWBqw8uIq2Km3VT6vtV5eufr0mek1rgV7ByoLBtQFr6wtVCuWFfevc1%2B1dT1gvWd%2B1YfqGnRs%2BFYmKrhTbF5cVf9go3HjlG4dvyr%2BZ3JS0qavEuWTPZtJm6ebeLZ5bDpaql%2BaXDm4N2dq0Dd9WtO319kXbL5fNKNu7g7ZDuaO%2FPLi8ZafJzs07P1SkVPRU%2BlQ27tLdtWHX%2BG7R7ht7vPY07NXbW7z3%2FT7JvttVAVVN1WbVZftJ%2B7P3P66Jqun4lvttXa1ObXHtxwPSA%2F0HIw6217nU1R3SPVRSj9Yr60cOxx%2B%2B%2Fp3vdy0NNg1VjZzG4iNwRHnk6fcJ3%2FceDTradox7rOEH0x92HWcdL2pCmvKaRptTmvtbYlu6T8w%2B0dbq3nr8R9sfD5w0PFl5SvNUyWna6YLTk2fyz4ydlZ19fi753GDborZ752PO32oPb%2B%2B6EHTh0kX%2Fi%2Bc7vDvOXPK4dPKy2%2BUTV7hXmq86X23qdOo8%2FpPTT8e7nLuarrlca7nuer21e2b36RueN87d9L158Rb%2F1tWeOT3dvfN6b%2FfF9%2FXfFt1%2Bcif9zsu72Xcn7q28T7xf9EDtQdlD3YfVP1v%2B3Njv3H9qwHeg89HcR%2FcGhYPP%2FpH1jw9DBY%2BZj8uGDYbrnjg%2BOTniP3L96fynQ89kzyaeF%2F6i%2FsuuFxYvfvjV69fO0ZjRoZfyl5O%2FbXyl%2FerA6xmv28bCxh6%2ByXgzMV70VvvtwXfcdx3vo98PT%2BR8IH8o%2F2j5sfVT0Kf7kxmTk%2F8EA5jz%2FGMzLdsAAAAEZ0FNQQAAsY58%2B1GTAAAAIGNIUk0AAHolAACAgwAA%2Bf8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAKmSURBVHjahJFPaJxlEMZ%2F759v90s3aXY325hGmrRUqCiKVs1F0EOVXuyhCEHioR70FihYPXjwIN48SA4evIlQ9OhBsNAiIgiCIATBIniINkFr3ETIGvPt974z4yFdWU954IFhHmaY4efMjKP01KuPffTn%2Fs6pmAq29n%2F7sbpRXR1l%2FqjhqeWijLPNV1beWL6w%2FNblCzbUjfH8yAWcy2nAgGarQbPVoC7SxfE4jgrn3KNLS0tvppTEDO7M%2FLqkJqEh3So842m2mwB0bPrh4sn4vrWZnGhMfOvMDOdcWF1d3VpbW5sTUTa2N1l%2B50UeWJljZrHDqfYCB9UBjdggDzMkQD2fv33z5uiCICJ%2Be3uHwWCPrb9%2BJ6X8v0%2Bcc4gKtSRCiGidqKcr4srKy8%2B%2Ffu3a5fOPPzFwntmsgojik%2BPLT79CFzIt12Xx2S4A1deRyVYL3TO6Zadw169%2FsnHp0gsdEZkMIQQz4%2B5en%2FVffqKIgdubP%2FPh5rs8cvEsALc%2F2Oalp1%2BzIsT6TN2%2BG8EmiqKY3t3dNe8PoYQMD55YJDhPwyL84Ph7a%2F8QmzrO3%2F%2BQO7dwtrn%2BzXdlNDNR1Qz4Xq%2FnQvCIKKoGGOXkMabuzPDHZxUAs6055o%2F37ORUT78Xkf8wZhG7J%2Be9w3sHwInpDl%2B8d4Mq1QyHNYUPVu39Y1nERAwPdgswTFVV1cwYdyMU3He8x%2ByxLosz8%2FRabfXmVUQw01seWAcIscje%2B9p7r6p2MO6URGKMqqp4HzKOJCKmquv%2B9OkzAIV3rnDOFYfID2vnXFFVwwaYNzMHkHIOqlrknIuT8%2FO4fn%2FnubIsr5hZHlEYSVXJOZNzIichi5ByIqWEiMZ6OPzY9fs7ZVmW0cwYXyCi5JxIOSM5k0SQlMk5H%2FZUSHWq%2Fx0ALYx4dsKI7XcAAAAASUVORK5CYII%3D);
+}
+
+%23storeTab-button > dropmarker {
+   display: none;
+} 
+
+" type="text/css"?>
+
+
+<overlay id="storeTab"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/x-javascript"><![CDATA[
+var storeTab={
+	onLoad:function(){
+		if (!this.initialized){
+			try {
+   			var firefoxnav = document.getElementById("nav-bar");
+  			var curSet = firefoxnav.currentSet;
+   			if (curSet.indexOf("storeTab-button") == -1){
+     			var set;
+     // Place the button before the urlbar
+     			if (curSet.indexOf("urlbar-container") != -1)
+       				set = curSet.replace(/urlbar-container/, "my-extension-button,urlbar-container");
+     			else  // at the end
+       				set = curSet + ",storeTab-button";
+     			firefoxnav.setAttribute("currentset", set);
+     			firefoxnav.currentSet = set;
+     			document.persist("nav-bar", "currentset");
+     // If you don't do the following call, funny things happen
+     			try {
+       				BrowserToolboxCustomizeDone(true);
+     			}
+     			catch (e) { }
+   				}
+ 			}
+ 			catch(e) { }
+			this.initialized = true;
+		}
+	},
+	store:function(){
+		var tabs = gBrowser.mTabContainer.childNodes;
+		var storeURI = '';
+		var i = 0;
+		if ( tabs.length == 1 && gBrowser.getBrowserForTab(tabs[0]).contentDocument.location == 'about:blank' ){
+			alert("no tab to store");
+			return;
+		}
+		for ( i = 0; i < tabs.length; i++ ){
+			if(gBrowser.getBrowserForTab(tabs[i]).contentDocument.location=="about:blank"){
+				continue;
+			}
+			storeURI += gBrowser.getBrowserForTab(tabs[i]).contentDocument.location+"||";
+		}
+		// get profile directory and create file.
+		var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+        file.append("storeTab.sto");
+        if(file.exists()){
+        	file.remove(true);
+        }
+        file.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE,0777);
+        var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].createInstance(Components.interfaces.nsIFileOutputStream);
+		// use 0x02 | 0x10 to open file for appending.
+		foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0); 
+		var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].createInstance(Components.interfaces.nsIConverterOutputStream);
+		converter.init(foStream, "UTF-8", 0, 0);
+		converter.writeString(storeURI);
+		converter.close(); // this closes foStream
+	},
+	restore:function(){
+		var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsIFile);
+        file.append("storeTab.sto");
+        if(file.exists()){                
+			var data = "";
+			var str={};
+			var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
+			var cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"].createInstance(Components.interfaces.nsIConverterInputStream);
+			fstream.init(file, -1, 0, 0);
+			cstream.init(fstream, "UTF-8", 0, 0); // you can use another encoding here if you wish
+  			cstream.readString(-1, str); // read the whole file and put it in str.value
+ 			data = str.value;
+			cstream.close(); // this closes fstream
+			var index=0;
+			//var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+			//var mainWindow = wm.getMostRecentWindow("navigator:browser");
+			while(data.indexOf("||")!=-1){
+				var last=data.indexOf("||");
+				var tabURI=data.substring(index,last);
+				gBrowser.addTab(tabURI);
+				index=last;
+				var data=data.replace(/\|\|/,"");
+			}
+		}
+	},
+}
+window.addEventListener('load', function(e) { storeTab.onLoad(e); }, false);
+
+]]></script>	
+<toolbar id="nav-bar">
+		<toolbarbutton id="storeTab-button" class="toolbarbutton-1" label="storeTab" insertafter="urlbar-container" tooltiptext="Speichern/Wiederherstellen der letzten Tabs" type="menu">
+			<menupopup>		
+				<menuitem label="Tabs speichern" oncommand="storeTab.store();"/>
+				<menuitem label="Tabs wiederherstellen" oncommand="storeTab.restore();"/>
+			</menupopup>
+		</toolbarbutton>
+	</toolbar>
+</overlay>
