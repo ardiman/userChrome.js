@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23pagehacker-button {
+ list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAm1JREFUeNqMU11IFFEU%2FubOzM7%2BCEmUaVgs%2FpQhRpEZiZEEQdFDxCYkERiRiQ%2BBlRLFklYgPpTkgz0Y%2BBMoBUUEZgUWEkY%2FJPhSWBkVW%2Bpqbi7i1q4zt3NndrZdEOoM5%2F5%2F3%2FnOPXekouZHoUhUT48ZHJxzJJskATI1qsymx%2Fx7M7CU5TU94P%2ByZx%2BnufdCf%2B9SeEVEFnZ%2FbBJSPKoQYtB4%2F%2FpMOE%2Fdwa%2BrPnQe3lp5FP3S56Z9lckEzJbtVGS4VXJFMXuXwsx1kUJEN1CevxI9R0oOeS8N3E5RYA%2BcBGB0WKgQlEZcWXVpDlY03MMizX%2B3%2BjCvGxVLEmgyI%2FkWgTCDcXydi6DVt8l02yK6hE8tT3lE4ihs2CUlCByybOZvE4j4PxaimCEXqxLtb87woI4NQy2oxtS3IEb8dzlLTsFJKrS4i7FL3Iuiwq254HF7UH%2BuESdqTqLzQx9CgRAWZ4Jgf1OQSIVk9gknAk3ToHlUzPqzcb6qCDe6b6Fky3Y8ZIMouV5TnEjBrSlWGe0URD7MAUMDxk%2FnoqwiDxg9g8qCY%2Bh4PIi25pZiOvYmQfD8yyxVwXoHhAQn8KJDxuq2dSg76AW%2BTwHhMEZHenGl%2FZ0JNk%2FaEVn82coSlVNW6VbTsOZaDkp92UBgApidRNeLVahbexM22MJZIa3aU2uYJVSx%2B9UObKuvBZaVUzkCaB9ejqqOt3DE5lKfshLXcGBDVspGV08WMvUF7NmYhq7XGajtfm8BeCyVQI3ND%2BVfHNgpXpr1MeiKG8eDOiYmX6KQUj%2Bb34fGy0%2BgEliNhodS%2FljyXPJ0%2FL%2F9JB%2B3J38EGABKY%2BaWBIXgxQAAAABJRU5ErkJggg%3D%3D);
+}
+
+" type="text/css"?>
+
+
+<overlay id="pagehacker-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var pageHacker = {
+	hackerOn: false,
+
+	toggle: function pageHacker_toggle() {
+		if (this.hackerOn) {
+		this.hackerOn = false;
+		content.document.body.contentEditable='false'; void 0
+        }
+        else {
+		this.hackerOn = true;
+		content.document.body.contentEditable='true'; void 0
+        }
+    }
+};
+	
+]]></script>
+<toolbar id="main-menubar">
+  <toolbarbutton id="pagehacker-button"
+  label="Seite bearbeiten"
+  tooltiptext="Aktuelle Seite bearbeiten"
+  oncommand="pageHacker.toggle()"
+  class="toolbarbutton-1"
+  type="checkbox"
+  autoCheck="true"/>
+</toolbar>  
+  
+</overlay>
