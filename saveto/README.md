@@ -9,4 +9,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot SaveTo](https://github.com/ardiman/userChrome.js/raw/master/saveto/scr_saveto.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe die Pfade in dem Skript an.
