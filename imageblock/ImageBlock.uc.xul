@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23imageblock-toolbar-button
+{
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKTWlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVN3WJP3Fj7f92UPVkLY8LGXbIEAIiOsCMgQWaIQkgBhhBASQMWFiApWFBURnEhVxILVCkidiOKgKLhnQYqIWotVXDjuH9yntX167%2B3t%2B9f7vOec5%2FzOec8PgBESJpHmomoAOVKFPDrYH49PSMTJvYACFUjgBCAQ5svCZwXFAADwA3l4fnSwP%2FwBr28AAgBw1S4kEsfh%2F4O6UCZXACCRAOAiEucLAZBSAMguVMgUAMgYALBTs2QKAJQAAGx5fEIiAKoNAOz0ST4FANipk9wXANiiHKkIAI0BAJkoRyQCQLsAYFWBUiwCwMIAoKxAIi4EwK4BgFm2MkcCgL0FAHaOWJAPQGAAgJlCLMwAIDgCAEMeE80DIEwDoDDSv%2BCpX3CFuEgBAMDLlc2XS9IzFLiV0Bp38vDg4iHiwmyxQmEXKRBmCeQinJebIxNI5wNMzgwAABr50cH%2BOD%2BQ5%2Bbk4eZm52zv9MWi%2FmvwbyI%2BIfHf%2FryMAgQAEE7P79pf5eXWA3DHAbB1v2upWwDaVgBo3%2FldM9sJoFoK0Hr5i3k4%2FEAenqFQyDwdHAoLC%2B0lYqG9MOOLPv8z4W%2Fgi372%2FEAe%2Ftt68ABxmkCZrcCjg%2F1xYW52rlKO58sEQjFu9%2Bcj%2FseFf%2F2OKdHiNLFcLBWK8ViJuFAiTcd5uVKRRCHJleIS6X8y8R%2BW%2FQmTdw0ArIZPwE62B7XLbMB%2B7gECiw5Y0nYAQH7zLYwaC5EAEGc0Mnn3AACTv%2FmPQCsBAM2XpOMAALzoGFyolBdMxggAAESggSqwQQcMwRSswA6cwR28wBcCYQZEQAwkwDwQQgbkgBwKoRiWQRlUwDrYBLWwAxqgEZrhELTBMTgN5%2BASXIHrcBcGYBiewhi8hgkEQcgIE2EhOogRYo7YIs4IF5mOBCJhSDSSgKQg6YgUUSLFyHKkAqlCapFdSCPyLXIUOY1cQPqQ28ggMor8irxHMZSBslED1AJ1QLmoHxqKxqBz0XQ0D12AlqJr0Rq0Hj2AtqKn0UvodXQAfYqOY4DRMQ5mjNlhXIyHRWCJWBomxxZj5Vg1Vo81Yx1YN3YVG8CeYe8IJAKLgBPsCF6EEMJsgpCQR1hMWEOoJewjtBK6CFcJg4Qxwicik6hPtCV6EvnEeGI6sZBYRqwm7iEeIZ4lXicOE1%2BTSCQOyZLkTgohJZAySQtJa0jbSC2kU6Q%2B0hBpnEwm65Btyd7kCLKArCCXkbeQD5BPkvvJw%2BS3FDrFiOJMCaIkUqSUEko1ZT%2FlBKWfMkKZoKpRzame1AiqiDqfWkltoHZQL1OHqRM0dZolzZsWQ8ukLaPV0JppZ2n3aC%2FpdLoJ3YMeRZfQl9Jr6Afp5%2BmD9HcMDYYNg8dIYigZaxl7GacYtxkvmUymBdOXmchUMNcyG5lnmA%2BYb1VYKvYqfBWRyhKVOpVWlX6V56pUVXNVP9V5qgtUq1UPq15WfaZGVbNQ46kJ1Bar1akdVbupNq7OUndSj1DPUV%2Bjvl%2F9gvpjDbKGhUaghkijVGO3xhmNIRbGMmXxWELWclYD6yxrmE1iW7L57Ex2Bfsbdi97TFNDc6pmrGaRZp3mcc0BDsax4PA52ZxKziHODc57LQMtPy2x1mqtZq1%2BrTfaetq%2B2mLtcu0W7eva73VwnUCdLJ31Om0693UJuja6UbqFutt1z%2Bo%2B02PreekJ9cr1Dund0Uf1bfSj9Rfq79bv0R83MDQINpAZbDE4Y%2FDMkGPoa5hpuNHwhOGoEctoupHEaKPRSaMnuCbuh2fjNXgXPmasbxxirDTeZdxrPGFiaTLbpMSkxeS%2BKc2Ua5pmutG003TMzMgs3KzYrMnsjjnVnGueYb7ZvNv8jYWlRZzFSos2i8eW2pZ8ywWWTZb3rJhWPlZ5VvVW16xJ1lzrLOtt1ldsUBtXmwybOpvLtqitm63Edptt3xTiFI8p0in1U27aMez87ArsmuwG7Tn2YfYl9m32zx3MHBId1jt0O3xydHXMdmxwvOuk4TTDqcSpw%2BlXZxtnoXOd8zUXpkuQyxKXdpcXU22niqdun3rLleUa7rrStdP1o5u7m9yt2W3U3cw9xX2r%2B00umxvJXcM970H08PdY4nHM452nm6fC85DnL152Xlle%2B70eT7OcJp7WMG3I28Rb4L3Le2A6Pj1l%2Bs7pAz7GPgKfep%2BHvqa%2BIt89viN%2B1n6Zfgf8nvs7%2Bsv9j%2Fi%2F4XnyFvFOBWABwQHlAb2BGoGzA2sDHwSZBKUHNQWNBbsGLww%2BFUIMCQ1ZH3KTb8AX8hv5YzPcZyya0RXKCJ0VWhv6MMwmTB7WEY6GzwjfEH5vpvlM6cy2CIjgR2yIuB9pGZkX%2BX0UKSoyqi7qUbRTdHF09yzWrORZ%2B2e9jvGPqYy5O9tqtnJ2Z6xqbFJsY%2BybuIC4qriBeIf4RfGXEnQTJAntieTE2MQ9ieNzAudsmjOc5JpUlnRjruXcorkX5unOy553PFk1WZB8OIWYEpeyP%2BWDIEJQLxhP5aduTR0T8oSbhU9FvqKNolGxt7hKPJLmnVaV9jjdO31D%2BmiGT0Z1xjMJT1IreZEZkrkj801WRNberM%2FZcdktOZSclJyjUg1plrQr1zC3KLdPZisrkw3keeZtyhuTh8r35CP5c%2FPbFWyFTNGjtFKuUA4WTC%2BoK3hbGFt4uEi9SFrUM99m%2Fur5IwuCFny9kLBQuLCz2Lh4WfHgIr9FuxYji1MXdy4xXVK6ZHhp8NJ9y2jLspb9UOJYUlXyannc8o5Sg9KlpUMrglc0lamUycturvRauWMVYZVkVe9ql9VbVn8qF5VfrHCsqK74sEa45uJXTl%2FVfPV5bdra3kq3yu3rSOuk626s91m%2Fr0q9akHV0IbwDa0b8Y3lG19tSt50oXpq9Y7NtM3KzQM1YTXtW8y2rNvyoTaj9nqdf13LVv2tq7e%2B2Sba1r%2Fdd3vzDoMdFTve75TsvLUreFdrvUV99W7S7oLdjxpiG7q%2F5n7duEd3T8Wej3ulewf2Re%2FranRvbNyvv7%2ByCW1SNo0eSDpw5ZuAb9qb7Zp3tXBaKg7CQeXBJ9%2BmfHvjUOihzsPcw83fmX%2B39QjrSHkr0jq%2Fdawto22gPaG97%2BiMo50dXh1Hvrf%2Ffu8x42N1xzWPV56gnSg98fnkgpPjp2Snnp1OPz3Umdx590z8mWtdUV29Z0PPnj8XdO5Mt1%2F3yfPe549d8Lxw9CL3Ytslt0utPa49R35w%2FeFIr1tv62X3y%2B1XPK509E3rO9Hv03%2F6asDVc9f41y5dn3m978bsG7duJt0cuCW69fh29u0XdwruTNxdeo94r%2Fy%2B2v3qB%2FoP6n%2B0%2FrFlwG3g%2BGDAYM%2FDWQ%2FvDgmHnv6U%2F9OH4dJHzEfVI0YjjY%2BdHx8bDRq98mTOk%2BGnsqcTz8p%2BVv9563Or59%2F94vtLz1j82PAL%2BYvPv655qfNy76uprzrHI8cfvM55PfGm%2FK3O233vuO%2B638e9H5ko%2FED%2BUPPR%2BmPHp9BP9z7nfP78L%2FeE8%2Fsl0p8zAAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6JQAAgIMAAPn%2FAACA6QAAdTAAAOpgAAA6mAAAF2%2BSX8VGAAAC%2B0lEQVR42qSTzWubdQDHP7%2FnNc%2BeNC9NQ9e6OrdItXOHFcZQhFWloKybbEPBw3YSwZMeBT158ODR0%2BoYKJs4rGcHepCOzfqyzaGlzDZ51iVtE9K8N8mT5Hn10ENuXvz%2BAR%2B%2BH758RRiG%2FJ8oADeXfgrjqQR%2B6OE5Dn5LRRqfoLC1S1oz6Ms9nHabStmmLEkIt0Y9n%2BXba58JBUAzDDJHnyadihGGAR1HEEXQmjlILK7grmVxQxP79SlkQydnlbn6ZXHYwPG6jERVRmMHAIgT4LXqpNIj7BV%2BpfL7Eq4fop96g9GZeSRlnL2BBIAE4Hohvh8A4PZs6PbpaCZBv89fV66SftYkNeqz%2BfV1Nu9tsFXtEApt2IDBJCIwgBBJVhERFdcDtyPhdUMMt89eMYvbiyCHLjIVgq40BHiOhO%2BHgABFoVzrEBGCiqzBuUtcu3WLYGIB7UyGtd0ejUYRu9UcAgbuAD%2FYn3NtPcfN5R%2FRy4K5l8%2BSaxgcPXMS42CKrtDYqaXoDDqMJM0hoNFqIEtQqlRZvv0Ll1%2Bc5x8vwidffM8H75mcmytihevYvkph431U9RnUB3lm3%2Fz4kAIgSyrr%2BTJZ6w9mZ0%2BQeW6aK4s%2Fo49NoKbvYLONLAb8nT3NhqWwVdUQTx3BbJfeVQACJO6urHDx7Emmj73AslUl%2B8Rluxnn9iMLoddp2a%2FwMHeeajNB%2FlGewNVJGMmFfYVmi7ffeY3DmTSbhQZOKcB2A4Q0zv2HC7SaP9Czo3TtJp12DmdPJ1QP4Xj5%2BL6CqhBNjuFKEfI7O5RqAZrcJmbGcAbnqVZPEDUtjhz%2BitRYjtL2DBuPL9Bv%2BGUFoOeXebBqoZkJ7v9ZomfXiWs9gsEuJKY5kDyNLk9x7PjnHH8%2BS7O9wjeLk1j91A0FoPBklc3CYzqOQqvjoPomIpRxxA4xLYY%2BOYcxkqFWu0ixdIN7d14l91sXLWJ%2BJ%2F7rzi%2B99aksK8q8OTb1YXxi5pSqWHq3vrpVKySvh76%2FeHfpo%2Ba%2FAwC2nF6ph9S3kQAAAABJRU5ErkJggg%3D%3D);
+}
+
+" type="text/css"?>
+
+<overlay id="imageblock-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+	<script type="application/x-javascript"><![CDATA[
+var imageblock = {
+  init: function() {
+
+    var PrefBranch = Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefBranch);
+    var my_button = document.getElementById("imageblock-toolbar-button");	
+    if (PrefBranch.getIntPref("permissions.default.image")==2){
+      //status=2 means images are blocked
+      my_button.checked = true;
+      my_button.tooltipText = "Bilder anzeigen"
+    }
+    else {
+      my_button.checked = false;
+      my_button.tooltipText = "Bilder blockieren"
+    }
+  },
+
+  onToolbarButtonCommand: function(e) {
+    var PrefBranch = Components.classes["@mozilla.org/preferences-service;1"]
+		.getService(Components.interfaces.nsIPrefBranch);
+    var status = PrefBranch.getIntPref("permissions.default.image");	
+    var my_button = document.getElementById("imageblock-toolbar-button");	
+    if(status==2){
+      PrefBranch.setIntPref("permissions.default.image",1);
+      my_button.checked = false;
+      my_button.tooltipText = "Bilder blockieren"
+    }
+    else {//Blocking images
+      PrefBranch.setIntPref("permissions.default.image",2);
+      my_button.checked = true;
+      my_button.tooltipText = "Bilder anzeigen"
+    }
+  }
+};
+
+window.addEventListener("load", function() { imageblock.init(); }, true);
+	
+]]></script>   
+  <toolbar id="main-menubar">
+  <toolbarbutton id="imageblock-toolbar-button"
+    label="Image Block"
+	tooltiptext="Bilder blockieren"
+    type="checkbox"
+    oncommand="imageblock.onToolbarButtonCommand()"
+    class="toolbarbutton-1"/>
+  </toolbar>
+</overlay>
