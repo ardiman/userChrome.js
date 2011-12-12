@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23ExitButton {
+	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAC40lEQVR4XpVTzUtUfRR%2Bfvdex9FmrGFyyKbMwgmNDGIgSCMIQQjELwhatKiF0Wq0oFbvXnEhYe38aGMbFXrfWsxEEJS%2BixbO8NZozmQfKpO9%2BTHWzKjjzNzTORfmD%2FCBh9%2B58HvO%2BZ3nnKv%2BMowb56urh5x2uwv7QGp3NxlZXg4YIj7t8bjStbWAYaAIXSkYug6daWgarJhPTWiaKI%2FHpeCQCtXXU4Xfj6qrV1FEmdcL5fGgvLISJhEyP39ib3UVjlQKmlIWt9%2B%2BxftgEAjW1dHMtWv0cXCQYo8f01o0SoLszg6tLCxQIhazYsFyOEwrIyO0OTZG%2F%2Ff0kGgNkgpLSzhQUwPv9etwnzmD2efPkXrzBkcdDthLSrAMwGhsxIkrV%2FA1m4WNq2t8ihYvfD76%2B9gxCt%2B9S4J3ExM0e%2Fs2xQIBSkxO0sL4OH29d48SDx7Q6qtXJIg8ekTrN2%2BSaA3TNC2DDjU1IZvJIDE8jNNuN0yOPa2tOEyEML%2FoeEUF1LNnyPO9Mp8PxP1b2gIRyjiB69w5fP%2FwAQcTCeTYLOV0QonjAPJbW1CFAoiZicdRyRNLcQui1SRLiYxPKSjmAY61XA7q1y8UoSRBMgktnZaE1t08ANFqec4qCX7PzaHq7Fns2GwokdkziyjugF5aaj1%2Fje8ettshWjz1euldQwPN9%2FaS4L%2FRUYpfvEhfLl2iH2xaLBikucuXaaOlhdJTUyT49%2F59yra3k2i1AmeRCvnpaSRCITTcugXcuQONK5h9fbAPDOAI%2B2Hr7kZ5Vxc%2Bv3yJk9Go1a5o8cTjofd%2BP81fuECfmptpiSsK9jIZWufFSUYilONYsBgK0VxbG%2B11dFC%2Bs5NEa0gfenHX2VnV349PvEQ6j%2BsQL5UJ4Nvr19iamUE1T6maPZJVFohWPXQ6NxtPnXK5HQ4x00pkiGFMxcwBcPI2Wt8sLIpXNjbwTySSNH6k04HpxcUhm667sA%2FsFQrJte3twB%2FOPotMel7HOgAAAABJRU5ErkJggg%3D%3D);
+}
+
+
+" type="text/css"?>
+
+
+<overlay id="exitbuttonsOverlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<toolbar id="nav-bar">
+		<toolbarbutton
+			class="toolbarbutton-1"
+			id="ExitButton"
+			label="Exit"
+			tooltiptext="Firefox beenden"
+			oncommand="goQuitApplication();" />
+
+	</toolbar>
+
+</overlay>
