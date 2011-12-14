@@ -1,6 +1,6 @@
 # Privacy Protector
 Basiert auf der gleichnamigen Erweiterung. Für das Firefox-Popup, um die neueste Chronik und die anderen privaten Browserspuren zu löschen, gibt 
-es mit dem kcript einen kleinen Button für den schnellen Zugriff in der Statusbar und einen neuen Eintrag "Neueste Chronik löschen" im Kontextmenü.
+es mit dem Skript einen kleinen Button für den schnellen Zugriff in der Statusbar und einen neuen Eintrag "Neueste Chronik löschen" im Kontextmenü.
 
 Das **Ergebnis des Skripts**:
 
