@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23pp_button-toolbar { 
+ list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAACfElEQVR4Xn2QW0hVWRjHf2vttfdRj9c0ZowBqRivWFJUA0FENDAP2ZPz0HMvPTREDUU0dHuxHOhBRIpeZGYIIkEIIbQLFSWFpBF0O443MBs9mnpuzTl777NWJh5QOviDP3xP%2F%2B%2F7faKv%2F%2B1scWF%2BQBtDBm0gmUzhuR6zcxHpe3o%2BFov%2FYin1WkrJv0MhLvxxBAAVcJxgTeUPOazAGEPS1aR9GBmbID%2BYmzcy%2Ft%2FDDx%2Bnfw0EAo9YgSQLQgikBCE10pJ8X17G3t31ZVU%2FVvTaSjVps3YBBhCA4yjGxid4%2FnyQgVdv8b2kE40sdGqtj69ZACCkQApYX7YOVwumpyIMj0zg5DjE4wvNaysAUgh8z6e%2BoZpdO7ZQu30rdXVV1NVU4rnJLAo6De%2F6ITSABnwDvm0THx1F%2FnkC%2B0EXdl4Qx7GxLCtLwYcheNYDd29g7nWScCE5FKKk9RTFtzrY8HcrBf9Hyc0vQAgyoMhQvhkqquB%2BF1aog%2BCLPuTwMPaTx3gbNjF%2F9CJW2XfYQgOCDCozJ6VC7GlCfE5h37xG4E03hOfxahuYO9eOt7EaKx7HUgqx4gSZcfDT4CsLI3MQk2GYnIG5OEx%2BQmiB%2BOouWAoYMkid%2Bbzn4vzTRqDlNMxESG%2F7CR0sxR54T%2BmBnwnc6YbcvOXt4tsnqqc92O2XYWoW99BhYn%2F1krhyHVNYhBUOU%2Fz7b8jwFMZ2ALIo7NyHu%2B8gqWPnSZ1sxhiD19jIQudtUlsbiJ05iy4oAs9fpaD08hwsKYRLVzGADaTTYAyk9%2B%2FBfTmI8AzBhItS9qonqkg0mmhuafOlVAAYNAKJMXoxYDCAWLqIxQghiUdjKZb5AgoHAGEaQg84AAAAAElFTkSuQmCC);
+}
+ 
+" type="text/css"?>
+
+<overlay id="ppOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<keyset>
+  <key id="pp_delete-key" modifiers="control shift" keycode="del"/>
+</keyset>
+
+<!-- context menu button -->
+
+<popup id="contentAreaContextMenu">
+  <menuseparator id="pp-context_sep" insertbefore="context-sep-bidi"/>
+  <menuitem id="pp_button-context" label="Neueste Chronik löschen..."
+  insertafter="context-sep-bidi" command="Tools:Sanitize"/>
+</popup>
+  
+<!-- toolbar button -->
+
+<toolbar id="status-bar">
+  <toolbarbutton class="toolbarbutton-1" id="pp_button-toolbar" label="Clear"
+  tooltiptext="Neueste Chronik löschen..." command="Tools:Sanitize" key="pp_delete-key"/>
+</toolbar>
+
+</overlay>
