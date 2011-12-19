@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+
+<overlay id="fisheyetabs" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+function zoomer(event){
+	// get mouse positions relative to window
+	mouseX = event.screenX - window.screenX;
+	mouseY = event.screenY - window.screenY;
+	// workaround for fullscreen mode
+	if (window.fullScreen == true) mouseY = mouseY + 25;
+	// find out where we are: zoom=zoomable area | close=close button area | none=somewhere else
+	tabn = 'zoom';
+	tab = document.getElementById('content');
+	nrTab = tab.mTabs.length; // number of open tabs
+	if (nrTab==0) return;
+	wTab = tab.boxObject.width - 40;
+	tabsize = wTab/nrTab;  // average tab width
+	if (200<tabsize) return;
+	tabX = tab.mTabContainer.boxObject.x;
+	tabY = tab.mTabContainer.boxObject.y + 27;  // top-left corners of tab-bar
+	tabj = tab.mTabContainer.firstChild;
+	if ((mouseX<tabX)||(mouseX>tabX+wTab+20)||(mouseY<tabY-20)||(mouseY>tabY+67)) tabn = 'none';
+	if ((mouseX>tabX+wTab+20)&&(mouseY>tabY-20)&&(mouseY<tabY+67)) tabn = 'close';
+	if ((tabn == 'zoom')) {
+		// mouse position relative to tabs
+		mouseX = mouseX - tabX;
+		if ((mouseY>tabY)&&(mouseY<tabY + 27)) mouseY = 0;
+		// different zoom sensitivity above and below tabbar
+		else if (mouseY<=tabY) mouseY = (tabY - mouseY)*2;
+		else if (mouseY>=tabY + 27) mouseY = mouseY - tabY - 27;
+		tab._restored=0;
+		fisheye(event, mouseX, tab, nrTab, wTab, tabsize, mouseY);
+	}
+	if ((tabn == 'none')&&(tab._restored!=1)) restore();
+}
+
+function fisheye(event, mouseX, tab, nrTab, wTab, tabsize, mouseY){
+	ld = mouseX/tabsize - 1;
+	rd = nrTab - ld - 2;
+	i=1;
+	tabj=tab.mTabContainer.firstChild;
+	previous = 0;
+	factor = (40-mouseY)*(100 + 3*nrTab) / (tabsize*40);
+	while (tabj!=tab.mTabContainer.lastChild){
+		d = i - ld - 2;
+		_d = -2 - d;
+		if ((d<0) && (d>-1))        dist = 1 - Math.abs(d);
+		else if (d>=0)              dist = 1 - Math.abs(d)/Math.abs(rd);
+		else if ((d>-2) && (d<=-1)) dist = -1 + Math.abs(_d);
+		else if (d<=-2)             dist = -1 + Math.abs(_d)/Math.abs(ld);
+		dist = dist * factor;
+		newtabsize = tabsize + tabsize*dist + previous;
+		previous = - tabsize*dist;			
+		if (newtabsize<5) newtabsize = 5;
+		tabj.minWidth = newtabsize-10;
+		tabj.maxWidth = newtabsize+10;
+		session = this.session;
+		if ((newtabsize>55)){
+		         tabj.setAttribute('icon', 'true');
+		         if(session) session.setTabValue(tabj, 'icon', true);
+
+	        } else{
+		         tabj.setAttribute('icon', 'false');
+		         if (session) session.setTabValue(tabj, 'icon', false);
+
+	        }
+		tabj = tabj.nextSibling;
+		i++;
+	}
+	newtabsize = tabsize + previous;
+	tabj.minWidth = newtabsize;
+	tabj.maxWidth = newtabsize;
+	if ((newtabsize>55)){
+	         tabj.setAttribute('icon', 'true');
+	         if(session) session.setTabValue(tabj, 'icon', true);
+         } else{
+	         tabj.setAttribute('icon', 'false');
+	         if(session) session.setTabValue(tabj, 'icon', false);
+         }
+}
+
+
+function restore(k){
+	diff = 0;
+	if (k == 1) diff = 1; // number of tabs has to be corrected with -1, if we just closed a tab
+	tab = document.getElementById('content');
+	tab._restored = 1; 
+	nrTab = tab.mTabs.length; 
+	wTab = tab.boxObject.width - 40;
+	tabsize = wTab/(nrTab-diff);
+	oldtabsize = wTab/(nrTab-diff+1);	
+	if (nrTab == 0) return;
+	if (200 < oldtabsize) return; // way too few tabs
+	if ((200 < tabsize)&&(k != 1)) return; // too few tabs, and we haven't just closed one
+	tabj = tab.mTabContainer.firstChild;
+	while (tabj != tab.mTabContainer.lastChild){
+		tabj.minWidth = tabsize - 10;
+		tabj.maxWidth = tabsize + 10;
+		tabj = tabj.nextSibling;
+	}
+	tabj.minWidth = tabsize - 10;
+	tabj.maxWidth = tabsize + 10;
+}
+
+function restore0(){
+	restore(0);
+}
+
+function restore1(){
+	restore(1);
+}
+
+function init(){
+	BrowserStartup();
+	container = gBrowser.tabContainer;
+	container.addEventListener("TabOpen", restore0, false);
+	container.addEventListener("TabClose", restore1, false);
+}
+
+window.onload = init;
+window.onresize = restore;	
+
+]]></script>
+<window id='main-window'  onmousemove="zoomer(event);">
+</window>
+
+</overlay>
+
