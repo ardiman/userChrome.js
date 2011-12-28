@@ -1,0 +1,165 @@
+﻿<?xml version="1.0"?>
+<!--
+// ==UserScript==
+// @name           Extras Config Menu_mod
+// @compatibility  Firefox 4.0, 5.0, 6.0b1, 8.*, 9.*
+// @version        1.0.20111228
+// @include        main
+// @delay          500
+// ==/UserScript==
+-->
+<!DOCTYPE overlay>
+<overlay id="ExtraConfigMenu_Overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript"><![CDATA[
+var uProfMenu = {
+  // hier den Pfad zum Texteditor eintragen
+  TextOpenExe : 'C:\\Programme\\Sonstige\\npp\\unicode\\notepad++.exe',
+  // falls gewuenscht, einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
+  // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
+  // vFileManager: 'C:\\Program Files (x86)\\FreeCommander\\FreeCommander.exe',
+  vFileManager: '',
+
+  edit:function(OpenMode,Filename){
+    var Path = "";
+    switch (OpenMode){
+      //Current is Chrome Directory
+      case 0:
+        var Path = uProfMenu.getPrefDirectoryPath("UChrm") + "\\" + Filename;
+        break;
+      //Current is Profile Directory
+      case 1:
+        var Path = uProfMenu.getPrefDirectoryPath("ProfD") + "\\" + Filename;
+        break;
+      //Current is Root
+      case 2:
+        var Path = Filename;
+        break;
+    }
+    uProfMenu.launch(uProfMenu.TextOpenExe,Path);
+  },
+
+
+  dirOpen:function(Path){
+    if (uProfMenu.vFileManager.length != 0) {
+      var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+      var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+      var args=[Path];
+      file.initWithPath(uProfMenu.vFileManager);
+      process.init(file);
+      // Verzeichnis mit anderem Dateimanager oeffnen
+      process.run(false, args, args.length);
+     } else {
+      // Verzeichnis mit Dateimanager des Systems oeffnen
+      var dir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+      dir.initWithPath(Path);
+      dir.launch();
+    }
+  },
+
+
+  prefDirOpen:function(prefDir){
+    Path = uProfMenu.getPrefDirectoryPath(prefDir);
+    uProfMenu.dirOpen(Path);
+  },
+
+
+  getPrefDirectoryPath:function(str){
+    // get profile directory
+    var file = Components.classes["@mozilla.org/file/directory_service;1"]
+      .getService(Components.interfaces.nsIProperties)
+      .get(str, Components.interfaces.nsIFile);
+    return file.path;
+  },
+
+
+  launch:function(RanPath,OpenPath){
+    var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+    var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+    var args = [OpenPath];
+    file.initWithPath(RanPath);
+    proc.init(file);
+    proc.run(false, args, args.length);
+  },
+
+
+  getScripts:function() {
+    // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundene Skripte auf
+    let ucJsScripts = [];
+    let ucXulScripts = [];
+    // Suchmuster, also die Dateierweiterungen uc.js und uc.xul
+    let extjs = /\.uc\.js$/i;
+    let extxul= /\.uc\.xul$/i;
+    let aFolder = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+    aFolder.initWithPath(Services.dirsvc.get("UChrm", Ci.nsIFile).path);
+    // files mit Eintraegen im chrome-Ordner befuellen
+    let files = aFolder.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
+    // Ordner bzw. files durchlaufen und kontrollieren, ob gesuchte Dateien dabei sind
+    while (files.hasMoreElements()) {
+      let file = files.getNext().QueryInterface(Ci.nsIFile);
+      // keine gewuenschte Datei, deshalb continue
+      if (!extjs.test(file.leafName) && !extxul.test(file.leafName)) continue;
+      // uc.js gefunden -> im Array ablegen
+      if (extjs.test(file.leafName)) ucJsScripts.push(file.leafName);
+      // uc.xul gefunden -> im Array ablegen
+      if (extxul.test(file.leafName)) ucXulScripts.push(file.leafName);
+    }
+    // Aufruf der naechsten Methode, um die beiden Untermenues zu befuellen
+    uProfMenu.fillMenu("submenu-ucjs","submenu-ucjs-items", "uc.js",ucJsScripts);
+    uProfMenu.fillMenu("submenu-ucxul","submenu-ucxul-items", "uc.xul",ucXulScripts);
+  },
+
+
+  fillMenu:function(whichsubmenu, whichsubmenuitems, strlabel, scriptArray) {
+    // Beschriftung des Untermenues mit Anzahl der gefundenen Dateien ergaenzen
+    var e = document.getElementById(whichsubmenu);
+    e.setAttribute('label',strlabel + ' (' + scriptArray.length + ')');
+    var popup = document.getElementById(whichsubmenuitems);
+    // zunaechst Untermenue zuruecksetzen
+    while(popup.hasChildNodes()){
+      popup.removeChild(popup.firstChild);
+    }
+    // Untermenue endlich befuellen
+    for (var i = scriptArray.length-1; i > -1; i--) {
+      var mitem = uProfMenu.createMenuItem(scriptArray[i]);
+      popup.insertBefore(mitem, popup.firstChild);
+    }
+  },
+
+
+  createMenuItem:function(aLabel) {
+    // Anlegen von menuitems (Aufruf der Skripte im Editor)
+    const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+    var item = document.createElementNS(XUL_NS, "menuitem");
+    item.setAttribute("label", aLabel);
+    item.setAttribute("oncommand","uProfMenu.edit(0,'"+aLabel+"')");
+    return item;
+  },
+};
+]]></script>
+  <menupopup id="menu_ToolsPopup">
+  <menu label="Config Menü" id="ExtraConfigMenu" onmouseout="uProfMenu.getScripts()">
+    <menupopup>
+      <menuitem label="userChrome.js" oncommand="uProfMenu.edit(0,'userChrome.js');"/>
+        <menu label="uc.js" id="submenu-ucjs">
+        <menupopup id="submenu-ucjs-items"> 
+        </menupopup>
+        </menu>
+        <menu label="uc.xul" id="submenu-ucxul">
+        <menupopup id="submenu-ucxul-items">
+        </menupopup>
+        </menu>
+      <menuseparator/>
+      <menuitem label="userChrome.css" oncommand="uProfMenu.edit(0,'userChrome.css');"/>
+      <menuitem label="userContent.css" oncommand="uProfMenu.edit(0,'userContent.css');"/>
+      <menuitem label="prefs.js" oncommand="uProfMenu.edit(1,'prefs.js');"/>
+      <menuitem label="user.js" oncommand="uProfMenu.edit(1,'user.js');"/>
+      <menuseparator/>
+      <menuitem label="GM Scripte" oncommand="uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD') + '\\gm_scripts');"/>
+      <menuitem label="Chromeordner" oncommand="uProfMenu.prefDirOpen('UChrm');"/>
+      <menuitem label="Profilordner" oncommand="uProfMenu.prefDirOpen('ProfD');"/>
+      <menuitem label="Addonordner" oncommand="uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD') + '\\extensions');"/>
+      <menuitem label="Installationsordner" oncommand="uProfMenu.prefDirOpen('CurProcD');"/>
+    </menupopup>
+  </menu>
+  </menupopup>
+</overlay>
