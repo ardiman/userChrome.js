@@ -1,19 +1,32 @@
 # Extras Config Menu
-Blendet unter Extras einen Menüpunkt ein, um schnellen Zugriff auf die wichtigsten Konfigurationsdateien und -ordner zu erhalten.
+Blendet standardmäßig neben der Adressleiste einen Button zum schnellen Zugriff auf die wichtigsten Konfigurationsdateien und -ordner ein. Stellt 
+zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Es ist möglich, diese Funktion nur als Menüpunkt unter "Extras" zur Verfügung zu stellen. Dazu muss die Variable `warpmenuto` in `'menu'` geändert 
+werden (s. auch Kommentare im Konfigurationsabschnitt des Skripts). 
 
-![Screenshot Extras Config Menu](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extconmen.png)
+Ist etwas anderes als `menu` oder `urlbar` gewünscht, so sollte es sich hierbei **nicht um die id eines Elements handeln, dass 
+durch ein anderes userChromeJS-Skript generiert** wird, außerdem ist **nicht die id einer Leiste** wie Menü- (id=`toolbar-menubar`) oder 
+Navigationsleiste (id=`nav-bar`) zu nehmen, sondern ein Element auf einer dieser Leisten (also z.B. `helpMenu`, damit der Button auf der 
+Menüleiste neben dem Menüpunkt "Hilfe" erscheint). Das Gleiche gilt, wenn man den Button in die Add-On-Bar verlagern möchte.
 
-Möchte man einen anderen Dateimanager verwenden, so müssen einige Änderungen im Skript vorgenommen werden. 
-S. dazu http://www.camp-firefox.de/forum/viewtopic.php?p=770184#p770184 bzw. man verwendet das modifizierte Skript 
-**extras_config_menu_mod.uc.xul**, welches noch andere Funktionen bereithält. 
+Das **Ergebnis des Skripts**:
 
-Das **modifizierte Skript** bietet die Möglichkeit, die userChromeJS-Skripte direkt zu bearbeiten:
+- entweder ein Button neben der Adressleiste (oder einen anderem Element):
 
-![Screenshot Extras Config Menu mod](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extconmenmod.png)
+![Screenshot Extras Config Menu als Button](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_btn.png)
 
+- oder als Menü unter "Extras":
+
+![Screenshot Extras Config Menu als Menue](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_men.png)
 
 ## Installation
-Kopiere **eine** der uc.xul-Datei in den Chromeordner des Profils. Passe in der Datei noch den Pfad zum Editor (bzw. Dateimanager bei der 
-modifizierten Version) an.
+Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe in der Datei noch den Pfad zum Editor (Variable `TextOpenExe`) und zum Dateimanager 
+(falls gewünscht - `vFileManager` kann auch leer bleiben, in dem Fall wird der Dateimanager des Sytems benutzt) und die gewünschte Darstellung/den Ort 
+(Variable `warpmenuto`) an.
+
+
+## Anmerkung
+Linuxbenutzer müssen sehr wahrscheinlich die Ordner anders öffnen. Dazu müssen sicherlich die Zeilen, in denen Pfade zusammengesetzt werden behandelt 
+werden (Ausschau nach doppelten bzw. z.T. 4fachen Vorkommen vom Backslash halten). Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben 
+ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
