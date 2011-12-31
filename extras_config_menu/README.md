@@ -27,6 +27,4 @@ Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe in der Datei noch
 
 
 ## Anmerkung
-Linuxbenutzer müssen sehr wahrscheinlich die Ordner anders öffnen. Dazu müssen sicherlich die Zeilen, in denen Pfade zusammengesetzt werden behandelt 
-werden (Ausschau nach doppelten bzw. z.T. 4fachen Vorkommen vom Backslash halten). Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben 
-ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
+Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
