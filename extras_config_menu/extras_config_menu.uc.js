@@ -2,13 +2,13 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20111230
+// @version        1.0.20111231
 // ==/UserScript==
 -->
 
 var uProfMenu = {
   // Beginn der Konfiguration
-  // In der folgenden Zeile (12) den Pfad zum Texteditor eintragen
+  // In der folgenden Zeile (12) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit')
   TextOpenExe : 'C:\\Programme\\Sonstige\\npp\\unicode\\notepad++.exe',
   // Falls gewuenscht, in Zeile 16 einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
@@ -63,24 +63,45 @@ var uProfMenu = {
     menupopup.appendChild(this.createMenuItem("prefs.js","uProfMenu.edit(1,'prefs.js');","uProfMenu_edit"));
     menupopup.appendChild(this.createMenuItem("user.jc","uProfMenu.edit(1,'user.js');","uProfMenu_edit"));
     menupopup.appendChild(document.createElement('menuseparator'));
-    menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+ '\\\\gm_scripts');","uProfMenu_folder"));
+    menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep(2)+'gm_scripts');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Chromeordner","uProfMenu.prefDirOpen('UChrm');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"));
-    menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+'\\\\extensions');","uProfMenu_folder"));
+    menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep(2)+'extensions');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Installationsordner","uProfMenu.prefDirOpen('CurProcD');","uProfMenu_folder"));
+  },
+
+
+  getDirSep:function(iCountBSlash) {
+    // Betriebssystem nach https://developer.mozilla.org/en/Code_snippets/Miscellaneous ermitteln
+    var osString = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS; 
+    var dirsep="";
+    switch(osString) {
+      case "WINNT":
+        dirsep="\\";
+        if (iCountBSlash==4) dirsep="\\\\";   // wird anscheinend nicht benoetigt
+        break;
+      case "Linux":
+        dirsep="/";
+        break;
+      case "Darwin":   // Trennzeichen fuer MacOS?
+        dirsep="/";
+        break;
+    }
+    return dirsep;
   },
 
 
   edit:function(OpenMode,Filename){
     var Path = "";
+    var dSep = this.getDirSep(2);  // die Trennzeichen zwischen Ordnern abhaengig vom Betriebssystem machen
     switch (OpenMode){
       //Current is Chrome Directory
       case 0:
-        var Path = this.getPrefDirectoryPath("UChrm") + "\\" + Filename;
+        var Path = this.getPrefDirectoryPath("UChrm") + dSep + Filename;
         break;
       //Current is Profile Directory
       case 1:
-        var Path = this.getPrefDirectoryPath("ProfD") + "\\" + Filename;
+        var Path = this.getPrefDirectoryPath("ProfD") + dSep + Filename;
         break;
       //Current is Root
       case 2:
