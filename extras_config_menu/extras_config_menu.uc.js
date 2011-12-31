@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20111231
+// @version        1.0.20111231b
 // ==/UserScript==
 -->
 
@@ -18,6 +18,8 @@ var uProfMenu = {
   // Elements *nach* dem der Button erscheinen soll (z.B. 'urlbar', 'searchbar', 'undoclosetab-button','abp-toolbarbutton')
   // Bitte nicht so etwas wie die Menue- oder Navigationsleiste (sondern einen Menuepunkt oder einen Button mit id auf diesen Leisten) eintragen:
   warpmenuto: 'urlbar',
+ // Unter Linux sollte/kann versucht werden, die userChromeJS-Skripte zu sortieren, unter Windows ist das evtl. nicht noetig (die Sortierung wird Groß- und Kleinschreibung *nicht* beruecksichtigen - dazu wird die sort()-Funktion entsprechend mit einer Vergleichsfunktion aufgerufen)
+  sortScripts: '0',
   // Ende der Konfiguration
   
   init: function() {
@@ -155,6 +157,21 @@ var uProfMenu = {
   },
 
 
+  stringComparison:function(a, b){
+    a = a.toLowerCase();
+    a = a.replace(/ä/g,"a");
+    a = a.replace(/ö/g,"o");
+    a = a.replace(/ü/g,"u");
+    a = a.replace(/ß/g,"s");
+    b = b.toLowerCase();
+    b = b.replace(/ä/g,"a");
+    b = b.replace(/ö/g,"o");
+    b = b.replace(/ü/g,"u");
+    b = b.replace(/ß/g,"s");
+    return(a==b)?0:(a>b)?1:-1;
+  },
+
+
   getScripts:function() {
     // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundene Skripte auf
     let ucJsScripts = [];
@@ -175,6 +192,10 @@ var uProfMenu = {
       if (extjs.test(file.leafName)) ucJsScripts.push(file.leafName);
       // uc.xul gefunden -> im Array ablegen
       if (extxul.test(file.leafName)) ucXulScripts.push(file.leafName);
+    }
+    if (this.sortScripts=='1') {
+      ucJsScripts.sort(this.stringComparison);
+      ucXulScripts.sort(this.stringComparison);
     }
     // Aufruf der naechsten Methode um die beiden Untermenues zu befuellen
     this.fillMenu("submenu-ucjs","submenu-ucjs-items", "uc.js",ucJsScripts,"uProfMenu_ucjs");
