@@ -24,7 +24,7 @@ Das **Ergebnis des Skripts**:
 Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe in der Datei noch den Pfad zum Editor (Variable `TextOpenExe`) und zum Dateimanager 
 (falls gewünscht - `vFileManager` kann auch leer bleiben, in dem Fall wird der Dateimanager des Sytems benutzt) und die gewünschte Darstellung/den Ort 
 (Variable `warpmenuto`) an. Werden die uc.js- und uc.xul-Dateien nicht richtig sortiert (wurde bereits unter Linux beobachtet), dann muss die 
-Variable `sortScripts` auf `1`gesetzt werden.
+Variable `sortScripts` auf `1` gesetzt werden.
 
 
 ## Anmerkung
