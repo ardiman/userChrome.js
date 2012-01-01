@@ -1,6 +1,9 @@
 # Extras Config Menu
 Blendet standardmäßig neben der Adressleiste einen Button zum schnellen Zugriff auf die wichtigsten Konfigurationsdateien und -ordner ein. Stellt 
-zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können.
+zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können. Seit Version  1.0.20120101 kann versucht 
+werden, per Mittelklick das userChromeJS-Skript in diesem Projekt zu öffnen (dies funktioniert aufgrund der Benennung nicht bei allen Skripten!). 
+Mit Rechtsklick findet eine Suche auf GitHub statt (es gibt nur Treffer, wenn der Dateiname z.B. in Kommentarabschnitten der Skripte vorhanden 
+ist. Eine direkte Suche nach Dateinamen ist nicht möglich).
 
 Es ist möglich, diese Funktion nur als Menüpunkt unter "Extras" zur Verfügung zu stellen. Dazu muss die Variable `warpmenuto` in `'menu'` geändert 
 werden (s. auch Kommentare im Konfigurationsabschnitt des Skripts). 
