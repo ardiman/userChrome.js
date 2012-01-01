@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20111231b
+// @version        1.0.20120101
 // ==/UserScript==
 -->
 
@@ -65,27 +65,26 @@ var uProfMenu = {
     menupopup.appendChild(this.createMenuItem("prefs.js","uProfMenu.edit(1,'prefs.js');","uProfMenu_edit"));
     menupopup.appendChild(this.createMenuItem("user.jc","uProfMenu.edit(1,'user.js');","uProfMenu_edit"));
     menupopup.appendChild(document.createElement('menuseparator'));
-    menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep(2)+'gm_scripts');","uProfMenu_folder"));
+    menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'gm_scripts');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Chromeordner","uProfMenu.prefDirOpen('UChrm');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"));
-    menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep(2)+'extensions');","uProfMenu_folder"));
+    menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'extensions');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Installationsordner","uProfMenu.prefDirOpen('CurProcD');","uProfMenu_folder"));
   },
 
 
-  getDirSep:function(iCountBSlash) {
+  getDirSep:function() {
     // Betriebssystem nach https://developer.mozilla.org/en/Code_snippets/Miscellaneous ermitteln
     var osString = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS; 
-    var dirsep="";
+    var dirsep="/";
     switch(osString) {
       case "WINNT":
         dirsep="\\";
-        if (iCountBSlash==4) dirsep="\\\\";   // wird anscheinend nicht benoetigt
         break;
       case "Linux":
         dirsep="/";
         break;
-      case "Darwin":   // Trennzeichen fuer MacOS?
+      case "Darwin":
         dirsep="/";
         break;
     }
@@ -95,7 +94,7 @@ var uProfMenu = {
 
   edit:function(OpenMode,Filename){
     var Path = "";
-    var dSep = this.getDirSep(2);  // die Trennzeichen zwischen Ordnern abhaengig vom Betriebssystem machen
+    var dSep = this.getDirSep();  // die Trennzeichen zwischen Ordnern abhaengig vom Betriebssystem machen
     switch (OpenMode){
       //Current is Chrome Directory
       case 0:
@@ -173,7 +172,7 @@ var uProfMenu = {
 
 
   getScripts:function() {
-    // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundene Skripte auf
+    // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundenen Skripte auf
     let ucJsScripts = [];
     let ucXulScripts = [];
     // Suchmuster, also die Dateierweiterungen uc.js und uc.xul
@@ -215,6 +214,8 @@ var uProfMenu = {
     // Untermenue endlich befuellen
     for (var i = scriptArray.length-1; i > -1; i--) {
       var mitem = this.createMenuItem(scriptArray[i],"uProfMenu.edit(0,'"+scriptArray[i]+"')",sClass);
+      mitem.setAttribute("onclick","uProfMenu.openAtGithub(event,'"+scriptArray[i]+"')");
+      mitem.setAttribute("tooltiptext","Linksklick: Bearbeiten, Mittelklick: https://github.com/ardiman/userChrome.js/... öffnen, Rechtsklick: Suche auf GitHub");
       popup.insertBefore(mitem, popup.firstChild);
     }
   },
@@ -231,7 +232,7 @@ var uProfMenu = {
 
 
   createMenuItem:function(sLabel,sCommand,sClass) {
-    // Anlegen von menuitems (Aufruf der Skripte im Editor)
+    // Anlegen von menuitems
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var item = document.createElementNS(XUL_NS, "menuitem");
     item.setAttribute('label', sLabel);
@@ -239,5 +240,21 @@ var uProfMenu = {
     item.setAttribute('class',sClass);
     return item;
   },
+
+
+  openAtGithub:function(e,sScript) {
+    if (e.button==1){
+      var withoutExt1=sScript.split(".uc.js");
+      var withoutExt2=withoutExt1[0].split(".uc.xul");
+      var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+withoutExt2[0].toLowerCase();
+      getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
+    }
+    if (e.button==2){
+      e.preventDefault();
+      var sUrl="https://github.com/search?q="+sScript+"&type=Everything&repo=&langOverride=&start_value=1";
+      getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
+    }
+  }
+
 };
 uProfMenu.init();
