@@ -2,13 +2,13 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120101
+// @version        1.0.20120102
 // ==/UserScript==
 -->
 
 var uProfMenu = {
   // Beginn der Konfiguration
-  // In der folgenden Zeile (12) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit')
+  // In der folgenden Zeile (12) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
   TextOpenExe : 'C:\\Programme\\Sonstige\\npp\\unicode\\notepad++.exe',
   // Falls gewuenscht, in Zeile 16 einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
@@ -66,6 +66,8 @@ var uProfMenu = {
     menupopup.appendChild(this.createMenuItem("user.jc","uProfMenu.edit(1,'user.js');","uProfMenu_edit"));
     menupopup.appendChild(document.createElement('menuseparator'));
     menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'gm_scripts');","uProfMenu_folder"));
+    // Benutzer des userChromeJS-Skripts UserScriptLoader muessen die folgende Zeile aktivieren und die Zeile ueber diesem Kommentar deaktivieren:
+    // menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('UChrm')+uProfMenu.getDirSep()+'UserScriptLoader');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Chromeordner","uProfMenu.prefDirOpen('UChrm');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"));
     menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'extensions');","uProfMenu_folder"));
@@ -151,6 +153,12 @@ var uProfMenu = {
     var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
     var args = [OpenPath];
     file.initWithPath(RanPath);
+    // falls der im Konfigurationsabschnitt definierte Editor nicht gefunden wird, auf Einstellung in about:config ausweichen:
+    if (!file.exists()) {
+      var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+      RanPath=pref.getCharPref("view_source.editor.path");
+      file.initWithPath(RanPath);
+    }
     proc.init(file);
     proc.run(false, args, args.length);
   },
@@ -244,8 +252,10 @@ var uProfMenu = {
 
   openAtGithub:function(e,sScript) {
     if (e.button==1){
+      // Dateierweiterungen per Split und Zugriff auf das erste Element [0] entfernen
       var withoutExt1=sScript.split(".uc.js");
       var withoutExt2=withoutExt1[0].split(".uc.xul");
+      // anschliessend versuchen, die Seite auf GitHub zu oeffnen (das kann nur funktionieren, wenn Ordner- und Dateiname [ohne Erweiterung] uebereinstimmen)
       var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+withoutExt2[0].toLowerCase();
       getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
     }
