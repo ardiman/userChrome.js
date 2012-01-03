@@ -1,9 +1,11 @@
 # Extras Config Menu
 Blendet standardmäßig neben der Adressleiste einen Button zum schnellen Zugriff auf die wichtigsten Konfigurationsdateien und -ordner ein. Stellt 
-zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können. Seit Version  1.0.20120101 kann versucht 
-werden, per Mittelklick das userChromeJS-Skript in diesem Projekt zu öffnen (dies funktioniert aufgrund der Benennung nicht bei allen Skripten!). 
-Mit Rechtsklick findet eine Suche auf GitHub statt (es gibt nur Treffer, wenn der Dateiname z.B. in Kommentarabschnitten der Skripte vorhanden 
-ist. Eine direkte Suche nach Dateinamen ist nicht möglich).
+zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können. Außerdem ist es ab Version 1.0.20120103 
+möglich, einige about:-Seiten zu öffnen (ggf. das Array `abouts` im Konfigurationsabschnitt erweitern).
+
+Seit Version  1.0.20120101 kann versucht werden, per Mittelklick das userChromeJS-Skript in diesem Projekt zu öffnen (dies funktioniert aufgrund der 
+Benennung nicht bei allen Skripten!). Mit Rechtsklick findet eine Suche auf GitHub statt (es gibt nur Treffer, wenn der Dateiname z.B. in 
+Kommentarabschnitten der Skripte vorhanden ist. Eine direkte Suche nach Dateinamen ist nicht möglich).
 
 Es ist möglich, diese Funktion nur als Menüpunkt unter "Extras" zur Verfügung zu stellen. Dazu muss die Variable `warpmenuto` in `'menu'` geändert 
 werden (s. auch Kommentare im Konfigurationsabschnitt des Skripts). 
@@ -24,10 +26,18 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Extras Config Menu als Menue](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_men.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe in der Datei noch den Pfad zum Editor (Variable `TextOpenExe`) und zum Dateimanager 
+Kopiere die uc.js-Datei in den Chromeordner des Profils. 
+
+Passe in der Datei noch den Pfad zum Editor (Variable `TextOpenExe`) und zum Dateimanager 
 (falls gewünscht - `vFileManager` kann auch leer bleiben, in dem Fall wird der Dateimanager des Sytems benutzt) und die gewünschte Darstellung/den Ort 
 (Variable `warpmenuto`) an. Werden die uc.js- und uc.xul-Dateien nicht richtig sortiert (wurde bereits unter Linux beobachtet), dann muss die 
 Variable `sortScripts` auf `1` gesetzt werden.
+
+Benutzer, die kein Greasemonkey installiert haben oder stattdessen das userChromeJS-Skript "UserScriptLoader" benutzen, können die Variable 
+`gmOrdner` anpassen. Ähnliches gilt für Benutzer des Skriptes "UserCSSLoader" und die Variable `cssOrdner`. Mögliche Werte und ihre Bedeutung stehen 
+als Kommentar im Konfigurationsbereich.
+
+Falls man die about:-Seiten nicht zur Verfügung gestellt haben möchte, muss das entsprechende Array so deklariert werden: `abouts: [],`.
 
 
 ## Anmerkung
