@@ -57,9 +57,9 @@ var uProfMenu = {
     }
     //ab hier ist alles gleich, egal ob Button oder Menue
     menu.setAttribute("onpopupshowing","uProfMenu.getScripts()");
-    // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
     var menupopup = menu.appendChild(document.createElement('menupopup'));
     menupopup.appendChild(this.createMenuItem("userChrome.js","uProfMenu.edit(0,'userChrome.js');","uProfMenu_edit"));
+    // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
     var submenu=menupopup.appendChild(this.createMenu("uc.js","submenu-ucjs"));
     var submenupopup = submenu.appendChild(document.createElement('menupopup'));
     submenupopup.setAttribute("id","submenu-ucjs-items");
