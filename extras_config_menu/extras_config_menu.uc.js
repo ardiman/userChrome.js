@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120103
+// @version        1.0.20120104
 // ==/UserScript==
 -->
 
@@ -24,7 +24,10 @@ var uProfMenu = {
   gmOrdner: 1,
   // Einbindung CSS-Ordner (0: nein, 1: UserCSSLoader-Ordner im Chrome-Verzeichnis):
   cssOrdner: 0,
-  // hier gueltige about:Adressen eintragen, die mittels Untermenue aufgerufen werden sollen:
+  // In Zeile 31 gueltige about:Adressen eintragen, die ebenfalls aufgerufen werden sollen.
+  //  - Zum Ausblenden: abouts: [],
+  // - Damit die about:-Seiten nicht als Untermenue, sondern direkt als Menuepunkte aufgefuehrt werden, muss das erste Element '0' sein:
+  // abouts: ['0','about:about','about:addons','about:cache','about:config','about:support'],
   abouts: ['about:about','about:addons','about:cache','about:config','about:support'],
   // Ende der Konfiguration
   
@@ -32,9 +35,7 @@ var uProfMenu = {
     if (this.warpmenuto.toLowerCase() == 'menu') {
       // aufgrund des gewaehlten warpmenuto als Untermenue von Extras anlegen
       var zielmenu = document.getElementById('menu_ToolsPopup');
-      var menu = zielmenu.appendChild(document.createElement('menu'));
-      menu.setAttribute("id", "ExtraConfigMenu");
-      menu.setAttribute("label", "Config Menü");
+      var menu = zielmenu.appendChild(this.createME("menu","Config Menü",0,0,"ExtraConfigMenu"));
      } else {
       // als Button nach dem per warpmenuto gewaehlten Element anlegen (s. Kommentar ueber warpmenuto im Konfigurationsabschnitt)
       var zielmenu = document.getElementById(this.warpmenuto);
@@ -58,48 +59,54 @@ var uProfMenu = {
     //ab hier ist alles gleich, egal ob Button oder Menue
     menu.setAttribute("onpopupshowing","uProfMenu.getScripts()");
     var menupopup = menu.appendChild(document.createElement('menupopup'));
-    menupopup.appendChild(this.createMenuItem("userChrome.js","uProfMenu.edit(0,'userChrome.js');","uProfMenu_edit"));
+    menupopup.appendChild(this.createME("menuitem","userChrome.js","uProfMenu.edit(0,'userChrome.js');","uProfMenu_edit",0));
     // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
-    var submenu=menupopup.appendChild(this.createMenu("uc.js","submenu-ucjs"));
-    var submenupopup = submenu.appendChild(document.createElement('menupopup'));
-    submenupopup.setAttribute("id","submenu-ucjs-items");
-    var submenu=menupopup.appendChild(this.createMenu("uc.xul","submenu-ucxul"));
-    var submenupopup = submenu.appendChild(document.createElement('menupopup'));
-    submenupopup.setAttribute("id","submenu-ucxul-items");
+    var submenu=menupopup.appendChild(this.createME("menu","uc.js",0,0,"submenu-ucjs"));
+    var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucjs-items"));
+    var submenu=menupopup.appendChild(this.createME("menu","uc.xul",0,0,"submenu-ucxul"));
+    var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucxul-items"));
      // Ende Anlegen von Untermenues fuer die userChromeJS-Skripte
     menupopup.appendChild(document.createElement('menuseparator'));
     // Einbindung von Konfigdateien
-    menupopup.appendChild(this.createMenuItem("userChrome.css","uProfMenu.edit(0,'userChrome.css');","uProfMenu_edit"));
-    menupopup.appendChild(this.createMenuItem("userContent.css","uProfMenu.edit(0,'userContent.css');","uProfMenu_edit"));
-    menupopup.appendChild(this.createMenuItem("prefs.js","uProfMenu.edit(1,'prefs.js');","uProfMenu_edit"));
-    menupopup.appendChild(this.createMenuItem("user.js","uProfMenu.edit(1,'user.js');","uProfMenu_edit"));
+    menupopup.appendChild(this.createME("menuitem","userChrome.css","uProfMenu.edit(0,'userChrome.css');","uProfMenu_edit",0));
+    menupopup.appendChild(this.createME("menuitem","userContent.css","uProfMenu.edit(0,'userContent.css');","uProfMenu_edit",0));
+    menupopup.appendChild(this.createME("menuitem","prefs.js","uProfMenu.edit(1,'prefs.js');","uProfMenu_edit",0));
+    menupopup.appendChild(this.createME("menuitem","user.js","uProfMenu.edit(1,'user.js');","uProfMenu_edit"),0);
     // Einbindung von Konfigdateien
-    // Einbindung von abouts
-    if (this.abouts.length>0) {
-      var submenu=menupopup.appendChild(this.createMenu("uc.js","submenu-about"));
-      var submenupopup = submenu.appendChild(document.createElement('menupopup'));
-      submenupopup.setAttribute("id","submenu-about-items");
-      this.fillMenu("submenu-about","submenu-about-items", "about:",this.abouts,"uProfMenu_about",1);
-    }
-    // Ende Einbindung von abouts
     menupopup.appendChild(document.createElement('menuseparator'));
     // Einbindung von Ordnern
     switch (this.gmOrdner) {
       case 1:
-        menupopup.appendChild(this.createMenuItem("GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'gm_scripts');","uProfMenu_folder"));
+        menupopup.appendChild(this.createME("menuitem","GM Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'gm_scripts');","uProfMenu_folder"),0);
         break;
       case 2:
-        menupopup.appendChild(this.createMenuItem("USL Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('UChrm')+uProfMenu.getDirSep()+'UserScriptLoader');","uProfMenu_folder"));
+        menupopup.appendChild(this.createME("menuitem","USL Scripte","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('UChrm')+uProfMenu.getDirSep()+'UserScriptLoader');","uProfMenu_folder"),0);
         break;
     }
     if (this.cssOrdner) {
-      menupopup.appendChild(this.createMenuItem("CSS-Ordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('UChrm')+uProfMenu.getDirSep()+'CSS');","uProfMenu_folder"));
+      menupopup.appendChild(this.createME("menuitem","CSS-Ordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('UChrm')+uProfMenu.getDirSep()+'CSS');","uProfMenu_folder"),0);
     }
-    menupopup.appendChild(this.createMenuItem("Chromeordner","uProfMenu.prefDirOpen('UChrm');","uProfMenu_folder"));
-    menupopup.appendChild(this.createMenuItem("Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"));
-    menupopup.appendChild(this.createMenuItem("Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'extensions');","uProfMenu_folder"));
-    menupopup.appendChild(this.createMenuItem("Installationsordner","uProfMenu.prefDirOpen('CurProcD');","uProfMenu_folder"));
+    menupopup.appendChild(this.createME("menuitem","Chromeordner","uProfMenu.prefDirOpen('UChrm');","uProfMenu_folder"),0);
+    menupopup.appendChild(this.createME("menuitem","Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"),0);
+    menupopup.appendChild(this.createME("menuitem","Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'extensions');","uProfMenu_folder"),0);
+    menupopup.appendChild(this.createME("menuitem","Installationsordner","uProfMenu.prefDirOpen('CurProcD');","uProfMenu_folder"),0);
     // Ende Einbindung von Ordnern
+    // Einbindung von abouts
+    if (this.abouts.length>0) {
+      menupopup.appendChild(document.createElement('menuseparator'));
+      // falls der erste Eintrag des arrays ='0' ist, dann kein Untermenue anlegen, sondern direkt als Menuepunkte einbinden
+      if (this.abouts[0]=='0') {
+        for (var i = 1; i < this.abouts.length; i++) {
+         menupopup.appendChild(this.createME("menuitem",this.abouts[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+this.abouts[i]+"')","uProfMenu_about"),0);
+        }
+       } else {
+        // der erste Eintrag des arrays ist ungleich '0', deshalb als Untermenue einrichten
+        var submenu=menupopup.appendChild(this.createME("menu","uc.js",0,0,"submenu-about"));
+        var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-about-items"));
+        this.fillMenu("submenu-about","submenu-about-items", "about:",this.abouts,"uProfMenu_about",1);
+      }
+    }
+    // Ende Einbindung von abouts
   },
 
 
@@ -251,35 +258,39 @@ var uProfMenu = {
     for (var i = scriptArray.length-1; i > -1; i--) {
       // bisher nur eine Typunterscheidung (userChromeJS-Skript oder about:)
       if (sTyp==0){
-        var mitem = this.createMenuItem(scriptArray[i],"uProfMenu.edit(0,'"+scriptArray[i]+"')",sClass);
+        var mitem = this.createME("menuitem",scriptArray[i],"uProfMenu.edit(0,'"+scriptArray[i]+"')",sClass,0);
         mitem.setAttribute("onclick","uProfMenu.openAtGithub(event,'"+scriptArray[i]+"')");
         mitem.setAttribute("tooltiptext","Linksklick: Bearbeiten, Mittelklick: https://github.com/ardiman/userChrome.js/... öffnen, Rechtsklick: Suche auf GitHub");
        } else {
-        var mitem = this.createMenuItem(scriptArray[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+scriptArray[i]+"')",sClass);
+        var mitem = this.createME("menuitem",scriptArray[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+scriptArray[i]+"')",sClass,0);
       }
       popup.insertBefore(mitem, popup.firstChild);
     }
   },
 
 
-  createMenu:function(sLabel,sId) {
-    // Anlegen von menus
+  createME:function(sTyp,sLabel,sCommand,sClass,sId) {
+    // Anlegen von menuitem, menu oder menupop - fuer bestimmte Typen nicht eingesetzte Parameter werden als 0 uebergeben
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    var m = document.createElementNS(XUL_NS, "menu");
-    m.setAttribute("label",sLabel);
-    m.setAttribute("id",sId);
+    var m = document.createElementNS(XUL_NS, sTyp);
+    switch (sTyp) {
+      case "menuitem":
+        // this.createME("menuitem","Label des Items","ZuzuweisenderCodeFueroncommand","GewuenschteKlasseDesItems",0)
+        m.setAttribute('label', sLabel);
+        m.setAttribute('oncommand',sCommand);
+        m.setAttribute('class',sClass);
+        break;
+      case "menu":
+        // this.createME("menu","Label des Menues",0,0,"GewuenschteIdDesMenues")
+        m.setAttribute('label', sLabel);
+        m.setAttribute('id', sId);
+        break;
+      case "menupopup":
+        //this.createME("menupopup",0,0,0,"GewuenschteId");
+        m.setAttribute('id', sId);
+        break;
+    }
     return m;
-  },
-
-
-  createMenuItem:function(sLabel,sCommand,sClass) {
-    // Anlegen von menuitems
-    const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-    var item = document.createElementNS(XUL_NS, "menuitem");
-    item.setAttribute('label', sLabel);
-    item.setAttribute('oncommand',sCommand);
-    item.setAttribute('class',sClass);
-    return item;
   },
 
 
