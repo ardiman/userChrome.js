@@ -17,13 +17,18 @@ Menüleiste neben dem Menüpunkt "Hilfe" erscheint). Das Gleiche gilt, wenn man 
 
 Das **Ergebnis des Skripts**:
 
-- entweder ein Button neben der Adressleiste (oder einen anderem Element):
+- entweder ein Button neben der Adressleiste (Auslieferungszustand des Skriptes):
 
-![Screenshot Extras Config Menu als Button](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_btn.png)
+![Screenshot Extras Config Menu als Button neben Adressleiste](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_btn.png)
 
-- oder als Menü unter "Extras":
+- oder als Menü unter "Extras" (`warpmenuto:'menu'`):
 
 ![Screenshot Extras Config Menu als Menue](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_men.png)
+
+- oder als Button neben dem Hilfemenü (`warpmenuto:'helpMenu'`) mit Zugriff auf den UserScriptLoader-Ordner (`gmOrdner:2`) und UserCSSLoader-Ordner 
+(`cssOrdner:1`) und Verlagerung der about:Seiten direkt ins Menü (`abouts: ['0','about:about','about:addons','about:cache','about:config','about:support']`):
+
+![Screenshot Extras Config Menu als Button neben Hilfe](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_btn2.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
@@ -37,7 +42,8 @@ Benutzer, die kein Greasemonkey installiert haben oder stattdessen das userChrom
 `gmOrdner` anpassen. Ähnliches gilt für Benutzer des Skriptes "UserCSSLoader" und die Variable `cssOrdner`. Mögliche Werte und ihre Bedeutung stehen 
 als Kommentar im Konfigurationsbereich.
 
-Falls man die about:-Seiten nicht zur Verfügung gestellt haben möchte, muss das entsprechende Array so deklariert werden: `abouts: [],`.
+Falls man die about:-Seiten nicht zur Verfügung gestellt haben möchte, muss das entsprechende Array so deklariert werden: `abouts: [],`. Will man die 
+about:-Seiten nicht in einem Untermenü darstellen, muss der erste Eintrag des Arrays `'0'` sein.
 
 
 ## Anmerkung
