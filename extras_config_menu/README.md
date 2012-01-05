@@ -1,7 +1,8 @@
 # Extras Config Menu
 Blendet standardmäßig neben der Adressleiste einen Button zum schnellen Zugriff auf die wichtigsten Konfigurationsdateien und -ordner ein. Stellt 
 zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie im Editor öffnen zu können. Außerdem ist es ab Version 1.0.20120103 
-möglich, einige about:-Seiten zu öffnen (ggf. das Array `abouts` im Konfigurationsabschnitt erweitern).
+möglich, einige about:-Seiten zu öffnen (ggf. das Array `abouts` im Konfigurationsabschnitt erweitern). Falls das Skript "Add Restart Button" 
+(das genannte Skript muss mindestens in Version 1.0.20120105mod vorliegen) installiert ist, wird außerdem eine Möglichkeit zum Neustart angeboten.
 
 Seit Version  1.0.20120101 kann versucht werden, per Mittelklick das userChromeJS-Skript in diesem Projekt zu öffnen (dies funktioniert aufgrund der 
 Benennung nicht bei allen Skripten!). Mit Rechtsklick findet eine Suche auf GitHub statt (es gibt nur Treffer, wenn der Dateiname z.B. in 
