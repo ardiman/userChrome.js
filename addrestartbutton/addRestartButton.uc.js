@@ -4,16 +4,16 @@
 // @charset        UTF-8
 // @description    ファイルメニューに"再起動"を追加する
 // @include        main
-// @compatibility  Firefox 2.0 3.0
+// @compatibility  Firefox 2.0 3.0 8.0 9.0
 // @author         Alice0775
-// @version
+// @version        1.0.20120105mod
 // @Note
 // ==/UserScript==
 //ファイルメニューに"再起動"を追加する
 //もしTab Mix Plus  のセッションマネージャを使用しているときは,
 //ファイルメニューとTMPのセッションマネージャのツールボタンに"セッションを保存して再起動"を追加する
 //
-var ToolRstart = {
+var ToolRstartMod = {
   //SAVE_SESSION_RESTART_VERSION: "0.0.2",
   init: function() {
     if (document.getElementById("Restart_Firefox_withDelDevCache")) return;
@@ -36,7 +36,7 @@ try{
         menuitem.setAttribute("class", "menuitem-iconic");
         menuitem.setAttribute("label", label);
         menuitem.setAttribute("image", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAYAAABy6%2BR8AAAABGdBTUEAALGPC%2FxhBQAAAkVJREFUeJxVks1Lk3EAxz%2B%2FZ79ne575tk2ntjlsCnaY1aGC7hYWVPRyiA7RX1CEEdRp8xAFRnQI6tClSx0sCBEi8FDRC4ZpSaIpvsSWm07ndC8%2B255nT4cw6nv6Hj6f20fwz26%2FS3eXy5WB6JIRomSCEFwL13G8Uxs80uXp3%2BHEzrn8ajm2lrOjXodNq0eljMC0bMySxdt0hX1u5eGtk4GnrTWO92LJtrUHr1dujK2Uo6c6NHRd4hA2DiBv2hiWTblcZSJpcrTVkT1%2FoPGMHBlNhzdzVvREWEPTHHR5VPbu0tFVhfV8hYnUNlIIGnWTgW85T3PN2iOZL1bvGaaFpmm0uCX7m1QwDBSh0u51EmhQsW14NpnlsN%2FFuY%2BZihycy4Z7QnVkKzaudJ7HMym%2Bb5o0WyZXettoD%2FkAWEgZrFZs%2FIaFzG0VzaThxue26d1dS%2BfBJsyq4PnXddJlBT1jYCsKqRKMFIBiCWnlCnIlV8%2B2W0d1VHErZTbyJXQqXP1Swl%2FN0O2RTKo6%2FnpIFw0pTwe0xZeJ7B5PXQ3xdAGRqeDz6fR0KBwKCkBh7JfFjNQhvgWbhUWZTBb6WnIcK2byPFktkljY5GLEQdDvRFEUfmbhkzeE2iDZmE6SHl3uE%2FdfzLmG3szfnMUVTQSbweWEqkmbLgh7XASCXpBOpj8vMvlhNoa%2FeudvEZFLQzHTqUd%2FtPqgpQF%2FUy2RWgm5bZLTKQrj8Vhi%2BGz%2Ffxn9EYcjdW777vy22oYqAIHLKMUT4%2FnrTF2Y2uF%2BA5XB81eiCxQGAAAAAElFTkSuQmCC");
-        menuitem.setAttribute("onclick", "ToolRstart.SaveRestart(event);");
+        menuitem.setAttribute("onclick", "ToolRstartMod.SaveRestart(event,0);");
         optionsitem = document.getElementById("btn-sm-settings");
         optionsitem.parentNode.insertBefore(menuitem, optionsitem);
       }
@@ -44,7 +44,7 @@ try{
       menuitem = document.createElement("menuitem");
       menuitem.setAttribute("id", "Restart_Firefox1__withDelDevCache");
       menuitem.setAttribute("label", label);
-      menuitem.setAttribute("onclick", "ToolRstart.SaveRestart(event);");
+      menuitem.setAttribute("onclick", "ToolRstartMod.SaveRestart(event,0);");
       optionsitem = document.getElementById("menu_FileQuitItem");
       optionsitem.parentNode.insertBefore(menuitem, optionsitem);
     }
@@ -54,7 +54,7 @@ try{
     menuitem = document.createElement("menuitem");
     menuitem.setAttribute("label", label);
     menuitem.setAttribute("accesskey", "R");
-    menuitem.setAttribute("onclick", "ToolRstart.restartApp(event);");
+    menuitem.setAttribute("onclick", "ToolRstartMod.restartApp(event);");
     optionsitem = document.getElementById("menu_FileQuitItem");
     optionsitem.parentNode.insertBefore(menuitem, optionsitem);
     menuitem.setAttribute("id", "Restart_Firefox");
@@ -66,15 +66,17 @@ try{
     dump("Initialized addRestartButtons");
   },
 
-  SaveRestart: function(e) {
+  SaveRestart: function(e,f) {
     e.stopPropagation();
-    SessionManager.sessionUtil('save', 'allwindows');
-    ToolRstart.restartApp(e);
+    if (f==0) {
+      SessionManager.sessionUtil('save', 'allwindows');
+    }
+    ToolRstartMod.restartApp(e,f);
   },
 
   //sessionsaver_.2-0.2.1.031-fx+mz.xpi??
-  restartApp: function(e) {
-    if (e.button !=0 ) {
+  restartApp: function(e,f) {
+    if (e.button !=0 || f==1) {
       let xRE = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
       xRE.invalidateCachesOnRestart();
     }
@@ -109,5 +111,5 @@ try{
 
 }
 
-ToolRstart.init();
+ToolRstartMod.init();
 
