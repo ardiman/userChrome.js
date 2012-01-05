@@ -48,6 +48,8 @@ var ucjs_optionmenu = {
 
 	// ボタン、独自アイコンを持たない拡張用の画像
 	ICON_URL: "chrome://mozapps/skin/xpinstall/xpinstallItemGeneric.png",
+	// hiermit bekommt man ein kleineres Icon
+	//ICON_URL: "chrome://mozapps/skin/extensions/extensionGeneric-16.png",
 
 	// 初期化
 	init: function() {
