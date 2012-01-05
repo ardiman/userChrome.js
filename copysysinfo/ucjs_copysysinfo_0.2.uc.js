@@ -91,7 +91,11 @@ var ucjs_copysysinfo = {
 		for (var i = 1; i < this.MENU_LIST.length; i++) {
 			if (this.MENU_LIST[i].disp) {
 				var menuItem = document.createElement("menuitem");
-				menuItem.setAttribute("label", this.MENU_LIST[i].label+"info");
+				if (this.MENU_LIST[i].label=='Konfiguration'){
+					menuItem.setAttribute("label", this.MENU_LIST[i].label+"sinfo");
+				} else {
+					menuItem.setAttribute("label", this.MENU_LIST[i].label+"info");
+				}
 				menuItem.setAttribute("oncommand", "ucjs_copysysinfo.copyText(\'"+"DESCRIPTION-"+this.MENU_LIST[i].cmd+"\');");
 				popup.appendChild(menuItem);
 			}
