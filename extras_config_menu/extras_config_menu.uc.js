@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120104
+// @version        1.0.20120105
 // ==/UserScript==
 -->
 
@@ -107,6 +107,8 @@ var uProfMenu = {
       }
     }
     // Ende Einbindung von abouts
+    // falls addRestartButton installiert ist, Neustart zur Verfuegung stellen (addRestartButton 1.0.20120105mod erforderlich)
+    if(typeof(ToolRstartMod) != "undefined") menupopup.appendChild(this.createME("menuitem","Neustart","ToolRstartMod.SaveRestart(event,1);","uProfMenu_restart"),0);
   },
 
 
