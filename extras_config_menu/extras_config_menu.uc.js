@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120105
+// @version        1.0.20120106
 // ==/UserScript==
 -->
 
@@ -298,11 +298,17 @@ var uProfMenu = {
 
   openAtGithub:function(e,sScript) {
     if (e.button==1){
-      // Dateierweiterungen per Split und Zugriff auf das erste Element [0] entfernen
-      var withoutExt1=sScript.split(".uc.js");
-      var withoutExt2=withoutExt1[0].split(".uc.xul");
+      sScript=sScript.toLowerCase();
+      /* Das folgende Array enthaelt regulaere Ausdruecke, um ungueltige Zeichenfolgen entfernen:
+      /Datei-Erweiterungen am Ende/, /"ucjs_" am Anfang/, /"_"gefolgtVonZahlUndDanachBeliebigenZeichen/
+      / "_fx"gefolgtVonZahl(en)/, /"-" oder "+" oder "."/, /"_v"gefolgtVonZahlen
+      */
+      regs=[/\.uc\.js$/,/\.uc\.xul$/,/^ucjs_/,/_\d.+/,/_fx\d+/,/[-+\.]/g,/_v\d+/];
+      for (var i = 0; i < regs.length; i++) {
+        sScript=sScript.replace(regs[i],"");
+      }
       // anschliessend versuchen, die Seite auf GitHub zu oeffnen (das kann nur funktionieren, wenn Ordner- und Dateiname [ohne Erweiterung] uebereinstimmen)
-      var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+withoutExt2[0].toLowerCase();
+      var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+sScript;
       getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
     }
     if (e.button==2){
