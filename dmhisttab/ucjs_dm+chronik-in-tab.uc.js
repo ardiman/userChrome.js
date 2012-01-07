@@ -2,13 +2,15 @@
 // ==UserScript==
 // @name           ucjs_dm+chronik-in-tab.uc.js
 // @compatibility  Firefox 9.*
-// @version        1.0.20120107
+// @version        1.0.20120107b
 // ==/UserScript==
 -->
 
 /*
   Konfiguration des Tabverhaltens fuer Lesezeichen-, Download-, Historymanager
     tabMode 0=nicht veraendern, 1=Tab im Vordergrund, 2=Tab im Hintergrund, 3= als Fenster
+    Sonderfall fuer den DM-Manager bei startenden Downloads wird uber die searchedId "VerhaltenBeimDownload" behandelt
+    , funktioniert zur Zeit auch nur mit Hintergrund-Tab
 */
 var configArray = [
   {tabMode: 3,
@@ -23,14 +25,71 @@ var configArray = [
    searchedId: "menu_showAllHistory",
    label: "History-Manager",
    chromeUrl: "chrome://browser/content/history/history-panel.xul"},
+  {tabMode: 2,
+   searchedId: "history-button",
+   label: "History-Manager",
+   chromeUrl: "chrome://browser/content/history/history-panel.xul"},
+  {tabMode: 0,
+   searchedId: "menu_historySidebar",
+   label: "History-Manager",
+   chromeUrl: "chrome://browser/content/history/history-panel.xul"},
+  {tabMode: 1,
+   searchedId: "VerhaltenBeimDownload",
+   label: "Download-Manager",
+   chromeUrl: "chrome://mozapps/content/downloads/downloads.xul"},
 ];
 // Ende der Konfiguration
 
 
+// WindowHook (ist für "DM in Hintergrundtab" bei startenden Downloads notwendig)
+var WindowHook = {
+	observe: function(aSubject, aTopic, aData)
+	{
+		if (!aSubject._WindowHook)
+		{
+			aSubject._WindowHook = this;
+			aSubject.addEventListener("load", this.onLoad_window, false);
+		}
+	},
+
+	onLoad_window: function()
+	{
+		this.removeEventListener("load", this._WindowHook.onLoad_window, false);
+		var funcs = this._WindowHook.mFuncs[this.document.location.href] || null;
+		if (funcs)
+		{
+			funcs.forEach(function(aFunc) { aFunc(this); }, this);
+		}
+		delete this._WindowHook;
+	},
+
+	register: function(aURL, aFunc)
+	{
+		if (!this.mFuncs)
+		{
+			this.mFuncs = {};
+			Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService).addObserver(this, "domwindowopened", false);
+		}
+		if (!this.mFuncs[aURL])
+		{
+			this.mFuncs[aURL] = [];
+		}
+		this.mFuncs[aURL].push(aFunc);
+	}
+};
+// Ende WindowHook
+
+var dlMode;
+
 // Das configArray durchlaufen und je nach gewaehltem tabMode/Manager agieren
 for (var i = 0; i < this.configArray.length; i++) {
-  wId=document.getElementById(configArray[i]["searchedId"]);
-  wId.setAttribute("command", null);
+  if (configArray[i]["searchedId"]=="VerhaltenBeimDownload") {
+    dlMode=configArray[i]["tabMode"];
+    continue;
+   } else {
+    wId=document.getElementById(configArray[i]["searchedId"]);
+    wId.setAttribute("command", null);
+  }
   switch (configArray[i]["tabMode"]) {
     case 1:
       wId.setAttribute("oncommand", "(getBrowser().selectedTab = getBrowser().addTab('"+configArray[i]['chromeUrl']+"'));");
@@ -43,3 +102,19 @@ for (var i = 0; i < this.configArray.length; i++) {
       break;
   }
 }
+
+
+// Behandlung von startenden Downloads
+if (dlMode==1 || dlMode==2) {
+  WindowHook.register("chrome://mozapps/content/downloads/downloads.xul", function(aWindow) {
+    var browser = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+      .getService(Components.interfaces.nsIWindowMediator)
+      .getMostRecentWindow("navigator:browser").getBrowser();
+    aWindow.addEventListener("unload", function() {
+      browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
+    }, false);
+    aWindow.close();
+  });
+}
+
+if (dlMode==1) browser.selectedTab = browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
