@@ -1,10 +1,10 @@
 # Direct Link
-Das Skript behandelt **nicht** die klickbaren oder nicht klickbaren HTML-Links. Das Hauptkontextmenue bekommt einen neuen 
-Eintrag "Direkt Link" mit einem Untermenue spendiert. Nach dem Markieren einen Wortes wird dieses nach dem Befehl "Oeffnen" 
-automatisch zu einem Url umgewandelt und als solcher im neuen Tab geoeffnet. Welche Adresse daraus entsteht, haengt im 
+Das Skript behandelt **nicht** die klickbaren oder nicht klickbaren HTML-Links. Das Hauptkontextmenü bekommt einen neuen 
+Eintrag "Direkt Link" mit einem Untermenü spendiert. Nach dem Markieren eines Wortes wird dieses nach dem Befehl "Öffnen" 
+automatisch zu einem Url umgewandelt und als solcher im neuen Tab geöffnet. Welche Adresse daraus entsteht, hängt im 
 Wesentlichen von der Useragent-Locale, die im deutschen Firefox und System immer de ist, und vor allem von dem Config-String 
 `browser.fixup.alternate.suffix` ab. Man kann ausserdem noch bei Wikipedia (de) nachschlagen oder alles dem Zufall 
-ueberlassen und "Auf gut Glueck" suchen. Alles geht im neuen Tab auf.
+überlassen und "Auf gut Glück" suchen. Alles geht im neuen Tab auf.
 
 Das **Ergebnis des Skripts**:
 
