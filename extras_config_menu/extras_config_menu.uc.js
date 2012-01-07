@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120106
+// @version        1.0.20120107
 // ==/UserScript==
 -->
 
@@ -262,7 +262,7 @@ var uProfMenu = {
       if (sTyp==0){
         var mitem = this.createME("menuitem",scriptArray[i],"uProfMenu.edit(0,'"+scriptArray[i]+"')",sClass,0);
         mitem.setAttribute("onclick","uProfMenu.openAtGithub(event,'"+scriptArray[i]+"')");
-        mitem.setAttribute("tooltiptext","Linksklick: Bearbeiten, Mittelklick: https://github.com/ardiman/userChrome.js/... öffnen, Rechtsklick: Suche auf GitHub");
+        mitem.setAttribute("tooltiptext","Linksklick: Bearbeiten, Mittelklick: https://github.com/.../"+this.cleanFileName(scriptArray[i])+" öffnen, Rechtsklick: Suche auf GitHub");
        } else {
         var mitem = this.createME("menuitem",scriptArray[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+scriptArray[i]+"')",sClass,0);
       }
@@ -288,7 +288,7 @@ var uProfMenu = {
         m.setAttribute('id', sId);
         break;
       case "menupopup":
-        //this.createME("menupopup",0,0,0,"GewuenschteId");
+        //this.createME("menupopup",0,0,0,"GewuenschteIdDesMenupopups");
         m.setAttribute('id', sId);
         break;
     }
@@ -298,24 +298,30 @@ var uProfMenu = {
 
   openAtGithub:function(e,sScript) {
     if (e.button==1){
-      sScript=sScript.toLowerCase();
-      /* Das folgende Array enthaelt regulaere Ausdruecke, um ungueltige Zeichenfolgen entfernen:
-      /Datei-Erweiterungen am Ende/, /"ucjs_" am Anfang/, /"_"gefolgtVonZahlUndDanachBeliebigenZeichen/
-      / "_fx"gefolgtVonZahl(en)/, /"-" oder "+" oder "."/, /"_v"gefolgtVonZahlen
-      */
-      regs=[/\.uc\.js$/,/\.uc\.xul$/,/^ucjs_/,/_\d.+/,/_fx\d+/,/[-+\.]/g,/_v\d+/];
-      for (var i = 0; i < regs.length; i++) {
-        sScript=sScript.replace(regs[i],"");
-      }
-      // anschliessend versuchen, die Seite auf GitHub zu oeffnen (das kann nur funktionieren, wenn Ordner- und Dateiname [ohne Erweiterung] uebereinstimmen)
-      var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+sScript;
+      // Mittelklick - Seite auf GitHub oeffnen (funktionier nur, wenn Ordner- und bereinigter Dateiname [ohne Erweiterung] uebereinstimmen):
+      var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+this.cleanFileName(sScript);
       getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
     }
     if (e.button==2){
+      // Rechtsklick - Suche auf GitHub starten (funktioniert nur, wenn der Dateiname im Code hinterlegt ist):
       e.preventDefault();
-      var sUrl="https://github.com/search?q="+sScript+"&type=Everything&repo=&langOverride=&start_value=1";
+      var sUrl="https://github.com/search?type=Everything&language=&q="+sScript+"&repo=&langOverride=&start_value=1";
       getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
     }
+  },
+
+
+  cleanFileName:function(sName) {
+    sName=sName.toLowerCase();
+    /* Das folgende Array enthaelt regulaere Ausdruecke, um ungueltige Zeichenfolgen entfernen:
+    /Datei-Erweiterungen am Ende/, /"ucjs_" am Anfang/, /"_"gefolgtVonZahlUndDanachBeliebigenZeichen/
+    / "_fx"gefolgtVonZahl(en)/, /"-" oder "+" oder "."/, /"_v"gefolgtVonZahlen
+    */
+    var regs=[/\.uc\.js$/,/\.uc\.xul$/,/^ucjs_/,/_\d.+/,/_fx\d+/,/[-+\.]/g,/_v\d+/];
+    for (var i = 0; i < regs.length; i++) {
+      sName=sName.replace(regs[i],"");
+    }
+    return sName; 
   }
 
 };
