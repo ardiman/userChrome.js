@@ -1,13 +1,13 @@
 # Dictionary Lookup
-Kuemmert sich um Uebersetzungen und Woerterbuch EN-DE und umgekehrt (natuerlich auch andere) ueber die TU Chemnitz, 
+Kümmert sich um Übersetzungen und Wörterbuch EN-DE und umgekehrt (natürlich auch andere) über die TU Chemnitz, 
 sowie um eine Suche bei Wikipedia.
 
-Das Hauptkontextmenue bekommt zwei neue Eintraege: "Uebersetze" und "Suche in Wikipedia". 
-Das markierte Wort wird in der jeweiligen "Gegensprache" uebersetzt (passiert automatisch) und noch so einiges mehr, 
-was die TU Chemnitz diesbezueglich zu bieten hat. 
+Das Hauptkontextmenü bekommt zwei neue Einträge: "Übersetze" und "Suche in Wikipedia". 
+Das markierte Wort wird in der jeweiligen "Gegensprache" übersetzt (passiert automatisch) und noch so einiges mehr, 
+was die TU Chemnitz diesbezüglich zu bieten hat. 
 
-Das ganze geht in einem kleinen verstellbaren Fenster auf. Im Script ist eine Moeglichkeit eingebaut, 
-das ganze auch im neuen Tab zu oeffnen. Die Suche des markierten Begriffes in Wikipedia verlaeuft im neuen Tab.
+Das Ganze geht in einem kleinen verstellbaren Fenster auf. Im Skript ist eine Möglichkeit eingebaut, 
+das Ganze auch im neuen Tab zu öffnen. Die Suche des markierten Begriffes in Wikipedia verläuft im neuen Tab.
 
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
