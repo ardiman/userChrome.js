@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           ucjs_dm+chronik-in-tab.uc.js
 // @compatibility  Firefox 9.*
-// @version        1.0.20120108
+// @version        1.0.20120108b
 // ==/UserScript==
 -->
 
@@ -11,8 +11,7 @@
 /*
   Konfiguration des Tabverhaltens fuer Lesezeichen-, Download-, Historymanager
     tabMode 0=nicht veraendern, 1=Tab im Vordergrund, 2=Tab im Hintergrund, 3= als Fenster
-    Sonderfall fuer den DM-Manager bei startenden Downloads wird uber die searchedId "VerhaltenBeimDownload" behandelt
-    , funktioniert zur Zeit auch nur mit Hintergrund-Tab
+    Sonderfall fuer den DM-Manager bei startenden Downloads wird uber die (nicht existierende) searchedId "VerhaltenBeimDownload" behandelt
 */
 var configArray = [
   {tabMode: 3,
@@ -21,6 +20,10 @@ var configArray = [
    chromeUrl: "chrome://browser/content/places/places.xul"},
   {tabMode: 2,
    searchedId: "menu_openDownloads",
+   label: "Download-Manager",
+   chromeUrl: "chrome://mozapps/content/downloads/downloads.xul"},
+  {tabMode: 1,
+   searchedId: "VerhaltenBeimDownload",
    label: "Download-Manager",
    chromeUrl: "chrome://mozapps/content/downloads/downloads.xul"},
   {tabMode: 1,
@@ -35,10 +38,6 @@ var configArray = [
    searchedId: "menu_historySidebar",
    label: "History-Manager",
    chromeUrl: "chrome://browser/content/history/history-panel.xul"},
-  {tabMode: 2,
-   searchedId: "VerhaltenBeimDownload",
-   label: "Download-Manager",
-   chromeUrl: "chrome://mozapps/content/downloads/downloads.xul"},
 ];
 // Ende der Konfiguration
 
@@ -113,12 +112,15 @@ if (dlMode==1 || dlMode==2) {
       .getService(Components.interfaces.nsIWindowMediator)
       .getMostRecentWindow("navigator:browser").getBrowser();
     aWindow.addEventListener("unload", function() {
+      if (dlMode==1) {
+        browser.selectedTab = browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
+       } else {
       browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
+      }
     }, false);
     aWindow.close();
   });
 }
 
-if (dlMode==1) browser.selectedTab = browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
-}();
 
+}();
