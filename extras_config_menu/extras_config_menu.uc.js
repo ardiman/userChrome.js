@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120107
+// @version        1.0.20120108
 // ==/UserScript==
 -->
 
@@ -25,10 +25,12 @@ var uProfMenu = {
   // Einbindung CSS-Ordner (0: nein, 1: UserCSSLoader-Ordner im Chrome-Verzeichnis):
   cssOrdner: 0,
   // In Zeile 31 gueltige about:Adressen eintragen, die ebenfalls aufgerufen werden sollen.
-  //  - Zum Ausblenden: abouts: [],
+  // - Zum Ausblenden: abouts: [],
   // - Damit die about:-Seiten nicht als Untermenue, sondern direkt als Menuepunkte aufgefuehrt werden, muss das erste Element '0' sein:
   // abouts: ['0','about:about','about:addons','about:cache','about:config','about:support'],
   abouts: ['about:about','about:addons','about:cache','about:config','about:support'],
+  // Die normalen Firefox-Einstellungen auch zur Verfuegung stellen (0: nein, 1: ja):
+  showNormalPrefs: 0,
   // Ende der Konfiguration
   
   init: function() {
@@ -107,7 +109,11 @@ var uProfMenu = {
       }
     }
     // Ende Einbindung von abouts
-    // falls addRestartButton installiert ist, Neustart zur Verfuegung stellen (addRestartButton 1.0.20120105mod erforderlich)
+    // Separator, falls dieser nicht schon durch abouts generiert wurde und weitere Menuepunkte folgen werden
+    if (this.abouts.length==0 && (this.showNormalPrefs || typeof(ToolRstartMod) != "undefined")) menupopup.appendChild(document.createElement('menuseparator'));
+    // Falls gewuenscht (s. Konfigurationsabschnitt), Zugriff auf die normalen Einstellungen
+    if (this.showNormalPrefs) menupopup.appendChild(this.createME("menuitem","Einstellungen","try{openOptionsDialog();}catch(e){openPreferences();}","uProfMenu_prefs"),0);
+    // Falls addRestartButton installiert ist, Neustart zur Verfuegung stellen (addRestartButton 1.0.20120105mod erforderlich)
     if(typeof(ToolRstartMod) != "undefined") menupopup.appendChild(this.createME("menuitem","Neustart","ToolRstartMod.SaveRestart(event,1);","uProfMenu_restart"),0);
   },
 
