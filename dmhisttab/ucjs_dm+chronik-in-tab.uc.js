@@ -89,7 +89,7 @@ for (var i = 0; i < configArray.length; i++) {
     continue;
    } else {
     wId=document.getElementById(configArray[i]["searchedId"]);
-    wId.setAttribute("command", null);
+    if (configArray[i]["tabMode"]!=0) wId.setAttribute("command", null);
   }
   switch (configArray[i]["tabMode"]) {
     case 1:
