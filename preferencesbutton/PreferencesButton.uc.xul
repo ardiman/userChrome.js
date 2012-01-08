@@ -10,14 +10,6 @@
 " type="text/css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-<script type="application/x-javascript"><![CDATA[
-var preferencesbutton = {
-openManager : function() {
-window.open("chrome://browser/content/preferences/preferences.xul",
-"preferences", "chrome,dialog,centerscreen,dependent");}
-}   
-       
-]]></script>   
 <toolbar id="toolbar-menubar">
 <toolbarbutton
 id="preferencesbuttonIcon"
