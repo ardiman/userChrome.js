@@ -46,6 +46,8 @@ als Kommentar im Konfigurationsbereich.
 Falls man die about:-Seiten nicht zur Verfügung gestellt haben möchte, muss das entsprechende Array so deklariert werden: `abouts: [],`. Will man die 
 about:-Seiten nicht in einem Untermenü darstellen, muss der erste Eintrag des Arrays `'0'` sein.
 
+Wird `showNormalPrefs` auf `1` gesetzt, so können auch die Firefox-Einstellungen über dieses Menü geöffnet werden.
+
 
 ## Anmerkung
 Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
