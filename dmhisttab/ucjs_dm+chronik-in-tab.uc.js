@@ -2,10 +2,12 @@
 // ==UserScript==
 // @name           ucjs_dm+chronik-in-tab.uc.js
 // @compatibility  Firefox 9.*
-// @version        1.0.20120107b
+// @version        1.0.20120108
 // ==/UserScript==
 -->
 
+
+!function dmhisttab(){
 /*
   Konfiguration des Tabverhaltens fuer Lesezeichen-, Download-, Historymanager
     tabMode 0=nicht veraendern, 1=Tab im Vordergrund, 2=Tab im Hintergrund, 3= als Fenster
@@ -33,7 +35,7 @@ var configArray = [
    searchedId: "menu_historySidebar",
    label: "History-Manager",
    chromeUrl: "chrome://browser/content/history/history-panel.xul"},
-  {tabMode: 1,
+  {tabMode: 2,
    searchedId: "VerhaltenBeimDownload",
    label: "Download-Manager",
    chromeUrl: "chrome://mozapps/content/downloads/downloads.xul"},
@@ -82,7 +84,7 @@ var WindowHook = {
 var dlMode;
 
 // Das configArray durchlaufen und je nach gewaehltem tabMode/Manager agieren
-for (var i = 0; i < this.configArray.length; i++) {
+for (var i = 0; i < configArray.length; i++) {
   if (configArray[i]["searchedId"]=="VerhaltenBeimDownload") {
     dlMode=configArray[i]["tabMode"];
     continue;
@@ -118,3 +120,5 @@ if (dlMode==1 || dlMode==2) {
 }
 
 if (dlMode==1) browser.selectedTab = browser.addTab("chrome://mozapps/content/downloads/downloads.xul");
+}();
+
