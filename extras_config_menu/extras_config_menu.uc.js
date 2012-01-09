@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120108
+// @version        1.0.20120109
 // ==/UserScript==
 -->
 
@@ -31,6 +31,8 @@ var uProfMenu = {
   abouts: ['about:about','about:addons','about:cache','about:config','about:support'],
   // Die normalen Firefox-Einstellungen auch zur Verfuegung stellen (0: nein, 1: ja):
   showNormalPrefs: 0,
+  // Stellt "Skriptliste in Zwischenablage" zur Verfuegung (1) oder nicht (0):
+  enableScriptsToClip: 0,
   // Ende der Konfiguration
   
   init: function() {
@@ -59,7 +61,7 @@ var uProfMenu = {
       sss.loadAndRegisterSheet(uri,sss.AGENT_SHEET);
     }
     //ab hier ist alles gleich, egal ob Button oder Menue
-    menu.setAttribute("onpopupshowing","uProfMenu.getScripts()");
+    menu.setAttribute("onpopupshowing","uProfMenu.getScripts(0)");
     var menupopup = menu.appendChild(document.createElement('menupopup'));
     menupopup.appendChild(this.createME("menuitem","userChrome.js","uProfMenu.edit(0,'userChrome.js');","uProfMenu_edit",0));
     // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
@@ -67,6 +69,7 @@ var uProfMenu = {
     var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucjs-items"));
     var submenu=menupopup.appendChild(this.createME("menu","uc.xul",0,0,"submenu-ucxul"));
     var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucxul-items"));
+    if (this.enableScriptsToClip) menupopup.appendChild(this.createME("menuitem","Skriptliste in Zwischenablage","uProfMenu.getScripts(1)","uProfMenu_clipboard",0));
      // Ende Anlegen von Untermenues fuer die userChromeJS-Skripte
     menupopup.appendChild(document.createElement('menuseparator'));
     // Einbindung von Konfigdateien
@@ -222,7 +225,7 @@ var uProfMenu = {
   },
 
 
-  getScripts:function() {
+  getScripts:function(iType) {
     // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundenen Skripte auf
     let ucJsScripts = [];
     let ucXulScripts = [];
@@ -247,9 +250,15 @@ var uProfMenu = {
       ucJsScripts.sort(this.stringComparison);
       ucXulScripts.sort(this.stringComparison);
     }
-    // Aufruf der naechsten Methode um die beiden Untermenues zu befuellen
-    this.fillMenu("submenu-ucjs","submenu-ucjs-items", "uc.js",ucJsScripts,"uProfMenu_ucjs",0);
-    this.fillMenu("submenu-ucxul","submenu-ucxul-items", "uc.xul",ucXulScripts,"uProfMenu_ucxul",0);
+    // Aufruf der naechsten Methoden um die beiden Untermenues oder die Zwischenablage zu befuellen
+    if (iType==0) {
+      this.fillMenu("submenu-ucjs","submenu-ucjs-items", "uc.js",ucJsScripts,"uProfMenu_ucjs",0);
+      this.fillMenu("submenu-ucxul","submenu-ucxul-items", "uc.xul",ucXulScripts,"uProfMenu_ucxul",0);
+     } else {
+      var result="userChromeJS/uc.js:\n-------------------\n"+ucJsScripts.join("\n")+
+                 "\n\nuserChromeJS/uc.xul:\n--------------------\n"+ucXulScripts.join("\n");
+      Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper).copyString(result);
+    }
   },
 
 
@@ -296,6 +305,7 @@ var uProfMenu = {
       case "menupopup":
         //this.createME("menupopup",0,0,0,"GewuenschteIdDesMenupopups");
         m.setAttribute('id', sId);
+
         break;
     }
     return m;
