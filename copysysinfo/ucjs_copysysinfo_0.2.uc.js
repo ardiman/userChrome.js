@@ -3,7 +3,7 @@
 // @include			main
 // @description		添加一个复制UA、 附件组件/userChrome.js 脚本列表等信息到剪贴板的菜
 // @compatibility	WindowsXP/Vista/7/Ubuntu10.04(gnome)
-// @compatibility	Firefox 3.6.* - 4.0.* / Thunderbird 3.1.*
+// @compatibility	Firefox 3.6.* - 9.0.* / Thunderbird 3.1.*
 // @compatibility	userChromeJS 1.2 / userChrome.js 0.7 - 0.8 , 0.8.010070202(Fx4 対応 Alice0775 版)
 // @compatibility	Sub-Script/Overlay Loader v3.0.29mod
 // @author			otokiti
@@ -11,6 +11,7 @@
 // @version			0.1_fx4	:	10/07/13 Fx4 専用版
 // @version			0.2			10/07/29 Fx3.6/Fx4 用をマージ
 // @version						10/02/08 default テーマが表示されない時の処理の改善とリスト表示を整理した。
+// @version			auf github/ardiman - Anpassung fuer Benutzer, die nur mit einfacher userChrome.js arbeiten
 // @Note			-----------------------------------------------------------------------------------------------------------
 // @Note			【制限事項】
 // @Note			1) 得られるリストはユニコード(UTF8)文字列となります。
@@ -123,7 +124,12 @@ var ucjs_copysysinfo = {
 				txt = ucjs_copysysinfo.getAddonsInfo(cmd) + "\n";
 				break;
 		case "USERCHROME":
-				txt = ucjs_copysysinfo.getScriptsList() + "\n";
+				if (typeof(userChrome_js) !="undefined") {
+					txt = ucjs_copysysinfo.getScriptsList() + "\n";
+				} else {
+					txt = ucjs_copysysinfo.getScriptsListSimple() + "\n";
+				}
+				
 				break;
 			case "TEMPLATE":
 					//【UserAgent】
@@ -365,6 +371,43 @@ var ucjs_copysysinfo = {
 				result.push(line);
 			}
 		}
+		return result.join("\n");
+	},
+
+	getScriptsListSimple: function() {
+		var result = new Array();
+		    // Arrays (jeweils ein Array fuer uc.js und uc.xul) nehmen Namen der gefundenen Skripte auf
+		let ucJsScripts = [];
+		let ucXulScripts = [];
+		// Suchmuster, also die Dateierweiterungen uc.js und uc.xul
+		let extjs = /\.uc\.js$/i;
+		let extxul= /\.uc\.xul$/i;
+		let aFolder = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+		aFolder.initWithPath(Services.dirsvc.get("UChrm", Ci.nsIFile).path);
+		// files mit Eintraegen im Chrome-Ordner befuellen
+		let files = aFolder.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
+		// Ordner bzw. files durchlaufen und kontrollieren, ob gesuchte Dateien dabei sind
+		while (files.hasMoreElements()) {
+			let file = files.getNext().QueryInterface(Ci.nsIFile);
+			// keine gewuenschte Datei, deshalb continue
+			if (!extjs.test(file.leafName) && !extxul.test(file.leafName)) continue;
+			// uc.js gefunden -> im Array ablegen
+			if (extjs.test(file.leafName)) ucJsScripts.push(file.leafName);
+			// uc.xul gefunden -> im Array ablegen
+			if (extxul.test(file.leafName)) ucXulScripts.push(file.leafName);
+		}
+
+		result.push("userChromeJS/uc.js:");
+		for(var i = 0, len = ucJsScripts.length; i < len; i++){
+			var line = ucJsScripts[i];
+			result.push(line);
+		}
+		result.push("\nuserChromeJS/uc.xul:");
+		for(var i = 0, len = ucXulScripts.length; i < len; i++){
+			var line = ucXulScripts[i];
+			result.push(line);
+		}
+		
 		return result.join("\n");
 	},
 
