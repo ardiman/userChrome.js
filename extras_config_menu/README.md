@@ -48,6 +48,8 @@ about:-Seiten nicht in einem Untermenü darstellen, muss der erste Eintrag des A
 
 Wird `showNormalPrefs` auf `1` gesetzt, so können auch die Firefox-Einstellungen über dieses Menü geöffnet werden.
 
+`enableScriptsToClip` auf `1` bietet die Möglichkeit, die Liste der eingebundenen Skripte in die Zwischenablage zu übernehmen.
+
 
 ## Anmerkung
 Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
