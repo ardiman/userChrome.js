@@ -4,12 +4,14 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @include        chrome://inspector/content/inspector.xul
-// @compatibility  Firefox 4
-// @version        0.0.1
+// @compatibility  Firefox 4, Firefox 9
+// @version        0.0.1a
+// @note           V.0.0.1a umgeht Fehler, falls pane==null
 // ==/UserScript==
 
 setTimeout(function() {
 	var pane = document.getElementById("bxDocPanel");
+	if (pane==null) return;  // in nicht DomI-Fenstern aussteigen
 	var iframe = pane.mIFrameEl;
 	var win = iframe.contentWindow;
 	var doc = iframe.contentDocument;
@@ -64,5 +66,4 @@ setTimeout(function() {
 	win.addEventListener('unload', function(event){
 		doc.getElementById('ppDOMContext').removeEventListener('popupshowing', win.stylishDomi.generateSelectors, false);
 	}, false);
-
 }, 500);
