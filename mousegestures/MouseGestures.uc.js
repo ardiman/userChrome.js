@@ -1348,7 +1348,7 @@
 
                 default:
                     if (!command) {
-                        throw 'Error: No such gesture. (' + this._gesture + ')';
+                        throw 'Error: No such gesture. (' + this._gesture + ') - try UDUD for manual';
                     }
             }  // --- switch end ---
         },  // --- _doCommand() end ---
