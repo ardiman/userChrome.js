@@ -6,7 +6,7 @@ Seite wurde um 2 Konfigurationsmöglichkeiten ergänzt, die man in den Zeilen 64
 - `this._showinstatustime = 750;`
 
 Damit lässt sich  einstellen, ob die ausgeführte Geste oberhalb der Add-on-Bar angezeigt werden soll und falls ja, wie 
-lang (in Millisekunden) die Anzeige sichtbar bleibt. Warnmeldungen werden (z.B. bei unbekannter Geste) unabhängig von dieser Einstellung immer 
+lang (in Millisekunden) die Anzeige sichtbar bleibt. Warnmeldungen (z.B. bei unbekannter Geste) werden unabhängig von dieser Einstellung immer 
 angezeigt.
 
 Die Übersicht der im Auslieferungszustand aktiven Gesten kann man in der Datei *MouseGesturesManual.html* nachschlagen (Aufruf mit der Geste 
