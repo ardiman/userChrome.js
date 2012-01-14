@@ -1,0 +1,594 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+##! firefox @%@
+-->
+
+<html lang="de">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Mouse Gestures Manual</title>
+
+
+<style type="text/css">
+body {
+    background: #F5F5F5;
+    text-align: center;
+    font-family: osaka_unicode,Meiryo,monospace;
+}
+
+#main-box {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#left-box {
+    width: 50%;
+    float: left;
+}
+
+#right-box {
+    width: 40%;
+    float: left;
+    border-top: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+    border-left: 3px double #CCCCCC;
+    border-right: 3px double #CCCCCC;
+    padding: 20px;
+}
+
+
+
+table .mtable {
+    margin: 20px;
+    padding: 0px;
+    border-collapse: collapse;
+    border-top: 1px dotted #999999;
+    border-spacing: 0;
+    background-color: #ffffff;
+    empty-cells: show;
+}
+
+.mtable th {
+    padding: 4px 2px 2px 4px;
+    text-align: center;
+    color: #666666;
+    background-color: #EEEEEE;
+    font-family: "Times New Roman","Georgia",Arial;
+}
+
+
+.mtable .f {
+    border-left: 3px double #CCCCCC;
+    border-bottom: 1px dotted #999999;
+    font-family: "Times New Roman","Georgia",Arial;
+}
+
+.mtable .d {
+    border-left: 3px double #CCCCCC;
+    border-right: 3px double #CCCCCC;
+    border-bottom: 1px dotted #999999;
+}
+
+.mtable .g {
+    border-left: 5px double #FF9900;
+    border-bottom: 1px dotted #999999;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.mtable td {
+    padding: 2px 20px 2px 15px;
+}
+
+h3.entry-title {
+    font-size: 18px;
+    font-weight: normal;
+    color: #0E4C88;
+    border-left: 5px double #FF9900;
+    border-bottom: 1px solid #C9C9C9;
+    padding-left: 10px;
+}
+
+</style>
+</head>
+<body>
+
+<div id="main-box">
+
+<div id="left-box">
+<table class="mtable">
+<tr>
+    <th class="g">Geste</th>
+    <th class="f">Befehl</th>
+    <th class="d">Beschreibung</th>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Navigation</th>
+</tr>
+<tr>
+    <th class="g">L</th>
+    <td class="f">History Back</td>
+    <td class="d">Seite zurück</td>
+</tr>
+<tr>
+    <th class="g">R</th>
+    <td class="f">History Forward</td>
+    <td class="d">Seite vor</td>
+</tr>
+<tr>
+    <th class="g">DURD</th>
+    <td class="f">Home</td>
+    <td class="d">Startseite ['h']</td>
+</tr>
+<tr>
+    <th class="g">LDRUL</th>
+    <td class="f">Go to Google</td>
+    <td class="d">Google im neuen Tab ['G']</td>
+</tr>
+<tr>
+    <th class="g">DRUDL</th>
+    <td class="f">Go to Yahoo</td>
+    <td class="d">Yahoo im neuen Tab ['y']</td>
+</tr>
+<tr>
+    <th class="g">ULU</th>
+    <td class="f">Go Upper Level</td>
+    <td class="d">Eine Seitenebene nach oben</td>
+</tr>
+<tr>
+    <th class="g">DRD</th>
+    <td class="f">Popup Session History</td>
+    <td class="d">Aktuelle Chronik im Popup</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Seite</th>
+</tr>
+<tr>
+    <th class="g">URD</th>
+    <td class="f">Full Screen</td>
+    <td class="d">Vollbild</td>
+</tr>
+<tr>
+    <th class="g">U</th>
+    <td class="f">Page Up</td>
+    <td class="d">Nach oben scrollen</td>
+</tr>
+<tr>
+    <th class="g">D</th>
+    <td class="f">Page Down</td>
+    <td class="d">Nach unten scrollen</td>
+</tr>
+<tr>
+    <th class="g">LU</th>
+    <td class="f">Scroll Top</td>
+    <td class="d">Sprung zum Seitenanfang</td>
+</tr>
+<tr>
+    <th class="g">LD</th>
+    <td class="f">Scroll Bottom</td>
+    <td class="d">Sprung zum Seitenende</td>
+</tr>
+<tr>
+    <th class="g">UD</th>
+    <td class="f">Reload</td>
+    <td class="d">Neu laden</td>
+</tr>
+<tr>
+    <th class="g">UDU</th>
+    <td class="f">Reload Skip Cache</td>
+    <td class="d">Aktualisieren ohne Cache</td>
+</tr>
+<tr>
+    <th class="g">DUD</th>
+    <td class="f">Reload Images</td>
+    <td class="d">Bild neu laden</td>
+</tr>
+<tr>
+    <th class="g">LRL</th>
+    <td class="f">Stop</td>
+    <td class="d">Stop</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Stop Loading All Tabs</td>
+    <td class="d">Laden aller Tabs stopen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Reload All Tabs</td>
+    <td class="d">Alle Tabs neu laden</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Bookmark This Page</td>
+    <td class="d">Aktuelle Seite als Lesezeichen</td>
+</tr>
+<tr>
+    <th class="g">+</th>
+    <td class="f">Zoom In</td>
+    <td class="d">Bild vergrößern<br>
+                  Gesamte Seite vergrößern</td>
+</tr>
+<tr>
+    <th class="g">-</th>
+    <td class="f">Zoom Out</td>
+    <td class="d">Bild verkleinern<br>
+                  Gesamte Seite verkleinern</td>
+</tr>
+<tr>
+    <th class="g">RLR</th>
+    <td class="f">Zoom Reset</td>
+    <td class="d">Zoom zurücksetzen</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Fenster</th>
+</tr>
+<tr>
+    <th class="g">DRU</th>
+    <td class="f">Close Window</td>
+    <td class="d">Fenster schließen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Undo Closed Window</td>
+    <td class="d">Geschlossenes Fenster öffnen</td>
+</tr>
+<tr>
+    <th class="g">DLU</th>
+    <td class="f">Restart Firefox</td>
+    <td class="d">Firefox neu starten</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Quit Firefox</td>
+    <td class="d">Firefox beenden</td>
+</tr>
+<tr>
+    <th class="g">RUD</th>
+    <td class="f">Minimize Window</td>
+    <td class="d">Fenster minimieren</td>
+</tr>
+<tr>
+    <th class="g">RDU</th>
+    <td class="f">Maximize or Restore Window</td>
+    <td class="d">Fenster maximieren</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Tab</th>
+</tr>
+<tr>
+    <th class="g">&lt;</th>
+    <td class="f">Previous Tab</td>
+    <td class="d">Vorheriger Tab</td>
+</tr>
+<tr>
+    <th class="g">&gt;</th>
+    <td class="f">Next Tab</td>
+    <td class="d">Nächster Tab</td>
+</tr>
+<tr>
+    <th class="g">LR</th>
+    <td class="f">Open New Tab</td>
+    <td class="d">Bild im neuen Tab öffnen<br>
+                  Neuen Tab öffnen</td>
+</tr>
+<tr>
+    <th class="g">RL</th>
+    <td class="f">Duplicate Tab</td>
+    <td class="d">Tab duplizieren</td>
+</tr>
+<tr>
+    <th class="g">DR</th>
+    <td class="f">Close Tab</td>
+    <td class="d">Tab schließen</td>
+</tr>
+<tr>
+    <th class="g">DRDU</th>
+    <td class="f">Close Other Tabs</td>
+    <td class="d">Andere Tabs schließen</td>
+</tr>
+<tr>
+    <th class="g">DU</th>
+    <td class="f">Undo Closed Tab</td>
+    <td class="d">Geschlossenen Tab öffnen ['U']</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Pin/Unpin Tab</td>
+    <td class="d">Tab anpinnen/lösen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Detach Tab</td>
+    <td class="d">Tab abtrennen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Popup All Tabs</td>
+    <td class="d">Alle Tabs im Popup</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Popup Closed Tab</td>
+    <td class="d">Geschlossene Tabs im Popup</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Sidebar und Toolbar</th>
+</tr>
+<tr>
+    <th class="g">DLR</th>
+    <td class="f">Show/Hide BookmarksSidebar</td>
+    <td class="d">Lesezeichen-Sidebar öffnen/schließen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Show/Hide History Sidebar</td>
+    <td class="d">Chronik-Sidebar öffnen/schließen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Show/Hide Add-on Bar</td>
+    <td class="d">Add-on-Leiste ein-/ausblenden</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Show/Hide Bookmarks Toolbar</td>
+    <td class="d">Lesezeichen-Leiste ein-/ausblenden</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Suche</th>
+</tr>
+<tr>
+    <th class="g">UR</th>
+    <td class="f">Open Findbar</td>
+    <td class="d">Suchleiste öffnen</td>
+</tr>
+<tr>
+    <th class="g">URL</th>
+    <td class="f">Close Findbar</td>
+    <td class="d">Suchleiste schließen</td>
+</tr>
+<tr>
+    <th class="g">RUR</th>
+    <td class="f">Web Search</td>
+    <td class="d">Google Textsuche</td>
+</tr>
+<tr>
+    <th class="g">LRUR</th>
+    <td class="f">Smart Search</td>
+    <td class="d">Google Textsuche<br>
+                  Url (mit String) Suche</td>
+</tr>
+<tr>
+    <th class="g">UDR</th>
+    <td class="f">Image Search</td>
+    <td class="d">Google Bildersuche,<br>
+                  auch Bilder im markierten Text</td>
+</tr>
+<tr>
+    <th class="g">DUR</th>
+    <td class="f">Video Search</td>
+    <td class="d">Youtube Videosuche</td>
+</tr>
+<tr>
+    <th class="g">UDUDR</th>
+    <td class="f">Map Search</td>
+    <td class="d">Google Maps Suche</td>
+</tr>
+<tr>
+    <th class="g">UDUR</th>
+    <td class="f">Amazon Search</td>
+    <td class="d">Amazon Suche ['A']</td>
+</tr>
+<tr>
+    <th class="g">DRUR</th>
+    <td class="f">Search Under the Domain</td>
+    <td class="d">Google Url Suche</td>
+</tr>
+<tr>
+    <th class="g">RDR</th>
+    <td class="f">Eijiro Translation</td>
+    <td class="d">Inkompatibel</td>
+</tr>
+<tr>
+    <th class="g">RD</th>
+    <td class="f">Popup Search Engines</td>
+    <td class="d">Suchmaschinen im Popup</td>
+</tr>
+<tr>
+    <th class="g">UL</th>
+    <td class="f">Popup Interpreters</td>
+    <td class="d">Übersetzung im Popup</td>
+</tr>
+<tr>
+    <th class="g">RU</th>
+    <td class="f">Popup Google Suggestions</td>
+    <td class="d">Google Vorschlagsuche im Popup</td>
+</tr>
+<tr>
+    <th class="g">LRUR</th>
+    <td class="f">Chemistry Reference Resolver</td>
+    <td class="d"><a href="http://de.wikipedia.org/wiki/Digital_Object_Identifier">DOI</a> Suche im markierten Text <br>
+</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Extras</th>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">View Page Source</td>
+    <td class="d">Seitenquelltext</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">View Page Info</td>
+    <td class="d">Seiteninformationen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Preferences</td>
+    <td class="d">Firefox Einstellungen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Downloads</td>
+    <td class="d">Downloads</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Add-ons Manager</td>
+    <td class="d">Add-ons Manager öffnen</td>
+</tr>
+<tr>
+    <th class="g">&nbsp;</th>
+    <td class="f">Error Console</td>
+    <td class="d">Fehlerkonsole öffnen</td>
+</tr>
+<tr>
+    <th class="g">DUDU</th>
+    <td class="f">Web Console</td>
+    <td class="d">Web-Konsole öffnen ['W']</td>
+</tr>
+<tr>
+    <th class="g">DURDL</th>
+    <td class="f">Private Browsing</td>
+    <td class="d">Privaten Modus starten/beenden</td>
+</tr>
+<tr>
+    <th class="g">RDL</th>
+    <td class="f">Clear Privacy Information</td>
+    <td class="d">Neueste Chronik löschen</td>
+</tr>
+<tr>
+    <th class="g">LDRU</th>
+    <td class="f">Cookies</td>
+    <td class="d">Cookies Manager öffnen</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Diverses</th>
+</tr>
+<tr>
+    <th class="g">LDRDL</th>
+    <td class="f">CSS ON/OFF</td>
+    <td class="d">CSS Seiten-Layout ein-/ausschalten ['S']</td>
+</tr>
+<tr>
+    <th class="g">DL</th>
+    <td class="f">Save as...</td>
+    <td class="d">Bild speichern mit Namen<br>
+                  Link speichern mit Namen<br>
+                  Seite speichern mit Namen</td>
+</tr>
+<tr>
+    <th class="g">R&lt;</th>
+    <td class="f">Copy to Clipboard</td>
+    <td class="d">Bild Alt-Atribut ohne Titel<br>
+                  Linktext kopieren<br>
+                  Markierten Text kopieren<br>
+                  Seitentitel kopieren</td>
+</tr>
+<tr>
+    <th class="g">L&lt;</th>
+    <td class="f">Copy URL to Clipboard</td>
+    <td class="d">Bild-Url kopieren<br>
+                  Link-Url kopieren<br>
+                  Seiten-Url kopieren</td>
+</tr>
+<tr>
+    <th class="g">RURU</th>
+    <td class="f">Increment URL</td>
+    <td class="d">Innerhalb der Url 1.Seitenzahl vor</td>
+</tr>
+<tr>
+    <th class="g">RDRD</th>
+    <td class="f">Decrement URL</td>
+    <td class="d">Innerhalb der Url 1.Seitenzahl zurück</td>
+</tr>
+<tr>
+    <th class="g">UDL</th>
+    <td class="f">Google&amp;hl=(en | ja)</td>
+    <td class="d">Sprachumschaltung der Suchergebnisse</td>
+</tr>
+<tr>
+    <th class="g">DUL</th>
+    <td class="f">Google&amp;lr=(web | ja)</td>
+    <td class="d">Sprachwechsel der Suchergebnisse</td>
+</tr>
+<tr>
+    <th class="g">UDUD</th>
+    <td class="f">Open This Manual</td>
+    <td class="d">Mouse Gestures Infos ['M']</td>
+</tr>
+<tr>
+    <th colspan="3" class="g d">Erweiterungen</th>
+</tr>
+<tr>
+    <th class="g">LUL</th>
+    <td class="f">[QuickNote] Send to QuickNote</td>
+    <td class="d">Senden an QuickNote</td>
+</tr>
+<tr>
+    <th class="g">LULR</th>
+    <td class="f">[QuickNote] Show/Hide QuickNote Sidebar</td>
+    <td class="d">QuickNote Sibebar öffnen/schließen</td>
+</tr>
+</table>
+</div>
+
+<div id="right-box">
+    <h3 class="entry-title">Übersicht</h3>
+    <p><strong>userChromeJS Script für Mausgesten</strong></p>
+        <a href="http://userchromejs.mozdev.org/">userChromeJS Addon auf mozdev.org</a><br>
+        <a href="https://github.com/ardiman/userChrome.js/blob/master/README.md">Einleitung für die userChromeJS und Scripte</a><br>
+        <a href="http://de.wikipedia.org/wiki/Mausgeste">Mausgesten bei Wikipedia erklärt</a><br>
+
+    <h3 class="entry-title">Funktions-Methoden von Gesten</h3>
+    <p>
+        Rechte Maustaste gedrückt halten und die Maus bewegen.<br>
+        Dabei gilt <strong>U</strong>[p](hoch), <strong>D</strong>[own](runter), <strong>L</strong>[eft](links), <strong>R</strong>[ight](rechts) für die vertikale und horizontale Bewegung.<br>
+    </p>
+        <ul>
+            <li> <strong>&lt;</strong> Rechte Maustaste gedrückt halten und die linke anklicken</li>
+            <li> <strong>&gt;</strong> Linke Maustaste gedrückt halten und die rechte anklicken</li>
+            <li> <strong>+/-</strong> Rechte Maustaste gedrückt halten und das Mausrad bewegen </li>
+        </ul>
+
+    <h3 class="entry-title">Weitere Funktionen</h3>
+    <ul>
+        <li>Mit dem Mausrad in der Suchleiste weitersuchen.</li>
+        <li>Wiederherstellung der bereits geschlossenen Tabs.</li>
+        <li>Doppelklick auf einen Textlink öffnet (http://piro.sakura.ne.jp/xul/textlink/index.html.en#testcases)</li>
+    </ul>
+
+    <h3 class="entry-title">Bekannte Probleme</h3>
+    <p>
+        Probleme bei Seiten mit Flashinhalten.<br>
+        Eventuelle Probleme unmittelbar nach dem Ausführen der Tab Gesten.<br>
+        Bei Problemen nach Ausführen von Gesten kann man diese mit <strong>STRG-(Rechtsklick_Hoch)</strong> zurücksetzen.<br>
+    </p>
+
+    <h3 class="entry-title">Betriebsumgebung</h3>
+        <ul>
+            <li>Firefox (3.5 ~ 9.0) auf Windows/Linux/Mac</li>
+            <li>userChromeJS (&gt;1.0)</li>
+        </ul>
+
+    <h3 class="entry-title">Quellen</h3>
+    <ul>
+        <li><a href="https://developer.mozilla.org/">Mozilla Developer Network</a></li>
+        <li><a href="http://d.hatena.ne.jp/Griever">Griever</a></li>
+        <li><a href="https://github.com/alice0775/userChrome.js">alice0775 auf Github</a></li>
+        <li><a href="https://github.com/ardiman/userChrome.js">ardiman auf Github</a></li>
+        <li><a href="http://www.xuldev.org/blog/?cat=12">SCRAPBLOG : userChrome.js</a></li>
+        <li><a href="http://www.xuldev.org/blog/?cat=36">SCRAPBLOG : FireGestures</a></li>
+        <li><a href="http://piro.sakura.ne.jp/xul/textlink/index.html">XUL Apps &gt; Text Link - outsider reflex</a></li>
+        <li><a href="http://www.camp-firefox.de/forum/viewtopic.php?f=16&amp;t=90403">Camp Firefox</a></li>
+        <li>Und viele weitere Foren, Blogs und fähige Code-Schrauber aus der ganzen Online-Welt!</li>
+    </ul>
+
+</div>
+
+</div>
+</body>
+</html>
