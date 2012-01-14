@@ -23,7 +23,7 @@
 //                  含まれるかもしれない。
 // @note            Version auf https://github.com/ardiman/userChrome.js
 //                  um _showinstatus und _showinstatustime ergaenzt, 
-//                  oeffnet Manual (Geste: UDUD) als Tab im Vordergrund
+//                  Tabverhalten mittels _focusonopenedtab konfigurierbar
 //==ChangeLog==
 // 20110718         雑多なコマンドを６つ程追加
 // 20110717         RockerGestureでリンククリック動作が暴発するバグを修正
@@ -63,6 +63,8 @@
             this._gesture = '';
             this._showinstatus = true;
             this._showinstatustime = 750;
+            this._focusonopenedtab = true;
+
             this._isMDownL = false;
             this._isMDownR = false;
             this._suppressMenu = false;
@@ -360,6 +362,14 @@
             document.documentElement.addEventListener('mouseup', this, true);
         },
 
+        _openTab: function(url) {
+            if (this._focusonopenedtab) {
+              gBrowser.selectedTab = gBrowser.addTab(url, {relatedToCurrent:true});
+             } else {
+              gBrowser.addTab(url, {relatedToCurrent:true});
+            }
+        },
+
         _utility: {
             getLinkNode: function(node){
                 var i = 0;
@@ -465,7 +475,7 @@
                     if (gBrowser.currentURI.path == 'blank')
                         gBrowser.loadURI(url);
                     else
-                        gBrowser.addTab(url, {relatedToCurrent: true});
+                        this._openTab(url);
                     break;
 
                 case 'Go to Yahoo':
@@ -473,7 +483,7 @@
                     if (gBrowser.currentURI.path == 'blank')
                         gBrowser.loadURI(url);
                     else
-                        gBrowser.addTab(url, {relatedToCurrent: true});
+                        this._openTab(url);
                     break;
 
                 case 'Go Upper Level':
@@ -687,7 +697,7 @@
 
                 case 'Open New Tab':
                     var url = imgNode ? imgNode.src : 'about:blank';
-                    gBrowser.addTab(url, {relatedToCurrent: true});
+                    this._openTab(url);
                     ++gBrowser.tabContainer.selectedIndex;
                     BrowserSearch.searchBar.value = '';
                     BrowserSearch.searchBar.focus();
@@ -915,7 +925,7 @@
 
                         if (selText.length < (2 * url.length)) {
                             BrowserSearch.searchBar.value = url;
-                            gBrowser.addTab(url,{relatedToCurrent: true});
+                            this._openTab(url);
                             throw 'Smart Search [URL]: ' + url;
                         }
                     }
@@ -942,7 +952,7 @@
                                     + encodeURIComponent(selText);
                     }
 
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Video Search':
@@ -950,7 +960,7 @@
                     BrowserSearch.searchBar.value = selText;
                     var url = 'http://www.youtube.com/results?search_query='
                                     + encodeURIComponent(selText);
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Map Search':
@@ -959,7 +969,7 @@
                     var url = 'http://maps.google.de/maps?f=q&hl=de&q='
                                     + encodeURIComponent(selText)
                                     + '&ie=utf-8&oe=utf-8';
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Amazon Search':
@@ -969,7 +979,7 @@
                                     + 'external-search/?tag=&mode=blended'
                                     + '&keyword='
                                     + encodeURIComponent(selText);
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Eijiro Translation':
@@ -980,7 +990,7 @@
                                   .replace(/^\s+|\s+$/g, '')
                                   .toLowerCase();
                     var url = 'http://eow.alc.co.jp/'+ term + '/UTF-8/';
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Search Under the Domain':
@@ -991,31 +1001,39 @@
                     const domain = current_site.split('/')[2]
                                         + encodeURIComponent(' '+ selText);
                     var url = 'http://www.google.de/search?q=site:' + domain;
-                    gBrowser.addTab(url, {relatedToCurrent:true});
+                    this._openTab(url);
                     break;
 
                 case 'Chemistry Reference Resolver':
                     if (!selText) throw 'Warning: No Selection.';
                     BrowserSearch.searchBar.value = selText;
                     if (selText.match(/(?:DOI:\s*)?(10.\d+\/\S+)/i)) {
-                        gBrowser.addTab('http://dx.doi.org/' + RegExp.$1,
-                                {relatedToCurrent:true});
+                        this._openTab('http://dx.doi.org/' + RegExp.$1);
                     } else {
-                        gBrowser.addTab('http://chemsearch.kovsky.net'
-                                + '/index.php?q='
-                                + encodeURIComponent(selText),
-                                {relatedToCurrent:true}
-                        );
+                        this._openTab('http://chemsearch.kovsky.netindex.php?q='
+                                + encodeURIComponent(selText));
                     }
                     break;
 
                 case 'Popup Search Engines':
                     var popup = this._buildPopup();
-
-                    var onMouseUp = function(event) {
+                    if (this._focusonopenedtab) {
+                      var onMouseUp = function(event) {
                         var engine = event.target.engine;
                         var selText_ = event.target.text;
+                        if (!engine) return;
+                        var submission = engine.getSubmission(selText_, null);
+                        if (!submission) return;
 
+                        BrowserSearch.searchBar.value = selText_;
+                        gBrowser.selectedTab = gBrowser.addTab(submission.uri.spec, {
+                                postData: submission.postData,
+                                relatedToCurrent: true});
+                      };
+                     } else {
+                      var onMouseUp = function(event) {
+                        var engine = event.target.engine;
+                        var selText_ = event.target.text;
                         if (!engine) return;
                         var submission = engine.getSubmission(selText_, null);
                         if (!submission) return;
@@ -1023,10 +1041,9 @@
                         BrowserSearch.searchBar.value = selText_;
                         gBrowser.addTab(submission.uri.spec, {
                                 postData: submission.postData,
-                                relatedToCurrent: true}
-                        );
-                    };
-
+                                relatedToCurrent: true});
+                      };
+                    }
 
                     var searchSvc = Cc['@mozilla.org/browser/search-service;1']
                                        .getService(Ci.nsIBrowserSearchService);
@@ -1058,7 +1075,7 @@
                         var url = 'http://www.google.de/search?'
                                     + 'hl=de&ie=utf-8&oe=utf-8&q='
                                     + encodeURIComponent(text);
-                        gBrowser.addTab(url, {relatedToCurrent:true});
+                        this._openTab(url);
                     };
 
 
@@ -1113,12 +1130,15 @@
                 case 'Popup Interpreters':
                     var popup = this._buildPopup();
 
-                    var onMouseUp = function(event) {
-                        gBrowser.addTab(event.target.url,
-                                        {relatedToCurrent:true}
-                        );
-                    };
-
+                    if (this._focusonopenedtab) {
+                      var onMouseUp = function(event) {
+                        gBrowser.selectedTab = gBrowser.addTab(event.target.url, {relatedToCurrent:true});
+                      };
+                     } else {
+                      var onMouseUp = function(event) {
+                        gBrowser.addTab(event.target.url, {relatedToCurrent:true});
+                      };
+                    }
                     var re_ja = (new RegExp()).compile('[\uFF41-\uFF5A'
                                 + '\uFF21-\uFF3A\uFF10-\uFF19\u4E00-\u9FA0'
                                 + '\u3041-\u3093\u30A1-\u30F4\u30FC]'
@@ -1219,8 +1239,9 @@
                     break;
 
                 case 'Open This Manual':
-                    //gBrowser.addTab(MANUAL_PATH, {relatedToCurrent:true});
+                    // gBrowser.addTab(MANUAL_PATH, {relatedToCurrent:true});
                     gBrowser.selectedTab = gBrowser.addTab(MANUAL_PATH, {relatedToCurrent:true});
+                    // this._openTab(MANUAL_PATH);
                     break;
 
                 case 'Copy URL to Clipboard':
