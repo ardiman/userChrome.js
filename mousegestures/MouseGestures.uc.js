@@ -239,7 +239,12 @@
                 event.stopPropagation();
                 event.preventDefault();
             }
-            this._setStatusLabel('reset');
+            if (this._showinstatus) {
+              this._setStatusLabel('reset');
+              setTimeout(function(){XULBrowserWindow.statusTextField.label ='';},this._showinstatustime);
+             } else {
+              XULBrowserWindow.statusTextField.label =''
+            }
         },
 
 
@@ -315,7 +320,7 @@
             this._gesture = '';
             event.stopPropagation();
             event.preventDefault();
-            if (this._showinstatus) setTimeout(function(){XULBrowserWindow.statusTextField.label ='';},this._showinstatustime);
+            setTimeout(function(){XULBrowserWindow.statusTextField.label ='';},this._showinstatustime);
         },
 
 
