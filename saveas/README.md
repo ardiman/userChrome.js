@@ -8,6 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Save As](https://github.com/ardiman/userChrome.js/raw/master/saveas/scr_saveas.png)
 
-
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
