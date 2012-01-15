@@ -1,5 +1,5 @@
 # Titlebarbuttons on Tabbar
-Beim aktivierten Appmenue werden die Windowsbuttons aus der Titlebar rechts in die Tabbar eingebaut.
+Beim aktivierten Appmenü werden die Windowsbuttons aus der Titlebar rechts in die Tabbar eingebaut.
 
 Das **Ergebnis des Skripts**:
 
