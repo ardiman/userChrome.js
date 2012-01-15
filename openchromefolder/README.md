@@ -1,5 +1,5 @@
 # Open Chrome Folder
-Der gleichnamige Eintrag im Menue "Extras" oeffnet den Chromeordner.
+Der gleichnamige Eintrag im Menü "Extras" öffnet den Chromeordner.
 
 Das **Ergebnis des Skripts**:
 
