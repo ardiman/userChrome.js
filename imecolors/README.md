@@ -1,5 +1,5 @@
 # IME-Colors
-Mit dem Script werden alle Firefox -und Web-Eingabeleisten bei aktivierter Leiste optisch so eingefaerbt, wie die seitlichen 
+Mit dem Skript werden alle Firefox -und Web-Eingabeleisten bei aktivierter Leiste optisch so eingefärbt, wie die seitlichen 
 Bereiche der about:home (Google-Firefox-Startseite).
 
 
