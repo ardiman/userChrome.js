@@ -1,8 +1,8 @@
 # Auto Contextmenu
-Beim Markieren von Wort/Text/Link auf Webseiten oeffnet sich automatisch das Hauptkontextmenue. Durch einen neuen Eintrag 
-"Auto Kontextmenue" im Extras-Menue kann man diese Funktion nach Belieben aus -und anschalten.
+Beim Markieren von Wort/Text/Link auf Webseiten öffnet sich automatisch das Hauptkontextmenü. Durch einen neuen Eintrag 
+"Auto Kontextmenü" im Extras-Menü kann man diese Funktion nach Belieben aus -und anschalten.
 
-Die **Konfiguration des Skripts** ist im Screenshot zu sehen:
+Die **Konfiguration des Skripts**:
 
 ![Screenshot Auto Contextmenu](https://github.com/ardiman/userChrome.js/raw/master/autocontextmenu/scr_autocontextmenu.png)
 
