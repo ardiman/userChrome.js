@@ -1,6 +1,6 @@
 # Remove Selection
-Erzeugt einen neuen Kontetxmenueeintrag "Auswahl loeschen". 
-Alles, was auf einer Seite markiert wird, wird damit temporaer geloescht. 
+Erzeugt einen neuen Kontetxmenüeintrag "Auswahl löschen". 
+Alles, was auf einer Seite markiert wird, wird damit temporär gelöscht. 
 Komplett erscheint das ganze erst nach einem Reload der Seite.
 
 ## Installation
