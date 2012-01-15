@@ -1,5 +1,5 @@
 # Menubar in Context
-Damit wird einfach die komplette Menueleiste entfernt und ganz oben als erstes ins Hauptkontextmenue gesetzt. 
+Damit wird einfach die komplette Menüleiste entfernt und ganz oben als erstes ins Hauptkontextmenü gesetzt. 
 Da die Lesezeichen normalerweise den meisten Platz beanspruchen, bekommen sie eine separate Stelle, direkt darunter.
 
 Das **Ergebnis des Skripts**:
