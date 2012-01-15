@@ -1,5 +1,5 @@
 # Link Locationbar Lite
-Beim Befahren eines Links wird dessen Adresse rechts in der Urlbar angezeigt, nachdem deren Icons dafuer temporaer ausgeblendet 
+Beim Befahren eines Links wird dessen Adresse rechts in der Urlbar angezeigt, nachdem deren Icons dafür temporär ausgeblendet 
 werden.
 
 Das **Ergebnis des Skripts**:
