@@ -1,6 +1,6 @@
 # History Appbutton
 Beim aktivierten Appbutton bekommt der Firefox auf der rechten Seite der Titlebar einen Chronik Appbutton mit dem 
-entsprechenden Menuepopup spendiert.
+entsprechenden Menüpopup spendiert.
 
 Das **Ergebnis des Skripts**:
 
