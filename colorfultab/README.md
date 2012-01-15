@@ -1,7 +1,6 @@
 # ColorfulTab
 Skript auf Basis gleichnamiger Erweiterung, welches die aktiven und inaktiven Tabs der Reihe nach und beim Hovereffekt mit 
-verschiedenen Farben einfaerbt.
-
+verschiedenen Farben einfärbt.
 
 Das **Ergebnis des Skripts**:
 
