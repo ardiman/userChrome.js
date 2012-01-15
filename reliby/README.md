@@ -1,7 +1,7 @@
 # Reliby
-Basiert auf dem gleichnamigen Add-on. Das Lesezeichenmenue in der Menuebar bekommt einen neuen Eintrag 
+Basiert auf dem gleichnamigen Add-on. Das Lesezeichenmenü in der Menüleiste bekommt einen neuen Eintrag 
 "Dynamische Lesezeichen aktualisieren". Ausserdem bekommt die Status-/Addonbar einen neuen Button spendiert. 
-Mit beiden Moeglichkeiten werden alle RSS Feeds / Dynamische Lesezeichen gleichzeitig aktualisiert.
+Mit beiden Möglichkeiten werden alle RSS Feeds / Dynamische Lesezeichen gleichzeitig aktualisiert.
 
 Das **Ergebnis des Skripts**:
 
