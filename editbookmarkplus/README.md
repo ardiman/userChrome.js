@@ -1,6 +1,6 @@
 # Edit Bookmark Plus
-Basiert auf gleichnamiger Erweiterung. Hiermit koennen die Panels "Lesezeichen hinzufuegen" bzw. "Lesezeichen bearbeiten" in 
-der Groesse veraendert werden.
+Basiert auf gleichnamiger Erweiterung. Hiermit können die Panels "Lesezeichen hinzufügen" bzw. "Lesezeichen bearbeiten" in 
+der Grösse verändert werden.
 
 Das **Ergebnis des Skripts**:
 
