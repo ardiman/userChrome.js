@@ -1,6 +1,6 @@
 # Tabs in Titlebar
-Tabs ganz oben in der Titlebar inkl. Appmenue. Dabei bleibt die Menuebar unangetastet. 
-Verhalten wird mit dem bereits vorhandenen Eintrag "Tabs oben" und dem neuen Kontextmenueeintrag "Tabs in Titlebar" gesteuert.
+Tabs ganz oben in der Titlebar inkl. Appmenü. Dabei bleibt die Menüleiste unangetastet. 
+Verhalten wird mit dem bereits vorhandenen Eintrag "Tabs oben" und dem neuen Kontextmenüeintrag "Tabs in Titlebar" gesteuert.
 
 Das **Ergebnis des Skripts**:
 
