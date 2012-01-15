@@ -1,6 +1,6 @@
 # User CSS Loader
 Das Skript ist in der Lage die userChrome.css, die userContent.css und das Add-on "Stylish" zusammen zu ersetzen. 
-Ueber ein neues Menue in der Menuebar werden CSS Styles neu erstellt, geladen, sofort getestet, aus-/eingeschaltet etc.
+Über ein neues Menü in der Menüleiste werden CSS Styles neu erstellt, geladen, sofort getestet, aus-/eingeschaltet etc.
 
 Das **Ergebnis des Skripts**:
 
@@ -8,5 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
-Evtl. muss ueber `about:config` noch der externe Editor definiert (Wert fuer `view_source.editor.path` eintragen) werden.
+Evtl. muss über `about:config` noch der externe Editor definiert (Wert fuer `view_source.editor.path` eintragen) werden.
 
