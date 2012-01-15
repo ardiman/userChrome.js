@@ -1,6 +1,6 @@
 # Revert Titlebar
 Seit Firefox 4 gibt es u.a. einen Bug bei ausgeblendeter Menubar. Neben dem neuen Appmenu-Button erscheint kein aktueller 
-Seitentitel, wie es in der "normalen" Titlebar der Fall ist. Dieses Script behebt diesen Bug, sofern die Tabs **nicht** oben 
+Seitentitel, wie es in der "normalen" Titlebar der Fall ist. Dieses Skript behebt diesen Bug, sofern die Tabs **nicht** oben 
 angezeigt werden.
 
 Das **Ergebnis des Skripts** (oben ohne, unten mit Skript):
