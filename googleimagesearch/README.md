@@ -1,6 +1,6 @@
 # Google Image Search
-Ein Skript auf Basis des Addons "Search by Image for Google". Es gibt einen neuen Eintrag im Hauptkontextmenue 
-"Google-Bildersuche". Bei einem Klick darauf ueber einem Bild, wird danach direkt bei Google gesucht.
+Ein Skript auf Basis des Addons "Search by Image for Google". Es gibt einen neuen Eintrag im Hauptkontextmenü 
+"Google-Bildersuche". Bei einem Klick darauf über einem Bild, wird danach direkt bei Google gesucht.
 
 Das **Ergebnis des Skripts**:
 
