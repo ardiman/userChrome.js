@@ -1,5 +1,5 @@
 # More Tools Menu
-Erstellt ein zusaetzliches Menue in der Menubar mit allem moeglichen, was der Firefox noch so her gibt.
+Erstellt ein zusätzliches Menü in der Menubar mit allem möglichen, was der Firefox noch so her gibt.
 
 Das **Ergebnis des Skripts**:
 
