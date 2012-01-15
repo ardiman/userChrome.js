@@ -1,10 +1,10 @@
-# Comeback Download Monito
+# Comeback Download Monitor
 Die alte Anzeige wird auch wieder an die alte Stelle gebracht, also rechts unten in die Add-on-Bar. 
-Nach einigen Selbstversuchen kann man diese aber auch so gut wie ueberall einsetzen. 
+Nach einigen Selbstversuchen kann man diese aber auch so gut wie überall einsetzen. 
 
-Nur in der Titlebar beim aktivierten Appmenue funktioniert leider der Klick zum Oeffnen des DM nicht.
+Nur in der Titlebar beim aktivierten Appmenü funktioniert leider der Klick zum Öffnen des DM nicht.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Das **Ergebnis des Skripts**:
 
 ![Screenshot Comeback Download Monitor](https://github.com/ardiman/userChrome.js/raw/master/comebackdownloadmonitor/scr_cbdownloamon.png)
 
