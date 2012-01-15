@@ -1,6 +1,6 @@
 # No Switch To Tab
-Seit Firefox-Version 4 (?) kann man aus dem Popup der Urlbar eine ausgewaehlte Seite nicht mehr wiederholt in einem neuen Tab 
-oeffnen, wenn diese bereits geoeffnet ist. Der Firefox erkennt das und wechselt automatisch zu der bereits geoeffneten Seite. 
+Seit Firefox-Version 4 (?) kann man aus dem Popup der Urlbar eine ausgewählte Seite nicht mehr wiederholt in einem neuen Tab 
+öffnen, wenn diese bereits geöffnet ist. Der Firefox erkennt das und wechselt automatisch zu der bereits geöffneten Seite. 
 Dieses Skript deaktiviert das Verhalten und behebt gleichzeitig einen damit verbundenen Bug.
 
 Das **Ergebnis des Skripts** (vorher/nachher):
