@@ -4,7 +4,7 @@ immer eingeblendet, egal ob die Menüleiste ein -oder ausgeblendet ist. Der Vort
 im Skript selber sehr leicht die Position des Appmenü-Button verändern und ihn in wirklich jeder nur erdenklichen Leiste platzieren kann. 
 Im Auslieferungszustand des Skriptes befindet sich der Button ganz links in der Navbar.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Das **Ergebnis des Skripts**:
 
 ![Screenshot Movable Firefox Button](https://github.com/ardiman/userChrome.js/raw/master/movablefirefoxbutton/scr_movablefirefoxbutton.png)
 
