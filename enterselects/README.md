@@ -1,5 +1,5 @@
 # Enter Selects
-Beim Suchen in der AwesomeBar waehlt die Entertaste den zuerst angezeigten Eintrag automatisch aus. 
+Beim Suchen in der AwesomeBar wählt die Entertaste den zuerst angezeigten Eintrag automatisch aus. 
 Ersetzt die gleichnamige Erweiterung.
 
 ## Installation
