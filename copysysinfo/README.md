@@ -1,6 +1,6 @@
 # Copy System Info
-Erstellt ein neues Menue unter "Extras", das die Moeglichkeit bietet, seine eigene Konfiguration 
-(entweder separat, oder alles zusammen. Mit, oder ohne Infos/Beschreibungen) mit einem Klick in die Zwischenablage zu kopieren
+Erstellt ein neues Menü unter "Extras", das die Möglichkeit bietet, seine eigene Konfiguration 
+(entweder separat, oder alles zusammen. Mit, oder ohne Infos/Beschreibungen) mit einem Klick in die Zwischenablage zu kopieren.
 
 Das **Ergebnis des Skripts**:
 
