@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 
 <?xml-stylesheet href="data:text/css,@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');@namespace%20html%20url('http://www.w3.org/1999/xhtml');
 %23translationResult autorepeatbutton {
@@ -83,22 +83,6 @@ display: none;
           end:"xpathを使用しない場合, 翻訳結果の直後にあるHTML文書の文字列(正規表現の\は\\とする)",
         },
 		
-        {
-          Description:"Google EN-DE",
-          method:'GET',
-          Referer:'http://translate.google.com/translate_t?langpair=en|de',
-          action:"http://translate.google.com/translate_t?langpair=en|de&ie=utf-8&oe=utf-8&text=%%SEL%%",
-          code:"UTF-8",
-          xpath:'.//div[@id="result_box"]',
-        },
-        {
-          Description:"Google DE-EN",
-          method:'GET',
-          Referer:'http://translate.google.com/translate_t?langpair=de|en',
-          action:"http://translate.google.com/translate_t?langpair=de|en&ie=utf-8&oe=utf-8&text=%%SEL%%",
-          code:"UTF-8",
-          xpath:'.//div[@id="result_box"]',
-        },
         */ 
         {
           Description:"Google Auto DE",
@@ -141,19 +125,19 @@ display: none;
 		{
           Description:"Bing Auto DE",
           method:'GET',
-          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/v2/ajax.svc/TranslateArray?appId=%2246846E697D3BC6FA50998483EF31894654002928%22&from=%22%22&to=%22de%22&a=&texts=[%22%%SEL%%%22]",
+          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=&text=%%SEL%%",
           code:"UTF-8",
-          start:"\"TranslatedText\":\"",
-          end:"\",\"TranslatedTextSentenceLengths\"",
+          start:'^"',
+          end:'"$',
         },
 
         {
           Description:"Bing Auto EN",
           method:'GET',
-          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/v2/ajax.svc/TranslateArray?appId=%2246846E697D3BC6FA50998483EF31894654002928%22&from=%22%22&to=%22en%22&a=&texts=[%22%%SEL%%%22]",
+          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=&text=%%SEL%%",
           code:"UTF-8",
-          start:"\"TranslatedText\":\"",
-          end:"\",\"TranslatedTextSentenceLengths\"",
+          start:'^"',
+          end:'"$',
         }
       ],
 
