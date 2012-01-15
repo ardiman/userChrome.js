@@ -1,5 +1,5 @@
 # Clear Search Term
-Loescht nach bestaetigter Eingabe die Searchbar und wechselt auf das Standard-Searchplugin zurueck. 
+Löscht nach bestätigter Eingabe die Searchbar und wechselt auf das Standard-Searchplugin zurück. 
 Erspart das Add-on "SearchLoad Options".
 
 ## Installation
