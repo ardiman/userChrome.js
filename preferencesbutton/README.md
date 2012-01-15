@@ -1,5 +1,5 @@
 # Preferences Button
-Erstellt einen Button in der Menübar zum schnellen Zugriff auf die Firefox-Einstellungen.
+Erstellt einen Button in der Menüleiste zum schnellen Zugriff auf die Firefox-Einstellungen.
 
 Das **Ergebnis des Skripts**:
 
