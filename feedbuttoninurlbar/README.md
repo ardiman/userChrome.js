@@ -1,7 +1,7 @@
 # Feed Button in Urlbar
-Dieses Script bringt den Feedbutton zurueck in die Urlbar.
+Dieses Skript bringt den Feedbutton zurück in die Urlbar.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Das **Ergebnis des Skripts**:
 
 ![Screenshot Feed Button in Urlbar](https://github.com/ardiman/userChrome.js/raw/master/feedbuttoninurlbar/scr_feebtninurlbar.png)
 
