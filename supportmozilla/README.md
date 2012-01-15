@@ -1,6 +1,6 @@
 # SupportMozilla
-Das Skript ermoeglicht wie frueher ueber die F1-Taste den Mozilla Support (Firefox Hilfe) im neuen Tab zu erreichen. 
-Darueberhinaus gibt es einen neuen Kontextmenue-Eintrag "Suche in Firefox Hilfe". Hiermit wird beim Markieren eines Wortes, 
+Das Skript ermöglicht wie früher über die F1-Taste den Mozilla Support (Firefox Hilfe) im neuen Tab zu erreichen. 
+Darüberhinaus gibt es einen neuen Kontextmenü-Eintrag "Suche in Firefox Hilfe". Hiermit wird beim Markieren eines Wortes, 
 z.B. "Adressleiste", in der Hilfe nach Artikeln zu diesem Thema gesucht.
 
 Das **Ergebnis des Skripts**:
