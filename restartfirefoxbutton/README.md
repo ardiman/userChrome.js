@@ -1,5 +1,5 @@
 # Restart Firefox Button
-Ermoeglicht Neustart des Firefox mittels Button in der Menuebar. Mit Rechts- oder Mittelklick wird zusaetzlich 
+Ermöglicht Neustart des Firefox mittels Button in der Menubar. Mit Rechts- oder Mittelklick wird zusätzlich 
 der Cache von userChrome.js geleert.
 
 Das **Ergebnis des Skripts**:
