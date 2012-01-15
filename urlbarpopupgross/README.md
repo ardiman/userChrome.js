@@ -1,5 +1,5 @@
-# Urlbar mit grossem Menuepopup
-Das Drop Down Menue der Urlbar wird unter die Lesezeichenleiste gesetzt und erstreckt sich ueber die gesamte Browserbreite.
+# Urlbar mit grossem Menüpopup
+Das Drop Down Menü der Urlbar wird unter die Lesezeichenleiste gesetzt und erstreckt sich über die gesamte Browserbreite.
 
 Das **Ergebnis des Skripts**:
 
