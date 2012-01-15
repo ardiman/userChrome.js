@@ -5,6 +5,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Open Download Folder_DM](https://github.com/ardiman/userChrome.js/raw/master/opendownloadfolderdm/scr_opendownloadfolderdm.png)
 
-
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
