@@ -1,5 +1,5 @@
 # Panel & Tab Download Button
-Mit diesem Script gibt es einen neuen Button in der Navbar. Mit Linksklick oeffnet sich der DM unterhalb des Buttons in einem 
+Mit diesem Skript gibt es einen neuen Button in der Navbar. Mit Linksklick öffnet sich der DM unterhalb des Buttons in einem 
 Panel. Mit Mittelklick geht der DM in einem neuen Tab auf.
 
 Das **Ergebnis des Skripts**:
