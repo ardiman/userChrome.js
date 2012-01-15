@@ -1,7 +1,7 @@
 # ImageChangeSize
-Bietet eine Moeglichkeit, vorhandene Webbilder aus dem Kontextmenue heraus in ihrer Groesse zu veraendern.
+Bietet eine Möglichkeit, vorhandene Webbilder aus dem Kontextmenü heraus in ihrer Grösse zu verändern.
 
-Das **Ergebnis des Skripts** beim Rechtsklick ueber einem Bild:
+Das **Ergebnis des Skripts** beim Rechtsklick über einem Bild:
 
 ![Screenshot ImageChangeSize](https://github.com/ardiman/userChrome.js/raw/master/imagechangesize/scr_imagechangesize.png)
 
