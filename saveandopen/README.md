@@ -7,6 +7,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Save And Open](https://github.com/ardiman/userChrome.js/raw/master/saveandopen/scr_saveandopen.png)
 
-
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
