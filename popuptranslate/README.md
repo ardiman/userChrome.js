@@ -1,11 +1,11 @@
 # Popup Translate
-Hiermit bekommt das Extramenue ein neues Untermenue, in dem man die jeweilige Uebersetzung auswaehlen kann. Man markiert 
-den zu uebersetzenden Text und mit einem Mittelklick startet die Uebersetzung. Es oeffnet sich ein Popup, in dem der 
-uebersetzte Text steht. Auch hier werden die Sprachen automatisch erkannt. Hier gibt es aber die Moeglichkeit, auch 
-automatisch ins Englische zu uebersetzen und noch einen anderen Uebersetzungsdienst ausser Google zu nutzen. Waehrend 
-der Uebersetzung kann man mit Alt+Shift+P (auf die Reihenfolge achten) auf die Ursprungssprache zurueckschalten.
+Hiermit bekommt das Extramenü ein neues Untermenü, in dem man die jeweilige Übersetzung auswählen kann. Man markiert 
+den zu übersetzenden Text und mit einem Mittelklick startet die Übersetzung. Es öffnet sich ein Popup, in dem der 
+übersetzte Text steht. Auch hier werden die Sprachen automatisch erkannt. Hier gibt es aber die Möglichkeit, auch 
+automatisch ins Englische zu übersetzen und noch einen anderen Übersetzungsdienst ausser Google zu nutzen. Während 
+der Übersetzung kann man mit Alt+Shift+P (auf die Reihenfolge achten) auf die Ursprungssprache zurückschalten.
 
-Screenshot der Konfigurationsmoeglichkeit:
+Screenshot der Konfigurationsmöglichkeit:
 
 ![Screenshot Popup Translate Konfiguration](https://github.com/ardiman/userChrome.js/raw/master/popuptranslate/scr_popuptransl_conf.png)
 
