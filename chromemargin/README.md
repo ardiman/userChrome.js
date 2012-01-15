@@ -1,7 +1,7 @@
 # Chromemargin
-Mit dem Script verschwindet die Titlebar aus dem Firefox. Gleichzeitig wird ein optisch modifizierter Appbutton links in der 
-Menuebar platziert. Diese bleibt an ihrer Stelle unberuehrt und die Windows Controls befinden sich wie gewohnt auf der 
-rechten Seite, nur diesmal in der Menuebar.
+Mit dem Skript verschwindet die Titlebar aus dem Firefox. Gleichzeitig wird ein optisch modifizierter Appbutton links in der 
+Menüleiste platziert. Diese bleibt an ihrer Stelle unberührt und die Windows Controls befinden sich wie gewohnt auf der 
+rechten Seite, nur diesmal in der Menüleiste.
 
 Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
 
