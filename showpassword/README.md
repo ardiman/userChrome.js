@@ -1,7 +1,7 @@
 # Show Password
 Basiert auf gleichnamiger Erweiterung und besitzt ein bis zwei optische Zugaben. Es gibt einen neuen Button in der 
-Status-/Addonbar, mit dem man sich die eingegebene Passwoerter (oder sofort waehrend der Eingabe) im Klartext anzeigen 
-lassen kann. Je nach Status aendert sich der Button und dessen Tooltip.
+Status-/Addonbar, mit dem man sich die eingegebene Passwörter (oder sofort während der Eingabe) im Klartext anzeigen 
+lassen kann. Je nach Status ändert sich der Button und dessen Tooltip.
 
 Das **Ergebnis des Skripts** (vorher/nachher):
 
