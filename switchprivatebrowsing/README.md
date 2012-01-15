@@ -1,6 +1,6 @@
 # Switch Private Browsing
-Das Script bringt einen Button samt Tooltip in der Status-/Addonbar mit, mit dem man den privaten Modus starten kann. 
-Je nach Status aendert sich der Button und im privaten Modus faerbt sich die Urlbar gelb.
+Das Skript bringt einen Button samt Tooltip in der Status-/Addonbar mit, mit dem man den privaten Modus starten kann. 
+Je nach Status ändert sich der Button und im privaten Modus färbt sich die Urlbar gelb.
 
 Das **Ergebnis des Skripts**:
 
