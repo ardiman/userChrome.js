@@ -1,5 +1,5 @@
 # Private Tool Menus
-Fuegt im Menue "Extras" die Eintraege: Cookies, Passwoerter und Zertifikate hinzu.
+Fügt im Menü "Extras" die Einträge: Cookies, Passwörter und Zertifikate hinzu.
 
 Das **Ergebnis des Skripts**:
 
