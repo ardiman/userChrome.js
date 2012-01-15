@@ -1,5 +1,5 @@
 # App Button
-Mit diesem Script wird das Menue des App Buttons unter anderem um die komplette Menuebar erweitert.
+Mit diesem Skript wird das Menü des App Buttons unter anderem um die komplette Menüleiste erweitert.
 
 Links das Bild ohne das Skript, rechts das **Ergebnis des Skripts**:
 
