@@ -8,6 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Always On Top](https://github.com/ardiman/userChrome.js/raw/master/alwaysontop/scr_alwaysontop.png)
 
-
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
