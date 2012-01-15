@@ -1,7 +1,7 @@
 # SaveTo
 Hiermit bekommt das Download-Fenster einen neuen Label-Menübutton, mit dem man direkt mehrere selbst im Skript vorkonfigurierte Speicherorte auf der 
 Platte zum Download wählen kann. Im Skript sind standardmäßig 4 davon an der Zahl. Hinter dem Laufwerkbuchstaben kann man noch einen eigenen 
-neuen Ordner schreiben. Beim Download dorthin wird dieser Ordner automatisch erstellt. Der zweite Laufwerkbuchstabe in der gleichen Scriptzeile 
+neuen Ordner schreiben. Beim Download dorthin wird dieser Ordner automatisch erstellt. Der zweite Laufwerkbuchstabe in der gleichen Skriptzeile 
 ist nicht nötig, dient auf dem Bild nur als Beispiel.
 
 Das **Ergebnis des Skripts**:
