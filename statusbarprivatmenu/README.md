@@ -1,6 +1,6 @@
 # Statusbar Privat Menu
-Erstellt in der Statusbar einen neuen Menuebutton mit 3 Funktionen. 
-Natuerlich koennte man im Script bei Bedarf noch andere Funktionen einbauen.
+Erstellt in der Statusbar einen neuen Menübutton mit 3 Funktionen. 
+Natürlich könnte man im Skript bei Bedarf noch andere Funktionen einbauen.
 
 Das **Ergebnis des Skripts** in der Add-on Bar:
 
