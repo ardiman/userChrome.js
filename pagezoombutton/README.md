@@ -6,6 +6,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Page Zoom Button](https://github.com/ardiman/userChrome.js/raw/master/pagezoombutton/scr_pagezoombutton.png)
 
-
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
