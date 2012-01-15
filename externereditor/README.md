@@ -1,6 +1,6 @@
 # Externer Editor
-Hierbei kann man quasi alles, was man irgendwo im Netz eintippt, ueber einen externen Editor tun. 
-Beim Speichern wird das Geschriebene online automatisch uebernommen.
+Hierbei kann man quasi alles, was man irgendwo im Netz eintippt, über einen externen Editor tun. 
+Beim Speichern wird das Geschriebene online automatisch übernommen.
 
 Das **Ergebnis des Skripts** beim Rechtsklick ueber einem Textfeld:
 
