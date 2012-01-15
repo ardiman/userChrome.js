@@ -1,5 +1,5 @@
 # InspectWindow
-Fuegt im Menue Extras einen Eintrag "Inspect a Window" ein, aus dem man sich im DOM Inspector das aktuelle Fenster/die aktuelle Seite anschauen kann.
+Fügt im Menü Extras einen Eintrag "Inspect a Window" ein, aus dem man sich im DOM Inspector das aktuelle Fenster/die aktuelle Seite anschauen kann.
 
 Das **Ergebnis des Skripts**:
 
