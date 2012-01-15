@@ -1,6 +1,6 @@
 # UA Changer
-Wie User Agent Switcher Lite, nur mit kleinerer Auswahl und als umschaltbare Menuebuttons in der Statusbar. 
-Scriptersatz fuer das Add-on "User Agent Switcher".
+Wie User Agent Switcher Lite, nur mit kleinerer Auswahl und als umschaltbare Menübuttons in der Statusbar. 
+Skriptersatz für das Add-on "User Agent Switcher".
 
 Das **Ergebnis des Skripts**:
 
