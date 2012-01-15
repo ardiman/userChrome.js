@@ -1,7 +1,7 @@
 # Close Repeat Tabs
-Dieses Skript bringt einen neuen Eintrag im Tabkontextmenue "Gleiche Tabs schliessen" mit. Sind im Firefox aus Versehen 2 oder 
+Dieses Skript bringt einen neuen Eintrag im Tabkontextmenü "Gleiche Tabs schliessen" mit. Sind im Firefox aus Versehen 2 oder 
 mehrere gleiche Tabs offen, werden diese damit alle gleichzeitig geschlossen, so dass nur jeweils eins davon offen bleibt. 
-Welche Tabs es gewesen sind, wird einem anschliessend in einem kleinen Popup praesentiert.
+Welche Tabs es gewesen sind, wird einem anschliessend in einem kleinen Popup präsentiert.
 
 Das **Ergebnis des Skripts**:
 
