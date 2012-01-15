@@ -8,6 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Locator](https://github.com/ardiman/userChrome.js/raw/master/locator/scr_locator.png)
 
-
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
