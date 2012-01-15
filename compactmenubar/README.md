@@ -1,7 +1,7 @@
 # Compact Menubar
-Die gesamte Menuebar wird unter einem Punkt zusammengefasst.
+Die gesamte Menüleiste wird unter einem Punkt zusammengefasst.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Das **Ergebnis des Skripts**:
 
 ![Screenshot Compact Menubar](https://github.com/ardiman/userChrome.js/raw/master/compactmenubar/scr_compmenubar.png)
 
