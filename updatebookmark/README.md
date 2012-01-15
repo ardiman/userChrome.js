@@ -1,7 +1,7 @@
 # Update Bookmark
-Basiert auf der gleichnamigen Erweiterung. Ueberall, wo sich Lesezeichen tummeln, gibt es im Kontextmenue einen 
-neuen Eintrag "Update". Damit wird das Lesezeichen oder der ganze Ordner auf den aktuellen Stand der gegenwaertig 
-geoeffneten Seite gebracht.
+Basiert auf der gleichnamigen Erweiterung. Überall, wo sich Lesezeichen tummeln, gibt es im Kontextmenü einen 
+neuen Eintrag "Update". Damit wird das Lesezeichen oder der ganze Ordner auf den aktuellen Stand der gegenwärtig 
+geöffneten Seite gebracht.
 
 Das **Ergebnis des Skripts**:
 
