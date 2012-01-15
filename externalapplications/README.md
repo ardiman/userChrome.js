@@ -1,15 +1,15 @@
 # External Applications
-Ermoeglicht den schnellen Zugriff auf externe Anwendungen direkt aus dem Firefox heraus. 
-Erspart das Add-On External Application Buttons. Das Script bringt 5 vordefinierte Anwendungen mit, 
+Ermöglicht den schnellen Zugriff auf externe Anwendungen direkt aus dem Firefox heraus. 
+Erspart das Add-On "External Application Buttons". Das Skript bringt 5 vordefinierte Anwendungen mit, 
 u.a. den IE, CMD, Notepad,... und platziert diese als kleine Icons in der Menubar. 
 
-Die Buttons greift das Script aus der Systemvorlage ab, die man mit einem entsprechenden *css Code 
-veraendern kann. Man kann nach Belieben die Anwendungen selber und deren Reihenfolge, sowie die Anzahl 
-im Script anpassen. Auch der Positionswechsel in eine andere Toolbar scheint problemlos moeglich. 
+Die Buttons greift das Skript aus der Systemvorlage ab, die man mit einem entsprechenden *css Code 
+verändern kann. Man kann nach Belieben die Anwendungen selber und deren Reihenfolge, sowie die Anzahl 
+im Skript anpassen. Auch der Positionswechsel in eine andere Toolbar scheint problemlos möglich. 
 Es gibt auch immer einen passenden Tooltip dazu. 
 
-Ist es einem zu viel mit den ganzen Buttons in der Leiste, kann man das ganze wunderbar zu einem Menuepunkt zusammenfassen.
-Dazu muss man in Zeile 14 den Eintrag von 'button' in 'menu' aendern:
+Ist es einem zu viel mit den ganzen Buttons in der Leiste, kann man das ganze wunderbar zu einem Menüpunkt zusammenfassen.
+Dazu muss man in Zeile 14 den Eintrag von 'button' in 'menu' ändern:
 
     type: 'button', //'menu' or 'button'
 
@@ -25,5 +25,5 @@ Als Menue:
 
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe danach noch die Pfade zu den Anwendungen an, ergaenze das Skript 
-um die gewuenschten Anwendungen.
+Kopiere die uc.js-Datei in den Chromeordner des Profils. Passe danach noch die Pfade zu den Anwendungen an, ergänze das Skript 
+um die gewünschten Anwendungen.
