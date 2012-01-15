@@ -1,5 +1,5 @@
 # Window Controlbuttons on Tabbar
-Aehnlich wie "Titlebarbuttons on Tabbar". Hierbei werden die Windowsbuttons in der Titlebar aber belassen und zusaetzliche 
+Ähnlich wie "Titlebarbuttons on Tabbar". Hierbei werden die Windowsbuttons in der Titlebar aber belassen und zusätzliche 
 kleinere rechts in die Tabbar eingebaut.
 
 Das **Ergebnis des Skripts**:
