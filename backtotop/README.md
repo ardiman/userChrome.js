@@ -1,8 +1,8 @@
 # Back To Top
 Basiert auf einer fast gleichnamigen Erweiterung. Es gibt einen kleinen Button in der Statusbar und einen Eintrag im 
-Hauptkontextmenue mit denen man am Ende (unten) einer Seite mit einem Klick wieder sofort an den Seitenanfang (oben) kommt. 
+Hauptkontextmenü mit denen man am Ende (unten) einer Seite mit einem Klick wieder sofort an den Seitenanfang (oben) kommt.
 
-Das **Ergebnis des Skripts** ist im Screenshot zu sehen:
+Das **Ergebnis des Skripts**:
 
 ![Screenshot Back To Top](https://github.com/ardiman/userChrome.js/raw/master/backtotop/scr_backtotop.png)
 
