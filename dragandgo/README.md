@@ -1,6 +1,6 @@
 # Drag and go
-Wird ueber Mausgesten gesteuert. Links "anfassen" und "fallen lassen" oeffnet den Link in einem neuen Tab. 
-Erspart Add-Ons wie QuickDrag etc. 
+Wird über Mausgesten gesteuert. Links "anfassen" und "fallen lassen" öffnet den Link in einem neuen Tab. 
+Erspart Add-Ons wie QuickDrag etc.
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
