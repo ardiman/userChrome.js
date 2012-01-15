@@ -1,5 +1,5 @@
 # About Config Button
-Erstellt einen Button in der Menuebar zum Oeffnen von about:config in einem neuen Tab.
+Erstellt einen Button in der Menüleiste zum Öffnen von about:config in einem neuen Tab.
 
 Das **Ergebnis des Skripts**:
 
