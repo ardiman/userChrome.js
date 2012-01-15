@@ -1,7 +1,7 @@
 # Copy Pure Text
-Basiert auf der gleichnamigen Erweiterung. Im Hauptkontextmenue erscheint ein neuer Eintrag "Text kopieren". Damit werden 
-Texte z.B. mit Links, fett, kursiv, mit Grafiken dazwischen, etc. im Web voellig ohne Formatierung in die Zwischenablage 
-kopiert, um sie anschliessend sauber z.B. in Word, Excel, etc. einzufuegen.
+Basiert auf der gleichnamigen Erweiterung. Im Hauptkontextmenü erscheint ein neuer Eintrag "Text kopieren". Damit werden 
+Texte z.B. mit Links, fett, kursiv, mit Grafiken dazwischen, etc. im Web völlig ohne Formatierung in die Zwischenablage 
+kopiert, um sie anschliessend sauber z.B. in Word, Excel, etc. einzufügen.
 
 Das **Ergebnis des Skripts**:
 
