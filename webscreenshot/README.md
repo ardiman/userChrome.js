@@ -1,7 +1,7 @@
 # WebScreenShot
-Ein neues Menue unter "Extras", mit dem man wunderbar alle moeglichen Bereiche einer Webpage fotografieren kann. Dabei 
-werden die Screenshots sofort automatisch (je nach Browser Einstellungen) im neuen Tab im Hintergrund geoeffnet. 
-Im Firefox Kontextmenue wird auch noch eine zusaetzliche Funktion gezaubert, eine Grafik direkt als Base64 Code in die 
+Ein neues Menü unter "Extras", mit dem man wunderbar alle möglichen Bereiche einer Webpage fotografieren kann. Dabei 
+werden die Screenshots sofort automatisch (je nach Browser Einstellungen) im neuen Tab im Hintergrund geöffnet. 
+Im Firefox Kontextmenü wird auch noch eine zusätzliche Funktion gezaubert, eine Grafik direkt als Base64 Code in die 
 Zwischenablage zu kopieren.
 
 Das **Ergebnis des Skripts**:
