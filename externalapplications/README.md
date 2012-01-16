@@ -19,7 +19,7 @@ Als Buttons:
 
 ![Screenshot External Applications Buttons](https://github.com/ardiman/userChrome.js/raw/master/externalapplications/scr_ext_apps_btn.png)
 
-Als Menue:
+Als Menü:
 
 ![Screenshot External Applications Menue](https://github.com/ardiman/userChrome.js/raw/master/externalapplications/scr_ext_apps_menu.png)
 
