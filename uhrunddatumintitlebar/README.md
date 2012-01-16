@@ -1,5 +1,5 @@
 # Uhrzeit+Datum in Titlebar
-Kann z.B. um Profilname erweitert werden. Funktioniert nur bei eingeblendeter Menübar.
+Kann z.B. um Profilname erweitert werden. Funktioniert nur bei eingeblendeter Menüleiste.
 
 Das **Ergebnis des Skripts**:
 
