@@ -1,5 +1,5 @@
 # Contexpector
-Mittels Kontextmenüe ein Element einer Webseite/von der Firefoxoberfläche im DOM Inspector betrachten.
+Mittels Kontextmenü ein Element einer Webseite/von der Firefoxoberfläche im DOM Inspector betrachten.
 
 Das **Ergebnis des Skripts** beim Rechtsklick auf ein Webseitenelement:
 
