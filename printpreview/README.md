@@ -2,7 +2,7 @@
 Basiert auf der fast gleichnamigen Erweiterung. Der Toolbarbutton befindet sich mit einer erneuerten Version des Skriptes rechts
 neben der Urlbar (früher orientierte sich das Skript am Home-Button).
 
-Das **Ergebnis des Skripts** (Kontextmenue und Toolbarbutton):
+Das **Ergebnis des Skripts** (Kontextmenü und Toolbarbutton):
 
 ![Screenshot Print Preview](https://github.com/ardiman/userChrome.js/raw/master/printpreview/scr_printpreview.png)
 
