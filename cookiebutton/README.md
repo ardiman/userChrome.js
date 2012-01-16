@@ -1,5 +1,5 @@
 # Cookie Button
-Mit diesem Script öffnet sich via Button samt Tooltip in der Menübar der Cookie Manager.
+Mit diesem Skript öffnet sich via Button samt Tooltip in der Menüleiste der Cookie Manager.
 
 Das **Ergebnis des Skripts**:
 
