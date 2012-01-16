@@ -39,13 +39,13 @@ Nach deren Auswahl die URL kopieren und im Skript in der **Zeile Nr.23** zwische
 
 ### Für den Doppel-Linksklick (MSN Lokalwetter)
 Die gleiche Vorgehensweise für die zweite Wetterstation bei http://wetter.msn.com/sitemap.aspx . Nach der Wunschortauswahl 
-wird die kopierte URL im Script in die **Zeile Nr.76** zwischen die "" hinter `openDialog(` eingefügt. 
+wird die kopierte URL im Skript in die **Zeile Nr.76** zwischen die "" hinter `openDialog(` eingefügt. 
 
 ### Für den Mittelklick (Wetterkontor Bundeslandwetter)
 Für das eigene Bundesland nimmt man dessen Url von http://www.wetterkontor.net und kopiert sie genau auf die gleiche Art und 
-Weise, wie die beiden ersten in die **Zeile Nr.87** (Script bitte am besten mit einem "vernünftigen" Editor bearbeiten, z.B. 
+Weise, wie die beiden ersten in die **Zeile Nr.87** (Skript bitte am besten mit einem "vernünftigen" Editor bearbeiten, z.B. 
 Notepad++).
 
 ### Das Aussehen der Wetterfenster
-Zum Script gehören zwei CSS Dateien, die am einfachsten entweder über das UserCSSLoader Script oder die userChrome.css in den 
+Zum Skript gehören zwei CSS Dateien, die am einfachsten entweder über das UserCSSLoader Skript oder die userChrome.css in den 
 Firefox eingebunden werden. Falls die Erweiterung "Stylish" eingesetzt wird, muss jeweils die `namespace`-Zeile entfernt werden.
