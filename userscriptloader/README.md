@@ -11,5 +11,5 @@ Das **Ergebnis des Skripts**:
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
-Evtl. muss über `about:config` noch der externe Editor definiert (Wert fuer `view_source.editor.path` eintragen) werden.
+Evtl. muss über `about:config` noch der externe Editor definiert (Wert für `view_source.editor.path` eintragen) werden.
 
