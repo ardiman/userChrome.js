@@ -1,85 +1,139 @@
-/* DragNgo */
-
+// ==UserScript==
+// @name           DragNgoModoki_Fx3.7.uc.js
+// @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
+// @description    ファイル名をD&D
+// @include        main
+// @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
+// @author         Alice0775
+// @version        2011/07/22 21:00 Bug 50660 [FILE]Drag and drop for file upload form control (Fx7 and later)
+// @version        2011/06/23 16:00 browser.tabs.loadInBackgroundに関わらずtabおよびtabshiftedはそれぞれ強制的に前面および背面に開く
+// @version        2011/06/23 16:00 openLinkInにした
+// @version        2011/06/22 00:00 getElementsByXPath 配列で返すのを忘れていた
+// @version        2011/06/19 21:00 Google modified getElementsByXPath
+// ==/UserScript==
+// @version        2011/04/14 21:00 Google doc などでdrag drop uploadができないので外部ファイルのドロップは止め
+// @version        2011/03/30 10:20 プロンプト
+// @version        2011/03/29 14:20 copyToSearchBar, appendToSearchBar, searchWithEngine 追加変更
+// @version        2011/03/11 10:30 Bug641090
+// @version        2010/12/10 08:30 close button非表示 Bug 616014 - Add close button to the add-on bar
+// @version        2010/11/13 20:30 status 4-evar
+// @version        2010/09/24 20:30 Bug 574688 adon bar
+// @version        2010/09/14 19:30 textのドラッグの判定時, テキストノードの制限を外してみた
+// @version        2010/08/30 17:30 no more available InstallTrigger method in window since Firefox4.0b5pre
+// @version        2010/08/15 17:00 パスの記入ができなくなっていた。regression from 07/15
+// @version        2010/07/22 07:00 xxx Bug 580710 - Drag&Drop onto sidebar loads page into sidebar
+// @version        2010/07/21 16:00 text
+// @version        2010/07/15 16:00 window.getSelection()のままとした
+// @version        2010/07/15 15:00 editable要素ではなにもしないようにした
+// @version        2010/07/07 07:00 アドオンタブではなにもしないようにした
+// @version        2010/07/06 01:05 外部テキストのドロップバグ
+// @version        2010/07/06 01:00 外部テキストのドロップバグ
+// @version        2010/07/06 00:55 frameへのドロップバグ, textはRESTRICT_SELECTED_TEXTにした
+// @version        2010/07/05 20:55 rgression 2010/07/05 19:00 textlink
+// @version        2010/07/05 20:30 検索エンジン
+// @version        2010/07/05 19:00 textlink, modifier
+// @version        2010/07/03 00:00 saveAs
+// @version        2010/05/06 00:00 Bug 545119  - Remove browser dependency on nsDragAndDrop.js
+// @version        2010/05/05 00:00 Bug 545119  - Remove browser dependency on nsDragAndDrop.js
+// @version        2010/04/24 20:00 urlのjavascriptとdataは無条件にカレントタブに開くように
+// @version        2010/04/22 23:00 urlの空白は削除しておく
+// @version        2010/04/22 16:00 画像のドロップではリンクされている場合リンク先の画像, 保存pathのパス区切り
+// @version        2010/04/21 21:35 infoない???
+// @version        2010/04/21 17:50 xulエレメントは何もしないように
+// @version        2010/04/21 17:50 インプットテキストエリアへのドロップができなくなっていた
+// @version        2010/04/21 12:50 unload処理
+// @version        2010/04/21 01:04 テキスト...が壊れていた
+// @version        2010/04/21 01:03 複数の外部ファイルのtype=file へのドロップ動供くように
+// @version        2010/04/21 01:02 複数の外部ファイルのドロップ動供くように
+// @version        2010/04/21 01:00  saveFolderModoki.uc.xul連携
+// @version        2010/04/21 01:00  Firefox3.7a5pre
+// @version        2009/12/15 17:00 Fx3.6 and more
+// @version        2007/08/04 20:00
+// @LICENSE        MPL 1.1/GPL 2.0/LGPL 2.1
 if (typeof Cc != 'object' ) { var Cc = Components.classes;}
 if (typeof Ci != 'object' ) { var Ci = Components.interfaces;}
 if (typeof Cr != 'object' ) { var Cr = Components.results;}
 //////////// Drag and Dorp bserver: replace contentAreaDNDObserver with it. ///////////////////
 var DragNGo = {
   // dir     :'UDLR',
-  // modifier:'shift,ctrl,alt', //altは文字列の選択になるので実質使えない
+  // modifier:'shift,ctrl,alt', //alt ist ist so effektiv
   // name    :'hoge'
-  // obj     :'link, textlink, text, image, file' ドロップの対象
+  // obj     :'link, textlink, text, image, file' Zielobjekte
   // cmd     :function(self, event, info) {} /* info:{urls:[], texts:[], nodes:[], files:[], fname:[]}*/
-  //          urls:link,image,fileおよびtextlinkのurlを格納
-  //          texts:linkのリンクテキストやalt文字, imageのtitle,alt文字, textはRESTRICT_SELECTED_TEXTによる
-  //          nodes:ドロップしたDOMノード
-  //          fname:linkやimageのファイル名の候補, textはRESTRICT_SELECTED_TEXTによる
+  //          urls:link,image,file und textlinks, die url´s enthalten
+  //          texts:Link-Text für den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
+  //          nodes:DOM Knoten
+  //          fname:Vorgeschlagene Dateinamen für Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
   //
-  RESTRICT_SELECTED_TEXT: true, //textは選択文字列のみ:true, ドロップした文字列(リンク等はurl):false
+  RESTRICT_SELECTED_TEXT: true, //Nur den markierten Text:true, Zeichenfolgen(zB.Link-Url):false
 
   GESTURES: [
   /*=== From Foreign data ===*/
-    {dir:'', modifier:'',name:'Fireパス記入',obj:'file'},
-    {dir:'', modifier:'',name:'xpi/jarインストール',obj:'file'},
+    {dir:'', modifier:'',name:'Fire',obj:'file'},
+    {dir:'', modifier:'',name:'xpi/jar Installation',obj:'file'},
     /*{dir:'', modifier:'',name:'新しいタブ前面に開く',obj:'file',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},//Google doc などでdrag drop uploadができなくなる*/
-    {dir:'', modifier:'',name:'新しいタブ前面に開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
-    {dir:'', modifier:'',name:'新しいタブでGoogle検索',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
+    {dir:'', modifier:'',name:'Link in neuem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
+    {dir:'', modifier:'',name:'Google-Suche in neuem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
 
-  /*=== リンク ===*/
-    {dir:'U', modifier:'',name:'xpi/jarインストール',obj:'xpi,jar',cmd:function(self,event,info){self.installXpi(info.urls);}},
-    {dir:'U', modifier:'',name:'リンクを新しいタブ前面に開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
+  /*=== Link ===*/
+    {dir:'U', modifier:'',name:'xpi/jar Installation',obj:'xpi,jar',cmd:function(self,event,info){self.installXpi(info.urls);}},
+    {dir:'U', modifier:'',name:'Link in neuem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
     //{dir:'D', modifier:'',name:'リンクを新しいタブ後面に開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
-    {dir:'D', modifier:'',name:'リンクを新しいタブでaguse.jp検索',obj:'link, textlink',cmd:function(self,event,info){self.searchWithEngine(info.urls, ['aguse.jp'], 'tab');}},
-    {dir:'L', modifier:'',name:'リンクを現在のタブ開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
+    {dir:'D', modifier:'',name:'Link in neuem Tab aguse.jp Suche',obj:'link, textlink',cmd:function(self,event,info){self.searchWithEngine(info.urls, ['aguse.jp'], 'tab');}},
+    {dir:'L', modifier:'',name:'Link in aktuellem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
 
-  /*=== 画像 ===*/
-    {dir:'U', modifier:'',name:'画像を新しいタブ前面に開く',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
-    {dir:'D', modifier:'',name:'画像を新しいタブ後面に開く',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
-    {dir:'L', modifier:'',name:'画像を現在のタブに開く',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
+  /*=== Bild ===*/
+    {dir:'U', modifier:'',name:'Bild im Vordergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
+    {dir:'D', modifier:'',name:'Bild im Hintergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
+    {dir:'L', modifier:'',name:'Bild in aktuellem Tab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
 
-  /*=== Web Search ===*/
-    {dir:'R', modifier:'',name:'テキストをConQueryで検索',obj:'text',cmd:function(self,event,info){self.openConQueryPopup(event);}},
-    {dir:'UL', modifier:'',name:'テキストを現在のタブでgooウェブ検索(Green Label)',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['gooウェブ検索(Green Label)'], 'current');}},
-    {dir:'U', modifier:'',name:'テキストを新しいタブでGoogle検索',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
-    {dir:'D', modifier:'',name:'テキストを現在のタブでGoogle検索',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'current');}},
-    {dir:'DL', modifier:'',name:'リンクテキストを新しいタブでGoogle検索',obj:'link',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
-    {dir:'UL', modifier:'',name:'テキストを新しいタブでAmazon.com検索',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Amazon.com'], 'tab');}},
-    {dir:'UR', modifier:'',name:'テキストを新しいタブでYahoo! JAPAN検索',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Yahoo! JAPAN'], 'tab');}},
+  /*=== Web Suche ===*/
+    {dir:'R', modifier:'',name:'ConQuery Textsuche',obj:'text',cmd:function(self,event,info){self.openConQueryPopup(event);}},
+    {dir:'UL', modifier:'',name:'Google Textsuche in aktuellem Tab(Green Label)',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google Textsuche(Green Label)'], 'current');}},
+    {dir:'U', modifier:'',name:'Google Textsuche in neuem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
+    {dir:'D', modifier:'',name:'Google Textsuche in aktuellem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'current');}},
+    {dir:'DL', modifier:'',name:'Google Textlink Suche in neuem Tab',obj:'link',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
+    {dir:'UL', modifier:'',name:'Amazon Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Amazon.com'], 'tab');}},
+    {dir:'UR', modifier:'',name:'Yahoo Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Yahoo! GERMAN'], 'tab');}},
 
-  /*=== ページ内検索 ===*/
-    {dir:'L', modifier:'',name:'テキストをページ内検索',obj:'link, text',cmd:function(self,event,info){self.findWord(info.texts[0]);}},
+  /*=== Suche auf Seite ===*/
+    {dir:'L', modifier:'',name:'Text innerhalb der Seite suchen',obj:'link, text',cmd:function(self,event,info){self.findWord(info.texts[0]);}},
 
-  /*=== クリップボード ===*/
-    {dir:'UD', modifier:'',name:'リンクurl/テキストをクリップボードにコピー',obj:'text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
-    {dir:'LR', modifier:'',name:'リンクテキスト/テキストをクリップボードにコピー',obj:'link, text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
-    {dir:'UDU', modifier:'',name:'URLをクリップボードにコピー',obj:'link',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.urls[0]);}},
-    {dir:'DR', modifier:'',name:'テキストを検索バーにコピー',obj:'link, text',cmd:function(self,event,info){self.copyToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
-    {dir:'DR', modifier:'ctrl',name:'テキストを検索バーに追加コピー',obj:'link, text',cmd:function(self,event,info){self.appendToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
+  /*=== Zwischenablage ===*/
+    {dir:'UD', modifier:'',name:'Link-Url in die Zwischenablage kopieren',obj:'text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
+    {dir:'LR', modifier:'',name:'Link-Text in die Zwischenablage kopieren',obj:'link, text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
+    {dir:'UDU', modifier:'',name:'Url in die Zwischenablage kopieren',obj:'link',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.urls[0]);}},
+    {dir:'DR', modifier:'',name:'Text in die Searchbar kopieren',obj:'link, text',cmd:function(self,event,info){self.copyToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
+    {dir:'DR', modifier:'ctrl',name:'Zusatz-Text in die Searchbar kopieren',obj:'link, text',cmd:function(self,event,info){self.appendToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
 
-  /*=== 保存 ===*/
-    {dir:'RU', modifier:'',name:'リンク/画像をSaveFileModoki(SF)で保存',obj:'image, link',cmd:function(self,event){self.openSaveFileModokiPopup(event);}},
+  /*=== Speichern ===*/
+    {dir:'RU', modifier:'',name:'Link/Bild SaveFileModoki(SF) speichern',obj:'image, link',cmd:function(self,event){self.openSaveFileModokiPopup(event);}},
 /*
     {dir:'RD', modifier:'',name:'画像をD:/hogeに保存(SF)',obj:'image',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\hoge');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/hoge', true);}}},
     {dir:'RD', modifier:'',name:'リンクをD:/に保存(SF)',obj:'link',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/', false);}}},
 */
-    {dir:'RD', modifier:'',name:'画像を名前を受けて保存'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
-    {dir:'RD', modifier:'',name:'リンクを名前を受けて保存',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
+    {dir:'RD', modifier:'',name:'Bild mit Namen speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
+    {dir:'RD', modifier:'',name:'Link unter den Namen speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
+
+  /*=== appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される (Externe Anwendungen) ===*/
+    {dir:'U', modifier:'shift,ctrl',name:'Link im IE',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Programme\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
+    {dir:'R', modifier:'shift,ctrl',name:'Text im Notepad++',obj:'text',cmd:function(self,event,info){self.launch(info.texts[0], "D:\\Programme\\Notepad++\\notepad++.exe", [",2,,G1,%%SEL%%"], "Shift_JIS");}},
 
   /*=== Utility ===*/
     {dir:'RDR', modifier:'',name:'Eijiro',obj:'text',cmd:function(){var TERM=getBrowserSelection().toString();var URL="http://eow.alc.co.jp/"+TERM+"/UTF-8/";if(TERM)gBrowser.loadOneTab(URL,null,null,null,false,false);}},
-    {dir:'RDRD', modifier:'',name:'Excite で英和',obj:'text', /*要popupTranslate.uc.xul*/
+    {dir:'RDRD', modifier:'',name:'Google Auto DE',obj:'text', /*mit popupTranslate.uc.xul*/
       cmd:function(self,event,info){
         var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
                  createInstance(Ci.nsIScriptableUnicodeConverter);
         UI.charset = "UTF-8";
 
         var text = info.texts[0];
-        var engine = popupTranslate.selectEngineByDescription(UI.ConvertToUnicode("Excite 英日"));
+        var engine = popupTranslate.selectEngineByDescription(UI.ConvertToUnicode("Google Auto DE"));
         if (engine)
           popupTranslate.getTranslateResult(text, engine, null);
       }
     },
-    {dir:'RLU', modifier:'',name:'選択テキスト(プロンプト)を指定ドメイン内で検索',obj:'link, text',
+    {dir:'RLU', modifier:'',name:'Textauswahl-Suche unter der Domain',obj:'link, text',
       cmd:function(self,event,info){
         var _document=document.commandDispatcher.focusedWindow.document;
         var p = prompt('Input word to search under the domain('+_document.location.hostname+'):', info.texts[0]);
@@ -89,7 +143,7 @@ var DragNGo = {
                                     ' '+encodeURIComponent(p);
       }
     },
-    {dir:'UDUD', modifier:'',name:'選択範囲をテキストファイルとして保存',obj:'text',
+    {dir:'UDUD', modifier:'',name:'Auswahl als Textdatei speichern unter',obj:'text',
       cmd:function(self){
         // 選択範囲をテキストファイルとして保存する。
         var _window = document.commandDispatcher.focusedWindow;
@@ -100,7 +154,7 @@ var DragNGo = {
           fname = fname.replace(/[\*\:\?\"\|\/\\<>]/g, '_');
           self.saveTextToLocal(sel.toString(), fname, false);
         } else {
-          alert('No Selection!');
+          alert('Keine Auswahl!');
         }
       }
     },
@@ -134,7 +188,7 @@ var DragNGo = {
   },
 
   //appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される
-  launch: function launch(appPath, params, charset, txt){
+  launch: function launch(txt, appPath, params, charset){
     var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
           createInstance(Ci.nsIScriptableUnicodeConverter);
     UI.charset = charset;
@@ -228,21 +282,30 @@ var DragNGo = {
           this.currentRegExp.test(url)))
         where = 'current';
       switch (where) {
-        case 'window':
-          openNewWindowWith(submission.uri.spec, null, submission.postData, false)
-          break;
-        case 'current':
-          gBrowser.loadURI(submission.uri.spec, null, submission.postData, false);
-          break;
         case 'tab':
         case 'tabshifted':
           var loadInBackground = getBoolPref("browser.tabs.loadInBackground");
+          if (loadInBackground) {
+            if (where == 'tabshifted')
+               where = 'tab';
+            else if (where == 'tab') 
+              where = 'tabshifted'
+          }
+          if ("TreeStyleTabService" in window)
+            TreeStyleTabService.readyToOpenChildTab(gBrowser.selectedTab, false);
+        case 'current':
+        case 'window':
           openLinkIn(submission.uri.spec,
-                     (loadInBackground && where == 'tab') ? 'tabshifted': 'tab',
-                     { postData: submission.postData,
-                       referrerURI : null,
-                       relatedToCurrent: false });
-          //gBrowser.loadOneTab(submission.uri.spec, null, null, submission.postData, where == 'tabshifted', false);
+                     where,
+                     {
+                      fromChrome:false,
+                      allowThirdPartyFixup:false,
+                      postData:submission.postData,
+                      charset:null,
+                      referrerURI:null,
+                      relatedToCurrent:true
+                     }
+                    );
           break;
       }
       where = 'tabshifted';
@@ -296,23 +359,30 @@ var DragNGo = {
           self.currentRegExp.test(url)))
         where = 'current';
       switch (where) {
-        case 'window':
-          openNewWindowWith(url, doc, null, null, false)
-          break;
-        case 'current':
-          gBrowser.loadURI(url, referrer, null);
-          break;
         case 'tab':
         case 'tabshifted':
           var loadInBackground = getBoolPref("browser.tabs.loadInBackground");
+          if (loadInBackground) {
+            if (where == 'tabshifted')
+               where = 'tab';
+            else if (where == 'tab') 
+              where = 'tabshifted'
+          }
           if ("TreeStyleTabService" in window)
-              TreeStyleTabService.readyToOpenChildTab(gBrowser.selectedTab, false);
+            TreeStyleTabService.readyToOpenChildTab(gBrowser.selectedTab, false);
+        case 'current':
+        case 'window':
           openLinkIn(url,
-                     (loadInBackground && where == 'tab') ? 'tabshifted': 'tab',
-                     { postData: null,
-                       referrerURI : referrer,
-                       relatedToCurrent: true });
-          //gBrowser.loadOneTab(url, referrer, null, null, where == 'tabshifted', false);
+                     where,
+                     {
+                      fromChrome:false,
+                      allowThirdPartyFixup:false,
+                      postData:null,
+                      charset:null,
+                      referrerURI:referrer,
+                      relatedToCurrent:true
+                     }
+                    );
           break;
       }
       where = 'tabshifted';
@@ -514,6 +584,32 @@ var DragNGo = {
       // Failure to get type and content-disposition off the image is non-fatal
     }
     return contentType;
+  },
+
+  //appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される
+  launch: function launch(txt, appPath,params,charset){
+    var UI = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+          createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    UI.charset = charset;
+
+    var appfile = Components.classes['@mozilla.org/file/local;1']
+                    .createInstance(Components.interfaces.nsILocalFile);
+    appfile.initWithPath(decodeURIComponent(escape(appPath)));
+    if (!appfile.exists()){
+      alert("Executable does not exist.");
+      return;
+    }
+    var process = Components.classes['@mozilla.org/process/util;1']
+                  .createInstance(Components.interfaces.nsIProcess);
+
+    var args = new Array();
+    for(var i=0,len=params.length;i<len;i++){
+      if(params[i]){
+        args.push(UI.ConvertFromUnicode(params[i].replace(/%%URL%%/i,txt).replace(/%%SEL%%/i,txt)));
+      }
+    }
+    process.init(appfile);
+    process.run(false, args, args.length, {});
   },
 
   //ファイルのパスをインプットフィールドに記入
@@ -730,64 +826,68 @@ var DragNGo = {
     return ver;
   },
 
-  getElementsByXPath: function getElementsByXPath(xpath, node) {
-    var nodesSnapshot = this.getXPathResult(xpath, node,
-        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE)
-    var data = []
-    for (var i = 0; i < nodesSnapshot.snapshotLength; i++) {
-         data.push(nodesSnapshot.snapshotItem(i))
+  getElementsByXPath: function getNodesFromXPath(aXPath, aContextNode) {
+    const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+    const XHTMLNS = 'http://www.w3.org/1999/xhtml';
+    const XLinkNS = 'http://www.w3.org/1999/xlink';
+
+    // 引数の型チェック。
+    if (aXPath) {
+      aXPath = String(aXPath);
     }
-    return data
-  },
-
-  getFirstElementByXPath: function getFirstElementByXPath(xpath, node) {
-    var result = this.getXPathResult(xpath, node,
-        XPathResult.FIRST_ORDERED_NODE_TYPE)
-    return result.singleNodeValue
-  },
-
-  getXPathResult: function getXPathResult(xpath, node, resultType) {
-      node = node || this.focusedWindow.document;
-      var doc = node.ownerDocument || node
-      var resolver = doc.createNSResolver(node.documentElement || node)
-      // Use |node.lookupNamespaceURI('')| for Opera 9.5
-      var defaultNS = node.lookupNamespaceURI(null)
-      if (defaultNS) {
-          const defaultPrefix = '__default__'
-          xpath = this.addDefaultPrefix(xpath, defaultPrefix)
-          var defaultResolver = resolver
-          resolver = function (prefix) {
-              return (prefix == defaultPrefix)
-                  ? defaultNS : defaultResolver.lookupNamespaceURI(prefix)
-          }
+    else {
+      throw 'ERROR: blank XPath expression';
+    }
+    if (aContextNode) {
+      try {
+        if (!(aContextNode instanceof Node))
+          throw '';
       }
-      return doc.evaluate(xpath, node, resolver, resultType, null)
-  },
-
-  addDefaultPrefix: function addDefaultPrefix(xpath, prefix) {
-      const tokenPattern = /([A-Za-z_\u00c0-\ufffd][\w\-.\u00b7-\ufffd]*|\*)\s*(::?|\()?|(".*?"|'.*?'|\d+(?:\.\d*)?|\.(?:\.|\d+)?|[\)\]])|(\/\/?|!=|[<>]=?|[\(\[|,=+-])|([@$])/g
-      const TERM = 1, OPERATOR = 2, MODIFIER = 3
-      var tokenType = OPERATOR
-      prefix += ':'
-      function replacer(token, identifier, suffix, term, operator, modifier) {
-          if (suffix) {
-              tokenType =
-                  (suffix == ':' || (suffix == '::' &&
-                   (identifier == 'attribute' || identifier == 'namespace')))
-                  ? MODIFIER : OPERATOR
-          }
-          else if (identifier) {
-              if (tokenType == OPERATOR && identifier != '*') {
-                  token = prefix + token
-              }
-              tokenType = (tokenType == TERM) ? OPERATOR : TERM
-          }
-          else {
-              tokenType = term ? TERM : operator ? OPERATOR : MODIFIER
-          }
-          return token
+      catch(e) {
+        throw 'ERROR: invalid context node';
       }
-      return xpath.replace(tokenPattern, replacer)
+    }
+
+    const xmlDoc  = aContextNode ? aContextNode.ownerDocument : document ;
+    const context = aContextNode || xmlDoc.documentElement;
+    const type    = XPathResult.ORDERED_NODE_SNAPSHOT_TYPE;
+    const resolver = {
+      lookupNamespaceURI : function(aPrefix)
+      {
+        switch (aPrefix)
+        {
+          case 'xul':
+            return XULNS;
+          case 'html':
+          case 'xhtml':
+            return XHTMLNS;
+          case 'xlink':
+            return XLinkNS;
+          default:
+            return '';
+        }
+      }
+    };
+
+    try {
+      var expression = xmlDoc.createExpression(aXPath, resolver);
+      var result = expression.evaluate(context, type, null);
+    }
+    catch(e) {
+      return {
+        snapshotLength : 0,
+        snapshotItem : function()
+        {
+          return null;
+        }
+      };
+    }
+    var arr = [];
+    for (let i = 0; i < result.snapshotLength; i++) {
+      arr.push(result.snapshotItem(i));
+    }
+
+    return arr;
   },
 
   isParentEditableNode: function(node) {
@@ -850,16 +950,20 @@ var DragNGo = {
     }
     if (inputElement instanceof HTMLInputElement && inputElement.type == 'file') {
       if (/drop/.test(event.type)) {
-        if (inputElement.hasAttribute("multiple") &&
-            typeof inputElement.mozSetFileNameArray =="function") {
-          this.putMultipleFilePath(inputElement, urls);
+        if (this.getVer >= 7) {
+          dragSession.canDrop = true;
         } else {
-          this.putFilePath(inputElement, urls[0]);
+          if (inputElement.hasAttribute("multiple") &&
+              typeof inputElement.mozSetFileNameArray =="function") {
+            this.putMultipleFilePath(inputElement, urls);
+          } else {
+            this.putFilePath(inputElement, urls[0]);
+          }
         }
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('パスを記入', 0, true);
+        this.setStatusMessage('Pfadangabe', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -870,7 +974,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('xpiやjarのインストール', 0, true);
+        this.setStatusMessage('xpi und jar Installation', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -982,15 +1086,31 @@ var DragNGo = {
 
     // 転送データをセットする
     if (event.originalTarget instanceof HTMLImageElement) {
-      event.dataTransfer.setData("application/x-moz-node", event.originalTarget);
-      event.dataTransfer.setData("text/x-moz-url", event.originalTarget.src+"\n"+event.originalTarget.src);
-      event.dataTransfer.setData("text/uri-list", event.originalTarget.src);
-      event.dataTransfer.setData("text/plain", event.originalTarget.src);
+      event.dataTransfer.mozSetDataAt("application/x-moz-node", event.originalTarget , 0);
+      event.dataTransfer.mozSetDataAt("text/x-moz-url", event.originalTarget.src+"\n"+event.originalTarget.src ,0);
+      event.dataTransfer.mozSetDataAt("text/uri-list", event.originalTarget.src ,0);
+      event.dataTransfer.mozSetDataAt("text/plain", event.originalTarget.src ,0);
     }
+    // xxx Bug 475045 Can't drag unlinkified URL to bookmarks toolbar (regression from Firefox 3)
     if (event.originalTarget instanceof Text) {
       var targetWindow = event.originalTarget.ownerDocument.defaultView;
       var str = targetWindow.getSelection().toString();
-     // event.dataTransfer.setData("text/plain", str);
+      str = str.match(new RegExp(this.linkRegExp.source, "ig"));
+      if (str) {
+        arr = str.toString().split(",");
+        var j = 0;
+        for (var i = 0; i < arr.length; i++){
+          if (!arr[i])
+            continue;
+          if (arr[i].match(this.linkRegExp)) {
+            try {
+              uri = makeURI(RegExp.$1);
+              event.dataTransfer.mozSetDataAt("text/x-moz-url", uri.spec + "\n" + uri.spec, j);
+              j++;
+            } catch (ex) {}
+          }
+        }
+      }
     }
   },
 
@@ -1071,6 +1191,17 @@ var DragNGo = {
     if (this.isParentEditableNode(target))
       return;
 
+    // do nothing if event.defaultPrevented (maybe hosted d&d by web page)
+    if (event.defaultPrevented)
+      return;
+    /*
+    if (sourceNode) {
+      var xpath = 'ancestor-or-self::*[@draggable="true"]';
+      var elm = this.getElementsByXPath(xpath, sourceNode);
+      if (elm.length > 0)
+        return;
+    }
+    */
 
     var isSameBrowser = !(sourceNode &&
                          (gBrowser &&
@@ -1180,8 +1311,9 @@ var DragNGo = {
         break;
       }
     }; // GESTURES
-    if (!dragSession.canDrop)
-      self.setStatusMessage('未定義', 0, false);
+    if (!dragSession.canDrop) {
+      self.setStatusMessage('Nicht definiert', 0, false);
+    }
   },
 
   getDragObject: function getDragObject(event, objcets) {
@@ -1306,7 +1438,7 @@ var DragNGo = {
               if (self.linkRegExp.test(data)) {
                 var url = data.match(self.linkRegExp)[1];
                 var url = self.getDroppedURL_Fixup(url);
-                if (url && self.dragDropSecurityCheck(event, dragSession, url)) {
+                if (url.trim() && self.dragDropSecurityCheck(event, dragSession, url)) {
                   info.urls.push(url);
                   info.texts.push(url);
                   info.nodes.push(null);
@@ -1316,7 +1448,7 @@ var DragNGo = {
               } else if (self.localLinkRegExp.test(data)) {
                 var url = data.match(self.localLinkRegExp)[0];
                 var url = self.getDroppedURL_Fixup(url);
-                if (url && self.dragDropSecurityCheck(event, dragSession, url)) {
+                if (url.trim() && self.dragDropSecurityCheck(event, dragSession, url)) {
                   info.urls.push(url);
                   info.texts.push(url);
                   info.nodes.push(null);
@@ -1336,7 +1468,7 @@ var DragNGo = {
             //  break;
             var targetWindow = node.ownerDocument.defaultView;
             var data = targetWindow.getSelection().toString();
-            if (data) {
+            if (data.trim()) {
               info.urls.push(null);
               info.texts.push(data);
               info.nodes.push(null);
@@ -1348,6 +1480,8 @@ var DragNGo = {
               for each (var type in supportedTypes) {
                 if (event.dataTransfer.types.contains(type)) {
                   data = event.dataTransfer.getData(type);
+                  if (!data.trim())
+                    return null;
                   info.urls.push(null);
                   info.texts.push(data);
                   info.nodes.push(null);
@@ -1363,6 +1497,8 @@ var DragNGo = {
             for each (var type in supportedTypes) {
               if (event.dataTransfer.types.contains(type)) {
                 data = event.dataTransfer.getData(type);
+                if (!data.trim())
+                  return null;
                 info.urls.push(null);
                 info.texts.push(data);
                 info.nodes.push(null);
