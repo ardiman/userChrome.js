@@ -59,8 +59,8 @@
             this._lastY = 0;
             this._clientX = 0;
             this._clientY = 0;
-
             this._gesture = '';
+
             this._showinstatus = true;
             this._showinstatustime = 750;
             this._focusonopenedtab = true;
@@ -71,7 +71,7 @@
             this._suppressClick = false;
             this._shouldShowMenu = false;
 
-            this._focusdWindow = null;
+            this._focusedWindow = null;
             this._anchorNode = null;
             this._linkNode = null;
             this._imageNode = null;
