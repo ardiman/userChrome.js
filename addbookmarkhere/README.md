@@ -5,7 +5,7 @@ noch in der Menü -und Ordner-Hierarchie bewegen.
 
 Das **Ergebnis des Skripts** (die Funktion taucht auch an anderen Stellen auf):
 
-![Screenshot Add Bookmark Here](https://github.com/ardiman/userChrome.js/raw/master/scr_addbookmarkhere.png/scr_addbookmarkhere.png)
+![Screenshot Add Bookmark Here](https://github.com/ardiman/userChrome.js/raw/master/addbookmarkhere/scr_addbookmarkhere.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
