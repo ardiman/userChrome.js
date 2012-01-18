@@ -4,7 +4,7 @@ Mit diesem Skript wird das Mittelklick-Ereignis einiger Buttons angesprochen und
 
 - back-button: Eine URL nummerisch runter
 - forward-button: Eine URL nummerisch hoch
-- home-button: Zurück zu der Hauptdomain der aktuellen Seite (auch wenn man nicht dort war)
+- home-button: ZurÃ¼ck zu der Hauptdomain der aktuellen Seite (auch wenn man nicht dort war)
 - reload-button, urlbar-reload-button, stop-button und urlbar-stop-button: Aktualisierung der Seite ohne Cache
 
 ## Installation
