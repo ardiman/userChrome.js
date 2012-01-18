@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <popup id="contentAreaContextMenu">
+    <menuitem id="context_closeLeftTabs"
+              label="Linken Tab schließen"
+              accesskey="L"
+              oncommand="gBrowser.closeLeftTabs(gBrowser.mContextTab);"/>
+    <menuitem id="context_closeRightTabs"
+              label="Rechten Tab schließen"
+              accesskey="R"
+              oncommand="gBrowser.closeRightTabs(gBrowser.mContextTab);"/>
+  </popup>
+
+  <script type="application/x-javascript"> <![CDATA[
+    gBrowser.closeLeftTabs = function(aTab) {
+      if (!aTab)
+        aTab = this.mCurrentTab;
+  
+      if (this.mCurrentTab._tPos < aTab._tPos)
+        this.selectedTab = aTab;
+  
+      for (var i=aTab._tPos-1; i>=0; i--) {
+        this.removeTab(this.mTabs[ i ]);
+      }
+    }
+  
+    gBrowser.closeRightTabs = function(aTab) {
+      if (!aTab)
+        aTab = this.mCurrentTab;
+  
+      if (this.mCurrentTab._tPos > aTab._tPos)
+        this.selectedTab = aTab;
+  
+      for (var i=this.mTabs.length-1; i>aTab._tPos; i--) {
+        this.removeTab(this.mTabs[ i ]);
+      }
+    }
+    
+    setTimeout(function() {
+      function $() {return document.getElementById.apply(document, arguments);}
+
+      var tabContextMenu = document.getAnonymousElementByAttribute(gBrowser, "anonid", "tabContextMenu");
+      tabContextMenu.insertBefore($("context_closeRightTabs"), $("context_closeTab").nextSibling);
+      tabContextMenu.insertBefore($("context_closeLeftTabs"), $("context_closeTab").nextSibling);
+    }, 0);
+  ]]> </script>
+</overlay>
