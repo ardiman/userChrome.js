@@ -8,4 +8,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Conquery](https://github.com/ardiman/userChrome.js/raw/master/conquery/scr_conquery.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere eine der uc.xul-Dateien in den Chromeordner des Profils.
