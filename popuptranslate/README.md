@@ -3,7 +3,8 @@ Hiermit bekommt das Extramenü ein neues Untermenü, in dem man die jeweilige Ü
 den zu übersetzenden Text und mit einem Mittelklick startet die Übersetzung. Es öffnet sich ein Popup, in dem der 
 übersetzte Text steht. Auch hier werden die Sprachen automatisch erkannt. Hier gibt es aber die Möglichkeit, auch 
 automatisch ins Englische zu übersetzen und noch einen anderen Übersetzungsdienst ausser Google zu nutzen. Während 
-der Übersetzung kann man mit Alt+Shift+P (auf die Reihenfolge achten) auf die Ursprungssprache zurückschalten.
+der Übersetzung kann man mit Alt+Shift+P (auf die Reihenfolge achten) auf die Ursprungssprache zurückschalten. Seit 
+19.01.2012 bietet auch das Kontextmenü eine Möglichkeit zur Übersetzung.
 
 Screenshot der Konfigurationsmöglichkeit:
 
