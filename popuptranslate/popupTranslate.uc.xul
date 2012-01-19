@@ -658,6 +658,30 @@ display: none;
       }
     }
     popupTranslate.init();
+	
+// Popup Übersetzung aus dem Kontextmenü heraus	
+	(function (){
+        var contextMenu = document.getElementById("contentAreaContextMenu");
+        var translate = document.createElement("menuitem");
+        translate.setAttribute("id", "context-translateD");
+        translate.setAttribute("label", "Übersetzung Auto DE");
+        translate.setAttribute("oncommand","popupTranslate.onCommand(false);");
+
+        contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+
+})();
+
+    (function (){
+        var contextMenu = document.getElementById("contentAreaContextMenu");
+        var translate = document.createElement("menuitem");
+        translate.setAttribute("id", "context-translateE");
+        translate.setAttribute("label", "Übersetzung Auto EN");
+        translate.setAttribute("oncommand","popupTranslate.onCommand(true);");
+
+        contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+
+})(); 
+		
   ]]></script>
   <menupopup id="menu_ToolsPopup">
     <menu id="translation_optionsMenu"
