@@ -2,7 +2,8 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
-// @version        1.0.20120109
+// @include        main
+// @version        1.0.20120120
 // ==/UserScript==
 -->
 
@@ -39,10 +40,22 @@ var uProfMenu = {
     if (this.warpmenuto.toLowerCase() == 'menu') {
       // aufgrund des gewaehlten warpmenuto als Untermenue von Extras anlegen
       var zielmenu = document.getElementById('menu_ToolsPopup');
+      if (zielmenu==null) {
+        userChrome.log("extras_config_menu.uc.js findet Zielmenue nicht, evtl. weil ein anderes Fenster als das Hauptfenster " +
+                       "geoeffnet wurde. Falls dieser Fehler auch im Hauptfenster auftritt, bitte die vorgehende Definition " +
+                       "von 'zielmenu' kontrollieren.");
+        return;
+      }
       var menu = zielmenu.appendChild(this.createME("menu","Config Menü",0,0,"ExtraConfigMenu"));
      } else {
       // als Button nach dem per warpmenuto gewaehlten Element anlegen (s. Kommentar ueber warpmenuto im Konfigurationsabschnitt)
       var zielmenu = document.getElementById(this.warpmenuto);
+      if (zielmenu==null) {
+        userChrome.log("extras_config_menu.uc.js findet Zielpunkt '"+this.warpmenuto+"' nicht, evtl. weil ein anderes Fenster als das Hauptfenster " +
+                       "geoeffnet wurde. Falls dieser Fehler auch im Hauptfenster auftritt, bitte die vorgehende Definition " +
+                       "von 'warpmenuto' kontrollieren.");
+        return;
+      }
       var menu = zielmenu.parentNode.insertBefore(document.createElement('toolbarbutton'), zielmenu.nextSibling);
       menu.setAttribute("id", "ExtraConfigMenu-button");
       menu.setAttribute("class", "toolbarbutton-1");
@@ -277,7 +290,7 @@ var uProfMenu = {
       if (sTyp==0){
         var mitem = this.createME("menuitem",scriptArray[i],"uProfMenu.edit(0,'"+scriptArray[i]+"')",sClass,0);
         mitem.setAttribute("onclick","uProfMenu.openAtGithub(event,'"+scriptArray[i]+"')");
-        mitem.setAttribute("tooltiptext","Linksklick: Bearbeiten, Mittelklick: https://github.com/.../"+this.cleanFileName(scriptArray[i])+" öffnen, Rechtsklick: Suche auf GitHub");
+        mitem.setAttribute("tooltiptext"," Linksklick: Bearbeiten,\n Mittelklick: https://github.com/.../"+this.cleanFileName(scriptArray[i])+" öffnen,\n Rechtsklick: Suche auf GitHub");
        } else {
         var mitem = this.createME("menuitem",scriptArray[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+scriptArray[i]+"')",sClass,0);
       }
