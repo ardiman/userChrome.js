@@ -35,13 +35,25 @@ darin sorgt für den Import aller userChrome-Skripte.
 - die benötigte **Erweiterung** userChromeJS: http://userchromejs.mozdev.org/
 - eine beispielhafte **Datei** userChrome.js: https://github.com/ardiman/userChrome.js/blob/master/userChrome.js
 
-# Hinweis
+# Hinweise
+## Skriptcache
 Seit Firefox 8.0 gibt es eine Art Skriptcache. Dies führt dazu, dass Änderungen von Skripten (Konfiguration/Texte usw.) nach 
 einem "normalen" Neustart nicht aktiv werden. Es gibt Skripte, die dieses Problem durch Löschen des Skriptcaches lösen können:
 
 - https://github.com/ardiman/userChrome.js/tree/master/addrestartbutton
 - https://github.com/ardiman/userChrome.js/tree/master/restartfirefox
 - https://github.com/ardiman/userChrome.js/tree/master/restartfirefoxbutton
+
+Andere Methoden werden auf der [Seite Sktiptcache im Wiki](https://github.com/ardiman/userChrome.js/wiki/Skriptcache) erläutert.
+
+## Umlaute
+Ab userChromeJS 1.5 werden Umlaute in den uc.js-Dateien anders behandelt. Am Anfang des Aufbaus dieser Sammlung war userChromeJS 1.4 aktuell 
+, deshalb kann es Probleme mit der Darstellung von Sonderzeichen geben (s. [Thread im deutschen Firefoxforum](http://www.camp-firefox.de/forum/viewtopic.php?p=778500#p778500)).
+
+Mögliche Lösungen:
+
+- das Skript wird in z.B. Notepad++ als "UTF8 ohne BOM" gespeichert
+- die Umlaute werden mittel dem Notepadd++-Plugin "HTML Tag" konvertiert.
 
 # Quellen
 - http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=90403
