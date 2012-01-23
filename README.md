@@ -44,7 +44,7 @@ einem "normalen" Neustart nicht aktiv werden. Es gibt Skripte, die dieses Proble
 - https://github.com/ardiman/userChrome.js/tree/master/restartfirefox
 - https://github.com/ardiman/userChrome.js/tree/master/restartfirefoxbutton
 
-Andere Methoden werden auf der [Seite Sktiptcache im Wiki](https://github.com/ardiman/userChrome.js/wiki/Skriptcache) erläutert.
+Andere Methoden werden auf der [Seite Skriptcache im Wiki](https://github.com/ardiman/userChrome.js/wiki/Skriptcache) erläutert.
 
 ## Umlaute
 Ab userChromeJS 1.5 werden Umlaute in den uc.js-Dateien anders behandelt. Am Anfang des Aufbaus dieser Sammlung war userChromeJS 1.4 aktuell 
@@ -53,7 +53,7 @@ Ab userChromeJS 1.5 werden Umlaute in den uc.js-Dateien anders behandelt. Am Anf
 Mögliche Lösungen:
 
 - das Skript wird in z.B. Notepad++ als "UTF8 ohne BOM" gespeichert
-- die Umlaute werden mittel dem Notepadd++-Plugin "HTML Tag" konvertiert.
+- die Umlaute werden mit dem Notepad++-Plugin "HTML Tag" konvertiert
 
 # Quellen
 - http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=90403
