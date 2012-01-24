@@ -31,7 +31,7 @@
 		// default: "#1 件のダウンロードが中断しています"
 		DownloadMonitorPanel._pauseStr = U("中断 #1 件");
 		// default: "#1 件のダウンロードが進行中です (#2)"
-		DownloadMonitorPanel._activeStr = U("1 aktiver Download;#1 aktive Downloads (#2)");
+		DownloadMonitorPanel._activeStr = U("1 aktiver Download (#2);#1 aktive Downloads (#2)");
 
 	}, 8000);
 	
