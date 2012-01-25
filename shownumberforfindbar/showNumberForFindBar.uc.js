@@ -33,7 +33,7 @@
                     this._foundMatches.value = matchesCount + " Treffer";
                 else if (matchesCount == "-1") {
                     var matchLimit = 100;
-                    this._foundMatches.value = "Ueber 100 Treffer";
+                    this._foundMatches.value = "\u00DCber 100 Treffer";
                     //                    var key = (matchLimit > 1000) ? "Decrease" : "Increase";
                 } else
                     this._foundMatches.value = matchesCount + " Treffer";

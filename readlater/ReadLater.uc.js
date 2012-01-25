@@ -34,12 +34,12 @@ readLater = {
     const kXULNS =
          "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     LOCALE = (Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale")).indexOf("zh")==-1;
-    this.TOOLTIP      = LOCALE?"Lesen Sie später":"\uFEFF\u5168\u90E8\u79FB\u9664";
-    this.CLEARLABEL   = LOCALE?"Alles löschen" :"\uFEFF\u5168\u90E8\u79FB\u9664";
-    this.ALLOPENLABEL = LOCALE?"Alles öffnen"  :"\uFEFF\u5168\u90E8\u6253\u5F00";
-    this.ADDLABEL     = LOCALE?"Lesen Sie das später"           :"\uFEFF\u7A0D\u540E\u9605\u8BFB.";
-    this.CLEARWARNING = LOCALE?"Wollen Sie alles löschen?"  :"\uFEFF\u662F\u5426\u8981\u5168\u90E8\u79FB\u9664\uFF1F";
-    this.OPENALLWARNING = LOCALE?"Wollen Sie alles öffnen?" :"\u662F\u5426\u8981\u5168\u90E8\u6253\u5F00\uFF1F";
+    this.TOOLTIP      = LOCALE?"Lesen Sie sp\u00E4ter":"\uFEFF\u5168\u90E8\u79FB\u9664";
+    this.CLEARLABEL   = LOCALE?"Alles l\u00F6schen" :"\uFEFF\u5168\u90E8\u79FB\u9664";
+    this.ALLOPENLABEL = LOCALE?"Alles \u00F6ffnen"  :"\uFEFF\u5168\u90E8\u6253\u5F00";
+    this.ADDLABEL     = LOCALE?"Lesen Sie das sp\u00E4ter"           :"\uFEFF\u7A0D\u540E\u9605\u8BFB.";
+    this.CLEARWARNING = LOCALE?"Wollen Sie alles l\u00F6schen?"  :"\uFEFF\u662F\u5426\u8981\u5168\u90E8\u79FB\u9664\uFF1F";
+    this.OPENALLWARNING = LOCALE?"Wollen Sie alles \u00F6ffnen?" :"\u662F\u5426\u8981\u5168\u90E8\u6253\u5F00\uFF1F";
 
     this.popup= function(){}
     var statusbarpanel = document.createElementNS(kXULNS,"statusbarpanel");
@@ -245,7 +245,7 @@ readLater = {
   allOpen: function(){
     var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                   .getService(Components.interfaces.nsIPromptService);
-    var result = prompts.confirm(window, "Später lesen", this.OPENALLWARNING);
+    var result = prompts.confirm(window, "Sp\u00E4ter lesen", this.OPENALLWARNING);
     if(!result) return;
     for(var i = this.arrURL.length - 1; i > -1; i--){
       this.openURL(this.arrURL[i], this.arrSCRL[i]);
@@ -256,7 +256,7 @@ readLater = {
     if(warn){
       var prompts = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
                     .getService(Components.interfaces.nsIPromptService);
-      var result = prompts.confirm(window, "Später lesen", this.CLEARWARNING);
+      var result = prompts.confirm(window, "Sp\u00E4ter lesen", this.CLEARWARNING);
       if(!result) return;
     }
     this.arrURL = [];

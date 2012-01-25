@@ -6,7 +6,7 @@ var LaunchSafari = {
     init: function()
     {
         this.mItem = document.createElement("menuitem");
-        this.mItem.setAttribute("label", "In Safari öffnen");
+        this.mItem.setAttribute("label", "In Safari \u00F6ffnen");
         
         
 

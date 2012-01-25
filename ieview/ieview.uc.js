@@ -6,7 +6,7 @@ var LaunchIE = {
 	init: function()
 	{
 		this.mItem = document.createElement("menuitem");
-		this.mItem.setAttribute("label", "Im IE öffnen");
+		this.mItem.setAttribute("label", "Im IE \u00F6ffnen");
 		document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function() { LaunchIE.onPopupShowing(this); }, false);
 	},
 
