@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="sokuyaku" xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript"><![CDATA[
+(function() {
+  var app_id, mouseup, uri, uridetect, quellsprache, zielsprache;
+
+  app_id = "366EA718B7846D2CBD6E0129E55F518D31E741BE";
+  uri = 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate';
+  uridetect = 'http://api.microsofttranslator.com/V2/Ajax.svc/Detect?appId='+app_id;
+  
+  removeWayaku = function(ele) {
+    // Zeile aktivieren, damit bei Klick auf Uebersetzung diese in Zwischenablage uebernommen wird:
+    Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(ele.textContent);
+    document.getElementById('wayaku-box').hidePopup();
+  }, 
+
+  detectlang = function(s) {
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", "" + uridetect + '&text=' + s, false);
+    xmlhttp.onreadystatechange=function() {
+      if (xmlhttp.readyState == 4) {
+        wayaku = document.getElementById("wayaku");
+        wayaku.setAttribute("class",xmlhttp.responseText.replace(/"/g,""));
+      }
+    }
+    xmlhttp.send();
+    wayaku = document.getElementById("wayaku");
+    return wayaku.getAttribute("class");
+  },
+
+  beautify = function (s) {
+    var ret;
+    ret=s.replace(/\\"/g,'"').replace(/\\\//g,'/').replace(/\\\\/g,String.fromCharCode(92));
+    return ret;
+  },
+
+
+  mouseup = function(event) {
+    var req, sel, with_param;
+    sel = window.content.getSelection();
+    if (!sel.toString().length) return;
+    // die folgende Zeile aktivieren, wenn nur mit gedrueckter Shift-Taste uebersetzt werden soll:
+    // if (!event.shiftKey) return;
+    // diesen Abschnitt aktivieren, wenn nach Markierung anschliessend durch Mittelklick uebersetzt werden soll
+    if (event.button!=1) return;
+    // esc-Taste nur simulieren, wenn "Automatischer Bildlauf" aktiviert ist und damit nach Mittelklick die Scrollhilfe verschwindet:
+    var pref = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
+    if (pref.getBoolPref("general.autoScroll")) {
+      window.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils).sendKeyEvent("keypress",27,0,0);
+    }
+    // Ende Mittelklick
+    zielsprache="de";
+    quellsprache="";
+    // falls Sprache nicht erkannt werden soll, die naechste Zeile deaktivieren:
+    quellsprache=detectlang(sel.toString());
+    if (quellsprache.length==0) quellsprache="en";
+    if (quellsprache=="de") zielsprache="en";
+
+    with_param = (function() {
+      var data, k, v;
+      data = {
+        appId: app_id,
+        text: sel.toString().replace(/^"+/, '').replace(/#/g,"%23"),
+        from: quellsprache,
+        to: zielsprache
+      };
+      return ((function() {
+        var _results;
+        _results = [];
+        for (k in data) {
+          v = data[k];
+          _results.push("" + k + "=" + v);
+        }
+        return _results;
+      })()).join('&');
+    })();
+    req = new XMLHttpRequest();
+    req.open("GET", "" + uri + "?" + with_param, true);
+    req.onreadystatechange = function() {
+      var jajp, wayaku, _ref;
+      if (req.readyState !== 4) return;
+      if ((_ref = req.status) !== 200 && _ref !== 201) return;
+      // req.responseText.match(/([^¥"]+)/);
+      // jajp = RegExp.$1;
+      jajp = req.responseText.replace (/^"+/, '').replace (/"$/, '');
+      jajp = beautify(jajp);
+      document.getElementById("wayaku-box").setAttribute("label","Übersetzung " + quellsprache + " > " + zielsprache);
+      wayaku = document.getElementById("wayaku");
+      wayaku.style.fontSize = "12px";
+      wayaku.textContent = jajp;
+      document.getElementById("wayaku-box").openPopupAtScreen(event.screenX, event.screenY - 30, false);
+      return sel.removeAllRanges();
+    };
+    return req.send();
+  };
+
+  window.addEventListener("mouseup", mouseup, false);
+
+}).call(this);
+
+]]></script>
+  <window>
+    <panel id="wayaku-box" minwidth="140" maxwidth="700" titlebar="normal" close="true" noautohide="true" state="closed" label="Übersetzung">
+      <label id="wayaku" onclick="removeWayaku(this);">Übersetzungsergebnis</label>
+    </panel>
+  </window>
+</overlay>
+
