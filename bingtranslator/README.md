@@ -1,7 +1,7 @@
 # Bing Translator
 Markierter Text in einer beliebigen Sprache wird mittels Mittelklick und dem Bing-Übersetzungsdienst automatisch übersetzt. Falls der Text als 
 deutsch erkannt wird, erhält man als Ergebnis die englische Übersetzung. Mit einem Klick auf das Übersetzungsergebnis wird der Text in die 
-Zwischenablage übernommen und das Fenster geschlosssen - die Übernahme findet nicht statt, wenn man den Schließen-Button des Übersetzungsfensters 
+Zwischenablage übernommen und das Fenster geschlossen - die Übernahme findet nicht statt, wenn man den Schließen-Button des Übersetzungsfensters 
 verwendet.
 
 Erhält man ein **leeres Übersetzungsfenster**, muss die Zeile 53 deaktiviert werden. Bei einigen Sonderzeichen kann es zu leicht veränderten 
