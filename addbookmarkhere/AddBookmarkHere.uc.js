@@ -5,7 +5,7 @@
 // @author          zbinlin
 // @homepage        http://bitcp.com
 // @version         0.0.1
-// @note            Wenn es "Strg + linke Maustaste" den Menüpunkt, dann das Lesezeichen an der Spitze, wenn es "Shift + linke Maustaste", dann das Lesezeichen in den Ordner, in der Spitze.
+// @note            Wenn es "Strg + linke Maustaste" den Menuepunkt, dann das Lesezeichen an der Spitze, wenn es "Shift + linke Maustaste", dann das Lesezeichen in den Ordner, in der Spitze.
 // ==/UserScript==
 
 (function () {
@@ -32,7 +32,7 @@
         addContextMenu: function (parentNode, afterNode) {
             var menuitem = document.createElement("menuitem");
             menuitem.id = "placesContext_add:bookmark";
-            menuitem.setAttribute("label", "Lesezeichen hier hinzufügen");
+            menuitem.setAttribute("label", "Lesezeichen hier hinzuf\u00FCgen");
             menuitem.setAttribute("accesskey", "h");
             menuitem.setAttribute("selection", "any");
             menuitem.addEventListener("command", this.addBookmark, false);
