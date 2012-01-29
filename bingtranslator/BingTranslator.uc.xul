@@ -5,11 +5,12 @@
 
 <script type="application/x-javascript"><![CDATA[
 (function() {
-  var app_id, mouseup, uri, uridetect, quellsprache, zielsprache;
+  var app_id, mouseup, uri, uridetect, showStatusFrom, quellsprache, zielsprache;
 
   app_id = "366EA718B7846D2CBD6E0129E55F518D31E741BE";
   uri = 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate';
   uridetect = 'http://api.microsofttranslator.com/V2/Ajax.svc/Detect?appId='+app_id;
+  showStatusFrom = 100;  // Anzeige in der Statusleiste ab x markierten Zeichen; auf 0 stellen, damit keine Anzeige erfolgt
 
   removeWayaku = function(ele) {
     // die folgende Zeile deaktivieren, damit bei Klick auf Uebersetzung diese nicht in Zwischenablage uebernommen wird:
@@ -36,7 +37,7 @@
     // Verschoenert das Uebersetzungsergebnis
     var ret;
     ret = s.replace (/^"+/, '').replace (/"$/, '');
-    ret = ret.replace(/\\"/g,'"').replace(/\\\//g,'/').replace(/\\\\/g,String.fromCharCode(92));
+    ret = ret.replace (/&amp;/g, '&').replace(/\\"/g,'"').replace(/\\\//g,'/').replace(/\\\\/g,String.fromCharCode(92));
     return ret;
   },
 
@@ -49,6 +50,7 @@
     // if (!event.shiftKey) return;
     // diesen Abschnitt aktivieren, wenn nach Markierung anschliessend durch Mittelklick uebersetzt werden soll
     if (event.button!=1) return;
+    if (showStatusFrom>0 && selText.length >=showStatusFrom) XULBrowserWindow.statusTextField.label = "\u00DCbersetzung l\u00E4uft ...";
     // esc-Taste nur simulieren, wenn "Automatischer Bildlauf" aktiviert ist und damit nach Mittelklick die Scrollhilfe verschwindet:
     var pref = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     if (pref.getBoolPref("general.autoScroll")) {
@@ -88,6 +90,7 @@
       if (req.readyState !== 4) return;
       if ((_ref = req.status) !== 200 && _ref !== 201) return;
       jajp = beautify(req.responseText);
+      if (showStatusFrom >0 && selText.length >=showStatusFrom) XULBrowserWindow.statusTextField.label ="";
       document.getElementById("wayaku-box").setAttribute("label","Übersetzung " + quellsprache + " > " + zielsprache);
       wayaku = document.getElementById("wayaku");
       wayaku.style.fontSize = "12px";
