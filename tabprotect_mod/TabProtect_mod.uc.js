@@ -268,7 +268,7 @@ var tabProtect = {
                         document.createElement("menuitem"));
     menuitem.id = "tabProtect";
     menuitem.setAttribute("type", "checkbox");
-    menuitem.setAttribute("label", "Diesen Tab schützen");
+    menuitem.setAttribute("label", "Diesen Tab sch\u00FCtzen");
     menuitem.setAttribute("accesskey", "s");
     menuitem.setAttribute("oncommand","tabProtect.toggle(event);");
     tabContext.addEventListener('popupshowing',function(event){tabProtect.setCheckbox(event);},false);

@@ -42,7 +42,7 @@ var configArray = [
 // Ende der Konfiguration
 
 
-// WindowHook (ist für "DM in Hintergrundtab" bei startenden Downloads notwendig)
+// WindowHook (ist fuer "DM in Hintergrundtab" bei startenden Downloads notwendig)
 var WindowHook = {
 	observe: function(aSubject, aTopic, aData)
 	{

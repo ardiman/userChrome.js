@@ -26,7 +26,7 @@
 
     var lst = [
         {
-          label:"Groﬂ (+)",
+          label:"Gro\u00DF (+)",
           accesskey:"i",
           command:zoomIn
         },

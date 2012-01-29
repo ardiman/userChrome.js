@@ -97,7 +97,7 @@
 
 var forwardButton = document.createElement("toolbarbutton");
 	forwardButton.id = "viewForward-Button";
-	forwardButton.setAttribute("tooltiptext", "Eine Seite vor | zurück");
+	forwardButton.setAttribute("tooltiptext", "Eine Seite vor | zur\u00FCck");
 	//forwardButton.setAttribute("type", "menu");
 	forwardButton.setAttribute("observes", "viewForwardSidebar");
 	forwardButton.setAttribute("autoCheck", "false");

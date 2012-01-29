@@ -61,9 +61,9 @@ var DragNGo = {
   // obj     :'link, textlink, text, image, file' Zielobjekte
   // cmd     :function(self, event, info) {} /* info:{urls:[], texts:[], nodes:[], files:[], fname:[]}*/
   //          urls:link,image,file und textlinks, die url´s enthalten
-  //          texts:Link-Text für den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
+  //          texts:Link-Text fuer en Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
   //          nodes:DOM Knoten
-  //          fname:Vorgeschlagene Dateinamen für Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
+  //          fname:Vorgeschlagene Dateinamen fuer Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
   //
   RESTRICT_SELECTED_TEXT: true, //Nur den markierten Text:true, Zeichenfolgen(zB.Link-Url):false
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           addBookmarkInLastUsedFolder.uc.js
 // @namespace      addBookmarkInLastUsedFolder@ithinc.cn
-// @description    Hinzufügen eines Lesezeichens im zuletzt benutzten Ordner
+// @description    Hinzufuegen eines Lesezeichens im zuletzt benutzten Ordner
 // @author         ithinc
 // @version        1.0.0.1
 // @updateURL      https://j.mozest.com/ucscript/script/27.meta.js

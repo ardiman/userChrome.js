@@ -12,7 +12,7 @@
   const HIDE_ALL       = true; // falseならコンテンツの一番外側のスクロールバーのみ有効
   const HIDE_SCROLLBAR = false;
 
-  // Die fuenf 3px-Werte müssen gleich sein
+  // Die fuenf 3px-Werte muessen gleich sein
 
   var css = <![CDATA[
     html|html > scrollbar[orient="vertical"] > slider > thumb

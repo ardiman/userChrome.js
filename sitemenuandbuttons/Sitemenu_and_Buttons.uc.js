@@ -97,7 +97,7 @@ var utl={
  		//[上の階層に移動する]
  		var goupMenu = document.createElement("menu");
 		goupMenu.setAttribute("id", "goup-menu");
-		goupMenu.setAttribute("label", "Seiten Men�");
+		goupMenu.setAttribute("label", "Seiten Men\u00FC");
 		goupMenu.setAttribute("accesskey", "M");
 		// サブ・メニューの作成
 		var subPopup = document.createElement("menupopup");
@@ -139,7 +139,7 @@ var utl={
 			utlButton.id = "utl-button";
 			utlButton.style.listStyleImage = this._UTL_BUTTON;;
 			// 上の階層に移動する
-			utlButton.setAttribute("tooltiptext", "Linke Taste: Seiten zur�ck | Rechte Taste: Seiten Men�");
+			utlButton.setAttribute("tooltiptext", "Linke Taste: Seiten zur\u00FCck | Rechte Taste: Seiten Men\u00FC");
 			utlButton.setAttribute("class", "ucjs_utl toolbarbutton-1 ucjs-toolbarbutton-1");
 			utlButton.setAttribute("oncommand", "utl.goUp(); event.stopPropagation();");
 			if (this.UTL_BUTTON_TYPE){

@@ -509,9 +509,9 @@ USL.init = function(){
 			          id="UserScriptLoader-saveMenu"
 			          accesskey="S"
 			          oncommand="USL.saveScript();"/>
-			<menu label="Menü" id="UserScriptLoader-submenu">
+			<menu label="Men\u00FC" id="UserScriptLoader-submenu">
 				<menupopup id="UserScriptLoader-submenu-popup">
-					<menuitem label="Einstellungen löschen"
+					<menuitem label="Einstellungen l\u00F6schen"
 					          oncommand="USL.deleteStorage('pref');" />
 					<menuseparator/>
 					<menuitem label="Inaktive Scripte ausblenden"
@@ -520,7 +520,7 @@ USL.init = function(){
 					          type="checkbox"
 					          checked={USL.HIDE_EXCLUDE}
 					          oncommand="USL.HIDE_EXCLUDE = !USL.HIDE_EXCLUDE;" />
-					<menuitem label="Scriptordner öffnen"
+					<menuitem label="Scriptordner \u00F6ffnen"
 					          id="UserScriptLoader-openFolderMenu"
 					          accesskey="O"
 					          oncommand="USL.openFolder();" />

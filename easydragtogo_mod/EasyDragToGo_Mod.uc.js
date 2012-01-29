@@ -1,4 +1,4 @@
-// Bilder, Links, Übersetzung gehen in neuem Tab im Vordergrund auf
+// Bilder, Links, Uebersetzung gehen in neuem Tab im Vordergrund auf
 
 location == "chrome://browser/content/browser.xul" && (function(event) {
         var self = arguments.callee;
@@ -44,33 +44,33 @@ location == "chrome://browser/content/browser.xul" && (function(event) {
                                                 return;
                                         }
                                         if (direction == "R") {
-                                                //Bild in neuem Tab öffnen[rechts]
+                                                //Bild in neuem Tab oeffnen[rechts]
                                         gBrowser.selectedTab = gBrowser.addTab(event.dataTransfer.getData("text/x-moz-url").split("\n")[0]);
                                                 return;
                                         }
                                 } else if (getBrowserSelection()){
                                                 if (direction == "R") {
-                                        //Ausgewählten Text mit Google suchen[rechts]
+                                        //Ausgewaehlten Text mit Google suchen[rechts]
                                         gBrowser.selectedTab = gBrowser.addTab("http://www.google.com/search?q=" + t);
                                         return;
                                         }
                                         if (direction == "L") {
-                                        //Google Übersetzung aller Sprachen ins Deutsche des ausgewählten Textes[links]
+                                        //Google Uebersetzung aller Sprachen ins Deutsche des ausgewaehlten Textes[links]
                                         gBrowser.selectedTab = gBrowser.addTab("http://translate.google.com/translate_t?hl=de-DE#auto|de-DE|"+t);
                                         return;
                                         }
                                         if (direction == "D") {
-                                                //Ausgewählen Text speichern[runter]
+                                                //Ausgewaehlen Text speichern[runter]
                                                 saveImageURL("data:text/plain;charset=UTF-8;base64," + btoa(unescape(encodeURIComponent(event.dataTransfer.getData("text/unicode")))), event.dataTransfer.getData("text/unicode").slice(0, 5) + ".txt");
                                                 return;
                                         }
                                         if (direction == "U") {
-                                                //Identifizierung von Text-URLs und Öffnen in neuem Tab[hoch]
+                                                //Identifizierung von Text-URLs und Oeffnen in neuem Tab[hoch]
                                                 /^([a-z]+:\/\/)?([a-z]([a-z0-9\-]*\.)+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel)|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:[0-9]{1,5})?(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&amp;]*)?)?(#[a-z][a-z0-9_]*)?$/.test(event.dataTransfer.getData("text/unicode")) && (gBrowser.selectedTab = gBrowser.addTab(event.dataTransfer.getData("text/unicode")));
                                                 return;
                                         }
                                 } else if (event.dataTransfer.types.contains("text/x-moz-url")) {
-                                        //Link in neuem Tab öffnen[alle Seiten]
+                                        //Link in neuem Tab oeffnen[alle Seiten]
                                         gBrowser.selectedTab = gBrowser.addTab(event.dataTransfer.getData("text/x-moz-url").split("\n")[0]);
                                 }
                                 self.startPoint = 0;

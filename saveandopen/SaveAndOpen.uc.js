@@ -2,7 +2,7 @@ location == "chrome://mozapps/content/downloads/unknownContentType.xul" && (func
 	var saveAndOpen = document.getAnonymousElementByAttribute(document.querySelector("*"), "dlgtype", "extra2");
 	saveAndOpen.parentNode.insertBefore(saveAndOpen,document.documentElement.getButton("accept").nextSibling);
 	saveAndOpen.setAttribute("hidden", "false");
-	saveAndOpen.setAttribute("label", "Speichern & Öffnen");
+	saveAndOpen.setAttribute("label", "Speichern & \u00D6ffnen");
 	saveAndOpen.setAttribute("oncommand", 'Components.classes["@mozilla.org/browser/browserglue;1"].getService(Components.interfaces.nsIBrowserGlue).getMostRecentBrowserWindow().saveAndOpen.urls.push(dialog.mLauncher.source.asciiSpec);document.querySelector("#save").click();document.documentElement.getButton("accept").disabled=0;document.documentElement.getButton("accept").click()')
 })()
 

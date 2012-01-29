@@ -61,7 +61,7 @@ var UndoListInTabmenu = {
       // "Recently Closed Windows"
       menu = document.createElement("menu");
       menu.setAttribute("id", "historyUndoWindowMenu3");
-      menu.setAttribute("label", "Kürzlich geschlossene Fenster");
+      menu.setAttribute("label", "K\u00FCrzlich geschlossene Fenster");
       menu.setAttribute("accesskey", "F");
       menu.setAttribute("disabled", "true");
       popup.insertBefore(menu, refItem);
@@ -72,7 +72,7 @@ var UndoListInTabmenu = {
     }
 
     //UndoClose Tab List  æœ€è¿‘é–‰ã˜ãŸã‚¿ãƒ–
-    const LABELTEXT = locale.indexOf("ja") == -1?"Kürzlich geschlossene Tabs":"\u6700\u8fd1\u9589\u3058\u305f\u30bf\u30d6";    //create menu
+    const LABELTEXT = locale.indexOf("ja") == -1?"K\u00FCrzlich geschlossene Tabs":"\u6700\u8fd1\u9589\u3058\u305f\u30bf\u30d6";    //create menu
     menu = document.createElement("menu");
     menu.setAttribute("label", LABELTEXT);
     menu.setAttribute("accesskey", "T");
@@ -203,7 +203,7 @@ var UndoListInTabmenu = {
     undoPopup.appendChild(document.createElement("menuseparator"));
 
     m = undoPopup.appendChild(document.createElement("menuitem"));
-    m.setAttribute("label", "Liste der letzten Tabs löschen");
+    m.setAttribute("label", "Liste der letzten Tabs l\u00F6schen");
     m.setAttribute("accesskey", "T");
     m.addEventListener("command", function() {
       var max_undo = UndoListInTabmenu.getPref("browser.sessionstore.max_tabs_undo", "int", 10);
@@ -264,7 +264,7 @@ var UndoListInTabmenu = {
     undoPopup.appendChild(document.createElement("menuseparator"));
 
     m = undoPopup.appendChild(document.createElement("menuitem"));
-    m.setAttribute("label", "Liste der letzten Tabs löschen");
+    m.setAttribute("label", "Liste der letzten Tabs l\u00F6schen");
     m.setAttribute("class", "menuitem-iconic bookmark-item");
     m.setAttribute("accesskey", "T");
     m.addEventListener("command", function() {

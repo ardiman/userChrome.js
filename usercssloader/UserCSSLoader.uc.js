@@ -91,7 +91,7 @@ window.UCL = {
 		var menu = $E(
 			<menu id="usercssloader-menu" label="CSS" accesskey="C">
 				<menupopup id="usercssloader-menupopup">
-					<menu label={U("Style Loader Menü")}
+					<menu label={U("Style Loader Men\u00FC")}
 					      accesskey="C">
 						<menupopup id="usercssloader-submenupopup">
 							<menuitem label="Styles importieren"
@@ -102,7 +102,7 @@ window.UCL = {
 							<menuitem label={U("CSS Datei erstellen")}
 							          accesskey="N"
 							          oncommand="UCL.create();" />
-							<menuitem label={U("CSS Ordner öffnen")}
+							<menuitem label={U("CSS Ordner \u00F6ffnen")}
 							          accesskey="O"
 							          oncommand="UCL.openFolder();" />
 							<menuitem label={U("userChrome.css bearbeiten")}
@@ -276,7 +276,7 @@ window.UCL = {
 	},
 	edit: function(aFile) {
 		var editor = Services.prefs.getCharPref("view_source.editor.path");
-		if (!editor) return alert(U("Unter about:config den vorhandenen Schalter:\n view_source.editor.path mit dem Editorpfad ergänzen"));
+		if (!editor) return alert(U("Unter about:config den vorhandenen Schalter:\n view_source.editor.path mit dem Editorpfad erg\u00E4nzen"));
 		try {
 			var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
 			UI.charset = window.navigator.platform.toLowerCase().indexOf("win") >= 0? "Shift_JIS": "UTF-8";
