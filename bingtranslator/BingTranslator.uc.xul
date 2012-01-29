@@ -35,7 +35,7 @@
   beautify = function (s) {
     // Verschoenert das Uebersetzungsergebnis
     var ret;
-	ret = s.replace (/^"+/, '').replace (/"$/, '');
+    ret = s.replace (/^"+/, '').replace (/"$/, '');
     ret = ret.replace(/\\"/g,'"').replace(/\\\//g,'/').replace(/\\\\/g,String.fromCharCode(92));
     return ret;
   },
@@ -43,7 +43,7 @@
   mouseup = function(event) {
     var req, sel, selText, with_param;
     sel = window.content.getSelection();
-	selText = sel.toString();
+    selText = sel.toString();
     if (!selText.length) return;
     // die folgende Zeile aktivieren, wenn nur mit gedrueckter Shift-Taste uebersetzt werden soll:
     // if (!event.shiftKey) return;
@@ -57,7 +57,7 @@
     // Ende Mittelklick
     zielsprache="de";
     quellsprache="";
-	selText = selText.replace(/^"/g,"").replace(/^ "/,"");
+    selText = selText.replace(/^"/g,"").replace(/^ "/,"");
     // falls Sprache nicht erkannt werden soll, die naechste Zeile deaktivieren:
     quellsprache=detectlang(selText);
     if (quellsprache.length==0) quellsprache="en";
