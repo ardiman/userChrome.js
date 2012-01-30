@@ -1,18 +1,17 @@
 // ==UserScript==
 // @name  MemoryMonitorMod.uc.js
 // @compatibility  Firefox 9.*
-// @description  Ermittelt Speicherverbrauch, bei Ueberschreitung der maximalen Speicherauslastung kann automatischer Neustart durchgefuehrt werden
+// @description  Bei Ueberschreitung der maximalen Speicherauslastung kann automatischer Neustart durchgefuehrt werden
 // @include  main
 // @note  Bezug: about:memory
 // @note  http://loda.jp/script/?id=584
 // @note  Version auf https://github.com/ardiman/userChrome.js um _autoRestart und Fehlerumgehung bei gfx-surface-image ergaenzt
 // ==/UserScript==
 var ucjs_MemoryMonitor = {
-
-  // ---------------------------------Konfiguration (Anfang)
+  // ---------------------------------setting data-----------------------------
   // Update-Intervall[ms]
   _interval: 2000,
-  // Neustart bei folgender maximaler Speichernutzung (Achtung! Anpassen an die darunter gewaehlte Speichereinheit)
+  // Neustart bei maximaler Speichernutzung (Achtung! Anpassen an die darunter gewaehlte Speichereinheit)
   _maxMemory: 1500,
   // Speicher-Einheit: B, KB, KiB, MB, MiB, GB, GiB
   _prefix: "MB",
@@ -20,8 +19,7 @@ var ucjs_MemoryMonitor = {
   _dPrefix: true,
   // automatischen Restart bei Ueberschreitung von _maxMemory durchfuehren
   _autoRestart: false,
-  // ---------------------------------Konfiguration (Ende)
-
+  // --------------------------------------------------------------------------
   interval: null,
   init: function () {
     var memoryPanel = document.createElement("statusbarpanel");
@@ -85,7 +83,7 @@ var ucjs_MemoryMonitor = {
         gMemReporters[mr.path] = mr;
       }
       var workingSet = gMemReporters["resident"].amount;
-      var commitmentSize = gMemReporters["private"].amount;
+	  var commitmentSize=(typeof(gMemReporters["private"])!="undefined" ? gMemReporters["private"].amount : 0);
       var gfxImage=(typeof(gMemReporters["gfx-surface-image"])!="undefined" ? gMemReporters["gfx-surface-image"].amount : 0);
       var restartMemory = ucjs_MemoryMonitor.getSize(ucjs_MemoryMonitor._maxMemory, true);
       var memoryPanel = document.getElementById("MemoryDisplay");
