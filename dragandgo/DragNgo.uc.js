@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
 // @author         Alice0775
+// @version        2012/01/30 01:00 tavClose, this.sourcenode = null;
 // @version        2011/07/22 21:00 Bug 50660 [FILE]Drag and drop for file upload form control (Fx7 and later)
 // @version        2011/06/23 16:00 browser.tabs.loadInBackgroundに関わらずtabおよびtabshiftedはそれぞれ強制的に前面および背面に開く
 // @version        2011/06/23 16:00 openLinkInにした
@@ -56,12 +57,12 @@ if (typeof Cr != 'object' ) { var Cr = Components.results;}
 //////////// Drag and Dorp bserver: replace contentAreaDNDObserver with it. ///////////////////
 var DragNGo = {
   // dir     :'UDLR',
-  // modifier:'shift,ctrl,alt', //alt ist ist so effektiv
+  // modifier:'shift,ctrl,alt', //alt ist nicht so effektiv
   // name    :'hoge'
   // obj     :'link, textlink, text, image, file' Zielobjekte
   // cmd     :function(self, event, info) {} /* info:{urls:[], texts:[], nodes:[], files:[], fname:[]}*/
   //          urls:link,image,file und textlinks, die url´s enthalten
-  //          texts:Link-Text fuer en Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
+  //          texts:Link-Text fuer den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
   //          nodes:DOM Knoten
   //          fname:Vorgeschlagene Dateinamen fuer Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
   //
@@ -1566,6 +1567,9 @@ var DragNGo = {
       case 'dragstart':
         this.dragstart(event);
         break;
+      case 'pagehide':
+        this.sourcenode = null;
+        break;
       case 'unload':
         this.uninit();
         break;
@@ -1573,6 +1577,7 @@ var DragNGo = {
   },
 
   init: function() {
+    gBrowser.addEventListener('pagehide', this, false);
     gBrowser.addEventListener('dragend', this, false);
     gBrowser.addEventListener('drop', this, false);
     gBrowser.addEventListener('dragover', this, false);
@@ -1609,6 +1614,7 @@ var DragNGo = {
   },
 
   uninit: function() {
+    gBrowser.removeEventListener('pagehide', this, false);
     gBrowser.removeEventListener('dragend', this, false);
     gBrowser.removeEventListener('drop', this, false);
     gBrowser.removeEventListener('dragover', this, false);
