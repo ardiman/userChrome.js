@@ -91,7 +91,7 @@ window.UCL = {
 		var menu = $E(
 			<menu id="usercssloader-menu" label="CSS" accesskey="C">
 				<menupopup id="usercssloader-menupopup">
-					<menu label={U("Style Loader Men\u00FC")}
+					<menu label={U("Style Loader Menü")}
 					      accesskey="C">
 						<menupopup id="usercssloader-submenupopup">
 							<menuitem label="Styles importieren"
@@ -102,7 +102,7 @@ window.UCL = {
 							<menuitem label={U("CSS Datei erstellen")}
 							          accesskey="N"
 							          oncommand="UCL.create();" />
-							<menuitem label={U("CSS Ordner \u00F6ffnen")}
+							<menuitem label={U("CSS Ordner öffnen")}
 							          accesskey="O"
 							          oncommand="UCL.openFolder();" />
 							<menuitem label={U("userChrome.css bearbeiten")}
