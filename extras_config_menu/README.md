@@ -50,6 +50,5 @@ Wird `showNormalPrefs` auf `1` gesetzt, so können auch die Firefox-Einstellunge
 
 `enableScriptsToClip` auf `1` bietet die Möglichkeit, die Liste der eingebundenen Skripte in die Zwischenablage zu übernehmen.
 
-
-## Anmerkung
-Ursprünglich lagen hier uc.xul-Dateien. Durch das Umschreiben ins uc.js-Format sind diese Varianten nicht mehr nötig und wurden deshalb gelöscht.
+`enableRestart` auf 1 erzwingt den Neustart-Eintrag im Menü. Dies kann nützlich sein, wenn man das Skript "Add Restart Button" installiert hat, dieses 
+aber nicht automatisch erkannt wird (wurde unter Linux beobachtet).
