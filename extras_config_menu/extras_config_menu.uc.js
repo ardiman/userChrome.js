@@ -3,14 +3,14 @@
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
 // @include        main
-// @version        1.0.20120125
+// @version        1.0.20120131
 // ==/UserScript==
 -->
 
 var uProfMenu = {
   // Beginn der Konfiguration
   // In der folgenden Zeile (12) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
-  TextOpenExe : 'C:\\Programme\\Sonstige\\npp\\App\\Notepad++\\notepad++.exe',
+  TextOpenExe : 'C:\\Programme\\Sonstige\\Notepad++\\notepad++.exe',
   // Falls gewuenscht, in Zeile 16 einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
   // vFileManager: 'C:\\Program Files (x86)\\FreeCommander\\FreeCommander.exe'
@@ -34,6 +34,8 @@ var uProfMenu = {
   showNormalPrefs: 0,
   // Stellt "Skriptliste in Zwischenablage" zur Verfuegung (1) oder nicht (0):
   enableScriptsToClip: 0,
+  // Um den Eintrag "Neustart" zu erzwingen (falls z.B. das andere Skript zu spaet eingebunden und nicht erkannt wird), auf 1 setzen:
+  enableRestart: 0,
   // Ende der Konfiguration
   
   init: function() {
@@ -130,7 +132,8 @@ var uProfMenu = {
     // Falls gewuenscht (s. Konfigurationsabschnitt), Zugriff auf die normalen Einstellungen
     if (this.showNormalPrefs) menupopup.appendChild(this.createME("menuitem","Einstellungen","try{openOptionsDialog();}catch(e){openPreferences();}","uProfMenu_prefs"),0);
     // Falls addRestartButton installiert ist, Neustart zur Verfuegung stellen (addRestartButton 1.0.20120105mod erforderlich)
-    if(typeof(ToolRstartMod) != "undefined") menupopup.appendChild(this.createME("menuitem","Neustart","ToolRstartMod.SaveRestart(event,1);","uProfMenu_restart"),0);
+    if(typeof(ToolRstartMod) != "undefined" || this.enableRestart) menupopup.appendChild(this.createME("menuitem","Neustart",
+      "try{ToolRstartMod.SaveRestart(event,1);} catch(e){alert(e);}","uProfMenu_restart"),0);
   },
 
 
