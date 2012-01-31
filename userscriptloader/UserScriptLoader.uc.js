@@ -1,27 +1,28 @@
 // ==UserScript==
 // @name           UserScriptLoader.uc.js
-// @description    Greasemonkey ?????
+// @description    Greasemonkey ã£ã½ã„ã‚‚ã®
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.1
-// @note           0.1.7.1 .tld ?????????????????
-// @note           ??????
-// @note           ???????????????????????????????????
-// @note           ?????????????????????????
-// @note           .user.js ?? window ???????????
-// @note           .tld ??????
-// @note           ??????????????????????
-// @note           GM_safeHTMLParser, GM_generateUUID ???
-// @note           GM_unregisterMenuCommand, GM_enableMenuCommand, GM_disableMenuCommand ???
-// @note           GM_getMetadata ???(???? Array or undefined)
-// @note           GM_openInTab ??2?????
-// @note           @require, @resource ????????????????????
-// @note           @delay ???
-// @note           @bookmarklet ???(from NinjaKit)
-// @note           GLOBAL_EXCLUDES ?????
-// @note           ?????????????
+// @version        0.1.7.2
+// @note           0.1.7.2 document-startãŒæ©Ÿèƒ½ã—ã¦ã„ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
+// @note           0.1.7.1 .tld ãŒã†ã¾ãå‹•ä½œã—ã¦ã„ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
+// @note           æ›¸ããªãŠã—ãŸ
+// @note           ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ç·¨é›†æ™‚ã«æ—¥æœ¬èªžã®ãƒ•ã‚¡ã‚¤ãƒ«åã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
+// @note           è¤‡æ•°ã®ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ã‚’é–‹ãã¨ãƒã‚°ã‚‹ã“ã¨ãŒã‚ã£ãŸã®ã‚’ä¿®æ­£
+// @note           .user.js é–“ã§ window ã‚’å…±æœ‰ã§ãã‚‹ã‚ˆã†ã«ä¿®æ­£
+// @note           .tld ã‚’ç°¡ç•¥åŒ–ã—ãŸ
+// @note           ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ãªã„ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’è¿½åŠ 
+// @note           GM_safeHTMLParser, GM_generateUUID ã«å¯¾å¿œ
+// @note           GM_unregisterMenuCommand, GM_enableMenuCommand, GM_disableMenuCommand ã«å¯¾å¿œ
+// @note           GM_getMetadata ã«å¯¾å¿œ(è¿”ã‚Šå€¤ã¯ Array or undefined)
+// @note           GM_openInTab ã«ç¬¬ï¼’å¼•æ•°ã‚’è¿½åŠ 
+// @note           @require, @resource ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ•ã‚©ãƒ«ãƒ€ã«ä¿å­˜ã™ã‚‹ã‚ˆã†ã«ã—ãŸ
+// @note           @delay ã«å¯¾å¿œ
+// @note           @bookmarklet ã«å¯¾å¿œï¼ˆfrom NinjaKitï¼‰
+// @note           GLOBAL_EXCLUDES ã‚’ç”¨æ„ã—ãŸ
+// @note           ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ã‚’è»½è¦–ã—ã¦ã¿ãŸ
 // ==/UserScript==
 
 (function (css) {
@@ -98,7 +99,7 @@ USL.ScriptEntry.prototype = {
 		this.requireSrc = "";
 		this.resources = {};
 
-		this.run_at = "run-at" in this.metadata ? this.metadata["run-at"] : "document-end";
+		this.run_at = "run-at" in this.metadata ? this.metadata["run-at"][0] : "document-end";
 		this.name = "name" in this.metadata ? this.metadata.name[0] : this.leafName;
 		if (this.metadata.delay) {
 			let delay = parseInt(this.metadata.delay[0], 10);
@@ -476,8 +477,7 @@ USL.getFocusedWindow = function () {
 USL.init = function(){
 	USL.loadSetting();
 	USL.style = addStyle(css);
-/* diesen Abschnitt aktivieren fuer Button in der Statusbar
-/* 
+/*
 	USL.icon = $('status-bar').appendChild($E(
 		<statusbarpanel id="UserScriptLoader-icon" 
 		                class="statusbarpanel-iconic"
@@ -486,12 +486,11 @@ USL.init = function(){
 		                style="text-decoration: none;"/>
 	));
 */
-/* Abschnitt fuer Button in der Urlbar */
 	USL.icon = $('urlbar-icons').appendChild($E(
 		<image id="UserScriptLoader-icon" 
 		       context="UserScriptLoader-popup" 
 		       onclick="USL.iconClick(event);"
-		       style="padding: 0px 0px;"/>
+		       style="padding: 0px 2px;"/>
 	));
 	
 	USL.popup = $('mainPopupSet').appendChild($E(
@@ -509,9 +508,9 @@ USL.init = function(){
 			          id="UserScriptLoader-saveMenu"
 			          accesskey="S"
 			          oncommand="USL.saveScript();"/>
-			<menu label="Men\u00FC" id="UserScriptLoader-submenu">
+			<menu label="Menü" id="UserScriptLoader-submenu">
 				<menupopup id="UserScriptLoader-submenu-popup">
-					<menuitem label="Einstellungen l\u00F6schen"
+					<menuitem label="Bevorzugten Speicher löschen"
 					          oncommand="USL.deleteStorage('pref');" />
 					<menuseparator/>
 					<menuitem label="Inaktive Scripte ausblenden"
@@ -520,7 +519,7 @@ USL.init = function(){
 					          type="checkbox"
 					          checked={USL.HIDE_EXCLUDE}
 					          oncommand="USL.HIDE_EXCLUDE = !USL.HIDE_EXCLUDE;" />
-					<menuitem label="Scriptordner \u00F6ffnen"
+					<menuitem label="Scriptordner öffnen"
 					          id="UserScriptLoader-openFolderMenu"
 					          accesskey="O"
 					          oncommand="USL.openFolder();" />
@@ -826,7 +825,7 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	var locationHref = safeWindow.location.href;
 
 	if (locationHref == "" && aDocument.URL == "about:blank") {
-		// document-start ?????????????????????�
+		// document-start ã§ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’é–‹ã„ãŸéš›ã«ã¡ã‚‡ã£ã¨ãŠã‹ã—ã„ã®ã§â€¦
 		if (rsflag) return;
 		safeWindow.addEventListener('readystatechange', function(event){
 			if (event.target.URL === "about:blank") return;
@@ -1066,7 +1065,7 @@ function debug() { if (USL.DEBUG) Application.console.log('[USL DEBUG] ' + Array
 
 // http://gist.github.com/321205
 function $(id) document.getElementById(id);
-function U(text) 1 < '?'.length ? decodeURIComponent(escape(text)) : text;
+function U(text) 1 < 'ã‚'.length ? decodeURIComponent(escape(text)) : text;
 function $E(xml, doc) {
 	doc = doc || document;
 	xml = <root xmlns={doc.documentElement.namespaceURI}/>.appendChild(xml);
