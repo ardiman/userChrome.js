@@ -8,3 +8,6 @@ Die **Konfiguration des Skripts**:
 
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+
+## Hinweis
+Auto Contextmenu funktioniert nicht, wenn das Skript [Mouse Gestures](https://github.com/ardiman/userChrome.js/tree/master/mousegestures) installiert ist.
