@@ -2,11 +2,11 @@
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <popup id="contentAreaContextMenu">
     <menuitem id="context_closeLeftTabs"
-              label="Linken Tab schließen"
+              label="Linke Tabs schließen"
               accesskey="L"
               oncommand="gBrowser.closeLeftTabs(gBrowser.mContextTab);"/>
     <menuitem id="context_closeRightTabs"
-              label="Rechten Tab schließen"
+              label="Rechte Tabs schließen"
               accesskey="R"
               oncommand="gBrowser.closeRightTabs(gBrowser.mContextTab);"/>
   </popup>
