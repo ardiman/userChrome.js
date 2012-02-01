@@ -1,5 +1,5 @@
 # Close Tab in Context
-Mit diesem Skript kann man durch 2 neue Einträge, jeweils den rechten, oder den linken Tab über das Hauptkontextmenü schließen.
+Mit diesem Skript kann man durch 2 neue Einträge die rechts oder links befindlichen Tabs über das Hauptkontextmenü schließen.
 
 Das **Ergebnis des Skripts**:
 
