@@ -13,3 +13,5 @@ Das **Ergebnis des Skripts**:
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
 
+## Hinweis
+Speeddial_light stört die Funktion des Skriptes [WebScreenShot](https://github.com/ardiman/userChrome.js/tree/master/webscreenshot).
