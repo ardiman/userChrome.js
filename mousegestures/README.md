@@ -18,3 +18,6 @@ Hintergrund geschehen soll, muss die Zeile mit dem zweiten Treffer von *MANUAL_P
 
 ## Installation
 Kopiere die uc.js-Datei und die Datei *MouseGesturesManual.html* in den Chromeordner des Profils.
+
+## Hinweis
+Mouse Gestures stört die Funktion des Skriptes [Auto Contextmenu](https://github.com/ardiman/userChrome.js/tree/master/autocontextmenu).
