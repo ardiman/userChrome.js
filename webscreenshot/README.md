@@ -11,3 +11,5 @@ Das **Ergebnis des Skripts**:
 ## Installation
 Kopiere die uc.xul-Datei in den Chromeordner des Profils.
 
+## Hinweis
+WebScreenShot funktioniert nicht, wenn das Skript [Speeddial_light](https://github.com/ardiman/userChrome.js/tree/master/speeddial_light) installiert ist.
