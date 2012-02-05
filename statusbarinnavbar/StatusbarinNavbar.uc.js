@@ -47,6 +47,7 @@
 
 	// ステータスパネルをメニューバー内に
 	var statusBar = document.getElementById('status-bar');
+	// var statusBar = document.getElementById("addon-bar");
 	statusBar.setAttribute('context', '');
 	display.hidden = true;
 	var insert = document.getElementById('search-container') || document.getElementById('urlbar-container');
