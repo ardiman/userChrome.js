@@ -1,6 +1,6 @@
 # User Script Loader
-Alle Greasemonkeyskripte des Ordners "UserScriptLoader" im Chromeverzeichnis werden von der Platte entweder einzeln, oder 
-automatisch geladen. Dazu gibt es noch paar andere sehr nützliche Einstellungen, die ein neues Menü im Form eines Buttons mit 
+Alle Greasemonkeyskripte des Ordners "UserScriptLoader" im Chromeverzeichnis werden von der Platte entweder einzeln oder 
+automatisch geladen. Dazu gibt es noch ein paar andere sehr nützliche Einstellungen, die ein neues Menü im Form eines Buttons mit 
 sich bringt, der sich neben dem Dropmarker in der Urlbar platziert. Die Skripte werden, genau wie beim User CSS Loader 
 alphabetisch im Menüpopup dargestellt, können ein-/ausgeschaltet und natürlich auch mit einem Rechtsklick im Editor 
 bearbeitet werden, den man vorher selber definiert hat.
