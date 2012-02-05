@@ -19,6 +19,7 @@
     smallmenuPopup.appendChild(label3);
 
     var statusbarW = document.getElementById("status-bar");
+    // var statusbarW = document.getElementById("addon-bar");
     var smallmenu = document.createElement("menuitem");
     smallmenu.setAttribute("id","smallmenuId");
     smallmenu.setAttribute("class","statusbarpanel-menu-iconic");
