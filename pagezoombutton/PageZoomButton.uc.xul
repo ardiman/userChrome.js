@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="data:text/css,
 @namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
 @namespace%20html%20url('http://www.w3.org/1999/xhtml');
@@ -108,11 +108,7 @@ window.addEventListener("load", initZoomButtons, false);
       <tooltip id="pagezoom-button-tooltip">
         <vbox>
           <label value="Links-Klick: Vergrößern" />
-		  <label value="Links-Klick + Scrollen: Vergrößern" />
-		  <menuseparator/>
           <label value="Rechts-Klick: Verkleinern" />
-		  <label value="Rechts-Klick + Scrollen: Verkleinern" />
-		  <menuseparator/>
           <label value="Mittel-Klick: Normal" />
           <label value="Shift + Links-Klick: Normal" />
         </vbox>
