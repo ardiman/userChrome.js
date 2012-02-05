@@ -9,3 +9,5 @@ Das **Ergebnis des Skripts** in der Add-on Bar:
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
 
+## Hinweis
+Je nach Firefox-Konfiguration lässt sich die die status-bar oder addon-bar anpassen (s. Zeilen 21+22 `var statusbarW =`).
