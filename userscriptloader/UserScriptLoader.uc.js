@@ -1,28 +1,31 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name           UserScriptLoader.uc.js
-// @description    Greasemonkey ã£ã½ã„ã‚‚ã®
+// @description    Greasemonkey っぽいもの
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.2
-// @note           0.1.7.2 document-startãŒæ©Ÿèƒ½ã—ã¦ã„ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
-// @note           0.1.7.1 .tld ãŒã†ã¾ãå‹•ä½œã—ã¦ã„ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
-// @note           æ›¸ããªãŠã—ãŸ
-// @note           ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ç·¨é›†æ™‚ã«æ—¥æœ¬èªžã®ãƒ•ã‚¡ã‚¤ãƒ«åã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ãªã‹ã£ãŸã®ã‚’ä¿®æ­£
-// @note           è¤‡æ•°ã®ã‚¦ã‚¤ãƒ³ãƒ‰ã‚¦ã‚’é–‹ãã¨ãƒã‚°ã‚‹ã“ã¨ãŒã‚ã£ãŸã®ã‚’ä¿®æ­£
-// @note           .user.js é–“ã§ window ã‚’å…±æœ‰ã§ãã‚‹ã‚ˆã†ã«ä¿®æ­£
-// @note           .tld ã‚’ç°¡ç•¥åŒ–ã—ãŸ
-// @note           ã‚¹ã‚¯ãƒªãƒ—ãƒˆã‚’ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã—ãªã„ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’è¿½åŠ 
-// @note           GM_safeHTMLParser, GM_generateUUID ã«å¯¾å¿œ
-// @note           GM_unregisterMenuCommand, GM_enableMenuCommand, GM_disableMenuCommand ã«å¯¾å¿œ
-// @note           GM_getMetadata ã«å¯¾å¿œ(è¿”ã‚Šå€¤ã¯ Array or undefined)
-// @note           GM_openInTab ã«ç¬¬ï¼’å¼•æ•°ã‚’è¿½åŠ 
-// @note           @require, @resource ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ãƒ•ã‚©ãƒ«ãƒ€ã«ä¿å­˜ã™ã‚‹ã‚ˆã†ã«ã—ãŸ
-// @note           @delay ã«å¯¾å¿œ
-// @note           @bookmarklet ã«å¯¾å¿œï¼ˆfrom NinjaKitï¼‰
-// @note           GLOBAL_EXCLUDES ã‚’ç”¨æ„ã—ãŸ
-// @note           ã‚»ã‚­ãƒ¥ãƒªãƒ†ã‚£ã‚’è»½è¦–ã—ã¦ã¿ãŸ
+// @version        0.1.7.5
+// @note           0.1.7.5 0.1.7.4 にミスがあったので修正
+// @note           0.1.7.4 GM_xmlhttpRequest の url が相対パスが使えなかったのを修正
+// @note           0.1.7.3 Google Reader NG Filterがとりあえず動くように修正
+// @note           0.1.7.2 document-startが機能していなかったのを修正
+// @note           0.1.7.1 .tld がうまく動作していなかったのを修正
+// @note           書きなおした
+// @note           スクリプトを編集時に日本語のファイル名のファイルを開けなかったのを修正
+// @note           複数のウインドウを開くとバグることがあったのを修正
+// @note           .user.js 間で window を共有できるように修正
+// @note           .tld を簡略化した
+// @note           スクリプトをキャッシュしないオプションを追加
+// @note           GM_safeHTMLParser, GM_generateUUID に対応
+// @note           GM_unregisterMenuCommand, GM_enableMenuCommand, GM_disableMenuCommand に対応
+// @note           GM_getMetadata に対応(返り値は Array or undefined)
+// @note           GM_openInTab に第２引数を追加
+// @note           @require, @resource のファイルをフォルダに保存するようにした
+// @note           @delay に対応
+// @note           @bookmarklet に対応（from NinjaKit）
+// @note           GLOBAL_EXCLUDES を用意した
+// @note           セキュリティを軽視してみた
 // ==/UserScript==
 
 (function (css) {
@@ -240,6 +243,8 @@ USL.API = function(script, sandbox, win, doc) {
 	this.GM_xmlhttpRequest = function(obj) {
 		if(typeof(obj) != 'object' || (typeof(obj.url) != 'string' && !(obj.url instanceof String))) return;
 
+		var baseURI = Services.io.newURI(win.location.href, null, null);
+		obj.url = Services.io.newURI(obj.url, null, baseURI).spec;
 		var req = new XMLHttpRequest();
 		req.open(obj.method || 'GET',obj.url,true);
 		if(typeof(obj.headers) == 'object') for(var i in obj.headers) req.setRequestHeader(i,obj.headers[i]);
@@ -825,7 +830,7 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	var locationHref = safeWindow.location.href;
 
 	if (locationHref == "" && aDocument.URL == "about:blank") {
-		// document-start ã§ãƒ•ãƒ¬ãƒ¼ãƒ ã‚’é–‹ã„ãŸéš›ã«ã¡ã‚‡ã£ã¨ãŠã‹ã—ã„ã®ã§â€¦
+		// document-start でフレームを開いた際にちょっとおかしいので…
 		if (rsflag) return;
 		safeWindow.addEventListener('readystatechange', function(event){
 			if (event.target.URL === "about:blank") return;
@@ -906,7 +911,7 @@ USL.injectScripts = function(safeWindow, rsflag) {
 		sandbox.unsafeWindow = safeWindow.wrappedJSObject;
 		sandbox.document     = safeWindow.document;
 		sandbox.console      = console;
-		sandbox.window       = winObj;
+		sandbox.window       = script.run_at === "document-start" ? safeWindow : winObj;
 
 		sandbox.__proto__ = safeWindow;
 		USL.evalInSandbox(script, sandbox);
@@ -1065,7 +1070,7 @@ function debug() { if (USL.DEBUG) Application.console.log('[USL DEBUG] ' + Array
 
 // http://gist.github.com/321205
 function $(id) document.getElementById(id);
-function U(text) 1 < 'ã‚'.length ? decodeURIComponent(escape(text)) : text;
+function U(text) 1 < 'あ'.length ? decodeURIComponent(escape(text)) : text;
 function $E(xml, doc) {
 	doc = doc || document;
 	xml = <root xmlns={doc.documentElement.namespaceURI}/>.appendChild(xml);
