@@ -5,6 +5,8 @@
 // @include        main
 // @compatibility  Firefox 6.0 7.0
 // @author
+// @version        2012/01/31 11:00 by Alice0775  12.0a1 about:newtab
+// @version        2011/06/24 data:等は無視
 // @version        2011/06/24 Bug 665580
 // @version        2011/06/10
 // @Note
@@ -123,6 +125,8 @@ var ProminentDomain = {
   prettyView: function()
   {
     var aURI = gURLBar.value;
+    if (/^(data:|javascript:|chrome:|view-|about:)/.test(aURI))
+      return;
     try {
       var ioService = Components.classes['@mozilla.org/network/io-service;1']
                       .getService(Components.interfaces.nsIIOService);
@@ -133,7 +137,7 @@ var ProminentDomain = {
     {
       return;
     }
-    if (aURI != "about:blank")
+    if ("isBlankPageURL" in window ? !isBlankPageURL(aURI) : aURI != "about:blank")
       gURLBar.removeAttribute("isempty");
     this.label.style.setProperty("visibility", "visible", "");
 
@@ -204,4 +208,3 @@ var ProminentDomain = {
   }
 }
 ProminentDomain.init0();
-

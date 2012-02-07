@@ -1,10 +1,11 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name           DragNgoModoki_Fx3.7.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    ファイル名をD&D
 // @include        main
 // @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
 // @author         Alice0775
+// @version        2012/01/31 11:00 by Alice0775  12.0a1 about:newtab
 // @version        2012/01/30 01:00 tavClose, this.sourcenode = null;
 // @version        2011/07/22 21:00 Bug 50660 [FILE]Drag and drop for file upload form control (Fx7 and later)
 // @version        2011/06/23 16:00 browser.tabs.loadInBackgroundに関わらずtabおよびtabshiftedはそれぞれ強制的に前面および背面に開く
@@ -62,9 +63,9 @@ var DragNGo = {
   // obj     :'link, textlink, text, image, file' Zielobjekte
   // cmd     :function(self, event, info) {} /* info:{urls:[], texts:[], nodes:[], files:[], fname:[]}*/
   //          urls:link,image,file und textlinks, die url´s enthalten
-  //          texts:Link-Text fuer den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
+  //          texts:Link-Text für den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
   //          nodes:DOM Knoten
-  //          fname:Vorgeschlagene Dateinamen fuer Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
+  //          fname:Vorgeschlagene Dateinamen für Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
   //
   RESTRICT_SELECTED_TEXT: true, //Nur den markierten Text:true, Zeichenfolgen(zB.Link-Url):false
 
@@ -279,7 +280,7 @@ var DragNGo = {
       if (/tab|window/.test(where) && (
           !gBrowser.mCurrentBrowser.docShell.busyFlags &&
           !gBrowser.mCurrentBrowser.docShell.restoringDocument &&
-           gBrowser.currentURI.spec == "about:blank" ||
+          ("isBlankPageURL" in window ? isBlankPageURL(gBrowser.currentURI.spec) : gBrowser.currentURI.spec == "about:blank") ||
           this.currentRegExp.test(url)))
         where = 'current';
       switch (where) {
@@ -356,7 +357,7 @@ var DragNGo = {
       if (/tab|window/.test(where) && (
           !gBrowser.mCurrentBrowser.docShell.busyFlags &&
           !gBrowser.mCurrentBrowser.docShell.restoringDocument &&
-           gBrowser.currentURI.spec == "about:blank" ||
+           ("isBlankPageURL" in window ? isBlankPageURL(gBrowser.currentURI.spec) : gBrowser.currentURI.spec == "about:blank") ||
           self.currentRegExp.test(url)))
         where = 'current';
       switch (where) {
@@ -975,7 +976,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('xpi und jar Installation', 0, true);
+        this.setStatusMessage('xpi oder jar Installation', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -1313,7 +1314,7 @@ var DragNGo = {
       }
     }; // GESTURES
     if (!dragSession.canDrop) {
-      self.setStatusMessage('Nicht definiert', 0, false);
+      self.setStatusMessage('Undefiniert', 0, false);
     }
   },
 

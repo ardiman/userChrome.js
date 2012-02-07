@@ -1,11 +1,12 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name           UserScriptLoader.uc.js
 // @description    Greasemonkey っぽいもの
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.5
+// @version        0.1.7.6
+// @note           0.1.7.6 require で外部ファイルの取得がうまくいかない場合があるのを修正
 // @note           0.1.7.5 0.1.7.4 にミスがあったので修正
 // @note           0.1.7.4 GM_xmlhttpRequest の url が相対パスが使えなかったのを修正
 // @note           0.1.7.3 Google Reader NG Filterがとりあえず動くように修正
@@ -1005,7 +1006,7 @@ USL.saveSetting = function() {
 	USL.saveText(aFile, JSON.stringify(USL.database));
 };
 
-USL.getContents = function(aURL, callback){
+USL.getContents_old = function(aURL, callback){
 	try {
 		urlSecurityCheck(aURL, gBrowser.contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
 	} catch(ex) {
@@ -1036,6 +1037,42 @@ USL.getContents = function(aURL, callback){
 		callback: callback
 	};
 	channel.asyncOpen(listener, null);
+	USL.debug("getContents: " + aURL);
+};
+
+USL.getContents = function(aURL, aCallback){
+	try {
+		urlSecurityCheck(aURL, gBrowser.contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
+	} catch(ex) {
+		return;
+	}
+	var uri = Services.io.newURI(aURL, null, null);
+	if (uri.scheme != 'http' && uri.scheme != 'https')
+		return USL.error('getContents is "http" or "https" only');
+
+	let aFile = USL.REQUIRES_FOLDER.clone();
+	aFile.QueryInterface(Ci.nsILocalFile);
+	aFile.appendRelativePath(encodeURIComponent(aURL));
+
+	var wbp = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+	if (aCallback) {
+		wbp.progressListener = {
+			onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+				if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP){
+					let channel = aRequest.QueryInterface(Ci.nsIHttpChannel);
+					let bytes = USL.loadBinary(aFile);
+					aCallback(bytes, channel.contentType);
+					return;
+				}
+			},
+			onLocationChange: function(aProgress, aRequest, aURI){},
+			onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {},
+			onStatusChange: function(aWebProgress, aRequest, aStatus, aMessage) {},
+			onSecurityChange: function(aWebProgress, aRequest, aState) {},
+			onLinkIconAvailable: function(aIconURL) {},
+		}
+	}
+	wbp.saveURI(uri, null, null, null, null, aFile);
 	USL.debug("getContents: " + aURL);
 };
 
@@ -1109,5 +1146,3 @@ function addStyle(css) {
 
 
 ]]>.toString().replace(/[\r\n\t]/g, ''));
-
-

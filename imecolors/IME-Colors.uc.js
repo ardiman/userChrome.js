@@ -2,8 +2,10 @@
 // @name           IME-Colors.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
-// @version        0.0.5
-// @note           Firefox 5.0 で動くように微修正。 3.6 とかもう(ﾟ⊿ﾟ)ｼﾗ
+// @license        MIT License
+// @version        0.0.6
+// @note           IME_DISABLE_STYLE を空にすれば IME が OFF の時は色を変えないようにできるようにした
+// @note           0.0.5 Firefox 5.0 で動くように微修正。 3.6 とかもう(ﾟ⊿ﾟ)ｼﾗﾈ
 // ==/UserScript==
 
 (function() {
@@ -19,7 +21,7 @@ IMEColorsClass.prototype = {
 //		'background-color': '#fed',
 		'color': 'black',
 	},
-	IME_DISABLE_STYLE: {
+	IME_DISABLE_STYLE: { // IME OFF の時に色を変えたくなければこの括弧を空にする
 		'background-image': '-moz-linear-gradient(left, #def, #eff)',
 //		'background-color': '#def',
 		'color': 'black',
@@ -64,8 +66,12 @@ IMEColorsClass.prototype = {
 		var ime = this.inputFieldStyle.imeMode == 'disabled'? false : this.utils.IMEIsOpen;
 		if (this.state == ime) return;
 
-		var obj = ime? this.IME_ENABLE_STYLE : this.IME_DISABLE_STYLE;
+		var obj  = ime? this.IME_ENABLE_STYLE : this.IME_DISABLE_STYLE;
+		var obj2 = ime? this.IME_DISABLE_STYLE : this.IME_ENABLE_STYLE;
 		var s = this.elem.style;
+		for (let n in obj2)
+			if (!obj[n])
+				s.removeProperty(n);
 		for (let n in obj)
 			s.setProperty(n, obj[n], 'important');
 		if (this.textbox) {
@@ -108,7 +114,7 @@ IMEColorsClass.prototype = {
 
 function IMEColors({ originalTarget: elem }){
 	if ((elem instanceof HTMLTextAreaElement ||
-	     elem instanceof HTMLInputElement && /^(?:text|search)$/.test(elem.type)) &&
+	     elem instanceof HTMLInputElement &&( /^(?:text|search)$/.test(elem.type) || !elem.type)) &&
 	    !elem.readOnly) {
 		new IMEColorsClass(elem);
 	}
