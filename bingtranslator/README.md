@@ -7,7 +7,7 @@ verwendet.
 Sobald mehr als 100 Zeichen markiert wurden, erhält man in der Statusleiste eine Information über den gerade laufenden Übersetzungsvorgang. 
 Durch Anpassen der Variable `showStatusFrom` lässt sich dieses Verhalten konfigurieren.
 
-Erhält man ein **leeres Übersetzungsfenster**, muss die Zeile 57 deaktiviert werden. Bei einigen Sonderzeichen kann es zu leicht veränderten 
+Erhält man ein **leeres Übersetzungsfenster**, muss die Zeile 56 deaktiviert werden. Bei einigen Sonderzeichen kann es zu leicht veränderten 
 Ergebnissen kommen (z.T. wird beim Backslash abgeschnitten, bei Satzzeichen kann es zu einer Korrektur, wie z.B. Leerzeichen danach, kommen). 
 Formatierungen oder Zeilenumbrüche aus dem Originaltext sind im Ergebnisfenster nicht zu sehen.
 
