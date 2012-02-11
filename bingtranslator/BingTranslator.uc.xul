@@ -5,7 +5,7 @@
 
 <script type="application/x-javascript"><![CDATA[
 (function() {
-  var app_id, mouseup, uri, uridetect, showStatusFrom, quellsprache, zielsprache;
+  var app_id, mouseup, uri, uridetect, showStatusFrom, quellsprache, zielsprache, wpanel, wpanellabel;
 
   app_id = "366EA718B7846D2CBD6E0129E55F518D31E741BE";
   uri = 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate';
@@ -15,7 +15,7 @@
   removeWayaku = function(ele) {
     // die folgende Zeile deaktivieren, damit bei Klick auf Uebersetzung diese nicht in Zwischenablage uebernommen wird:
     Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(ele.textContent);
-    document.getElementById('wayaku-box').hidePopup();
+    ele.parentNode.hidePopup();
   }, 
 
   detectlang = function(s) {
@@ -24,13 +24,11 @@
     xmlhttp.open("GET", "" + uridetect + '&text=' + s, false);
     xmlhttp.onreadystatechange=function() {
       if (xmlhttp.readyState == 4) {
-        wayaku = document.getElementById("wayaku");
-        wayaku.setAttribute("class",xmlhttp.responseText.replace(/"/g,""));
+        wpanellabel.setAttribute("class",xmlhttp.responseText.replace(/"/g,""));
       }
     }
     xmlhttp.send();
-    wayaku = document.getElementById("wayaku");
-    return wayaku.getAttribute("class");
+    return wpanellabel.getAttribute("class");
   },
 
   beautify = function (s) {
@@ -42,6 +40,7 @@
   },
 
   mouseup = function(event) {
+    if (location != "chrome://browser/content/browser.xul") return;
     var req, sel, selText, with_param;
     sel = window.content.getSelection();
     selText = sel.toString();
@@ -60,6 +59,8 @@
     zielsprache="de";
     quellsprache="";
     selText = selText.replace(/^"/g,"").replace(/^ "/,"");
+    wpanel = document.getElementById("wayaku-box");
+    wpanellabel = document.getElementById("wayaku");
     // falls Sprache nicht erkannt werden soll, die naechste Zeile deaktivieren:
     quellsprache=detectlang(selText);
     if (quellsprache.length==0) quellsprache="en";
@@ -91,11 +92,10 @@
       if ((_ref = req.status) !== 200 && _ref !== 201) return;
       jajp = beautify(req.responseText);
       if (showStatusFrom >0 && selText.length >=showStatusFrom) XULBrowserWindow.statusTextField.label ="";
-      document.getElementById("wayaku-box").setAttribute("label","Übersetzung " + quellsprache + " > " + zielsprache);
-      wayaku = document.getElementById("wayaku");
-      wayaku.style.fontSize = "12px";
-      wayaku.textContent = jajp;
-      document.getElementById("wayaku-box").openPopupAtScreen(event.screenX, event.screenY - 30, false);
+      wpanellabel.style.fontSize = "12px";
+      wpanellabel.textContent = jajp;
+      wpanel.setAttribute("label","Übersetzung " + quellsprache + " » " + zielsprache);
+      wpanel.openPopupAtScreen(event.screenX, event.screenY - 30, false);
       return sel.removeAllRanges();
     };
     return req.send();
@@ -106,8 +106,8 @@
 }).call(this);
 
 ]]></script>
-  <window>
-    <panel id="wayaku-box" minwidth="140" maxwidth="700" titlebar="normal" close="true" noautohide="true" state="closed" label="Übersetzung">
+  <window id="main-window">
+    <panel id="wayaku-box" minwidth="140" maxwidth="700" titlebar="normal" close="true" noautohide="true" label="Übersetzung">
       <label id="wayaku" onclick="removeWayaku(this);">Übersetzungsergebnis</label>
     </panel>
   </window>
