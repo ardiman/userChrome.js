@@ -6,18 +6,20 @@
 // @compatibility  Firefox 4.0
 // @author         ithinc
 // @homepage       http://board.mozest.com/thread-32810-1-1
-// @version        1.0.5.2
-// @updateURL     https://j.mozest.com/ucscript/script/19.meta.js
+// @version        1.0.5.2b
+// @updateURL      https://j.mozest.com/ucscript/script/19.meta.js
+// @note           Version 1.0.5.2*b* auf https://github.com/ardiman/userChrome.js/tree/master/undoclosetabbutton mit verschiebbarem Toolbarbutton
 // ==/UserScript==
 
 /* :::: 撤销关闭标签页按钮 :::: */
 
-(function TU_undoCloseTabButton() {
-  var refNode = document.getElementById("urlbar");
-  if (!refNode)
-    return;
+(function (){
 
-  var button = refNode.parentNode.insertBefore(document.createElement("toolbarbutton"), refNode.nextSibling);
+function TU_undoCloseTabButton() {
+  var navigator = document.getElementById("navigator-toolbox");
+  if (!navigator || navigator.palette.id !== "BrowserToolbarPalette") return;
+
+  var button = document.createElement("toolbarbutton");
   button.setAttribute("id", "undoclosetab-button");
   button.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
   button.setAttribute("label", "Undo Close Tab");
@@ -37,8 +39,7 @@
   button._undoCloseMiddleClick = HistoryMenu.prototype._undoCloseMiddleClick;
   button.populateUndoSubmenu = eval("(" + HistoryMenu.prototype.populateUndoSubmenu.toString().replace(/._rootElt.*/, "") + ")");
 
-  var ss = document.styleSheets[document.styleSheets.length-1];
-    ss.insertRule('#undoclosetab-button[disabled="true"] {opacity: 0.5 !important;}', ss.cssRules.length);
+  navigator.palette.appendChild(button);
 
   UpdateUndoCloseTabCommand = function() {
     document.getElementById("History:UndoCloseTab").setAttribute("disabled", Cc["@mozilla.org/browser/sessionstore;1"].getService(Ci.nsISessionStore).getClosedTabCount(window) == 0);
@@ -47,4 +48,21 @@
   gBrowser.mTabContainer.addEventListener("TabClose", function() {UpdateUndoCloseTabCommand();}, false);
   gBrowser.mTabContainer.addEventListener("SSTabRestoring", function() {UpdateUndoCloseTabCommand();}, false);
   gSessionHistoryObserver.observe = eval("(" + gSessionHistoryObserver.observe.toString().replace(/(?=}$)/, "UpdateUndoCloseTabCommand();") + ")");
+}
+
+function updateToolbar() {
+  var toolbars = document.querySelectorAll("toolbar");
+  Array.slice(toolbars).forEach(function (toolbar) {
+    var currentset = toolbar.getAttribute("currentset");
+    if (currentset.split(",").indexOf("undoclosetab-button") < 0) return;
+    toolbar.currentSet = currentset;
+    try {
+      BrowserToolboxCustomizeDone(true);
+     } catch (ex) {
+    }
+  });
+}
+
+TU_undoCloseTabButton();
+updateToolbar();
 })();
