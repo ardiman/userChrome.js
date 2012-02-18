@@ -6,6 +6,7 @@ markiert.
 Die Leiste färbt sich rot bei "Ausdruck nicht gefunden" und grün, wenn alle Ausdrücke gefunden wurden.
 
 Es gibt mehrere Möglichkeiten der Bedienung:
+
 - Strg+H = Alle gefundenen Wörter werden markiert
 - Strg+Enter, Alt+N = Es wird abwärts gesucht
 - Strg+Alt+Enter, Alt+P = Es wird aufwärts gesucht
