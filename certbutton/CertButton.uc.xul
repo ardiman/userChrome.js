@@ -5,29 +5,18 @@
 @namespace%20html%20url('http://www.w3.org/1999/xhtml');
 
 %23certbuttonIcon {
-	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAUCAYAAACEYr13AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A%2FwD%2FoL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sMCQ8uE4gw6wgAAALySURBVDjLjZS%2Fb1tVFMc%2F5z4%2F26l%2Fp0XG%2BQlSS2N%2BSM1SVBYGZiSYygh%2FAAuChakLTIx0QUi0wMKIFDEhRQSpJBlAChJqa7d2k6JAmyaxnRfn2c%2Fvy%2BBXVAwDZ7nSvff7Pd9z7vleYyLehakXnFvqShdGUuER3D2Em59DCxhN3jeAPHAEfObcy7Nm1wPpbAq8PYk%2BEEndDty6AVe%2Bh%2B%2F%2BQfAh8DHwidm5unO%2F9KTcA0kHZlaQADiW5MxsCBxJN3%2BEt9dh428FACuet30ozf8u6Xnn7FAilIiAKFHoSXQAwclH8BrwkwO4avaGg%2Fk%2FJF10znYl9iROJMIkSwHoAGVgH7Kvw3tA1r0Pp%2Bad%2B6AnUTazlsRRAhqZkQJi4KHE6YTkqfHeOWDazZnVAumlbYlTSZtjiZREFjgBmhI1G1cbAbPOSbAwB8%2B6PUidQCp8DAamgAzQBIZJRsa1EwFpyWIo%2BjDn1qSDQNqeAroSsUQk8asZi4BLwGGyjoC%2BmRwMAjC3Bnue2Z2URJCAzYzzSR%2BywBkznMTQjKoZN%2BKYHPz5ANoOiB%2FFcTvjHEPQsRmDRK4D%2FKSsANiVmB6fDVfga%2BC2A7gGX4wk0kCYNO8AuCdxR2JHYs6MC86xlk7zQ7G40ocvHex7jN91dwiuDq%2F6ZjyUVAVmzWweeBr4DbgNpJaXySwt%2Bc1m81PBsfd4Eu%2FCz%2FfgvsFzOTi9D7bheWzWatwvlTiYmSG%2BdIlocZFCPj%2FdarXWwzC8ZRPm8vG85TcvX9447vfJZzKMBgNK5TKKYzQam9HM2NnZ%2BWZ1dfWd1ATBcKZaDUrpNHnPE2BhHHPU6ZDJZMazMH4llUqli8VicWGSgEqlUg2CgCiKhtlsNj0YDMLBYJDxfR8l7uz1eqGkM%2BVy%2Bbz3rw9iLK%2FbaDS%2BDcMwt7m5ed33%2FXSxWFzY2tpqeJ5XWV9fv9Zut692u90G%2FxEekEtmqGZmFefcM%2FV6%2FSvgLeAV4EUgBTjj%2F0chma%2FgCWvwF8s4XxNWEicSAAAAAElFTkSuQmCC);
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAUCAYAAACEYr13AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A%2FwD%2FoL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sMCQ8uE4gw6wgAAALySURBVDjLjZS%2Fb1tVFMc%2F5z4%2F26l%2Fp0XG%2BQlSS2N%2BSM1SVBYGZiSYygh%2FAAuChakLTIx0QUi0wMKIFDEhRQSpJBlAChJqa7d2k6JAmyaxnRfn2c%2Fvy%2BBXVAwDZ7nSvff7Pd9z7vleYyLehakXnFvqShdGUuER3D2Em59DCxhN3jeAPHAEfObcy7Nm1wPpbAq8PYk%2BEEndDty6AVe%2Bh%2B%2F%2BQfAh8DHwidm5unO%2F9KTcA0kHZlaQADiW5MxsCBxJN3%2BEt9dh428FACuet30ozf8u6Xnn7FAilIiAKFHoSXQAwclH8BrwkwO4avaGg%2Fk%2FJF10znYl9iROJMIkSwHoAGVgH7Kvw3tA1r0Pp%2Bad%2B6AnUTazlsRRAhqZkQJi4KHE6YTkqfHeOWDazZnVAumlbYlTSZtjiZREFjgBmhI1G1cbAbPOSbAwB8%2B6PUidQCp8DAamgAzQBIZJRsa1EwFpyWIo%2BjDn1qSDQNqeAroSsUQk8asZi4BLwGGyjoC%2BmRwMAjC3Bnue2Z2URJCAzYzzSR%2BywBkznMTQjKoZN%2BKYHPz5ANoOiB%2FFcTvjHEPQsRmDRK4D%2FKSsANiVmB6fDVfga%2BC2A7gGX4wk0kCYNO8AuCdxR2JHYs6MC86xlk7zQ7G40ocvHex7jN91dwiuDq%2F6ZjyUVAVmzWweeBr4DbgNpJaXySwt%2Bc1m81PBsfd4Eu%2FCz%2FfgvsFzOTi9D7bheWzWatwvlTiYmSG%2BdIlocZFCPj%2FdarXWwzC8ZRPm8vG85TcvX9447vfJZzKMBgNK5TKKYzQam9HM2NnZ%2BWZ1dfWd1ATBcKZaDUrpNHnPE2BhHHPU6ZDJZMazMH4llUqli8VicWGSgEqlUg2CgCiKhtlsNj0YDMLBYJDxfR8l7uz1eqGkM%2BVy%2Bbz3rw9iLK%2FbaDS%2BDcMwt7m5ed33%2FXSxWFzY2tpqeJ5XWV9fv9Zut692u90G%2FxEekEtmqGZmFefcM%2FV6%2FSvgLeAV4EUgBTjj%2F0chma%2FgCWvwF8s4XxNWEicSAAAAAElFTkSuQmCC);
 }
 
 " type="text/css"?>
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	<script type="application/x-javascript"><![CDATA[
-var certbutton = {
-	openManager : function() {
-		window.open('chrome://pippki/content/certManager.xul', 'mozilla:certmanager', 'chrome,resizable=yes,all');
-		}
-}	
-	
-]]></script>	
-	<toolbar id="toolbar-menubar">
-		<toolbarbutton
-			id="certbuttonIcon"
-			class="toolbarbutton-1"
-			oncommand="certbutton.openManager()"
-			label="Zertifikate"
-			tooltiptext="Zertifikate anzeigen"/>
-	</toolbar>
+<toolbar id="toolbar-menubar">
+ <toolbarbutton
+  id="certbuttonIcon"
+  class="toolbarbutton-1"
+  oncommand='window.open("chrome://pippki/content/certManager.xul", "mozilla:certmanager", "chrome,resizable=yes,all");'
+  label="Zertifikate"
+  tooltiptext="Zertifikate anzeigen"/>
+ </toolbar>
 </overlay>
-
-
-
