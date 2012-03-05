@@ -4,17 +4,20 @@
 // @namespace      https://github.com/ardiman/userChrome.js/tree/master/spambyipsearcher
 // @compatibility  Firefox 10.*
 // @include        main
-// @version        1.0.20120304
+// @version        1.0.20120305
 // ==/UserScript==
 -->
 var ucjs_SpamByIpSearcher = {
   // Beginn der Konfiguration
+  // Dienste im Hintergrundtab oeffnen (true/false)
   openServicesInBackground: false,
+  // Bei Fehlern Anzeige im Browser für x Millisekunden (auf 0 setzen, damit Anzeige nicht stattfindet):
+  showinstatustime: 750,
   /*
-  im folgenden Abschnitt die abzufragenden Dienste eintragen 
-  (type:0 -> ausgeblendet, 
-   type:1 -> wird angezeigt, aber nicht bei "Alle markierten Dienste abfragen" benutzt,
-   type:2 -> wird angezeigt und bei "Alle markierten Dienste abfragen" benutzt
+     Im folgenden Abschnitt die abzufragenden Dienste eintragen
+       type:0 -> ausgeblendet, 
+       type:1 -> wird angezeigt, aber nicht bei "Alle markierten Dienste abfragen" benutzt,
+       type:2 -> wird angezeigt und bei "Alle markierten Dienste abfragen" benutzt
   */
   usedServices: [
    {
@@ -42,24 +45,31 @@ var ucjs_SpamByIpSearcher = {
      type: 1
    },
   ],
-  // Bei Fehlern Anzeige im Browser für x Millisekunden (auf 0 setzen, damit Anzeige nicht stattfindet):
-  showinstatustime: 750,
   // Ende der Konfiguration
 
   init: function () {
+    var css = <![CDATA[
+      .ucjs_sbis_type2 {
+        list-style-image: url("chrome://mozapps/skin/extensions/rating-not-won.png") !important;
+      }
+    ]]>.toString();
+    var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+    var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
+    sss.loadAndRegisterSheet(uri,sss.AGENT_SHEET);
+
     var menu = document.createElement("menu");
     menu.setAttribute("id", "ucjs_sbis_menu");
-    menu.setAttribute("label", "Spam by IP");
-    // Im Kontexmenue vor "Alles markieren" einfuegen:
-    var target = document.getElementById("context-selectall"); 
+    menu.setAttribute("label", "Spam by IP Searcher");
+    // Im Kontexmenue vor "Auswahl-Quelltext anzeigen" einfuegen:
+    var target = document.getElementById("context-viewpartialsource-selection"); 
     target.parentNode.insertBefore(menu, target);
     var popup = menu.appendChild(this.createME("menupopup",0,0,0,"ucjs_sbis_popup"));
     var c = 0;
     for (var i = 0; i < this.usedServices.length; i++) {
       if (this.usedServices[i]["type"] > 0) {
-        popup.appendChild(this.createME("menuitem",this.usedServices[i]["label"] + ((this.usedServices[i]["type"]==2)?' [x]':''),
+        popup.appendChild(this.createME("menuitem",this.usedServices[i]["label"],
                                         "ucjs_SpamByIpSearcher.openservice('"+this.usedServices[i]["address"]+"');",
-                                        "ucjs_sbis_class",
+                                        "ucjs_sbis_type"+ this.usedServices[i]["type"] + " menuitem-iconic",
                                         this.usedServices[i]["id"]));
       if (this.usedServices[i]["type"] > 1) c++;
       }
@@ -68,7 +78,7 @@ var ucjs_SpamByIpSearcher = {
       popup.appendChild(document.createElement('menuseparator'));
       popup.appendChild(this.createME("menuitem","Alle markierten Dienste abfragen",
                                       "ucjs_SpamByIpSearcher.openmarkedservices();",
-                                      "ucjs_sbis_class",
+                                      "ucjs_sbis_typeall menuitem-iconic",
                                       "ucjs_sbis_searchall"));
     }
   },
