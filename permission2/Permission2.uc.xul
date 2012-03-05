@@ -9,8 +9,9 @@
 // @include        main
 // @compatibility  Firefox 2.0 3.0
 // @author         Alice0775
-// @version        2009/04/06 17:00 linuxでも
+// @version        2012/02/21 00:00 etld = host
 // ==/UserScript==
+// @version        2009/04/06 17:00 linuxでも
 // @version        2009/02/07 bug fix
 // @version        2009/02/02 frameようとして"リンク上右クリックではリンクアドレスを追加"
 // @version        2008/10/02 linkタグのstylesheet
@@ -569,7 +570,7 @@ var ucjsPermission = {
         menuitem.setAttribute("label",ucjsPermission.locale.indexOf("ja")== -1?"Block to "+host:host+" の" + text + "を拒否");
         menuitem.setAttribute("oncommand","ucjsPermission.addCapability('"+type+"','cannot','"+host+"');");
         menuitem.setAttribute("type","checkbox");
-        menuitem.setAttribute("accesskey","B");
+        menuitem.setAttribute("accesskey","b");
         if(aCapabilityString=='cannot') menuitem.setAttribute('checked',true);
         menupopup.appendChild(menuitem);
       }
@@ -583,7 +584,7 @@ var ucjsPermission = {
           etld = eTLDService.getBaseDomainFromHost(host);
         } catch(e) {}
         */
-        etld = etld.indexOf('.') > 0?etld.substring(etld.indexOf('.')+1):etld;
+        //etld = etld.indexOf('.') > 0?etld.substring(etld.indexOf('.')+1):etld;
         menuitem.setAttribute("label",ucjsPermission.locale.indexOf("ja")== -1?"Block to foreign "+etld:etld+" の" + text + "を他ドメイン拒否");
         menuitem.setAttribute("oncommand","ucjsPermission.addCapability('"+type+"','noforeign','"+etld+"');");
         menuitem.setAttribute("type","checkbox");
@@ -605,7 +606,7 @@ var ucjsPermission = {
         menuitem.setAttribute("label",ucjsPermission.locale.indexOf("ja")== -1?"Allow to "+host:host+" の" + text + "を許可");
         menuitem.setAttribute("oncommand","ucjsPermission.addCapability('"+type+"','can','"+host+"');");
         menuitem.setAttribute("type","checkbox");
-        menuitem.setAttribute("accesskey","A");
+        menuitem.setAttribute("accesskey","a");
         if(aCapabilityString=='can') menuitem.setAttribute('checked',true);
         menupopup.appendChild(menuitem);
       }
@@ -613,14 +614,14 @@ var ucjsPermission = {
       menuitem.setAttribute("label",ucjsPermission.locale.indexOf("ja")== -1?"Delete to "+host:host+" の" + text + "の設定を削除");
       menuitem.setAttribute("oncommand","ucjsPermission.delCapability('"+type+"','"+host+"');");
       menuitem.setAttribute("type","checkbox");
-      menuitem.setAttribute("accesskey","D");
+      menuitem.setAttribute("accesskey","d");
       menupopup.appendChild(menuitem);
       if(aCapabilityString=='noforeign') {
       menuitem = document.createElement("menuitem");
       menuitem.setAttribute("label",ucjsPermission.locale.indexOf("ja")== -1?"Delete to "+etld:etld+" の" + text + "の設定を削除");
       menuitem.setAttribute("oncommand","ucjsPermission.delCapability('"+type+"','"+etld+"');");
       menuitem.setAttribute("type","checkbox");
-      menuitem.setAttribute("accesskey","D");
+      menuitem.setAttribute("accesskey","t");
       menupopup.appendChild(menuitem);
       }
 
@@ -652,14 +653,14 @@ var ucjsPermission = {
       ?{
         cookie:     { permissionstitle:"Exceptions - Cookies", permissionstext:"You can specify which web sites are always, never allowed to use cookies.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, Allow for Session, or Allow.",permissionskey:"C"},
         document:   { permissionstitle:"document filter", permissionstext:"You can specify which web sites are always, never allowed to load document.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"d"},
-        image:      { permissionstitle:"Exceptions - Images", permissionstext:"You can specify which web sites are allowed to load images. Type the exact address of the site you want to manage and then click Block or Allow.",permissionskey:"I"},
+        image:      { permissionstitle:"Exceptions - Images", permissionstext:"You can specify which web sites are allowed to load images. Type the exact address of the site you want to manage and then click Block or Allow.",permissionskey:"i"},
         object:     { permissionstitle:"object filter", permissionstext:"You can specify which web sites are always, never allowed to load object.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"o"},
         other:      { permissionstitle:"other filter", permissionstext:"You can specify which web sites are always, never allowed to use XBL bindings.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"o"},
         popup:      { permissionstitle:"Allowed Sites - Popups", permissionstext:"You can specify which web sites are allowed to open popup windows. Type the exact address of the site you want to allow and then click Allow.",permissionskey:"p"},
         refresh:    { permissionstitle:"meta refresh tag filter", permissionstext:"You can specify which web sites are always, never allowed to use meta refresh tag.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"S"},
         script:     { permissionstitle:"External Script filter", permissionstext:"You can specify which web sites are always, never allowed to use External Script.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"S"},
         stylesheet: { permissionstitle:"External CSS filter", permissionstext:"You can specify which web sites are always, never allowed to use External CSS.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"C"},
-        subdocument:{ permissionstitle:"Frame filter", permissionstext:"You can specify which web sites are always, never allowed to use frame.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"F"}
+        subdocument:{ permissionstitle:"Frame filter", permissionstext:"You can specify which web sites are always, never allowed to use frame.  Type the exact address of the site you want to manage and then click Block, Not allow for foreign domain, or Allow.",permissionskey:"f"}
        }
       :{
         cookie:     { permissionstitle:"Cookie フィルタ", permissionstext:"Cookie の使用を許可するかどうかサイトごとに指定できます。個別に設定するサイトの正確なアドレスを入力して [不許可]、[他ドメイン拒否]、[現在のセッションのみ]、[許可] のいずれかをクリックしてください。",permissionskey:"c"},
