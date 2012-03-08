@@ -5,7 +5,8 @@
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.6
+// @version        0.1.7.7
+// @note           0.1.7.7 @delay 周りのバグを修正
 // @note           0.1.7.6 require で外部ファイルの取得がうまくいかない場合があるのを修正
 // @note           0.1.7.5 0.1.7.4 にミスがあったので修正
 // @note           0.1.7.4 GM_xmlhttpRequest の url が相対パスが使えなかったのを修正
@@ -495,9 +496,9 @@ USL.init = function(){
 	USL.icon = $('urlbar-icons').appendChild($E(
 		<image id="UserScriptLoader-icon" 
 		       context="UserScriptLoader-popup" 
-		       onclick="USL.iconClick(event);"
-		       style="padding: 0px 2px;"/>
+		       onclick="USL.iconClick(event);"/>
 	));
+	USL.icon.style.padding = '0px 2px';
 	
 	USL.popup = $('mainPopupSet').appendChild($E(
 		<menupopup id="UserScriptLoader-popup" 
@@ -870,7 +871,7 @@ USL.injectScripts = function(safeWindow, rsflag) {
 			return false;
 
 		if (script.run_at === "document-start") {
-			"delay" in script ? setTimeout(run, script.delay, script) : run(script)
+			"delay" in script ? safeWindow.setTimeout(run, script.delay, script) : run(script)
 		} else if (script.run_at === "window-load") {
 			windowLoads.push(script);
 		} else {
@@ -880,13 +881,15 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	if (documentEnds.length) {
 		aDocument.addEventListener("DOMContentLoaded", function(event){
 			event.currentTarget.removeEventListener(event.type, arguments.callee, false);
-			documentEnds.forEach(function(s) "delay" in s ? setTimeout(run, s.delay, s) : run(s));
+			documentEnds.forEach(function(s) "delay" in s ? 
+				safeWindow.setTimeout(run, s.delay, s) : run(s));
 		}, false);
 	}
 	if (windowLoads.length) {
 		safeWindow.addEventListener("load", function(event) {
 			event.currentTarget.removeEventListener(event.type, arguments.callee, false);
-			windowLoads.forEach(function(s) "delay" in s ? setTimeout(run, s.delay, s) : run(s));
+			windowLoads.forEach(function(s) "delay" in s ? 
+				safeWindow.setTimeout(run, s.delay, s) : run(s));
 		}, false);
 	}
 
@@ -1146,3 +1149,5 @@ function addStyle(css) {
 
 
 ]]>.toString().replace(/[\r\n\t]/g, ''));
+
+

@@ -4,8 +4,12 @@
 // @description    右クリック→検索の強化
 // @include        main
 // @compatibility  Firefox 4
-// @version        0.0.4
-// @note           アイコンの無い検索エンジンがあるとエラーになるのを修正
+// @version        0.0.5
+// @note           サブメニューを中クリックすると２回実行される問題を修正
+// @note           メニューの検索エンジン名を非表示にした
+// @note           カーソル下の単語の取得を調整
+// @note           "・"をカタカナとして処理していたのを修正
+// @note           0.0.4 アイコンの無い検索エンジンがあるとエラーになるのを修正
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
 // ホイールで既定のエンジン変更、サブメニューから他の検索エンジンの利用
@@ -21,7 +25,7 @@ window.contextSearcher = {
 
   _regexp: {
     hiragana: "[\\u3040-\\u309F]",
-    katakana: "[\\u30A0-\\u30FF]",
+    katakana: "[\\u30A0-\\u30FA\u30FC]",
     kanji   : "[\\u4E00-\\u9FA0]",
     //suuji   : "[0-9_./,%-]",
     eisu_han: "[a-zA-Z0-9_-]",
@@ -57,7 +61,7 @@ window.contextSearcher = {
     this.menu.setAttribute('id', 'context-searcher');
     this.menu.setAttribute('accesskey', gNavigatorBundle.getString("contextMenuSearchText.accesskey"));
     this.menu.setAttribute('oncommand', 'contextSearcher.command(event);');
-    this.menu.setAttribute('onclick', 'checkForMiddleClick(this, event);');
+    this.menu.setAttribute('onclick', 'if (event.target == this) checkForMiddleClick(this, event);');
     this.menu.setAttribute('iconic', 'true');
 
     this.popup = this.menu.appendChild( document.createElement('menupopup') );
@@ -155,7 +159,9 @@ window.contextSearcher = {
     var currentEngine = this.searchService.currentEngine;
     var l = this.searchText.length > 16? this.searchText.substr(0, 16) + '...' : this.searchText;
     this.menu.engine = currentEngine;
-    this.menu.setAttribute('label', gNavigatorBundle.getFormattedString("contextMenuSearchText", [currentEngine.name, l]));
+    //this.menu.setAttribute('label', gNavigatorBundle.getFormattedString("contextMenuSearchText", [currentEngine.name, l]));
+    this.menu.setAttribute('label', "Suche nach: " + l);
+    this.menu.setAttribute('tooltiptext', currentEngine.name);
     if (currentEngine.iconURI)
       this.menu.style.listStyleImage = 'url("' + currentEngine.iconURI.spec + '")';
     else 
@@ -165,9 +171,11 @@ window.contextSearcher = {
   popupshowing: function(e){
     if (e.target != this.context) return;
 
-    this.searchText = gContextMenu.isTextSelected? this.getBrowserSelection(): '' || 
-      gContextMenu.onLink? gContextMenu.linkText(): '' || 
-      gContextMenu.onTextInput? this.getTextInputSelection() : '' ||
+    this.searchText = 
+      gContextMenu.isTextSelected? this.getBrowserSelection() :
+      gContextMenu.onImage? gContextMenu.target.getAttribute('alt') :
+      gContextMenu.onLink? gContextMenu.linkText() :
+      gContextMenu.onTextInput? this.getTextInputSelection() :
       this.getCursorPositionText();
 
     if (!this.searchText || !/\S/.test(this.searchText)) {
@@ -206,7 +214,7 @@ window.contextSearcher = {
       var m = document.createElement('menuitem');
       m.setAttribute('label', engine.name);
       if (engine.iconURI) {
-        m.setAttribute('src', engine.iconURI.spec);
+        m.setAttribute('image', engine.iconURI.spec);
         m.setAttribute('class', 'menuitem-iconic');
       }
       m.setAttribute('oncommand', 'contextSearcher.command(event);');
@@ -236,44 +244,38 @@ window.contextSearcher = {
   },
 
   getCursorPositionText: function() {
-    var str = "";
     var node = this._clickNode;
-    if (!node || node.nodeType !== Node.TEXT_NODE)
-      return str;
-
     var offset = this._clickOffset;
-    var text = node.nodeValue;
-    if (!text)
-      return str;
+    if (!node || node.nodeType !== Node.TEXT_NODE)
+      return "";
 
+    // 文字の右半分をクリック時に次の文字を取得する対策
+    var text = node.nodeValue;
     var range = node.ownerDocument.createRange();
     range.setStart(node, offset);
     var rect = range.getBoundingClientRect();
     range.detach();
-
     if (rect.left >= this._clientX)
       offset--;
 
-    var current = text[offset];
-    var type;
-    for (let n in this._regexp) {
-      if (this.endReg[n].test(current)) {
-        type = n;
+    var mae = text.substr(0, offset);
+    var ato = text.substr(offset); // text[offset] はこっちに含まれる
+    var ato_word, type;
+    for (let [key, reg] in Iterator(this.startReg)) {
+      if (reg.test(ato)) {
+        type = key;
+        ato_word = RegExp.lastMatch;
         break;
       }
     }
-    if (!type)
-      return str;
+    if (!type) return "";
 
-    var s = this.endReg[type].exec( text.substr(0, offset) );
-    if (s) str += s;
-    s = this.startReg[type].exec( text.substr(offset) )
-    if (s) str += s;
+    var str = this.endReg[type].test(mae) ? RegExp.lastMatch + ato_word : ato_word;
 
     if (str.length === 1) {
       if (type === "kanji") {
-        s = this.startReg["hiragana"].exec( text.substr(offset+1) );
-        if (s) str += s;
+        if (this.startReg["hiragana"].test(ato.substr(ato_word.length)))
+          str += RegExp.lastMatch;
       } else {
         return "";
       }

@@ -4,11 +4,13 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.0
-// @note           INCLUDE を設定できるようにした
-// @note           INCLUDE, EXCLUDE をワイルドカード式にした
-// @note           アイコンに右クリックメニューを付けた
-// @note           スクロールするまでは次を読み込まないオプションをつけた
+// @version        0.2.1
+// @note           コンテキストメニューに次のページを開くメニューを追加
+// @note           区切りのアイコンをクリックしても色が変わらなかったのを修正
+// @note           0.2.0 INCLUDE を設定できるようにした
+// @note           0.2.0 INCLUDE, EXCLUDE をワイルドカード式にした
+// @note           0.2.0 アイコンに右クリックメニューを付けた
+// @note           0.2.0 スクロールするまでは次を読み込まないオプションをつけた
 // ==/UserScript==
 
 // this script based on
@@ -59,10 +61,11 @@ var MY_SITEINFO = [
 		,exampleUrl : 'http://mobile.twitter.com/searches?q=%23css'
 	},
 	{
-		url          : '^https?://gist\\.github\\.com/(?!gists/\\d+|\\d+$).'
-		,nextLink    : '//div[contains(concat(" ",normalize-space(@class)," "), " pagination ")]/*[count(following-sibling::*)=0 and @href]'
-		,pageElement : 'id("files")/*'
-		,exampleUrl  : 'https://gist.github.com/Griever'
+		url          : '^http://dailynews.yahoo.co.jp/fc/\\w+'
+		,nextLink    : 'id("detailHeadline")/h3/a[starts-with(@href, "http://headlines.yahoo.co.jp/")]'
+		,pageElement : 'id("ynDetail detailHeadline")'
+		,insertBefore: 'id("detailHeadline")/a/following-sibling::*'
+		,exampleUrl  : 'http://dailynews.yahoo.co.jp/fc/sports/iwakuma_hisashi/?1331001936'
 	}
 ];
 
@@ -212,9 +215,9 @@ var ns = window.uAutoPagerize = {
 			       state="disable"
 			       tooltiptext="disable"
 			       onclick="if(event.button != 2) uAutoPagerize.iconClick(event);"
-			       context="uAutoPagerize-popup"
-			       style="padding: 0px 2px;"/>
+			       context="uAutoPagerize-popup" />
 		));
+		ns.icon.style.padding = "0px 2px";
 /*
 		ns.context = $('contentAreaContextMenu').appendChild($E(
 			<menuitem id="uAutoPagerize-context"
@@ -225,12 +228,19 @@ var ns = window.uAutoPagerize = {
 			          oncommand="uAutoPagerize.iconClick(event);"/>
 		));
 */
+		ns.contextNext = $('contentAreaContextMenu').appendChild($E(
+			<menuitem id="uAutoPagerize-context-next"
+			          class="menuitem-iconic"
+			          label={U("Nächste Seite öffnen")}
+			          onclick="checkForMiddleClick(this, event);"
+			          oncommand="openUILink(gContextMenu.target.ownerDocument.defaultView.ap.requestURL, event)"/>
+		));
 
 		ns.popup = $('mainPopupSet').appendChild($E(
 			<menupopup id="uAutoPagerize-popup">
 				<menuitem label={U("EIN/AUS")}
 				          oncommand="uAutoPagerize.toggle(event);"/>
-				<menuitem label={U("Seiten-Infos zurücksetzen/laden")}
+				<menuitem label={U("Seiten Info zurücksetzen")}
 				          oncommand="uAutoPagerize.resetSITEINFO();" />
 				<menuseparator />
 				<menuitem label={U("Seitenlinks in neuem Tab öffnen")}
@@ -239,17 +249,17 @@ var ns = window.uAutoPagerize = {
 				          autoCheck="false"
 				          checked={FORCE_TARGET_WINDOW}
 				          oncommand="uAutoPagerize.FORCE_TARGET_WINDOW = !uAutoPagerize.FORCE_TARGET_WINDOW;" />
-				<menuitem label={U("Beginn")}
+				<menuitem label={U("Abstand")}
 				          id="uAutoPagerize-BASE_REMAIN_HEIGHT"
 				          tooltiptext={BASE_REMAIN_HEIGHT}
 				          oncommand="uAutoPagerize.BASE_REMAIN_HEIGHT = prompt('', uAutoPagerize.BASE_REMAIN_HEIGHT);" />
-				<menuitem label={U("Nur scrollen")}
+				<menuitem label={U("Nur Scrollen")}
 				          id="uAutoPagerize-SCROLL_ONLY"
 				          type="checkbox"
 				          autoCheck="false"
 				          checked={SCROLL_ONLY}
 				          oncommand="uAutoPagerize.SCROLL_ONLY = !uAutoPagerize.SCROLL_ONLY;" />
-				<menuitem label={U("Seite zu Chronik hinzufügen")}
+				<menuitem label={U("Seite zu Chronik hizufügen")}
 				          id="uAutoPagerize-ADD_HISTORY"
 				          type="checkbox"
 				          autoCheck="false"
@@ -293,7 +303,7 @@ var ns = window.uAutoPagerize = {
 		} catch (e) {}
 	},
 	theEnd: function() {
-		var ids = ["uAutoPagerize-icon", "uAutoPagerize-context", "uAutoPagerize-popup"];
+		var ids = ["uAutoPagerize-icon", "uAutoPagerize-context", "uAutoPagerize-context-next", "uAutoPagerize-popup"];
 		for (let [, id] in Iterator(ids)) {
 			let e = document.getElementById(id);
 			if (e) e.parentNode.removeChild(e);
@@ -310,6 +320,7 @@ var ns = window.uAutoPagerize = {
 		gBrowser.mPanelContainer.addEventListener('DOMContentLoaded', this, true);
 		//$('sidebar').addEventListener('DOMContentLoaded', this, true);
 		gBrowser.mTabContainer.addEventListener('TabSelect', this, false);
+		$("contentAreaContextMenu").addEventListener("popupshowing", this, false);
 		window.addEventListener('uAutoPagerize_destroy', this, false);
 		window.addEventListener('unload', this, false);
 	},
@@ -317,6 +328,7 @@ var ns = window.uAutoPagerize = {
 		gBrowser.mPanelContainer.removeEventListener('DOMContentLoaded', this, true);
 		//$('sidebar').removeEventListener('DOMContentLoaded', this, true);
 		gBrowser.mTabContainer.removeEventListener('TabSelect', this, false);
+		$("contentAreaContextMenu").removeEventListener("popupshowing", this, false);
 		window.removeEventListener('uAutoPagerize_destroy', this, false);
 		window.removeEventListener('unload', this, false);
 	},
@@ -329,6 +341,14 @@ var ns = window.uAutoPagerize = {
 			case "TabSelect":
 				if (this.AUTO_START)
 					updateIcon();
+				break;
+			case "popupshowing":
+				if (event.target != event.currentTarget) return;
+				if (gContextMenu.onLink || gContextMenu.onImage) return;
+				var target = gContextMenu.target;
+				if (!target) return;
+				var win = target.ownerDocument.defaultView;
+				ns.contextNext.setAttribute("hidden", !win.ap || !win.ap.requestURL);
 				break;
 			case "uAutoPagerize_destroy":
 				this.destroy(event);
@@ -510,12 +530,12 @@ var ns = window.uAutoPagerize = {
 			ns.toggle();
 		}
 		else if (event.button == 1) {
-			if (confirm('Seiten-Infos zur\u00FCcksetzen/laden?'))
+			if (confirm('Seiten Infos zurücksetzen?'))
 				requestSITEINFO();
 		}
 	},
 	resetSITEINFO: function() {
-		if (confirm('Seiten-Infos zur\u00FCcksetzen/laden?'))
+		if (confirm('Seiten Infos zurücksetzen?'))
 			requestSITEINFO();
 	},
 	toggle: function() {
@@ -583,15 +603,15 @@ AutoPager.prototype = {
 	get state() this._state,
 	set state(state) {
 		if (this.state !== "terminated" && this.state !== "error") {
-			if (state === "disabled") {
+			if (state === "disable") {
 				this.abort();
 			}
 			else if (state === "terminated" && state === "error") {
 				this.removeListener();
 			}
-			else if (state !== "loading" || this.isFrame) {
+			if (this.state !== "loading" && state !== "loading" || this.isFrame) {
 				Array.forEach(this.doc.getElementsByClassName('autopagerize_icon'), function(e) {
-					e.style.background = COLOR[state];
+					e.style.backgroundColor = COLOR[state];
 				});
 			}
 			this._state = state;
@@ -711,28 +731,29 @@ AutoPager.prototype = {
 			this.req = null;
 		}
 	},
+	isThridParty: function(aHost, bHost) {
+		var aTLD = Services.eTLD.getBaseDomainFromHost(aHost);
+		var bTLD = Services.eTLD.getBaseDomainFromHost(bHost);
+		return aTLD === bTLD/* && ["yahoo.co.jp", "livedoor.com"].some(function(h){
+			return aTLD === h;
+		});*/
+	},
 	request : function(){
 //		if (!this.requestURL || this.lastRequestURL == this.requestURL) return;
 		if (!this.requestURL || this.loadedURLs[this.requestURL]) return;
 
-		var url_s = this.requestURL.split('/');
-		if (url_s[0] !== this.win.location.protocol) {
-			log("[uAutoPagerize] " + U(this.win.location.protocol + " が " + url_s[0] + "にリクエストを送ることはできません"));
+		var [reqScheme,,reqHost] = this.requestURL.split('/');
+		var {protocol, host} = this.win.location;
+		if (reqScheme !== protocol) {
+			log(U(protocol + " が " + reqScheme + "にリクエストを送ることはできません"));
 			this.state = "error";
 			return;
 		}
-		var host = this.win.location.host;
-		var isSameDomain = url_s[2] === host;
-		if (!isSameDomain) {
-			// ドメインは違うけど下記のドメイン同士なら許可
-			let ok = ["yahoo.co.jp", "livedoor.com"].some(function(h){
-				return url_s[2].slice(-h.length) === h && host.slice(-h.length) === h;
-			});
-			if (!ok) {
-				log("[uAutoPagerize] " + U(host + " が " + url_s[2] + "にリクエストを送ることはできません"));
-				this.state = 'error';
-				return;
-			}
+		var isSameDomain = reqHost == host;
+		if (!isSameDomain && !this.isThridParty(host, reqHost)) {
+			log(U(host + " が " + reqHost + "にリクエストを送ることはできません"));
+			this.state = 'error';
+			return;
 		}
 		this.lastRequestURL = this.requestURL;
 		var self = this;
@@ -753,22 +774,12 @@ AutoPager.prototype = {
 		this.req = GM_xmlhttpRequest(opt, isSameDomain? this.win : null);
 	},
 	requestLoad : function(res){
-		if (res.URI.scheme !== res.originalURI.scheme) {
-			debug("external scheme.");
-			this.setState('error');
+		var before = res.URI.host;
+		var after  = res.originalURI.host;
+		if (before != after && !this.isThridParty(before, after)) {
+			log(U(before + " が " + after + "にリダイレクトされました"));
+			this.state = 'error';
 			return;
-		}
-		let before = res.URI.host;
-		let after  = res.originalURI.host;
-		if (before !== after) {
-			let ok = ["yahoo.co.jp", "livedoor.com"].some(function(h){
-				return before.slice(-h.length) === h && after.slice(-h.length) === h;
-			});
-			if (!ok) {
-				log("[uAutoPagerize] " + U(res.URI.spec + " から " + res.originalURI.spec + "にリダイレクトされました。"))
-				this.state = "error";
-				return;
-			}
 		}
 		delete res.URI;
 		delete res.originalURI;
@@ -852,8 +863,8 @@ AutoPager.prototype = {
 		var p  = this.doc.createElement('p');
 		p.setAttribute('class', 'autopagerize_page_info');
 		p.setAttribute('style', 'clear: both;');
-		p.innerHTML = 'page: <a class="autopagerize_link" href="' +
-			this.requestURL.replace(/&/g, '&amp;') + '">' + (++this.pageNum) + '</a> ';
+		p.innerHTML = '<a class="autopagerize_link" href="' +
+			this.requestURL.replace(/&/g, '&amp;') + '">page: ' + (++this.pageNum) + '</a> ';
 
 		if (!this.isFrame) {
 			var o = p.insertBefore(this.doc.createElement('div'), p.firstChild);
@@ -865,7 +876,7 @@ AutoPager.prototype = {
 				,'padding: 0px;'
 				,'margin: 0px .4em 0px 0px;'
 				,'display: inline-block;'
-				,'vertical-align:middle;'
+				,'vertical-align: middle;'
 			].join('');
 			o.addEventListener('click', this, false);
 		}
@@ -1037,6 +1048,9 @@ function getFirstElementByXPath(xpath, node) {
 
 function getXPathResult(xpath, node, resultType) {
 	var doc = node.ownerDocument || node
+	// Fx 7 でリゾルバがおかしい？
+	return doc.evaluate(xpath, node, null, resultType, null)
+	
 	var resolver = doc.createNSResolver(node.documentElement || node)
 	// Use |node.lookupNamespaceURI('')| for Opera 9.5
 	var defaultNS = node.lookupNamespaceURI(null)
@@ -1121,10 +1135,10 @@ function getCache() {
 		if (!cache) return false;
 		cache = JSON.parse(cache);
 		ns.SITEINFO = cache;
-		log('[uAutoPagerize] Load cacheInfo.');
+		log('Load cacheInfo.');
 		return true;
 	}catch(e){
-		log('[uAutoPagerize] Error getCache.')
+		log('Error getCache.')
 		return false;
 	}
 }
@@ -1239,8 +1253,8 @@ function wildcardToRegExpStr(urlstr) {
 	return "^" + reg + "$";
 }
 
-function log(){ Application.console.log($A(arguments)); }
-function debug(){ if (ns.DEBUG) Application.console.log('DEBUG: ' + $A(arguments)); };
+function log(){ Application.console.log('[uAutoPagerize] ' + $A(arguments)); }
+function debug(){ if (ns.DEBUG) Application.console.log('[uAutoPagerize DEBUG] ' + $A(arguments)); };
 function $(id, doc) (doc || document).getElementById(id);
 
 // http://gist.github.com/321205
@@ -1303,7 +1317,8 @@ function saveFile(name, data) {
 })(<![CDATA[
 
 #uAutoPagerize-icon,
-#uAutoPagerize-context {
+#uAutoPagerize-context,
+#uAutoPagerize-context-next {
 	list-style-image: url(
 		data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAQCAYAAACBSfjBAAAA2klEQVRYhe
 		2WwYmGMBhE390+0kCOwZLswQK82YAg2Ict2IBdeJ3/FHcW9oewnoRv4N0yGB4TECLPs22bHIBlWeQAzP
@@ -1312,10 +1327,12 @@ function saveFile(name, data) {
 		7j2nKe5NR+69qmPMmp/da1ff2NCYEhMAS+WmDk//kA2XH2W9CWRjQAAAAASUVORK5CYII=
 		);
 }
-#uAutoPagerize-icon[state="disable"],
-#uAutoPagerize-context[state="disable"]    { -moz-image-region: rect(0px 16px 16px 0px ); }
+
+#uAutoPagerize-icon,
+#uAutoPagerize-context                     { -moz-image-region: rect(0px 16px 16px 0px ); }
 #uAutoPagerize-icon[state="enable"],
-#uAutoPagerize-context[state="enable"]     { -moz-image-region: rect(0px 32px 16px 16px); }
+#uAutoPagerize-context[state="enable"],
+#uAutoPagerize-context-next                { -moz-image-region: rect(0px 32px 16px 16px); }
 #uAutoPagerize-icon[state="terminated"],
 #uAutoPagerize-context[state="terminated"] { -moz-image-region: rect(0px 48px 16px 32px); }
 #uAutoPagerize-icon[state="error"],
@@ -1345,18 +1362,3 @@ function saveFile(name, data) {
 ]]>.toString().replace(/\n|\t/g, ''));
 
 window.uAutoPagerize.init();
-
-
-/*
-
-※開発側の変更
-INCLUDE, EXCLUDE はまとめて正規表現にしてチェックする
-AutoPager のメソッドを大幅に追加
-	stateToggle, destroy, abort, handleEvent, addListener, removeListener,
-	setInsertPoint, setRemainHeight, getScrollHeight, 
-AutoPager#addPage の大幅な書き換え
-AutoPager#setState を廃止にした
-Google の hashchange 周りは AutoPager#destroy を利用した
-fragmentFilters フィルターを追加した
-url_regexp を Object.defineProperty で実装した
-*/
