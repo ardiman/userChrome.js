@@ -1,9 +1,9 @@
 <!--
 // ==UserScript==
 // @name           removePrintTime.uc.js
-// @compatibility  Firefox 10.*
+// @compatibility  Firefox 10.*, Firefox 11.*
 // @include        main
-// @version        1.0.20120224
+// @version        1.0.20120318
 // ==/UserScript==
 -->
 
@@ -23,9 +23,11 @@ var removePrintTime = {
   },
   setDate: function(d) {
     var prefManager = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
+    var Datummuster = /^(31|30|[012]\d|\d)\.(0\d|1[012]|\d)\.(\d{1,4})$/;
     for (var i = 0; i < this.searchInPrefs.length; i++) {
      var iPref=this.printerName+'.'+this.searchInPrefs[i];
-     if (prefManager.getCharPref(iPref) == "&D") {
+     var vPref = prefManager.getCharPref(iPref);
+     if (vPref == "&D" || Datummuster.test(vPref)) {
        prefManager.setCharPref(iPref, d);
      }
     }
