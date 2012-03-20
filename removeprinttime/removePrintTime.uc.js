@@ -1,11 +1,9 @@
-<!--
 // ==UserScript==
 // @name           removePrintTime.uc.js
 // @compatibility  Firefox 10.*, Firefox 11.*
 // @include        main
 // @version        1.0.20120318
 // ==/UserScript==
--->
 
 var removePrintTime = {
   // Beginn der Konfiguration (der Druckername muss bestimmt geändert werden)

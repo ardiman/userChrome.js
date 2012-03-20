@@ -1,11 +1,9 @@
-<!--
 // ==UserScript==
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*
 // @include        main
 // @version        1.0.20120131
 // ==/UserScript==
--->
 
 var uProfMenu = {
   // Beginn der Konfiguration

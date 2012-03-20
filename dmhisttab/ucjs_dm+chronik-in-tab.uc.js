@@ -1,11 +1,8 @@
-<!--
 // ==UserScript==
 // @name           ucjs_dm+chronik-in-tab.uc.js
 // @compatibility  Firefox 9.*
 // @version        1.0.20120108b
 // ==/UserScript==
--->
-
 
 !function dmhisttab(){
 /*

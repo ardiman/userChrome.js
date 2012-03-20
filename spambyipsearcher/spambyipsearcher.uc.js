@@ -1,4 +1,3 @@
-<!--
 // ==UserScript==
 // @name           spambyipsearcher.uc.js
 // @namespace      https://github.com/ardiman/userChrome.js/tree/master/spambyipsearcher
@@ -6,7 +5,7 @@
 // @include        main
 // @version        1.0.20120305
 // ==/UserScript==
--->
+
 var ucjs_SpamByIpSearcher = {
   // Beginn der Konfiguration
   // Dienste im Hintergrundtab oeffnen (true/false)

@@ -1,11 +1,9 @@
-<!--
 // ==UserScript==
 // @name           errorconsoleintab.uc.js
 // @compatibility  Firefox 8.*, 9.*
 // @include        main
 // @version        1.0.20120112
 // ==/UserScript==
--->
 
 ucjs_errcontab = {
   init: function() {
