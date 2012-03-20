@@ -8,5 +8,6 @@ Das **Ergebnis des Skripts**:
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
-Evtl. muss über `about:config` noch der externe Editor definiert (Wert für `view_source.editor.path` eintragen) werden.
-
+Evtl. muss über `about:config` noch der externe Editor definiert (Wert für `view_source.editor.path` eintragen) werden. Bei Bedarf kann in Zeile 50 
+ein anderer Dateimanager zum Öffnen des CSS-Ordners eingetragen werden - ein Beispiel für den Eintrag von `vFileManager` ist in der Zeile 
+darüber zu sehen.
