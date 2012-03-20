@@ -6,11 +6,12 @@
 // @include        main
 // @license        MIT License
 // @compatibility  Firefox 4
-// @version        0.0.3
+// @version        0.0.3.a
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
 // @note           ファイルが削除された場合 rebuild 時に CSS を解除しメニューを消すようにした
 // @note           uc で読み込まれた .uc.css の再読み込みに仮対応
+// @note           Version 0.0.3.a ermoeglicht anderen Dateimanager (s. vFileManager in Zeile 50)
 // ==/UserScript==
 
 /****** 使い方 ******
@@ -45,6 +46,8 @@ if (window.UCL) {
 }
 
 window.UCL = {
+	// vFileManager: 'C:\\Programme\\totalcmd\\TOTALCMD.EXE',
+	vFileManager: '',
 	USE_UC: "UC" in window,
 	AGENT_SHEET: Ci.nsIStyleSheetService.AGENT_SHEET,
 	USER_SHEET : Ci.nsIStyleSheetService.USER_SHEET,
@@ -266,8 +269,19 @@ window.UCL = {
 		let word = win.location.host || win.location.href;
 		openLinkIn("http://userstyles.org/styles/browse/site/" + word, "tab", {});
 	},
-	openFolder: function() {
-		this.FOLDER.launch();
+	openFolder:function(){
+		if (this.vFileManager.length != 0) {
+			var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+			var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+			var args=[this.FOLDER.path];
+			file.initWithPath(this.vFileManager);
+			process.init(file);
+			// Verzeichnis mit anderem Dateimanager oeffnen
+			process.run(false, args, args.length);
+		} else {
+			// Verzeichnis mit Dateimanager des Systems oeffnen
+			this.FOLDER.launch();
+		}
 	},
 	editUserCSS: function(aLeafName) {
 		let file = Services.dirsvc.get("UChrm", Ci.nsILocalFile);
