@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="moreabout"
+		 xmlns:html="http://www.w3.org/1999/xhtml"
+		 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		 xmlns:nc="http://home.netscape.com/NC-rdf#"
+		 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	
+	
+	<menupopup id="menu_HelpPopup" oncommand="openUILinkIn(event.target.value, 'tab');">
+		<menu id="aboutMenu" label="about:">
+			<menupopup id="menu_aboutMenuPopup">
+				<menu id="aboutAboutMenu" label="about:">
+					<menupopup id="menu_aboutAboutMenuPopup">
+						<menuitem value="about:" label="about:"/>
+						<menuitem value="about:about" label="about:about"/>
+						<menuitem value="about:buildconfig" label="about:buildconfig"/>
+						<menuitem value="about:credits" label="about:credits"/>
+						<menuitem value="about:license" label="about:license"/>
+						<menuitem value="about:mozilla" label="about:mozilla"/>
+						<menuitem value="about:rights" label="about:rights"/>
+					</menupopup>
+				</menu>
+				<menu id="aboutCacheMenu" label="about:cache">
+					<menupopup id="menu_aboutCacheMenuPopup">
+						<menuitem value="about:cache" label="about:cache"/>
+						<menuitem value="about:cache?device=disk" label="about:cache?device=disk"/>
+						<menuitem value="about:cache?device=memory" label="about:cache?device=memory"/>
+						<menuitem value="about:cache?device=offline" label="about:cache?device=offline"/>
+					</menupopup>
+				</menu>
+				<menuitem value="about:crashes" label="about:crashes"/>
+				<menuitem value="about:memory" label="about:memory"/>
+				<menuitem value="about:permissions" label="about:permissions"/>
+				<menuitem value="about:plugins" label="about:plugins"/>
+				<menuitem value="about:sessionrestore" label="about:sessionrestore"/>
+				<menuitem value="about:sync-log" label="about:sync-log"/>
+				<menuitem value="about:sync-tabs" label="about:sync-tabs"/>
+			</menupopup>
+		</menu>
+		<menuitem id="aboutConfig" value="about:config" label="about:config"/>
+	</menupopup>
+	
+	<menupopup id="appmenu_helpMenupopup" oncommand="openUILinkIn(event.target.value, 'tab');">
+		<menu id="appmenu_aboutMenu" label="about:">
+			<menupopup id="appmenu_aboutMenuPopup">
+				<menu id="appmenu_aboutAboutMenu" label="about:">
+					<menupopup id="appmenu_aboutAboutMenuPopup">
+						<menuitem value="about:" label="about:"/>
+						<menuitem value="about:about" label="about:about"/>
+						<menuitem value="about:buildconfig" label="about:buildconfig"/>
+						<menuitem value="about:credits" label="about:credits"/>
+						<menuitem value="about:license" label="about:license"/>
+						<menuitem value="about:mozilla" label="about:mozilla"/>
+						<menuitem value="about:rights" label="about:rights"/>
+					</menupopup>
+				</menu>
+				<menu id="appmenu_aboutCacheMenu" label="about:cache">
+					<menupopup id="appmenu_aboutCacheMenuPopup">
+						<menuitem value="about:cache" label="about:cache"/>
+						<menuitem value="about:cache?device=disk" label="about:cache?device=disk"/>
+						<menuitem value="about:cache?device=memory" label="about:cache?device=memory"/>
+						<menuitem value="about:cache?device=offline" label="about:cache?device=offline"/>
+					</menupopup>
+				</menu>
+				<menuitem value="about:crashes" label="about:crashes"/>
+				<menuitem value="about:memory" label="about:memory"/>
+				<menuitem value="about:permissions" label="about:permissions"/>
+				<menuitem value="about:plugins" label="about:plugins"/>
+				<menuitem value="about:sessionrestore" label="about:sessionrestore"/>
+				<menuitem value="about:sync-log" label="about:sync-log"/>
+				<menuitem value="about:sync-tabs" label="about:sync-tabs"/>
+			</menupopup>
+		</menu>
+		<menuitem id="appmenu_aboutConfig" value="about:config" label="about:config"/>
+	</menupopup>
+
+</overlay>
