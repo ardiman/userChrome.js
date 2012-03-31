@@ -24,6 +24,6 @@
 	
 	<menupopup id="contentAreaContextMenu">
 		<menuseparator id="citebiteseparator" hidden="false" insertafter="context-selectall" />
-		<menuitem id="citebite" label="Cite Bite" accesskey="N" hidden="false" oncommand="CiteBite();" insertafter="citebiteseparator"/>
+		<menuitem id="citebite" label="Cite Bite" accesskey="C" hidden="false" oncommand="CiteBite();" insertafter="citebiteseparator"/>
 	</menupopup>
 </overlay>
