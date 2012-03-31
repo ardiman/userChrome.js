@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<overlay id="CiteBiteOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript"><![CDATA[
+	var CiteBiteBaseUrl = 'http://citebite.com/fetch';
+	var CiteBitePopupOptions = 'height=600px,width=800px,toolbar=1,scrollbars=1,location=1,statusbar=1,menubar=1,resizable=1,alwaysRaised=1';
+
+	function CiteBite() {
+	// Execution starts here, this function is specified by citebiteOverlay.xul
+		var focusedWindow = document.commandDispatcher.focusedWindow;
+		var _href=window.top._content.document.location.href;
+		var _quote=focusedWindow.getSelection().toString();
+		var url=CiteBiteBaseUrl;
+		url=url.concat('?q=');
+		url=url.concat(encodeURIComponent(_quote));
+		url=url.concat('&u=');
+		url=url.concat(encodeURIComponent(_href));
+		if (_quote) {
+			window.open(url,'_blank',CiteBitePopupOptions);
+		} else {
+			alert("Bitte Text markieren und danach erneut Cite Bite starten.");
+		}
+	}
+	]]></script>
+	
+	<menupopup id="contentAreaContextMenu">
+		<menuseparator id="citebiteseparator" hidden="false" insertafter="context-selectall" />
+		<menuitem id="citebite" label="Cite Bite" accesskey="N" hidden="false" oncommand="CiteBite();" insertafter="citebiteseparator"/>
+	</menupopup>
+</overlay>
