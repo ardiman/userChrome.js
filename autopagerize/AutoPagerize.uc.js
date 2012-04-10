@@ -4,9 +4,11 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.1
-// @note           コンテキストメニューに次のページを開くメニューを追加
-// @note           区切りのアイコンをクリックしても色が変わらなかったのを修正
+// @version        0.2.2
+// @note           設定ファイルを利用できるようにした
+// @note           コンテキストメニューが意外と邪魔だったので葬った
+// @note           0.2.1 コンテキストメニューに次のページを開くメニューを追加
+// @note           0.2.1 区切りのアイコンをクリックしても色が変わらなかったのを修正
 // @note           0.2.0 INCLUDE を設定できるようにした
 // @note           0.2.0 INCLUDE, EXCLUDE をワイルドカード式にした
 // @note           0.2.0 アイコンに右クリックメニューを付けた
@@ -61,8 +63,8 @@ var MY_SITEINFO = [
 		,exampleUrl : 'http://mobile.twitter.com/searches?q=%23css'
 	},
 	{
-		url          : '^http://dailynews.yahoo.co.jp/fc/\\w+'
-		,nextLink    : 'id("detailHeadline")/h3/a[starts-with(@href, "http://headlines.yahoo.co.jp/")]'
+		url          : '^http://dailynews\\.yahoo\\.co\\.jp/fc/\\w+'
+		,nextLink    : 'id("detailHeadline")/h3/a[contains(@href, ".yahoo.co.jp/")]'
 		,pageElement : 'id("ynDetail detailHeadline")'
 		,insertBefore: 'id("detailHeadline")/a/following-sibling::*'
 		,exampleUrl  : 'http://dailynews.yahoo.co.jp/fc/sports/iwakuma_hisashi/?1331001936'
@@ -122,20 +124,27 @@ var ns = window.uAutoPagerize = {
 	INCLUDE_REGEXP : /./,
 	EXCLUDE_REGEXP : /^$/,
 	MICROFORMAT    : MICROFORMAT,
-	MY_SITEINFO    : MY_SITEINFO,
+	MY_SITEINFO    : MY_SITEINFO.slice(),
 	SITEINFO       : [],
 
 	get prefs() {
 		delete this.prefs;
 		return this.prefs = Services.prefs.getBranch("uAutoPagerize.")
 	},
+	get file() {
+		var aFile = Services.dirsvc.get('UChrm', Ci.nsILocalFile);
+		aFile.appendRelativePath('_uAutoPagerize.js');
+		delete this.file;
+		return this.file = aFile;
+	},
 	get INCLUDE() {
 		return this._INCLUDE;
 	},
 	set INCLUDE(arr) {
 		try {
-			let regs = arr.map(function(val) wildcardToRegExpStr(val));
-			this.INCLUDE_REGEXP = new RegExp(regs.join("|"));
+			this.INCLUDE_REGEXP = arr.length > 0 ? 
+				new RegExp(arr.map(wildcardToRegExpStr).join("|")) :
+				/./;
 			this._INCLUDE = arr;
 		} catch (e) {
 			log(U("INCLUDE が不正です"));
@@ -147,11 +156,12 @@ var ns = window.uAutoPagerize = {
 	},
 	set EXCLUDE(arr) {
 		try {
-			let regs = arr.map(function(val) wildcardToRegExpStr(val));
-			this.EXCLUDE_REGEXP = new RegExp(regs.join("|"));
+			this.EXCLUDE_REGEXP = arr.length > 0 ?
+				new RegExp(arr.map(wildcardToRegExpStr).join("|")) :
+				/^$/;
 			this._EXCLUDE = arr;
 		} catch (e) {
-			log(U("INCLUDE が不正です"));
+			log(U("EXCLUDE が不正です"));
 		}
 		return arr;
 	},
@@ -218,28 +228,13 @@ var ns = window.uAutoPagerize = {
 			       context="uAutoPagerize-popup" />
 		));
 		ns.icon.style.padding = "0px 2px";
-/*
-		ns.context = $('contentAreaContextMenu').appendChild($E(
-			<menuitem id="uAutoPagerize-context"
-			          class="menuitem-iconic"
-			          label="uAutoPagerize ON/OFF"
-			          state="disable"
-			          tooltiptext="disable"
-			          oncommand="uAutoPagerize.iconClick(event);"/>
-		));
-*/
-		ns.contextNext = $('contentAreaContextMenu').appendChild($E(
-			<menuitem id="uAutoPagerize-context-next"
-			          class="menuitem-iconic"
-			          label={U("Nächste Seite öffnen")}
-			          onclick="checkForMiddleClick(this, event);"
-			          oncommand="openUILink(gContextMenu.target.ownerDocument.defaultView.ap.requestURL, event)"/>
-		));
 
 		ns.popup = $('mainPopupSet').appendChild($E(
 			<menupopup id="uAutoPagerize-popup">
 				<menuitem label={U("EIN/AUS")}
 				          oncommand="uAutoPagerize.toggle(event);"/>
+				<menuitem label={U("Konfigurationsdatei laden")}
+				          oncommand="uAutoPagerize.loadSetting(true);" />
 				<menuitem label={U("Seiten Info zurücksetzen")}
 				          oncommand="uAutoPagerize.resetSITEINFO();" />
 				<menuseparator />
@@ -288,6 +283,7 @@ var ns = window.uAutoPagerize = {
 		ns.INCLUDE = ns._INCLUDE;
 		ns.EXCLUDE = ns._EXCLUDE;
 		ns.addListener();
+		ns.loadSetting();
 		updateIcon();
 	},
 	uninit: function() {
@@ -318,17 +314,13 @@ var ns = window.uAutoPagerize = {
 	},
 	addListener: function() {
 		gBrowser.mPanelContainer.addEventListener('DOMContentLoaded', this, true);
-		//$('sidebar').addEventListener('DOMContentLoaded', this, true);
 		gBrowser.mTabContainer.addEventListener('TabSelect', this, false);
-		$("contentAreaContextMenu").addEventListener("popupshowing", this, false);
 		window.addEventListener('uAutoPagerize_destroy', this, false);
 		window.addEventListener('unload', this, false);
 	},
 	removeListener: function() {
 		gBrowser.mPanelContainer.removeEventListener('DOMContentLoaded', this, true);
-		//$('sidebar').removeEventListener('DOMContentLoaded', this, true);
 		gBrowser.mTabContainer.removeEventListener('TabSelect', this, false);
-		$("contentAreaContextMenu").removeEventListener("popupshowing", this, false);
 		window.removeEventListener('uAutoPagerize_destroy', this, false);
 		window.removeEventListener('unload', this, false);
 	},
@@ -342,14 +334,6 @@ var ns = window.uAutoPagerize = {
 				if (this.AUTO_START)
 					updateIcon();
 				break;
-			case "popupshowing":
-				if (event.target != event.currentTarget) return;
-				if (gContextMenu.onLink || gContextMenu.onImage) return;
-				var target = gContextMenu.target;
-				if (!target) return;
-				var win = target.ownerDocument.defaultView;
-				ns.contextNext.setAttribute("hidden", !win.ap || !win.ap.requestURL);
-				break;
 			case "uAutoPagerize_destroy":
 				this.destroy(event);
 				break;
@@ -358,11 +342,31 @@ var ns = window.uAutoPagerize = {
 				break;
 		}
 	},
+	loadSetting: function(isAlert) {
+		var data = loadText(this.file);
+		if (!data) return false;
+		var sandbox = new Cu.Sandbox( new XPCNativeWrapper(window) );
+		sandbox.INCLUDE = null;
+		sandbox.EXCLUDE = null;
+		sandbox.MY_SITEINFO = [];
+		try {
+			Cu.evalInSandbox(data, sandbox, '1.8');
+		} catch (e) {
+			return log('load error.', e);
+		}
+		ns.MY_SITEINFO = sandbox.MY_SITEINFO.concat(MY_SITEINFO);
+		if (sandbox.INCLUDE)
+			ns.INCLUDE = sandbox.INCLUDE;
+		if (sandbox.EXCLUDE)
+			ns.EXCLUDE = sandbox.EXCLUDE;
+		if (isAlert)
+			Cc['@mozilla.org/alerts-service;1'].getService(Ci.nsIAlertsService)
+				.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), false, "", null, "");
+		return true;
+	},
 	getFocusedWindow: function() {
 		var win = document.commandDispatcher.focusedWindow;
-		if (!win || win == window)
-			win = content;
-		return win;
+		return (!win || win == window) ? content : win;
 	},
 	launch: function(win, timer){
 		var locationHref = win.location.href;
@@ -413,15 +417,16 @@ var ns = window.uAutoPagerize = {
 			ns.historyService.addPageWithDetails(uri, _doc.title, new Date().getTime() * 1000);
 		});
 
+		var index = -1, info, nextLink, pageElement;
 		if (/^http\:\/\/\w+\.google\.(co\.jp|com)/.test(locationHref)) {
 			if (!timer || timer < 400) timer = 400;
 			win.addEventListener("hashchange", function(event) {
 				if (!win.ap) {
 					win.setTimeout(function(){
-						let [index, info] = [-1, null];
-						if (!info) [, info] = ns.getInfo(ns.MY_SITEINFO, win);
-						if (!info) [, info] = ns.getInfo(ns.SITEINFO, win);
-						if (info) win.ap = new AutoPager(win.document, info);
+						let [index, info, nextLink] = [-1, null];
+						if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win);
+						if (!info) [, info, nextLink] = ns.getInfo(ns.SITEINFO, win);
+						if (info) win.ap = new AutoPager(win.document, info, nextLink);
 						updateIcon();
 					}, timer);
 					return;
@@ -434,7 +439,7 @@ var ns = window.uAutoPagerize = {
 				}, timer);
 			}, false);
 		}
-		if (/^https?:\/\/[^.]+\.google\.(?:[^.]{2,3}\.)?[^./]{2,3}\/.*?\b(vid(?:%3A|:)1|tbm=vid)/i.test(locationHref)) {
+		if (/google\.(?:com|co\.jp)$/.test(win.location.host)) {
 			// Google Video
 			var js = '';
 			var df = function (newDoc) {
@@ -456,8 +461,8 @@ var ns = window.uAutoPagerize = {
 		}
 		else if (/^http:\/\/(?:images|www)\.google(?:\.[^.\/]{2,3}){1,2}\/(images\?|search\?.*tbm=isch)/.test(locationHref)) {
 			// Google Image
-			let [, info] = ns.getInfo(ns.MY_SITEINFO, win);
-			if (info && getFirstElementByXPath(info.pageElement, doc)) {
+			[, info] = ns.getInfo(ns.MY_SITEINFO, win);
+			if (info) {
 				if (!timer || timer < 1000) timer = 1000;
 				win.requestFilters.push(function(opt) {
 					opt.url = opt.url
@@ -465,11 +470,6 @@ var ns = window.uAutoPagerize = {
 						.replace("?", '?gbv=1&sout=1&')
 				});
 			}
-		}
-		else if (win.location.host === 'twitter.com') {
-			win.documentFilters.push(function(_doc, _requestURL, _info) {
-				win.ap.requestURL = win.ap.lastRequestURL;
-			});
 		}
 		// oAutoPagerize
 		else if (win.location.host === 'eow.alc.co.jp') {
@@ -485,7 +485,7 @@ var ns = window.uAutoPagerize = {
 			miscellaneous.push(alc);
 		}
 		else if (win.location.host === 'matome.naver.jp') {
-			let [, info] = ns.getInfo(ns.MY_SITEINFO, win);
+			[, info] = ns.getInfo(ns.MY_SITEINFO, win);
 			if (info) {
 				var naver = function(_doc){
 					var next = getFirstElementByXPath(info.nextLink, _doc);
@@ -506,17 +506,25 @@ var ns = window.uAutoPagerize = {
 				});
 			});
 		}
+		else if (win.location.host === 'www.dailymotion.com') {
+			win.fragmentFilters.push(function(df) {
+				Array.slice(df.querySelectorAll('img[data-src]')).forEach(function(img) {
+					img.src = img.getAttribute('data-src');
+					img.removeAttribute('data-src');
+				});
+			});
+		}
 
 		win.setTimeout(function(){
 			win.ap = null;
 			miscellaneous.forEach(function(func){ func(doc); });
 			var index = -1;
-			var [, info] = ns.getInfo(ns.MY_SITEINFO, win);
+			if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win);
 			//var s = new Date().getTime();
-			if (!info) [index, info] = ns.getInfo(ns.SITEINFO, win);
+			if (!info) [index, info, nextLink] = ns.getInfo(ns.SITEINFO, win);
 			//debug(index + 'th/' + (new Date().getTime() - s) + 'ms');
-			if (!info) [, info] = ns.getInfo(ns.MICROFORMAT, win);
-			if (info) win.ap = new AutoPager(win.document, info);
+			if (!info) [, info, nextLink] = ns.getInfo(ns.MICROFORMAT, win);
+			if (info) win.ap = new AutoPager(win.document, info, nextLink);
 
 			updateIcon();
 			if (info && index > 20 && !/tumblr|fc2/.test(info.url)) {
@@ -526,10 +534,9 @@ var ns = window.uAutoPagerize = {
 		}, timer||0);
 	},
 	iconClick: function(event){
-		if (!event.button) {
+		if (!event || !event.button) {
 			ns.toggle();
-		}
-		else if (event.button == 1) {
+		} else if (event.button == 1) {
 			if (confirm('Seiten Infos zurücksetzen?'))
 				requestSITEINFO();
 		}
@@ -560,17 +567,23 @@ var ns = window.uAutoPagerize = {
 						enumerable: false,
 						value: new RegExp(info.url)
 					}).url_regexp;
-				if ( !exp.test(locationHref) ) {
-				} else if (!getFirstElementByXPath(info.nextLink, doc)) {
-					// ignore microformats case.
-					if (!exp.test('http://a'))
+				if ( !exp.test(locationHref) ) continue;
+
+				var nextLink = getFirstElementByXPath(info.nextLink, doc);
+				if (!nextLink) {
+					// FIXME microformats case detection.
+					// limiting greater than 12 to filter microformats like SITEINFOs.
+					if (info.url.length > 12)
 						debug('nextLink not found.', info.nextLink);
-				} else if (!getFirstElementByXPath(info.pageElement, doc)) {
-					if (!exp.test('http://a')) 
-						debug('pageElement not found.', info.pageElement);
-				} else {
-					return [index, info];
+					continue;
 				}
+				var pageElement = getFirstElementByXPath(info.pageElement, doc);
+				if (!pageElement) {
+					if (info.url.length > 12) 
+						debug('pageElement not found.', info.pageElement);
+					continue;
+				}
+				return [index, info, nextLink, pageElement];
 			} catch(e) {
 				log('error at launchAutoPager() : ' + e);
 			}
@@ -619,7 +632,7 @@ AutoPager.prototype = {
 		}
 		return state;
 	},
-	init: function(doc, info) {
+	init: function(doc, info, nextLink, pageElement) {
 		this.doc = doc;
 		this.win = doc.defaultView;
 		this.documentElement = doc.documentElement;
@@ -631,7 +644,7 @@ AutoPager.prototype = {
 			this.info[key] = val;
 		}
 		
-		var url = this.getNextURL(this.doc);
+		var url = nextLink ? nextLink.href : this.getNextURL(this.doc);
 		if ( !url ) {
 			debug("getNextURL returns null.", this.info.nextLink);
 			return;
@@ -680,18 +693,19 @@ AutoPager.prototype = {
 		}
 
 		this.win.ap = null;
+		updateIcon();
 	},
 	addListener: function() {
 		this.win.addEventListener("scroll", this, false);
-		//this.doc.addEventListener("AutoPagerizeToggleRequest", this, false);
-		//this.doc.addEventListener("AutoPagerizeEnableRequest", this, false);
-		//this.doc.addEventListener("AutoPagerizeDisableRequest", this, false);
+		this.doc.addEventListener("AutoPagerizeToggleRequest", this, false);
+		this.doc.addEventListener("AutoPagerizeEnableRequest", this, false);
+		this.doc.addEventListener("AutoPagerizeDisableRequest", this, false);
 	},
 	removeListener: function() {
-		this.win.removeEventListener('scroll', this, false);
-		//this.doc.removeEventListener("AutoPagerizeToggleRequest", this, false);
-		//this.doc.removeEventListener("AutoPagerizeEnableRequest", this, false);
-		//this.doc.removeEventListener("AutoPagerizeDisableRequest", this, false);
+		this.win.removeEventListener("scroll", this, false);
+		this.doc.removeEventListener("AutoPagerizeToggleRequest", this, false);
+		this.doc.removeEventListener("AutoPagerizeEnableRequest", this, false);
+		this.doc.removeEventListener("AutoPagerizeDisableRequest", this, false);
 	},
 	handleEvent: function(event) {
 		switch(event.type) {
@@ -995,10 +1009,6 @@ function updateIcon(){
 	}
 	ns.icon.setAttribute('state', newState);
 	ns.icon.setAttribute('tooltiptext', newState);
-	if (ns.context) {
-		ns.context.setAttribute('state', newState);
-		ns.context.setAttribute('tooltiptext', newState);
-	}
 }
 
 function launchAutoPager_org(list, win) {
@@ -1173,39 +1183,40 @@ function getCacheCallback(res, url) {
 		return getCacheErrorCallback(url);
 	}
 
-	var info;
+	var temp;
 	try {
-		var s = new Components.utils.Sandbox( new XPCNativeWrapper(window) );
-		info = Components.utils.evalInSandbox(res.responseText, s).map(function(i) { return i.data });
+		temp = Cu.evalInSandbox(res.responseText, Cu.Sandbox("about:blank"));
 	} catch(e) {
-		info = [];
+		log(e);
 	}
-	if (info.length > 0) {
-		info = info.filter(function(i) { return ('url' in i) })
-		info.sort(function(a, b) { return (b.url.length - a.url.length) })
+	if (!temp || !temp.length)
+		return getCacheErrorCallback(url);
 
-		var r_keys = ['url', 'nextLink', 'insertBefore', 'pageElement']
-		info = info.map(function(i) {
-			var item = {};
-			r_keys.forEach(function(key) {
-				if (i[key]) {
-					item[key] = i[key];
-				}
+	var info = [];
+	temp.forEach(function(i){
+		var data = i.data;
+		if (!data.url || data.url.length <= 12) return;
+		try {
+			var exp = new RegExp(data.url);
+			if (exp.test('http://a')) return;
+			var o = {
+				url: data.url,
+				nextLink: data.nextLink,
+				pageElement: data.pageElement,
+			};
+			Object.defineProperty(o, 'url_regexp', {
+				enumerable: false,
+				value: exp
 			});
-			return item;
-		});
-//		var cacheInfo = {};
-//		cacheInfo[url] = {
-//			url: url,
-//			expire: new Date(new Date().getTime() + CACHE_EXPIRE),
-//			info: info
-//		};
-		ns.SITEINFO = info;
-		log('getCacheCallback:' + url);
-	}
-	else {
-		getCacheErrorCallback(url);
-	}
+			if (data.insertBefore)
+				o.insertBefore = data.insertBefore;
+			//o.resource_url = i.resource_url;
+			info.push(o);
+		} catch (e) {}
+	});
+	info.sort(function(a, b) b.url.length - a.url.length);
+	ns.SITEINFO = info;
+	log('getCacheCallback:' + url);
 }
 
 function getCacheErrorCallback(url) {
@@ -1246,7 +1257,7 @@ function GM_xmlhttpRequest(obj, win) {
 }
 
 function wildcardToRegExpStr(urlstr) {
-	if (urlstr instanceof RegExp) return urlstr.source;
+	if (urlstr.source) return urlstr.source;
 	let reg = urlstr.replace(/[()\[\]{}|+.,^$?\\]/g, "\\$&").replace(/\*+/g, function(str){
 		return str === "*" ? ".*" : "[^/]*";
 	});
@@ -1283,18 +1294,19 @@ function addStyle(css) {
 	return document.insertBefore(pi, document.documentElement);
 }
 
-function loadFile(name) {
-	var file = Services.dirsvc.get('UChrm', Ci.nsILocalFile);
-	file.appendRelativePath(name);
+function loadFile(aLeafName) {
+	var aFile = Services.dirsvc.get('UChrm', Ci.nsILocalFile);
+	aFile.appendRelativePath(aLeafName);
+	return loadText(aFile);
+}
+function loadText(aFile) {
+	if (!aFile.exists() || !aFile.isFile()) return null;
 	var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
 	var sstream = Cc["@mozilla.org/scriptableinputstream;1"].createInstance(Ci.nsIScriptableInputStream);
-	fstream.init(file, -1, 0, 0);
+	fstream.init(aFile, -1, 0, 0);
 	sstream.init(fstream);
-
 	var data = sstream.read(sstream.available());
-	try {
-		data = decodeURIComponent(escape(data));
-	} catch(e) {  }
+	try { data = decodeURIComponent(escape(data)); } catch(e) {}
 	sstream.close();
 	fstream.close();
 	return data;
@@ -1316,9 +1328,7 @@ function saveFile(name, data) {
 
 })(<![CDATA[
 
-#uAutoPagerize-icon,
-#uAutoPagerize-context,
-#uAutoPagerize-context-next {
+#uAutoPagerize-icon {
 	list-style-image: url(
 		data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAQCAYAAACBSfjBAAAA2klEQVRYhe
 		2WwYmGMBhE390+0kCOwZLswQK82YAg2Ict2IBdeJ3/FHcW9oewnoRv4N0yGB4TECLPs22bHIBlWeQAzP
@@ -1326,23 +1336,16 @@ function saveFile(name, data) {
 		jDtK5tHEc5td+6tn7t5dz9xrX1/Sqn9lvXtvarnNpvXdtfLzUEhsAQ+H6BkYdpXdswDHJqv3Vtecpy7n
 		7j2nKe5NR+69qmPMmp/da1ff2NCYEhMAS+WmDk//kA2XH2W9CWRjQAAAAASUVORK5CYII=
 		);
+	-moz-image-region: rect(0px 16px 16px 0px );
 }
 
-#uAutoPagerize-icon,
-#uAutoPagerize-context                     { -moz-image-region: rect(0px 16px 16px 0px ); }
-#uAutoPagerize-icon[state="enable"],
-#uAutoPagerize-context[state="enable"],
-#uAutoPagerize-context-next                { -moz-image-region: rect(0px 32px 16px 16px); }
-#uAutoPagerize-icon[state="terminated"],
-#uAutoPagerize-context[state="terminated"] { -moz-image-region: rect(0px 48px 16px 32px); }
-#uAutoPagerize-icon[state="error"],
-#uAutoPagerize-context[state="error"]      { -moz-image-region: rect(0px 64px 16px 48px); }
-#uAutoPagerize-icon[state="off"],
-#uAutoPagerize-context[state="off"]        { -moz-image-region: rect(0px 80px 16px 64px); }
+#uAutoPagerize-icon[state="enable"]     { -moz-image-region: rect(0px 32px 16px 16px); }
+#uAutoPagerize-icon[state="terminated"] { -moz-image-region: rect(0px 48px 16px 32px); }
+#uAutoPagerize-icon[state="error"]      { -moz-image-region: rect(0px 64px 16px 48px); }
+#uAutoPagerize-icon[state="off"]        { -moz-image-region: rect(0px 80px 16px 64px); }
 
 
-#uAutoPagerize-icon[state="loading"],
-#uAutoPagerize-context[state="loading"] {
+#uAutoPagerize-icon[state="loading"] {
 	list-style-image: url(data:image/gif;base64,
 		R0lGODlhEAAQAKEDADC/vyHZ2QD//////yH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCgADACwAAAAAEAAQ
 		AAACIJyPacKi2txDcdJmsw086NF5WviR32kAKvCtrOa2K3oWACH5BAkKAAMALAAAAAAQABAAAAIinI9p
