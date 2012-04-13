@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<!--
+// ==UserScript==
+// @name CookiesExport/Import.uc.xul
+// @author Anatol&fliwatüt
+// @namespace Anatol@addon.mozilla.org
+// @include main
+// @description Export/Import cookies
+// @version 0.1.1.4
+// @updateURL     https://j.mozest.com/ucscript/script/61.meta.js
+// @screenshot    http://j.mozest.com/images/uploads/previews/000/00/00/f101858e-5b32-3f8d-0582-ac666edc9c9a.jpg http://j.mozest.com/images/uploads/previews/000/00/00/thumb-f101858e-5b32-3f8d-0582-ac666edc9c9a.jpg
+// ==/UserScript==
+//
+-->
+
+	<script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+function exportCookies(){
+	try{
+		var ifp = Components.interfaces.nsIFilePicker;
+		var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(ifp);
+		fp.init(window, null, ifp.modeSave);
+		fp.appendFilters(ifp.filterAll | ifp.filterText);
+		fp.filterIndex = 1;
+		fp.defaultString = "cookies.txt";
+		var rv = fp.show();
+		if (rv == ifp.returnOK || rv == ifp.returnReplace)
+		{
+			var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
+			                         .createInstance(Components.interfaces.nsIFileOutputStream);
+			foStream.init(fp.file, 0x02 | 0x08 | 0x20, 0666, 0); // write, create, truncate
+		
+			var e = Components.classes["@mozilla.org/cookiemanager;1"]
+								.getService(Components.interfaces.nsICookieManager).enumerator;
+			var header =	"# Netscape HTTP Cookie File\n"
+						+	"# http://www.netscape.com/newsref/std/cookie_spec.html\n"
+						+	"# This is a generated file!  Do not edit.\n"
+						+	"\n";
+			foStream.write(header, header.length);
+			while(e.hasMoreElements()){
+				var cc = e.getNext().QueryInterface(Components.interfaces.nsICookie);
+				var cookieInfo = cc.host
+													+ "\t" + new String(cc.isDomain).toUpperCase()
+													+ "\t" + cc.path
+													+ "\t" + new String(cc.isSecure).toUpperCase()
+													+ "\t" + cc.expires
+													+ "\t" + cc.name
+													+ "\t" + cc.value
+													+ "\r\n";
+				foStream.write(cookieInfo, cookieInfo.length);
+			}
+			
+			foStream.close();
+		}
+	}catch(err){ alert(err.toString()); }
+}
+
+
+
+
+
+
+
+
+if(!krkAddons) var krkAddons={};
+if(!krkAddons.cookieImporter) krkAddons.cookieImporter={};
+
+krkAddons.cookieImporter.doImport = function(){
+
+	// Load FielPicker
+	var ifp = Components.interfaces.nsIFilePicker;
+	var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(ifp);
+
+	// Set FilePicker attributes
+	fp.init(window, null, ifp.modeOpen);
+	fp.appendFilters(ifp.filterAll | ifp.filterText);
+	fp.filterIndex = 1;
+	fp.defaultString = "cookies.txt";
+
+	try{
+
+		// Let User choose a file
+		var rv = fp.show();
+
+		if (rv == ifp.returnOK) {
+
+			// Open the selected file
+			var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].createInstance(Components.interfaces.nsIFileInputStream);
+			istream.init(fp.file, 0x01, 0444, 0); // readonly
+			// Select nsILineInputStream interface for "readline()" usage 
+			istream.QueryInterface(Components.interfaces.nsILineInputStream);
+
+			// Open CookieManager connection
+			var cm = Components.classes["@mozilla.org/cookiemanager;1"].getService(Components.interfaces.nsICookieManager2);
+			if(!cm){
+				alert("nsICookieManager2 konnte nicht geladen werden");
+				return;
+			}
+
+			var line = {}, cookieNum, fields, hasmore;
+			var cHost, cPath, cName, cValue, cSecure, cSession, cExpiry;
+			cookieNum = 0;
+
+			do{
+				/* One line from cookies.txt looks like ...
+				* .google.com  TRUE     /     FALSE      0      someID 4815162342
+				*  <host>    <domain> <path>  <ssl>   <expiry>  <name>  <value>
+				*    0          1       2       3        4         5       6
+				*/
+				hasmore = istream.readLine(line);
+				var fields = line.value.split("\t", 7);
+				if(fields.length != 7)
+					continue;
+				
+				// Read needed fields
+				cHost    = fields[0];
+				cPath    = fields[2];
+				cName    = fields[5];
+				cValue   = fields[6];
+				cSecure  = (fields[3] == "TRUE");
+				cExpiry  = parseInt(fields[4]);
+				// Expiry == 0 means this is a session cookie
+				cSession = (cExpiry == 0);
+				// This is so weird! cm.add() won't take cSession=TRUE and cExpiry=0
+				// because cExpiry < Today! So we work around this by making the cookie
+				// expire Sonntag, Feb. 7 2106 07:28:15. See you then ;-)
+				if(!cExpiry)
+					cExpiry = 0xffffffff;
+				
+				// Add that cookie using the CookieManager
+				cm.add(cHost, cPath, cName, cValue, cSecure, false, cSession, cExpiry);
+				
+				cookieNum++;
+			}while(hasmore);
+
+			// Close cookies.txt
+			istream.close();
+
+			alert(cookieNum + " Cookies importiert!");
+
+		}
+	}catch(err){ alert(err.toString()); }
+
+};
+
+
+      var Clickev= new function() {
+      this.iconClick = function(event) {
+        if (event.button == 0){
+          exportCookies();
+        }
+
+        else if (event.button == 2){
+          krkAddons.cookieImporter.doImport();
+          }
+          }
+      }
+
+
+
+]]></script>    
+    
+    
+    
+    <statusbar id="status-bar">
+        <statusbarpanel id="ExImcookies" class="statusbarpanel-iconic-text" onclick='Clickev.iconClick(event);' tooltiptext="Export/Import Cookies"> 
+			<image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wEBwQ0Iqg88kIAAANWSURBVDjLNZJLaJxVHMXP/977PTIznXzfNJPJZNLUEFulok0WFl/opqRVqVQLwY1KsXQjorixKIIVBd25saAGxLorCj4gtQ1uFGpLaasRSg192BjSZEqSSb553O9+9+Fi4tmc1fnBORwCACIKnHMOgAKAfe8MhE/vmQyN6eSJAMFzrdMXT8nTH96R6CrY9JQAoDcqHuHM81aPr3zxdv7AvpHq1perpdJEXCjGBGCtmazdWV2dubW0evLjSz+cib6JXzNWt5IkmRIAUBryvf5o+0fh2drEE8eH9w/3BWE19hAGGQBApiJeXitN1ir555795ZGf1aM9T83Nz36QXAUYAJRqPb+nQb2p2unB3txGGPKmE4wcZx448yA4uVAkLi5shL6jg2m4bPp32gsAIADgycnhAdPgpdHhPMgZkNMEq+Cc6Da1iuA0yGY48FIZV/7iORSi6OL358D3HusNR2tD74+PD49XK4ELyFDIHQJm4UMDWiKVLXSkREsZiFzgBraX/aTV8YP7Gj+JsZ0PhJ5HEypLwfIePJ8hyzLIjoYwbTAAaWaglIPnc3AwqHYK36OJ3Tt2hUJm7XzEgpi4xndf3aYcC3H4aAUdZeCMBiNAGsByjq8/uw3rM3r8hSoYud6OaheEdQbaZLDO4rczt5BJgxcPVwHmoG13gswBEoTpH68hyHt47Pl+aKNgbQZ6/cuHonzo36yW47jWN+R6PEah10bIHHzmugBLkJaQmSLWU+nqq8u0WF9Zb0p1j5ibn5c7BrfNzC2uTP65voIg4CjmAgQC4NQFWBBSDbRSDaUc/LyGK6qZ64sLkt/4VeoH98ed/krukGkFYu/uN9EwN3HvWIS+WhFba0WUhraglfjYM3IU9fZlKg66dK3ZevfUsYWrtPlp9sbU2FQ5Cl9Ra0VWiISLyx44F0QEaGNc465C0tAURE13t9E5+emRK68CMHwTQBeml2ZHH45GojJG/RA8UxlJmULKFCpVBKFIs7aen0+mT7w1+x4MGrueCSwHAO6DXAZ9+Wz9vIjcP47ZwAIVC3gqM2hstDsLC+vn/ji/fOLbT258DoMl5iGt/23c/xXABGA1OAC/cr+IBrdFW/KxV3AO1G7oZPHfRrJ8LVsHkDIOY0039x/jCIs0q4UrKAAAAABJRU5ErkJggg==" />
+		</statusbarpanel>
+
+	</statusbar>
+
+</overlay>
