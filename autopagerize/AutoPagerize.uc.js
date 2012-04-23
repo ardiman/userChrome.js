@@ -4,9 +4,13 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.2
-// @note           設定ファイルを利用できるようにした
-// @note           コンテキストメニューが意外と邪魔だったので葬った
+// @version        0.2.4
+// @note           SITEINFO のソートをやめてチェックの仕方を変えた（一度SITEINFOを更新した方がいいかも）
+// @note           naver まとめ、kakaku.com 修正
+// @note           0.2.3 kakaku.com のスペック検索に対応
+// @note           0.2.3 Fx7 くらいから xml で動かなくなってたのを修正
+// @note           0.2.3 ver 0.2.2 で nextLink に form 要素が指定されている場合などに動かなくなってたのを修正
+// @note           0.2.2 コンテキストメニューが意外と邪魔だったので葬った
 // @note           0.2.1 コンテキストメニューに次のページを開くメニューを追加
 // @note           0.2.1 区切りのアイコンをクリックしても色が変わらなかったのを修正
 // @note           0.2.0 INCLUDE を設定できるようにした
@@ -51,10 +55,10 @@ var MY_SITEINFO = [
 		,exampleUrl : 'http://images.google.com/images?ndsp=18&um=1&safe=off&q=image&sa=N&gbv=1&sout=1'
 	},
 	{
-		url         : '^http://matome\\.naver\\.jp/\\w+'
-		,nextLink   : '//div[contains(concat(" ", @class, " "), " MdPagination03 ")]/strong[1]/following-sibling::a[1]'
-		,pageElement: '//div[contains(concat(" ", @class, " "), " MdMTMWidgetList01 ")]'
-		,exampleUrl : 'http://matome.naver.jp/odai/2127476492987286301'
+		url         : '^http://matome\\.naver\\.jp'
+		,nextLink   : '//div[contains(@class, "MdPagination0")]/strong[1]/following-sibling::a[1]'
+		,pageElement: '//div[contains(concat(" ", @class, " "), " MdMTMWidgetList01 ")]|//ul[@class="MdMTMTtlList02" or @class="MdTopMTMList01"]'
+		,exampleUrl : 'http://matome.naver.jp/odai/2127476492987286301 http://matome.naver.jp/topic/1LwZ0'
 	},
 	{
 		url         : '^https?://mobile\\.twitter\\.com/'
@@ -68,6 +72,12 @@ var MY_SITEINFO = [
 		,pageElement : 'id("ynDetail detailHeadline")'
 		,insertBefore: 'id("detailHeadline")/a/following-sibling::*'
 		,exampleUrl  : 'http://dailynews.yahoo.co.jp/fc/sports/iwakuma_hisashi/?1331001936'
+	},
+	{
+		url          : '^http://kakaku\\.com/specsearch/\\d+'
+		,nextLink    : 'id("AutoPagerizeNextLink")'
+		,pageElement : '//tr[@class="bgColor02"][1]|//tr[@class="bgColor02"][1]/following-sibling::tr'
+		,exampleUrl  : 'http://kakaku.com/specsearch/0150/'
 	}
 ];
 
@@ -125,7 +135,7 @@ var ns = window.uAutoPagerize = {
 	EXCLUDE_REGEXP : /^$/,
 	MICROFORMAT    : MICROFORMAT,
 	MY_SITEINFO    : MY_SITEINFO.slice(),
-	SITEINFO       : [],
+	SITEINFOs      : [],
 
 	get prefs() {
 		delete this.prefs;
@@ -288,7 +298,6 @@ var ns = window.uAutoPagerize = {
 	},
 	uninit: function() {
 		ns.removeListener();
-		saveFile('uAutoPagerize.json', JSON.stringify(ns.SITEINFO));
 		["DEBUG", "AUTO_START", "ADD_HISTORY", "FORCE_TARGET_WINDOW", "SCROLL_ONLY"].forEach(function(name) {
 			try {
 				ns.prefs.setBoolPref(name, ns[name]);
@@ -425,7 +434,7 @@ var ns = window.uAutoPagerize = {
 					win.setTimeout(function(){
 						let [index, info, nextLink] = [-1, null];
 						if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win);
-						if (!info) [, info, nextLink] = ns.getInfo(ns.SITEINFO, win);
+						if (!info) [, info, nextLink] = ns.getInfo(null, win);
 						if (info) win.ap = new AutoPager(win.document, info, nextLink);
 						updateIcon();
 					}, timer);
@@ -514,23 +523,52 @@ var ns = window.uAutoPagerize = {
 				});
 			});
 		}
+		else if (/^http:\/\/kakaku\.com\/specsearch\/\d+/.test(locationHref)) {
+			let nextLink = '//img[@alt="Nächste"]/parent::a[starts-with(@onclick, "return page")]';
+			let next = getFirstElementByXPath(nextLink, doc);
+			if (next) {
+				let df = function (_doc) {
+					var form = _doc.querySelector('form[name="specForm"]');
+					if (!form) return;
+					var next = getFirstElementByXPath(nextLink, _doc);
+					if (!next) return;
+					next.id = 'AutoPagerizeNextLink';
+					var postData = Array.slice(form.elements).map(function(elem){
+						return /^(?:button|submit)$/.test(elem.type) || 
+							(elem.type == 'checkbox' && !elem.checked) || 
+							!elem.name ? 
+								'' : 
+								elem.name + '=' + encodeURIComponent(elem.value);
+						})
+						.filter(function(elem) !!elem )
+						.join('&')
+						.replace(/\bPage=\d*/, 'Page=' + /\d+/.exec(next.getAttribute('onclick'))); 
+					next.href = locationHref + '##?' + postData;
+				};
+
+				let rf = function (opt) {
+					opt.method = 'post';
+					opt.send = opt.url.replace(/.*?[#?]+/, '');
+					opt.headers['content-type'] = 'application/x-www-form-urlencoded';
+				};
+				miscellaneous.push(df);
+				win.documentFilters.push(df);
+				win.requestFilters.push(rf);
+			}
+		}
 
 		win.setTimeout(function(){
 			win.ap = null;
 			miscellaneous.forEach(function(func){ func(doc); });
 			var index = -1;
-			if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win);
+			if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win, true);
 			//var s = new Date().getTime();
-			if (!info) [index, info, nextLink] = ns.getInfo(ns.SITEINFO, win);
+			if (!info) [index, info, nextLink] = ns.getInfo(null, win, true);
 			//debug(index + 'th/' + (new Date().getTime() - s) + 'ms');
-			if (!info) [, info, nextLink] = ns.getInfo(ns.MICROFORMAT, win);
+			if (!info) [, info, nextLink] = ns.getInfo(ns.MICROFORMAT, win, true);
 			if (info) win.ap = new AutoPager(win.document, info, nextLink);
 
 			updateIcon();
-			if (info && index > 20 && !/tumblr|fc2/.test(info.url)) {
-				ns.SITEINFO.splice(index, 1);
-				ns.SITEINFO.unshift(info);
-			}
 		}, timer||0);
 	},
 	iconClick: function(event){
@@ -556,8 +594,8 @@ var ns = window.uAutoPagerize = {
 			else updateIcon();
 		}
 	},
-	getInfo: function (list, win) {
-		if (!list) list = ns.SITEINFO;
+	getInfo: function (list, win, isDebug) {
+		if (!list) return ns.getInfo2(win, isDebug);
 		if (!win)  win  = content;
 		var doc = win.document;
 		var locationHref = doc.location.href;
@@ -573,13 +611,13 @@ var ns = window.uAutoPagerize = {
 				if (!nextLink) {
 					// FIXME microformats case detection.
 					// limiting greater than 12 to filter microformats like SITEINFOs.
-					if (info.url.length > 12)
+					if (info.url.length > 12 && isDebug)
 						debug('nextLink not found.', info.nextLink);
 					continue;
 				}
 				var pageElement = getFirstElementByXPath(info.pageElement, doc);
 				if (!pageElement) {
-					if (info.url.length > 12) 
+					if (info.url.length > 12 && isDebug)
 						debug('pageElement not found.', info.pageElement);
 					continue;
 				}
@@ -590,18 +628,44 @@ var ns = window.uAutoPagerize = {
 		}
 		return [-1, null];
 	},
+	getInfo2: function(win, isDebug) {
+		if (!win) win = content;
+		var locationHref = win.location.href;
+		for (let [index, list] in Iterator(ns.SITEINFOs)) {
+			var exp = list.url_regexp || Object.defineProperty(list, "url_regexp", {
+					enumerable: false,
+					value: new RegExp([url for each({url} in list)].join("|"))
+				}).url_regexp;
+			if (!exp.test(locationHref)) continue;
+
+			let res = ns.getInfo(list, win, isDebug);
+			if (res[1]) return res;
+		}
+		return [-1, null];
+	},
 	getInfoFromURL: function (url) {
-		if (!url) url = content.location.href;
-		var list = ns.SITEINFO;
-		return list.filter(function(info, index, array) {
-			try {
-				var exp = info.url_regexp || Object.defineProperty(info, "url_regexp", {
-						enumerable: false,
-						value: new RegExp(info.url)
-					}).url_regexp;
-				return exp.test(url);
-			} catch(e){ }
-		});
+		var locationHref = url || content.location.href;
+		var list = ns.SITEINFOs;
+		var res = [];
+		for (let [, list] in Iterator(ns.SITEINFOs)) {
+			var exp = list.url_regexp || Object.defineProperty(list, "url_regexp", {
+					enumerable: false,
+					value: new RegExp([url for each({url} in list)].join("|"))
+				}).url_regexp;
+			if (!exp.test(locationHref)) continue;
+
+			for (let [, info] in Iterator(list)) {
+				try {
+					var exp = info.url_regexp || Object.defineProperty(info, "url_regexp", {
+							enumerable: false,
+							value: new RegExp(info.url)
+						}).url_regexp;
+					if ( !exp.test(locationHref) ) continue;
+					res.push(info);
+				} catch(e) { }
+			}
+		}
+		return res;
 	},
 };
 
@@ -644,7 +708,7 @@ AutoPager.prototype = {
 			this.info[key] = val;
 		}
 		
-		var url = nextLink ? nextLink.href : this.getNextURL(this.doc);
+		var url = this.getNextURL(this.doc);
 		if ( !url ) {
 			debug("getNextURL returns null.", this.info.nextLink);
 			return;
@@ -926,7 +990,9 @@ AutoPager.prototype = {
 		}, this);
 	},
 	getNextURL : function(doc) {
-		var nextLink = getFirstElementByXPath(this.info.nextLink, doc);
+		var nextLink = doc instanceof HTMLElement ? 
+			doc :
+			getFirstElementByXPath(this.info.nextLink, doc);
 		if (nextLink) {
 			var nextValue = nextLink.getAttribute('href') ||
 				nextLink.getAttribute('action') || nextLink.value;
@@ -1057,23 +1123,26 @@ function getFirstElementByXPath(xpath, node) {
 }
 
 function getXPathResult(xpath, node, resultType) {
-	var doc = node.ownerDocument || node
-	// Fx 7 でリゾルバがおかしい？
-	return doc.evaluate(xpath, node, null, resultType, null)
-	
-	var resolver = doc.createNSResolver(node.documentElement || node)
-	// Use |node.lookupNamespaceURI('')| for Opera 9.5
-	var defaultNS = node.lookupNamespaceURI(null)
+	var doc = node.ownerDocument || node;
+	var resolver = doc.createNSResolver(node.documentElement || node);
+	var defaultNS = null;
+
+	try {
+		defaultNS = (node.nodeType == node.DOCUMENT_NODE) ?
+			node.documentElement.lookupNamespaceURI(null):
+			node.lookupNamespaceURI(null);
+	} catch(e) {}
+
 	if (defaultNS) {
-		const defaultPrefix = '__default__'
-		xpath = addDefaultPrefix(xpath, defaultPrefix)
-		var defaultResolver = resolver
+		const defaultPrefix = '__default__';
+		xpath = addDefaultPrefix(xpath, defaultPrefix);
+		var defaultResolver = resolver;
 		resolver = function (prefix) {
 			return (prefix == defaultPrefix)
-				? defaultNS : defaultResolver.lookupNamespaceURI(prefix)
+				? defaultNS : defaultResolver.lookupNamespaceURI(prefix);
 		}
 	}
-	return doc.evaluate(xpath, node, resolver, resultType, null)
+	return doc.evaluate(xpath, node, resolver, resultType, null);
 }
 
 function addDefaultPrefix(xpath, prefix) {
@@ -1144,7 +1213,10 @@ function getCache() {
 		var cache = loadFile('uAutoPagerize.json');
 		if (!cache) return false;
 		cache = JSON.parse(cache);
-		ns.SITEINFO = cache;
+		ns.SITEINFOs = [];
+		while(cache.length) {
+			ns.SITEINFOs.push(cache.splice(0, 100));
+		}
 		log('Load cacheInfo.');
 		return true;
 	}catch(e){
@@ -1215,7 +1287,12 @@ function getCacheCallback(res, url) {
 		} catch (e) {}
 	});
 	info.sort(function(a, b) b.url.length - a.url.length);
-	ns.SITEINFO = info;
+	saveFile('uAutoPagerize.json', JSON.stringify(info));
+
+	ns.SITEINFOs = [];
+	while(info.length) {
+		ns.SITEINFOs.push(info.splice(0, 100));
+	}
 	log('getCacheCallback:' + url);
 }
 

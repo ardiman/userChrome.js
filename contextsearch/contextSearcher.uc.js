@@ -4,11 +4,13 @@
 // @description    右クリック→検索の強化
 // @include        main
 // @compatibility  Firefox 4
-// @version        0.0.5
-// @note           サブメニューを中クリックすると２回実行される問題を修正
-// @note           メニューの検索エンジン名を非表示にした
-// @note           カーソル下の単語の取得を調整
-// @note           "・"をカタカナとして処理していたのを修正
+// @version        0.0.6
+// @note           splitmenu をやめた（menu 部分をクリックして検索可能）
+// @note           Mac でカーソル下の単語をうまく拾えてなかったらしいのを修正したかも
+// @note           0.0.5 サブメニューを中クリックすると２回実行される問題を修正
+// @note           0.0.5 メニューの検索エンジン名を非表示にした
+// @note           0.0.5 カーソル下の単語の取得を調整
+// @note           0.0.5 "・"をカタカナとして処理していたのを修正
 // @note           0.0.4 アイコンの無い検索エンジンがあるとエラーになるのを修正
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
@@ -52,40 +54,31 @@ window.contextSearcher = {
   searchText: '',
   searchEngines: [],
   init: function(){
+    this.isMac = navigator.platform.indexOf("Mac") == 0;
     this.searchService = Cc["@mozilla.org/browser/search-service;1"].getService(Ci.nsIBrowserSearchService);
     this.context = document.getElementById('contentAreaContextMenu');
     var searchselect = document.getElementById('context-searchselect');
     searchselect.style.display = 'none';
 
-    this.menu = this.context.insertBefore(document.createElement('splitmenu'), searchselect);
+    this.menu = this.context.insertBefore(document.createElement('menu'), searchselect);
     this.menu.setAttribute('id', 'context-searcher');
+    this.menu.setAttribute('class', 'menu-iconic');
     this.menu.setAttribute('accesskey', gNavigatorBundle.getString("contextMenuSearchText.accesskey"));
-    this.menu.setAttribute('oncommand', 'contextSearcher.command(event);');
-    this.menu.setAttribute('onclick', 'if (event.target == this) checkForMiddleClick(this, event);');
-    this.menu.setAttribute('iconic', 'true');
+    this.menu.setAttribute('onclick', 'if (event.target == this) { contextSearcher.command(event); closeMenus(this); }');
 
     this.popup = this.menu.appendChild( document.createElement('menupopup') );
 
-    // splitmenuのアクセスキーが効かないのでダミーを作る
-    this.dummy = this.context.insertBefore(document.createElement('menuitem'), searchselect);
-    this.dummy.setAttribute('id', 'context-searcher-dummy');
-    this.dummy.setAttribute('command', 'context-searcher');
-    this.dummy.setAttribute('accesskey', gNavigatorBundle.getString("contextMenuSearchText.accesskey"));
-    this.dummy.collapsed = true;
-
     this.context.addEventListener('popupshowing', this, false);
     this.menu.addEventListener('DOMMouseScroll', this, false);
-    gBrowser.mPanelContainer.addEventListener('click', this, false);
+    gBrowser.mPanelContainer.addEventListener(this.isMac ? 'mousedown' : 'click', this, false);
     window.addEventListener('unload', this, false);
-
-    // サブメニューの表示を遅らせる
-    //this.menu._menuDelay = 1000;
   },
 
   uninit: function() {
     this.context.removeEventListener('popupshowing', this, false);
     this.menu.removeEventListener('DOMMouseScroll', this, false);
     gBrowser.mPanelContainer.removeEventListener('click', this, false);
+    gBrowser.mPanelContainer.removeEventListener('mousedown', this, false);
     window.removeEventListener('unload', this, false);
   },
 
@@ -93,9 +86,6 @@ window.contextSearcher = {
     this.uninit();
     document.getElementById('context-searchselect').style.removeProperty('display');
     var m = document.getElementById('context-searcher');
-    if (m)
-      m.parentNode.removeChild(m);
-    m = document.getElementById('context-searcher-dummy');
     if (m)
       m.parentNode.removeChild(m);
   },
@@ -110,7 +100,8 @@ window.contextSearcher = {
   },
 
   DOMMouseScroll: function(e) {
-    this.searchEngines = this.searchService.getVisibleEngines({});
+    if (this.searchEngines.length === 0)
+      this.searchEngines = this.searchService.getVisibleEngines({});
     if (!this.searchEngines || this.searchEngines.length == 0)
       return;
     
@@ -133,7 +124,8 @@ window.contextSearcher = {
     if (!submission)
       return;
 
-    if (!this.NEW_TAB || content.location.href === 'about:blank') {
+    var newtab = this.NEW_TAB || e.button === 1 || e.shiftKey || e.ctrlKey;
+    if (!newtab) {
       loadURI(submission.uri.spec, null, submission.postData, false);
     } else {
       gBrowser.selectedTab = gBrowser.addTab(submission.uri.spec, {
@@ -155,12 +147,16 @@ window.contextSearcher = {
     }
   },
 
+  mousedown: function(event) {
+    this.click(event);
+  },
+
   setMenuitem: function() {
     var currentEngine = this.searchService.currentEngine;
     var l = this.searchText.length > 16? this.searchText.substr(0, 16) + '...' : this.searchText;
     this.menu.engine = currentEngine;
     //this.menu.setAttribute('label', gNavigatorBundle.getFormattedString("contextMenuSearchText", [currentEngine.name, l]));
-    this.menu.setAttribute('label', "Suche nach: " + l);
+    this.menu.setAttribute('label', '"' + l + '" Suche');
     this.menu.setAttribute('tooltiptext', currentEngine.name);
     if (currentEngine.iconURI)
       this.menu.style.listStyleImage = 'url("' + currentEngine.iconURI.spec + '")';
@@ -180,13 +176,11 @@ window.contextSearcher = {
 
     if (!this.searchText || !/\S/.test(this.searchText)) {
       this.menu.hidden = true;
-      this.dummy.hidden = true;
       return;
     }
     if (this.searchText.length > 256)
       this.searchText = this.searchText.substr(0, 256);
     this.menu.hidden = false;
-    this.dummy.hidden = false;
     
     if (!this.popup.hasChildNodes() || e.ctrlKey)
       this.createMenuitem();
@@ -213,9 +207,9 @@ window.contextSearcher = {
       var engine = s[i];
       var m = document.createElement('menuitem');
       m.setAttribute('label', engine.name);
+      m.setAttribute('class', 'menuitem-iconic bookmark-item');
       if (engine.iconURI) {
         m.setAttribute('image', engine.iconURI.spec);
-        m.setAttribute('class', 'menuitem-iconic');
       }
       m.setAttribute('oncommand', 'contextSearcher.command(event);');
       m.setAttribute('onclick', 'checkForMiddleClick(this, event);');
