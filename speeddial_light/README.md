@@ -15,3 +15,6 @@ Kopiere die uc.js-Datei in den Chromeordner des Profils.
 
 ## Hinweis
 Speeddial_light stört die Funktion des Skriptes [WebScreenShot](https://github.com/ardiman/userChrome.js/tree/master/webscreenshot).
+
+**Anmerkung**: Das Skript ist seit Firefox 12 überflüssig, wenn man mit dem Ergebnis des Automatismus mittels `browser.newtabpage.enabled` auf 
+`true` und `browser.newtab.url` auf `about:newtab` zufrieden ist.
