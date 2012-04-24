@@ -8,7 +8,8 @@ Textdateien im markdown-Format mit der Dateiendung `md`. Screenshots bis zum 30.
 Die Ergebnisse der für neuere Firefox-Versionen aktualisierten Skripte sehen vielleicht ein wenig anders aus. Die Screenshots 
 werden nur bei extremen Unterschieden aktualisiert. 
 
-# Testumgebung
+# Testumgebung/Historie
+- Win XP SP 3/ Firefox 12 (ab 24.04.2012)
 - Win XP SP 3/ Firefox 11 (ab 14.03.2012)
 - Win XP SP 3/ Firefox 10 (ab 31.01.2012)
 - Win XP SP 3/ Firefox 9 (ab 27.12.2011)
