@@ -48,7 +48,8 @@ about:-Seiten nicht in einem Untermenü darstellen, muss der erste Eintrag des A
 
 Wird `showNormalPrefs` auf `1` gesetzt, so können auch die Firefox-Einstellungen über dieses Menü geöffnet werden.
 
-`enableScriptsToClip` auf `1` bietet die Möglichkeit, die Liste der eingebundenen Skripte in die Zwischenablage zu übernehmen.
+`enableScriptsToClip` auf `1` bietet die Möglichkeit, die Liste der eingebundenen Skripte in die Zwischenablage zu übernehmen. Falls der Wert auf 
+`2` oder `3` gesetzt wird, werden die Skripte nummeriert (2=getrennt bzw. 3=durchgängig).
 
 `enableRestart` auf 1 erzwingt den Neustart-Eintrag im Menü. Dies kann nützlich sein, wenn man das Skript "Add Restart Button" installiert hat, dieses 
 aber nicht automatisch erkannt wird (wurde unter Linux beobachtet).
