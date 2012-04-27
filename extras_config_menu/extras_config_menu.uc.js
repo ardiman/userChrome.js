@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
-// @compatibility  Firefox 8.*, 9.*
+// @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*
 // @include        main
-// @version        1.0.20120131
+// @version        1.0.20120427
 // ==/UserScript==
 
 var uProfMenu = {
@@ -30,7 +30,7 @@ var uProfMenu = {
   abouts: ['about:about','about:addons','about:cache','about:config','about:support'],
   // Die normalen Firefox-Einstellungen auch zur Verfuegung stellen (0: nein, 1: ja):
   showNormalPrefs: 0,
-  // Stellt "Skriptliste in Zwischenablage" zur Verfuegung (1) oder nicht (0):
+  // Stellt "Skriptliste in Zwischenablage" zur Verfuegung (1: ja, 2: mit getrennter Nummerierung, 3: mit gemeinsamer Nummerierung) oder nicht (0):
   enableScriptsToClip: 0,
   // Um den Eintrag "Neustart" zu erzwingen (falls z.B. das andere Skript zu spaet eingebunden und nicht erkannt wird), auf 1 setzen:
   enableRestart: 0,
@@ -269,8 +269,7 @@ var uProfMenu = {
       this.fillMenu("submenu-ucjs","submenu-ucjs-items", "uc.js",ucJsScripts,"uProfMenu_ucjs",0);
       this.fillMenu("submenu-ucxul","submenu-ucxul-items", "uc.xul",ucXulScripts,"uProfMenu_ucxul",0);
      } else {
-      var result="userChromeJS/uc.js:\n-------------------\n"+ucJsScripts.join("\n")+
-                 "\n\nuserChromeJS/uc.xul:\n--------------------\n"+ucXulScripts.join("\n");
+      var result=this.fillClipboardValue(ucJsScripts,ucXulScripts);
       Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper).copyString(result);
     }
   },
@@ -297,6 +296,35 @@ var uProfMenu = {
       }
       popup.insertBefore(mitem, popup.firstChild);
     }
+  },
+
+
+  fillClipboardValue:function(sArray,xArray) {
+    var retValue;
+    var s = 0;
+    var x = 0;
+    s = sArray.length;
+    x = xArray.length;
+    switch(this.enableScriptsToClip) {
+      case 1:
+        retValue = "userChromeJS/uc.js ("+s+"):\n------------------------\n"+sArray.join("\n")+
+                   "\n\nuserChromeJS/uc.xul ("+x+"):\n-------------------------\n"+xArray.join("\n");
+        break;
+      default:
+        retValue = "userChromeJS/uc.js ("+s+"):\n------------------------";
+        for (var i = 0; i < s ; i++) {
+          j = i + 1;
+          retValue = retValue + "\n" + j + ". " + sArray[i];
+        }
+        retValue = retValue + "\n\nuserChromeJS/uc.xul ("+x+"):\n-------------------------";
+        if (this.enableScriptsToClip==2) s = 0;
+        for (var i = 0; i < x ; i++) {
+          j = i + s + 1;
+          retValue = retValue + "\n" + j + ". " + xArray[i];
+        }
+        break;
+    }
+    return retValue;
   },
 
 
