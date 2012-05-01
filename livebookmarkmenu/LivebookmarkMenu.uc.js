@@ -56,9 +56,9 @@ var livebookmarkMenu = {
           menuitem.className += " VisitedFeedItem";
         }
         
-        //favicon
+        //favicon (Aenderung auf https://github.com/ardiman/userChrome.js/tree/master/livebookmarkmenu: https beruecksichtigen)
         let url = PlacesUtils._uri(place.uri);
-        if (url.scheme == "http" && !place.icon) {
+        if ((url.scheme == "http" || url.scheme == "https") && !place.icon) {
           menuitem.setAttribute( "image", "http://s2.googleusercontent.com/s2/favicons?domain_url=http://" + url.host );
 //          menuitem.setAttribute( "image", "http://localhost:8080/f/cache/" + url.host + "/favicon.ico");
 //          menuitem.setAttribute( "image", "http://" + url.host + "/favicon.ico");
