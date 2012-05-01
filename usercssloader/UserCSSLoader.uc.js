@@ -470,17 +470,17 @@ CSSTester.prototype = {
 							<td colspan="4"><textarea id="textarea"></textarea></td>
 						</tr>
 						<tr height="40">
-							<td><input type="button" value="Preview" /></td>
-							<td><input type="button" value="Save" /></td>
+							<td><input type="button" value="Vorschau" /></td>
+							<td><input type="button" value="Speichern" /></td>
 							<td width="80%"><span class="log"></span></td>
-							<td><input type="button" value="Close" /></td>
+							<td><input type="button" value="Schließen" /></td>
 						</tr>
 					</table>
 				]]>.toString();
 				this.textbox = doc.querySelector("textarea");
-				this.previewButton = doc.querySelector('input[value="Preview"]');
-				this.saveButton = doc.querySelector('input[value="Save"]');
-				this.closeButton = doc.querySelector('input[value="Close"]');
+				this.previewButton = doc.querySelector('input[value="Vorschau"]');
+				this.saveButton = doc.querySelector('input[value="Speichern"]');
+				this.closeButton = doc.querySelector('input[value="Schließen"]');
 				this.logField = doc.querySelector('.log');
 
 				var code = "@namespace url(" + this.doc.documentElement.namespaceURI + ");\n";
