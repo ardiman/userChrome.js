@@ -4,9 +4,11 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.4
-// @note           SITEINFO のソートをやめてチェックの仕方を変えた（一度SITEINFOを更新した方がいいかも）
-// @note           naver まとめ、kakaku.com 修正
+// @version        0.2.5
+// @note           0.2.5 MICROFORMAT も設定ファイルから追加・無効化できるようにした
+// @note           0.2.5 スペースアルクで動かなくなってたのを修正
+// @note           0.2.4 SITEINFO のソートをやめてチェックの仕方を変えた（一度SITEINFOを更新した方がいいかも）
+// @note           0.2.4 naver まとめ、kakaku.com 修正
 // @note           0.2.3 kakaku.com のスペック検索に対応
 // @note           0.2.3 Fx7 くらいから xml で動かなくなってたのを修正
 // @note           0.2.3 ver 0.2.2 で nextLink に form 要素が指定されている場合などに動かなくなってたのを修正
@@ -133,7 +135,7 @@ var ns = window.uAutoPagerize = {
 	_EXCLUDE       : EXCLUDE,
 	INCLUDE_REGEXP : /./,
 	EXCLUDE_REGEXP : /^$/,
-	MICROFORMAT    : MICROFORMAT,
+	MICROFORMAT    : MICROFORMAT.slice(),
 	MY_SITEINFO    : MY_SITEINFO.slice(),
 	SITEINFOs      : [],
 
@@ -358,19 +360,24 @@ var ns = window.uAutoPagerize = {
 		sandbox.INCLUDE = null;
 		sandbox.EXCLUDE = null;
 		sandbox.MY_SITEINFO = [];
+		sandbox.MICROFORMAT = [];
+		sandbox.USE_MY_SITEINFO = true;
+		sandbox.USE_MICROFORMAT = true;
+		
 		try {
 			Cu.evalInSandbox(data, sandbox, '1.8');
 		} catch (e) {
 			return log('load error.', e);
 		}
-		ns.MY_SITEINFO = sandbox.MY_SITEINFO.concat(MY_SITEINFO);
+		ns.MY_SITEINFO = sandbox.USE_MY_SITEINFO ? sandbox.MY_SITEINFO.concat(MY_SITEINFO): sandbox.MY_SITEINFO;
+		ns.MICROFORMAT = sandbox.USE_MICROFORMAT ? sandbox.MICROFORMAT.concat(MICROFORMAT): sandbox.MICROFORMAT;
 		if (sandbox.INCLUDE)
 			ns.INCLUDE = sandbox.INCLUDE;
 		if (sandbox.EXCLUDE)
 			ns.EXCLUDE = sandbox.EXCLUDE;
 		if (isAlert)
 			Cc['@mozilla.org/alerts-service;1'].getService(Ci.nsIAlertsService)
-				.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), false, "", null, "");
+				.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen', "", null, "");
 		return true;
 	},
 	getFocusedWindow: function() {
@@ -482,13 +489,17 @@ var ns = window.uAutoPagerize = {
 		}
 		// oAutoPagerize
 		else if (win.location.host === 'eow.alc.co.jp') {
-			var alc = function(_doc){
+			var alc = function(_doc, _url){
 				var a,r = _doc.evaluate('//p[@id="paging"]/a[last()]',
 					_doc,null,XPathResult.FIRST_ORDERED_NODE_TYPE,null);
 				if (r.singleNodeValue) a = r.singleNodeValue;
 				else return;
+				var word = _url.indexOf('search?') >= 0 ?
+					_url.match(/[?&]q=([^&]+)/):
+					_url.match(/eow\.alc\.co\.jp\/([^/]+)/);
+				if (!word || !word[1]) return;
 				a.id = 'AutoPagerizeNextLink';
-				a.href = a.href.replace(/javascript:goPage\("(\d+)"\)/,'./?pg=$1');
+				a.href = a.href.replace(/javascript:goPage\("(\d+)"\)/,'http://eow.alc.co.jp/search?q='+ word[1] +'&pg=$1');
 			};
 			win.documentFilters.push(alc);
 			miscellaneous.push(alc);
@@ -559,7 +570,7 @@ var ns = window.uAutoPagerize = {
 
 		win.setTimeout(function(){
 			win.ap = null;
-			miscellaneous.forEach(function(func){ func(doc); });
+			miscellaneous.forEach(function(func){ func(doc, locationHref); });
 			var index = -1;
 			if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win, true);
 			//var s = new Date().getTime();

@@ -5,7 +5,8 @@
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.7
+// @version        0.1.7.8
+// @note           0.1.7.8 window.open や target="_blank" で実行されないのを修正
 // @note           0.1.7.7 @delay 周りのバグを修正
 // @note           0.1.7.6 require で外部ファイルの取得がうまくいかない場合があるのを修正
 // @note           0.1.7.5 0.1.7.4 にミスがあったので修正
@@ -508,40 +509,40 @@ USL.init = function(){
 			<menuseparator id="UserScriptLoader-menuseparator"/>
 			<menu label="Script Einstellungen"
 			      id="UserScriptLoader-register-menu"
-			      accesskey="C">
+			      accesskey="E">
 				<menupopup id="UserScriptLoader-register-popup"/>
 			</menu>
 			<menuitem label="Script speichern"
 			          id="UserScriptLoader-saveMenu"
-			          accesskey="S"
+			          accesskey="s"
 			          oncommand="USL.saveScript();"/>
 			<menu label="Menü" id="UserScriptLoader-submenu">
 				<menupopup id="UserScriptLoader-submenu-popup">
-					<menuitem label="Bevorzugten Speicher löschen"
+					<menuitem label="Einstellungen löschen"
 					          oncommand="USL.deleteStorage('pref');" />
 					<menuseparator/>
 					<menuitem label="Inaktive Scripte ausblenden"
 					          id="UserScriptLoader-hide-exclude"
-					          accesskey="N"
+					          accesskey="a"
 					          type="checkbox"
 					          checked={USL.HIDE_EXCLUDE}
 					          oncommand="USL.HIDE_EXCLUDE = !USL.HIDE_EXCLUDE;" />
 					<menuitem label="Scriptordner öffnen"
 					          id="UserScriptLoader-openFolderMenu"
-					          accesskey="O"
+					          accesskey="ö"
 					          oncommand="USL.openFolder();" />
 					<menuitem label="Script importieren"
-					          accesskey="R"
+					          accesskey="i"
 					          oncommand="USL.rebuild();" />
 					<menuitem label="Script Zwischenspeicher"
 					          id="UserScriptLoader-cache-script"
-					          accesskey="C"
+					          accesskey="Z"
 					          type="checkbox"
 					          checked={USL.CACHE_SCRIPT}
 					          oncommand="USL.CACHE_SCRIPT = !USL.CACHE_SCRIPT;" />
 					<menuitem label="Testmodus"
 					          id="UserScriptLoader-debug-mode"
-					          accesskey="D"
+					          accesskey="T"
 					          type="checkbox"
 					          checked={USL.DEBUG}
 					          oncommand="USL.DEBUG = !USL.DEBUG;" />
@@ -593,6 +594,8 @@ USL.handleEvent = function (event) {
 			var win = event.target.defaultView;
 			win.USL_registerCommands = {};
 			win.USL_run = [];
+			if (USL.disabled) return;
+			if (USL.readScripts.length === 0) return;
 			this.injectScripts(win);
 			break;
 		case "unload":
@@ -825,22 +828,25 @@ USL.iconClick = function(event){
 	}
 };
 
+USL.retryInject = function(safeWin) {
+	function func(event) {
+		safeWin.removeEventListener("readystatechange", func, true);
+		if (event.target.URL === "about:blank") return;
+		USL.injectScripts(event.target.defaultView, true);
+	}
+	safeWin.addEventListener("readystatechange", func, true);
+};
+
 USL.injectScripts = function(safeWindow, rsflag) {
-	if (USL.disabled) return;
-	if (USL.readScripts.length === 0) return;
 	var aDocument = safeWindow.document;
 	var locationHref = safeWindow.location.href;
 
-	if (locationHref == "" && aDocument.URL == "about:blank") {
-		// document-start でフレームを開いた際にちょっとおかしいので…
-		if (rsflag) return;
-		safeWindow.addEventListener('readystatechange', function(event){
-			if (event.target.URL === "about:blank") return;
-			event.currentTarget.removeEventListener(event.type, arguments.callee, true);
-			USL.injectScripts(event.target.defaultView, true);
-		}, true);
-		return;
-	}
+	// document-start でフレームを開いた際にちょっとおかしいので…
+	if (!rsflag && locationHref == "" && safeWindow.frameElement)
+		return USL.retryInject(safeWindow);
+	// target="_blank" で about:blank 状態で開かれるので…
+	if (!rsflag && locationHref == 'about:blank')
+		return USL.retryInject(safeWindow);
 
 	if (USL.GLOBAL_EXCLUDES_REGEXP.test(locationHref)) return;
 
