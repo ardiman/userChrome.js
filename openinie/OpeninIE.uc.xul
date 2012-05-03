@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+// ==UserScript==
+// @name				OpenIE
+// @description	現在のページと選択したリンクをIEで開くメニューをコンテキストメニューに追加します。
+// @version			1.0
+// @author			y2k
+// @include			main
+// @namespace		http://tabunfirefox.web.fc2.com/
+// ==/UserScript==
+-->
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<menupopup id="contentAreaContextMenu">
+	<menuitem id="context-open-ie-page" label="Seite im IE öffnen" oncommand="OpenIE.launch(content.location.href);" insertbefore="context-sep-copylink" />
+	<menuitem id="context-open-ie-link" label="Link im IE öffnen" oncommand="OpenIE.launch(gContextMenu.link.href);" insertbefore="context-sep-copylink" />
+</menupopup>
+<script type="application/javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+(function() {
+
+window.OpenIE = {
+	IE_PATH: "C:\\Programme\\Internet Explorer\\iexplore.exe",
+	
+	start: function() {
+		var cm = document.getElementById("contentAreaContextMenu");
+		cm.addEventListener("popupshowing", function(e) {
+			if (e.target == this) { OpenIE.onpopup(e); }
+		}, false);
+	},
+	
+	onpopup: function(e) {
+		var pageItem = document.getElementById("context-open-ie-page");
+		var linkItem = document.getElementById("context-open-ie-link");
+		
+		pageItem.hidden = gContextMenu.onLink || gContextMenu.onImage;
+		linkItem.hidden = !gContextMenu.onLink || gContextMenu.onImage;
+	},
+	
+	launch: function(url) {
+		var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+		file.initWithPath(this.IE_PATH);
+		
+		var args = [ url ];
+		var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+		process.init(file);
+		process.run(false, args, args.length, {});
+	},
+};
+
+OpenIE.start();
+
+})();
+]]></script>
+</overlay>
