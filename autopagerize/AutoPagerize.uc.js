@@ -377,7 +377,7 @@ var ns = window.uAutoPagerize = {
 			ns.EXCLUDE = sandbox.EXCLUDE;
 		if (isAlert)
 			Cc['@mozilla.org/alerts-service;1'].getService(Ci.nsIAlertsService)
-				.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), "", null, "");
+			.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), false, "", null, "");
 		return true;
 	},
 	getFocusedWindow: function() {
