@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE overlay>
+<!--
+// ==UserScript==
+// @name           GoogleSuggestContext.uc.xul
+// @namespace      http://d.hatena.ne.jp/Griever
+// @include        main
+// ==/UserScript==
+ -->
+
+<overlay id="menu_overlay"  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+
+window.googleSuggest = {
+	menu: null,
+	popup: null,
+	init: function()
+	{
+		this.menu = document.getElementById('GoogleSuggestMenu');
+		this.popup = this.menu.firstChild;
+		this.contextMenu = document.getElementById('contentAreaContextMenu');
+		this.contextMenu.addEventListener('popupshowing', this.contextPopupshowing, false);
+	},
+	uninit: function()
+	{
+		this.contextMenu.removeEventListener('popupshowing', this.contextPopupshowing, false);
+	},
+	contextPopupshowing: function(event)
+	{
+		if (event.target != event.currentTarget) return;
+		googleSuggest.menu.hidden = !gContextMenu.isTextSelected;
+	},
+	menuPopupshowing: function(event)
+	{
+		var win = gContextMenu.target.ownerDocument.defaultView;
+		var sel = win.getSelection().toString();
+		if (sel)
+			googleSuggest.request(sel);
+	},
+	menuPopuphidden: function(event)
+	{
+		var menuitem;
+		while(menuitem = this.popup.firstChild){
+			this.popup.removeChild(menuitem);
+		}
+	},
+	request: function(sel)
+	{
+		function createElement(tagName, attr)
+		{
+			var elem = document.createElement(tagName);
+			if (typeof attr == 'object'){
+				for (var attrName in attr){
+					if (attrName == 'style' && typeof attr[attrName] == 'object'){
+						for (var styleName in attr[attrName]){
+							elem.style[styleName] = attr[attrName][styleName];
+						}
+					}else{
+						elem.setAttribute(attrName, attr[attrName]);
+					}
+				}
+			}
+			return elem;
+		}
+		var url = 'http://www.google.de/complete/search?output=toolbar&q=' + encodeURIComponent(sel);
+
+		var x = new XMLHttpRequest();
+		x.open('get', url, true);
+		x.onreadystatechange = function ()
+		{
+			if (x.readyState == 4 && x.status == 200){
+				var res = x.responseXML;
+				if (!res.getElementsByTagName('CompleteSuggestion')[0]){
+					googleSuggest.popup.hidePopup();
+					googleSuggest.menu.hidden = true;
+					return;
+				}
+				var suggestion = Array.slice(res.getElementsByTagName('suggestion'));
+				var num_queries = Array.slice(res.getElementsByTagName('num_queries'));
+				suggestion.forEach(function(sug, index){
+					var value = num_queries[index].getAttribute('int')
+					for(var i = 0; i < value.length/3; i++){
+						value = value.replace(/^(\d+)(\d\d\d)/,"$1,$2");
+					}
+
+					googleSuggest.popup.appendChild(createElement('menuitem', {
+						label: sug.getAttribute('data'),
+						acceltext: value,
+						onclick: 'checkForMiddleClick(this, event)',
+						oncommand: "openUILink('http://www.google.de/search?hl=de&safe=off&q=' + encodeURIComponent(this.label), event);"
+					}));
+				});
+			}
+		}
+		x.send(null)
+	},
+};
+setTimeout(function(){
+	googleSuggest.init();
+	window.addEventListener('unload', function(){
+		googleSuggest.uninit();
+	}, false);
+}, 1000);
+	]]></script>
+
+
+<!-- コンテキストメニュー -->
+<popup id="contentAreaContextMenu">
+	<menu label="Google Vorschläge"
+		id="GoogleSuggestMenu"
+		class="menu-iconic"
+		image="moz-anno:favicon:http://www.google.de/favicon.ico"
+		accesskey="G"
+		insertbefore="context-searchselect">
+		<menupopup id="GoogleSuggestPopup"
+			onpopupshowing="googleSuggest.menuPopupshowing(event);"
+			onpopuphidden="googleSuggest.menuPopuphidden(event);"/>
+	</menu>
+</popup>
+</overlay>
