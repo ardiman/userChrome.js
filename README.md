@@ -25,7 +25,7 @@ Zur Aktivierung der Skripte im Firefox muss
 
 - die **Erweiterung userChromeJS** installiert und lauffähig sein
 - eine **Datei namens userChrome.js** für den Import der Skripte sorgen (weiter unten dazu mehr)
-- das jeweilige Skript in den Chrome-Ordner des Profils kopiert werden
+- das jeweilige Skript in den Chrome-Ordner des Profils kopiert werden. Die Skripte sollten am besten in der Ansicht des Skriptes über den **Raw-Button oberhalb des Quelltextes** runtergeladen werden.
 
 Das Einbinden der `uc.js`- und `uc.xul`-Dateien geschieht mit der beigelegten userChrome.js. Diese Datei (bitte nicht mit 
 der Erweiterung verwechseln) muss ebenfalls in den Chrome-Ordner des Profils eingefügt werden. Die Zeile
