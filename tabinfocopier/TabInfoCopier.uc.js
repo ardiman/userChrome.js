@@ -13,7 +13,7 @@
         ["Titel kopieren", "ucjs_URLCopier.copyTitle(document.popupNode);"],
         ["Titel & URL kopieren", "ucjs_URLCopier.copyTabInfo(document.popupNode);"],
         ["Titel & URL als BBCode kopieren", "ucjs_URLCopier.copyTabInfo(document.popupNode, 'bbcode');"],
-        ["Titel & URL als als HTML", "ucjs_URLCopier.copyTabInfo(document.popupNode, 'html');"],
+        ["Titel & URL als HTML", "ucjs_URLCopier.copyTabInfo(document.popupNode, 'html');"],
         ["Alle Tabs kopieren' URLs", "ucjs_URLCopier.copyAllTabsURL();"],
         ["Alle Tabs kopieren' Titels", "ucjs_URLCopier.copyAllTabsTitles();"],
         ["Alle Tabs kopieren' Titel & URL", "ucjs_URLCopier.copyAllTabsInfo();"],
