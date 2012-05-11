@@ -4,7 +4,8 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.5
+// @version        0.2.6
+// @note           0.2.6 組み込みの SITEINFO を修正
 // @note           0.2.5 MICROFORMAT も設定ファイルから追加・無効化できるようにした
 // @note           0.2.5 スペースアルクで動かなくなってたのを修正
 // @note           0.2.4 SITEINFO のソートをやめてチェックの仕方を変えた（一度SITEINFOを更新した方がいいかも）
@@ -63,15 +64,15 @@ var MY_SITEINFO = [
 		,exampleUrl : 'http://matome.naver.jp/odai/2127476492987286301 http://matome.naver.jp/topic/1LwZ0'
 	},
 	{
-		url         : '^https?://mobile\\.twitter\\.com/'
-		,nextLink   : 'id("more_link") | //div[contains(concat(" ", @class, " "), " full-button ") or contains(concat(" ", @class, " "), " list-more ")]/a'
-		,pageElement: '//div[contains(concat(" ", @class, " "), " list-tweet ")]'
-		,exampleUrl : 'http://mobile.twitter.com/searches?q=%23css'
+		url          : '^https?://mobile\\.twitter\\.com/'
+		,nextLink    : '//div[contains(concat(" ",normalize-space(@class)," "), " w-button-more ")]/a[@href]'
+		,pageElement : '//div[@class="timeline"]/table[@class="tweet"]'
+		,exampleUrl  : 'https://mobile.twitter.com/ https://mobile.twitter.com/search?q=css'
 	},
 	{
 		url          : '^http://dailynews\\.yahoo\\.co\\.jp/fc/\\w+'
-		,nextLink    : 'id("detailHeadline")/h3/a[contains(@href, ".yahoo.co.jp/")]'
-		,pageElement : 'id("ynDetail detailHeadline")'
+		,nextLink    : '//a[text()="[記事全文]" and contains(@href, ".yahoo.co.jp/")]'
+		,pageElement : 'id("ynDetail detailHeadline detailNewsOpen")'
 		,insertBefore: 'id("detailHeadline")/a/following-sibling::*'
 		,exampleUrl  : 'http://dailynews.yahoo.co.jp/fc/sports/iwakuma_hisashi/?1331001936'
 	},
@@ -84,11 +85,11 @@ var MY_SITEINFO = [
 ];
 
 var MICROFORMAT = [
-	{
-		url        : '^https?://.',
-		nextLink   : '//link[contains(concat(" ", translate(normalize-space(@rel), "ENTX", "entx"), " "), " next ")] | //a[contains(concat(" ", translate(normalize-space(@rel), "ENTX", "entx"), " "), " next ")]',
-		pageElement: '//*[contains(concat(" ", normalize-space(@class), " "), " hentry ")]'
-	},
+//	{
+//		url        : '^https?://.',
+//		nextLink   : '//link[contains(concat(" ", translate(normalize-space(@rel), "ENTX", "entx"), " "), " next ")] | //a[contains(concat(" ", translate(normalize-space(@rel), "ENTX", "entx"), " "), " next ")]',
+//		pageElement: '//*[contains(concat(" ", normalize-space(@class), " "), " hentry ")]'
+//	},
 	{
 		url         : '^https?://.*',
 		nextLink    : '//a[@rel="next"] | //link[@rel="next"]',
@@ -377,7 +378,7 @@ var ns = window.uAutoPagerize = {
 			ns.EXCLUDE = sandbox.EXCLUDE;
 		if (isAlert)
 			Cc['@mozilla.org/alerts-service;1'].getService(Ci.nsIAlertsService)
-			.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), false, "", null, "");
+				.showAlertNotification(null, 'uAutoPagerize', U('Konfigurationsdatei lesen'), false, "", null, "");
 		return true;
 	},
 	getFocusedWindow: function() {
@@ -756,15 +757,13 @@ AutoPager.prototype = {
 
 		if (isRemoveAddPage) {
 			var separator = this.doc.querySelector('.autopagerize_page_separator, .autopagerize_page_info');
-			var range = this.doc.createRange();
 			if (separator) {
+				var range = this.doc.createRange();
 				range.setStartBefore(separator);
-				range.setEndAfter(this.insertPoint);
-			} else {
-				range.selectNode(this.insertPoint);
+				range.setEndBefore(this.insertPoint);
+				range.deleteContents();
+				range.detach();
 			}
-			range.deleteContents();
-			range.detach();
 		}
 
 		this.win.ap = null;
