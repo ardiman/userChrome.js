@@ -9,6 +9,9 @@
       navsounds.debug = false;
       navsounds.debugDepth = "";
       navsounds.debugLastFn = "";
+      navsounds.showErrors = 1;
+      // showErrrors = 0 fuer gar keine Fehlermeldungen, 1 fuer Eintraege in Konsole,
+      // 2 fuer Eintraege in Konsole und alert() [2 ist nicht empfehlenswert!]
 
       if (typeof Components.interfaces.nsIWindowsRegKey != "undefined") {
         navsounds.ROOT_KEY_CURRENT_USER = Components.interfaces.nsIWindowsRegKey.ROOT_KEY_CURRENT_USER;
@@ -92,16 +95,20 @@
             getBrowser().mTabBox.addEventListener("DOMContentLoaded", navsounds.browserDOMContentLoaded, true);
             document.getElementById("content").addEventListener("AlertActive", navsounds.browserAlertEvent, false);
           } catch(ex) {
+            var errMsg="";
             if (ex && (ex.fileName || ex.filename)) {
-              alert("An error occured initialising Navigational Sounds.\n\n" +
+              errMsg="An error occured initialising Navigational Sounds.\n\n" +
                     "Name: " + ex.name + "\n" +
                     "Messages: " + ex.message + "\n" +
                     "Filename: " + ("fileName" in ex ? ex.fileName : ex.filename) + "\n" +
-                    "Line: " + ex.lineNumber);
+                    "Line: " + ex.lineNumber;
             } else {
-              alert("An error occured initialising Navigational Sounds.\n\n" + ex);
+              errMsg = "An error occured initialising Navigational Sounds.\n\n" + ex;
             }
-            if (navsounds.con) {
+            if (errMsg.length > 0 && navsounds.showErrors == 2) {
+              alert(errMsg);
+            }
+            if (navsounds.con && navsounds.showErrors > 0) {
               navsounds.log("navsounds.init: ERROR: " + ex);
             }
           }
@@ -110,7 +117,7 @@
 
       navsounds.log =
         function (message) {
-          if (navsounds.con) {
+          if (navsounds.con && navsounds.showErrors > 0) {
             if (navsounds.debugLastFn) {
               navsounds.con.logStringMessage(navsounds.debugLastFn);
               navsounds.debugLastFn = "";
