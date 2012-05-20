@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="tab-tooltip-overlay"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/javascript"><![CDATA[
+    gBrowser.createTooltip = function createTooltip(aEvent) {
+      aEvent.stopPropagation();
+      var tab = ("triggerNode" in aEvent.target) ? aEvent.target.triggerNode
+                                                 : document.tooltipNode;
+      if (tab.localName != "tab") {
+        aEvent.preventDefault();
+        return;
+      }
+
+      var tooltipTitle = document.getElementById("tabTooltipTitleText");
+      tooltipTitle.textContent = tab.mOverCloseButton
+                                  ? tab.getAttribute("closetabtext")
+                                  : tab.getAttribute("label");
+
+      var tooltipUrl = document.getElementById("tabTooltipUrlText");
+      tooltipUrl.value = tab.linkedBrowser.currentURI.spec;
+      tooltipUrl.hidden = (tab.selected ||
+                           (tooltipUrl.value == "about:blank") ||
+                           (tooltipTitle.textContent == tooltipUrl.value)) &&
+                          (document.getElementById("urlbar") ||
+                           document.getElementById("main-window")
+                                   .hasAttribute("disablechrome"));
+    }
+  ]]></script>
+
+  <popupset id="mainPopupSet">
+    <tooltip id="tabbrowser-tab-tooltip"
+             onpopupshowing="gBrowser.createTooltip(event);">
+      <vbox>
+        <label id="tabTooltipTitleText" class="tooltip-label"/>
+        <label id="tabTooltipUrlText" class="tooltip-label" crop="end"/>
+      </vbox>
+    </tooltip>
+  </popupset>
+
+</overlay>
