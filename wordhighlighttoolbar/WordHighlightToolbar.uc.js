@@ -7,9 +7,17 @@
 // @compatibility  Firefox 12
 // @charset        UTF-8
 // @include        main
-// @version        0.0.1
-// @note           とりあえず公開
-// @note           キーボード操作、大文字小文字の区別などは未定…
+// @version        0.0.2
+// @note           0.0.2 試験的に要素をまたいでいても強引にハイライトできるようにした
+// @note           0.0.2 キーボード操作に対応した( N or Shift+N )
+// @note           0.0.2 フレーム読み込み時にもちゃんとハイライトするようにした
+// @note           0.0.2 次のワード検索時に折り返したらビープ音を鳴らすようにした
+// @note           0.0.2 次のワード検索後うまく文字選択できなくなるのを修正
+// @note           0.0.2 ↑の弊害で"AA"を検索時に"AAAAAA"で引っかかるorz
+// @note           0.0.2 AutoPagerize.user.js で継ぎ足しのハイライトができてなかったのを修正
+// @note           0.0.2 タブを背面に複数開いた際にワードが引き継がれないのを修正
+// @note           0.0.2 UI を弄りまくった
+// @note           0.0.2 キーワードの取得を見なおした
 // ==/UserScript==
 
 (function(CSS){
@@ -21,16 +29,13 @@ if (window.gWHT) {
 }
 
 window.gWHT = {
+	GET_KEYWORD: true, // キーワードを自動取得する [default:true]
 	SITEINFO: [
 		/**
 			url     URL。正規表現。keyword, input が無い場合は $1 がキーワードになる。
 			keyword キーワード。スペース区切り。省略可。
-			input   検索ボックスの CSS Selector。省略可。
+			input   検索ボックスの CSS Selector。
 		**/
-		{
-			url: '^http://d\\.hatena\\.ne\\.jp/Griever/$',
-			keyword: 'uAutoPagerize UserScriptLoader UserCSSLoader .uc.js'
-		},
 		{
 			url: '^https?://\\w+\\.google\\.[a-z.]+/search',
 			input: 'input[name="q"]'
@@ -39,45 +44,55 @@ window.gWHT = {
 			url: '^http?://[\\w.]+\\.yahoo\\.co\\.jp/search',
 			input: 'input[name="p"]'
 		},
-		{// MICROFORMAT
-			url: '^https?://.*[?&](?:q|word|keyword|query|search_query)=([^&]+)',
-			input: 'input[type="text"]:-moz-any([name="q"],[name="word"],[name="keyword"],[name="query"],[name="search_query"])'
+		{
+			url: '^https?://\\w+\\.bing\\.com/search',
+			input: 'input[name="q"]'
 		},
+		{
+			url: '^http://[\\w.]+\\.nicovideo\\.jp/(?:search|tag)/.*',
+			input: '#search_united, #bar_search'
+		},
+//		{// MICROFORMAT
+//			url: '^https?://.*[?&](?:q|word|keyword|search|query|search_query)=([^&]+)',
+//			input: 'input[type="text"]:-moz-any([name="q"],[name="word"],[name="keyword"],[name="search"],[name="query"],[name="search_query"]), input[type="search"]'
+//		},
 	],
 	toolbars: {},
 	getWins: function(win) {
 		var wins = win.frames.length ? [win].concat(Array.slice(win.frames)) : [win];
-		return wins.filter(this.checkWin, this);
+		return wins.filter(function(win) this.checkDoc(win.document), this);
 	},
-	checkWin: function(win) {
-		if (!/^(?:http|file)/.test(win.location.href)) return false;
-		var doc = win.document;
+	checkDoc: function(doc) {
+		if (!(doc instanceof HTMLDocument)) return false;
 		if (!doc.body || !doc.body.hasChildNodes()) return false;
 		if (doc.body instanceof HTMLFrameSetElement) return false;
-		if (doc.querySelector('meta[http-equiv="refresh"]')) return false;
 		return true;
 	},
 	getFocusedWindow: function () {
 		var win = document.commandDispatcher.focusedWindow;
 		return (!win || win == window) ? content : win;
 	},
-	getBrowserSelection: function () {
-		var sel = this.getFocusedWindow().getSelection();
-		var str = '';
-		if (sel.isCollapsed) return str;
+	getRangeAll: function (win) {
+		var sel = (win || this.getFocusedWindow()).getSelection();
+		var res = [];
+		if (sel.isCollapsed) return res;
 
 		for(var i = 0, l = sel.rangeCount; i < l; i++) {
-			str += sel.getRangeAt(i) + ' ';
+			res.push(sel.getRangeAt(i));
 		}
-		return str.trim();
+		return res;
+	},
+	getBrowserSelection: function (win) {
+		return this.getRangeAll(win).join(" ").trim();
 	},
 	init: function() {
 		this.xulstyle = addStyle(CSS);
+
 		var bb = document.getElementById("appcontent");
 		this.container = bb.appendChild(document.createElement("vbox"));
 		this.container.setAttribute("id", "wordhighliht-toolbar-box");
-		
-		var sep = document.getElementById("context-sep-viewsource");
+
+		var sep = document.getElementById("context-viewpartialsource-selection");
 		var menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
 		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight");
 		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
@@ -90,12 +105,24 @@ window.gWHT = {
 		menuitem.setAttribute("label", "Getrennt hervorheben");
 		menuitem.setAttribute("oncommand", "gWHT.highlightWordAuto();");
 		
-		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-split");
-		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-		menuitem.setAttribute("label", "Zusammen hervorheben");
-		menuitem.setAttribute("oncommand", "gWHT.highlightWordSplit();");
-		menuitem.style.display = "none";
+//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
+//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-split");
+//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
+//		menuitem.setAttribute("label", "Zusammen hervorheben");
+//		menuitem.setAttribute("oncommand", "gWHT.highlightWordSplit();");
+//		menuitem.style.display = "none";
+//		
+//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
+//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-input");
+//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
+//		menuitem.setAttribute("label", "この入力欄のワードをハイライト");
+//		menuitem.setAttribute("oncommand", "gWHT.highlightWordInput();");
+//
+//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
+//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-recovery");
+//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
+//		menuitem.setAttribute("label", "ハイライトを直す");
+//		menuitem.setAttribute("oncommand", "gWHT.recoveryItems();");
 
 		gBrowser.mPanelContainer.addEventListener("DOMContentLoaded", this, false);
 		gBrowser.mTabContainer.addEventListener("TabOpen", this, false);
@@ -116,11 +143,7 @@ window.gWHT = {
 		for (let [key, val] in Iterator(this.toolbars)) {
 			val.destroy();
 		}
-		
-		["wordhighliht-toolbar-box","wordhighliht-toolbar-highlight","wordhighliht-toolbar-highlight-auto", "wordhighliht-toolbar-highlight-split"].forEach(function(id){
-			var elem = $(id);
-			if (elem) elem.parentNode.removeChild(elem);
-		}, this);
+		$$('[id^="wordhighliht-toolbar-"]').forEach(function(elem) elem.parentNode.removeChild(elem));
 		this.uninit();
 		if (this.xulstyle) this.xulstyle.parentNode.removeChild(this.xulstyle);
 	},
@@ -128,26 +151,35 @@ window.gWHT = {
 		switch(event.type) {
 			case "DOMContentLoaded":
 				var doc = event.target;
+				if (!/^(?:http|file|chrome|jar|resource|data:text)/.test(doc.URL)) return;
+				if (!this.checkDoc(doc)) return;
 				var win = doc.defaultView;
-				if (win != win.parent) return; // フレームでは自動実行しない
-				if (!this.checkWin(win)) return;
+				// フレームでは既存のワードをハイライトする
+				if (win != win.parent) {
+					if (win.top.document.readyState != "complete") return;
+					var tab = gBrowser._getTabForContentWindow(win.top);
+					var toolbar = this.getToolbar(tab);
+					if (!toolbar) return;
+					var temp = toolbar.items.slice();
+					if (!temp.length) return;
 
-				var tab = gBrowser._getTabForContentWindow(win.top);
+					var gh = function () {
+						temp.shift().highlight(win);
+						if (temp.length)
+							win.setTimeout(gh, 10);
+					};
+					gh();
+					return;
+				}
+				var tab = gBrowser._getTabForContentWindow(win);
 				if (!tab) return;
-				var keyword = this.getKeyword(this.SITEINFO, doc);
-				var keywords = keyword.trim().split(/[\s\+\|\(\)]+/).map(function(e){
-					let a = e[0], b = e[e.length-1];
-					if (a === '"' && b === '"' || a === "'" && b === "'") {
-						return e.slice(1, -1);
-					}
-					return e;
-				}).filter(function(e,i,a) e && a.indexOf(e) === i);
+				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
 				this.launch(tab, keywords);
 				break;
 			case "TabSelect":
 				var selectedId = event.target.linkedPanel;
 				for (let [linkedPanel, cls] in Iterator(this.toolbars)) {
-					cls.toolbar.hidden = !(selectedId === linkedPanel) || cls.items.length === 0;
+					cls.toolbar.hidden = !(selectedId === linkedPanel);
 				}
 				break;
 			case "TabClose":
@@ -157,12 +189,22 @@ window.gWHT = {
 				delete this.toolbars[tab.linkedPanel];
 				break;
 			case "TabOpen":
-				this.lastOpenedTab = event.target;
+				var tab = event.target;
+				this.lastOpenedTab = tab;
+				this.lastOwnerTab = tab.owner || gBrowser.mCurrentTab;
 				break;
 			case "popupshowing":
-				gContextMenu.showItem($("wordhighliht-toolbar-highlight"), gContextMenu.isTextSelected);
-				gContextMenu.showItem($("wordhighliht-toolbar-highlight-split"), gContextMenu.isTextSelected);
-				gContextMenu.showItem($("wordhighliht-toolbar-highlight-auto"), gContextMenu.isTextSelected);
+				if (event.target != event.currentTarget) return;
+				var {isTextSelected, onTextInput, target} = gContextMenu;
+				gContextMenu.showItem("wordhighliht-toolbar-highlight", isTextSelected);
+				//gContextMenu.showItem("wordhighliht-toolbar-highlight-split", isTextSelected);
+				gContextMenu.showItem("wordhighliht-toolbar-highlight-auto", isTextSelected);
+				//gContextMenu.showItem("wordhighliht-toolbar-highlight-input", 
+				//	onTextInput && !(target instanceof HTMLTextAreaElement));
+				//var toolbar = this.getToolbar();
+				//gContextMenu.showItem("wordhighliht-toolbar-highlight-recovery", 
+				//	(!toolbar || !toolbar.items.length) && target && 
+				//	target.ownerDocument.querySelector('.wordhighliht-toolbar-span'));
 				break;
 			case "unload":
 				this.uninit();
@@ -172,14 +214,14 @@ window.gWHT = {
 	launch: function(aTab, keywords) {
 		var toolbar = this.toolbars[aTab.linkedPanel];
 		var hasRef = !!aTab.linkedBrowser.docShell.referringURI;
+		var owntab = this.lastOwnerTab;
 		var isNewtab = aTab == this.lastOpenedTab;
+		this.lastOwnerTab = null;
 		this.lastOpenedTab = null;
 
 		// target="_blank" などは元のタブのワードを継承する
 		newtabflag:if (isNewtab && hasRef) {
-			let own = aTab.owner;
-			if (!own) break newtabflag;
-			let ownbar = this.toolbars[own.linkedPanel];
+			let ownbar = this.toolbars[owntab.linkedPanel];
 			if (!ownbar || !ownbar.items.length) break newtabflag;
 
 			toolbar = this.addToolbar(aTab);
@@ -207,39 +249,49 @@ window.gWHT = {
 			 (this.toolbars[aTab.linkedPanel] = new this.ToolbarClass(aTab));
 	},
 	highlightWord: function(aWord, aTab) {
-		var word = aWord || this.getBrowserSelection();
-		if (!word || !/\S/.test(aWord)) return;
-		var tab = aTab || gBrowser.mCurrentTab;
-		var toolbar = this.addToolbar(tab);
-		toolbar.addWord(word, false).highlightAll();
-		tab.linkedBrowser.contentWindow.getSelection().removeAllRanges();// 雑
+		var win = this.getFocusedWindow();
+		var words = aWord ? [aWord+""] : this.getRangeAll(win).map(function(r) r.toString());
+		if (!words.length) return;
+		this.addWord(words, aTab);
+		win.getSelection().removeAllRanges();
 	},
 	highlightWordSplit: function(aWord, aTab) {
-		var word = aWord || this.getBrowserSelection();
-		if (!word || !/\S/.test(aWord)) return;
-		var words = word.split(/[\u3000\u3001\u3002\uFF1A\uFF1B;:,\s]+/g);
+		var win = this.getFocusedWindow();
+		var words = (aWord || this.getBrowserSelection(win)).split(/[\u3000\u3001\u3002\uFF1A\uFF1B;:,\s]+/g);
 		if (!words.length) return;
-
-		var tab = aTab || gBrowser.mCurrentTab;
-		var toolbar = this.addToolbar(tab);
-		words.sort(function(a, b) b.length - a.length).forEach(function(str) toolbar.addWord(str, false));
-		toolbar.goHighlight();
-		tab.linkedBrowser.contentWindow.getSelection().removeAllRanges();
+		this.addWord(words, aTab);
+		win.getSelection().removeAllRanges();
 	},
 	highlightWordAuto: function(aWord, aTab) {
-		var word = aWord || this.getBrowserSelection();
-		if (!word || !/\S/.test(aWord)) return;
-
-		var words = word.match(this.tangoReg);
-		if (!words) return;
-		words = words.map(function(w) w.toLowerCase()).filter(function(e,i,a) a.indexOf(e) === i);
+		var win = this.getFocusedWindow();
+		var words = (aWord || this.getBrowserSelection(win)).match(this.tangoReg);
+		if (!words || !words.length) return;
+		this.addWord(words, aTab);
+		win.getSelection().removeAllRanges();
+	},
+	highlightWordInput: function(aWord, aTab) {
+		var elem = document.commandDispatcher.focusedElement;
+		if (!elem || !elem.value || !(elem instanceof HTMLInputElement)) return;
+		var words = this.clean(elem.value);
+		if (!words.length) return;
+		this.addWord(words, aTab);
+	},
+	addWord: function(aWord, aTab) {
+		var words;
+		if (!aWord) {
+			words = prompt("", "");
+			if (!words || !/\S/.test(words)) return;
+			words = [words];
+		} else if (Array.isArray(aWord)) {
+			words = aWord.filter(function(e,i,a) e && a.indexOf(e) === i);
+		} else {
+			words = [aWord+""];
+		}
 		if (!words.length) return;
 
-		var tab = aTab || gBrowser.mCurrentTab;
-		var toolbar = this.addToolbar(tab);
+		var toolbar = this.addToolbar(aTab || gBrowser.mCurrentTab);
 		words.sort(function(a, b) b.length - a.length).forEach(function(str) toolbar.addWord(str, false));
 		toolbar.goHighlight();
-		tab.linkedBrowser.contentWindow.getSelection().removeAllRanges();
 	},
 	get tangoReg() {
 		if (this._tangoReg) return this._tangoReg;
@@ -248,11 +300,26 @@ window.gWHT = {
 			,"[\\u4E00-\\u9FA0][\\u3040-\\u309F]+" // 漢字１文字＋ひらがな
 			,"[\\u30A0-\\u30FA\\u30FC]{2,}" // カタカナ
 			,"[\\uFF41-\\uFF5A\\uFF21-\\uFF3A\\uFF10-\\uFF19]{2,}" // 全角英数数字（小文字、大文字、数字）
-			,"[\\w+\\-]{3,}"
-			,"\\d+\\.\\d+\\w*"
-			,"[\\w]{2,}"
+			,"[\\w%$\\@#+]{5,}"
+			,"\\d[\\d.,]+"
+			,"\\w[\\w.]+"
 		];
 		return this._tangoReg = new RegExp(arr.join('|'), 'g');
+	},
+	get kukuriReg() {
+		if (this._kukuriReg) return this._kukuriReg;
+		var obj = {
+			'"': '"',
+			"'": "'",
+			'\uFF3B': '\uFF3D',//［］
+			'\u3010': '\u3011',//【】
+			'\u300E': '\u300F',//『』
+			'\uFF08': '\uFF09',//（）
+			'\u201D': '\u201D',// ””
+			'\u2019': '\u2019',// ’’
+		};
+		var arr = Object.keys(obj).map(function(key) '\\' + key + '[^\\n\\'+ obj[key] +']{2,}\\' + obj[key]);
+		return this._kukuriReg = new RegExp(arr.join('|'), 'g');
 	},
 	getKeyword: function (list, aDoc) {
 		if (!list) list = this.SITEINFO;
@@ -263,26 +330,69 @@ window.gWHT = {
 				var exp = info.url_regexp || (info.url_regexp = new RegExp(info.url));
 				if ( !exp.test(locationHref) ) continue;
 				if (info.keyword)
-					return info.keyword;
+					return Array.isArray(info.keyword) ? info.keyword : info.keyword.split(/\s+/);
 				if (info.input) {
 					var input = aDoc.querySelector(info.input);
 					if (input && input.value && /\S/.test(input.value))
 						return this.clean(input.value);
-				}
-				if (RegExp.$1 && /\S/.test(RegExp.$1))
+				} else if (RegExp.$1) {
+					try {
+						return this.clean(decodeURIComponent(RegExp.$1));
+					} catch (e) {}
 					return this.clean(RegExp.$1);
+				}
 			} catch(e) {
 				log('error at ' + e);
 			}
 		}
-		return '';
+		return [];
 	},
 	clean: function clean(str) {
-		str = losslessDecodeURI({ spec:str });
-		str = str.replace(/(?:(?:\s?(?:site|(?:all)?in(?:url|title|anchor|text)):|(?:\s|^)-|[()])\S*|(\s)OR\s)/g,'$1');
-		str = (' ' + str + ' ').replace(/\s+[\w!\"\'\(\)\[\]\{\}#$%&=^~\\|`;:<>?/+*-]\s+/g, ' ').trim();
-		str = str.replace(/%[0-9a-f]{2}/gi, "");
-		return str
+		var res = [];
+		var kukuri = str.match(this.kukuriReg);
+		if (kukuri) {
+			[].push.apply(res, kukuri.map(function(w) w.slice(1,-1)));
+			str = str.replace(this.kukuriReg, ' ');
+		}
+		str = (' ' + str + ' ').replace(/\s\-\S+|(?:(?:all)?(?:inurl|intitle|intext|inanchor)|link|cache|related|info|site|filetype|daterange|movie|weather|blogurl)\:\S*|\s(?:AND|OR)\s/g, ' ');
+		var tango = str.match(/\S{2,}/g);
+		if (tango) {
+			[].push.apply(res, tango.sort(function(a,b) b.length - a.length));
+		}
+		return res.filter(function(e,i,a) e && a.indexOf(e) === i);
+	},
+	recoveryItems: function() {
+		// 戻る進むでツールバーと実際のハイライトの整合性が取れない時用
+		var hoge = {};
+		var wins = this.getWins(content);
+		var toolbar = this.addToolbar(gBrowser.mCurrentTab);
+		wins.forEach(function(win){
+			Array.slice(win.document.getElementsByClassName('wordhighliht-toolbar-span')).forEach(function(elem){
+				var res = /wordhighliht-toolbar(\d+)/.exec(elem.className);
+				if (!res || res[1] in hoge) return;
+				hoge[ res[1] ] = elem.textContent.toLowerCase();
+			});
+		});
+		Object.keys(hoge).forEach(function(key){
+			var o = toolbar.items.filter(function(o) o.word.toLowerCase() == hoge[key])[0];
+			if (o) {
+				if (o.index != key) {
+					toolbar.addWord(hoge[key], true);
+				}
+			} else {
+				wins.forEach(function(win){
+					Array.slice(win.document.getElementsByClassName('wordhighliht-toolbar' + key)).forEach(function(elem){
+						var range = win.document.createRange();
+						range.selectNodeContents(elem);
+						var df = range.extractContents();
+						elem.parentNode.replaceChild(df, elem);
+						range.detach();
+					});
+				});
+				toolbar.addWord(hoge[key], true);
+			}
+		});
+		toolbar.goHighlight(true);
 	},
 };
 
@@ -293,7 +403,7 @@ window.gWHT.ToolbarClass.prototype = {
 		 'background-color: hsl( 60, 100%, 75%); color: #000;'
 		,'background-color: hsl(120, 100%, 75%); color: #000;'
 		,'background-color: hsl(180, 100%, 75%); color: #000;'
-		,'background-color: hsl(240, 100%, 75%); color: #000;'
+		//,'background-color: hsl(240, 100%, 75%); color: #000;'
 		,'background-color: hsl(300, 100%, 75%); color: #000;'
 		,'background-color: hsl(360, 100%, 75%); color: #000;'
 		,'background-color: hsl( 30, 100%, 75%); color: #000;'
@@ -313,7 +423,7 @@ window.gWHT.ToolbarClass.prototype = {
 		this.toolbar.setAttribute("linkedPanel", this.linkedPanel);
 		this.toolbar.setAttribute("class", "wordhighliht-toolbar-toolbar");
 		this.toolbar.setAttribute("flex", "1");
-		this.toolbar.setAttribute("hidden", gBrowser.mCurrentTab != this.tab);
+		this.toolbar.setAttribute("hidden", "true");
 
 		this.box = this.toolbar.appendChild(document.createElement("arrowscrollbox"));
 		this.box.setAttribute("class", "wordhighliht-toolbar-arrowscrollbox");
@@ -336,13 +446,15 @@ window.gWHT.ToolbarClass.prototype = {
 		var box = document.getElementById("wordhighliht-toolbar-box");
 		box.appendChild(this.toolbar);
 
-		this.browser.addEventListener("GM_AutoPagerizeNextPageLoaded", this, true);
+		this.browser.addEventListener("GM_AutoPagerizeNextPageLoaded", this, true, true);
+		this.browser.addEventListener("keypress", this, true);
 	},
 	destroy: function() {
 		this.addbutton.removeEventListener("command", this, false);
 		this.reloadbutton.removeEventListener("command", this, false);
 		this.closebutton.removeEventListener("command", this, false);
 		this.browser.removeEventListener("GM_AutoPagerizeNextPageLoaded", this, true);
+		this.browser.removeEventListener("keypress", this, true);
 		this.items.slice().forEach(function(o) o.destroy());
 		this.toolbar.parentNode.removeChild(this.toolbar);
 		delete gWHT.toolbars[this.linkedPanel];
@@ -363,8 +475,7 @@ window.gWHT.ToolbarClass.prototype = {
 
 				var temp = this.items.slice();
 				var gh = function () {
-					var o = temp.shift();
-					o.highlight(win, range);
+					temp.shift().highlight(win, range);
 					if (temp.length)
 						win.setTimeout(gh, 10);
 				}
@@ -374,22 +485,49 @@ window.gWHT.ToolbarClass.prototype = {
 				if (event.currentTarget === this.closebutton)
 					return this.destroy();
 				if (event.currentTarget == this.addbutton) {
-					var word = prompt("Bitte geben Sie den gewünschten Text zum Hervorheben", getBrowserSelection());
+					var word = prompt("Bitte geben Sie den gewünschten Text zum Hervorheben", gWHT.getBrowserSelection());
 					if (!word || !/\S/.test(word)) return;
-					this.addWord(word, false).highlightAll();
+					var o = this.addWord(word, false);
+					o.highlightAll();
 					return;
 				}
 				if (event.currentTarget === this.reloadbutton) {
-					this.goHighlight(true);
+					gWHT.recoveryItems();
 					return;
 				}
+				break;
+			case "keypress":
+				if (event.target instanceof HTMLTextAreaElement || 
+						event.target instanceof HTMLSelectElement || 
+						event.target instanceof HTMLInputElement && (event.target.mozIsTextField(false)))
+					return;
+				var {keyCode, charCode, ctrlKey, shiftKey, altKey} = event;
+				if (charCode === 78 && !ctrlKey && !altKey) {
+					this.findSpan(shiftKey, event.view);
+					event.preventDefault();
+					event.stopPropagation();
+				} else if (charCode === 110 && !ctrlKey && !altKey) {
+					this.findSpan(shiftKey, event.view);
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				return;
+				// Alt+(ctrl)+1~9
+				//if (charCode >= event.DOM_VK_1 && charCode <= event.DOM_VK_9 && altKey && !shiftKey) {
+				//	var o = this.items[charCode - event.DOM_VK_1];
+				//	if (!o) return;
+				//	o.find(ctrlKey);
+				//	event.preventDefault();
+				//	event.stopPropagation();
+				//}
+				break;
 		}
 	},
 	indexOf: function(aWord) {
 		// aWord が既にあるかを確認する
+		var low = aWord.toLowerCase();
 		for (let i = 0, len = this.items.length; i < len; i++) {
-			let o = this.items[i];
-			if (o && o.word == aWord) return i;
+			if (low === this.items[i].word.toLowerCase()) return i;
 		};
 		return -1
 	},
@@ -404,27 +542,28 @@ window.gWHT.ToolbarClass.prototype = {
 		return this.items.length;
 	},
 	addWord: function(aWord, isAuto) {
+		if (!aWord || !/\S/.test(aWord)) return;
 		var index = this.indexOf(aWord);
 		if (index >= 0) return;
 		index = this.newIndexOf();
 		var o = new gWHT.ItemClass(aWord, this, index, this.styles[index%this.styles.length], isAuto);
 		this.items.push(o);
+		this.toolbar.hidden = gBrowser.mCurrentTab != this.tab;
 		return o;
 	},
 	goHighlight: function(isAll) {
-		var temp = this.items.filter(function(o) (isAll || o.length === -1));
+		var temp = this.items.filter(function(o) (isAll || o.length === 0));
 		if (!temp.length) return;
 
 		// タイマーを掛けないと取りこぼす
 		var win = this.browser.contentWindow;
 		var gh = function() {
-			var o = temp.shift();
-			o.highlightAll();
+			temp.shift().highlightAll();
 			if (temp.length)
-				win.setTimeout(gh, 10);
+				win.setTimeout(gh, 0);
 		};
-		gh();
-		
+		win.setTimeout(gh, 0);
+		this.toolbar.hidden = gBrowser.mCurrentTab != this.tab;
 	},
 	destroyAutoWord: function(keywords) {
 		this.items.slice().forEach(function(obj) {
@@ -433,50 +572,82 @@ window.gWHT.ToolbarClass.prototype = {
 			obj.destroy();
 		}, this);
 	},
+	findSpan: function(isPrev, aWin) {
+		var win = aWin || gWHT.getFocusedWindow();
+		var doc = win.document;
+		var tw = win.whtw || (win.whtw = this.createTreeWalker(doc));
+		var sel = win.getSelection();
+		// ツリーの現在地を最後にクリックした位置に合わせる
+		if (sel.focusNode)
+			tw.currentNode = isPrev ? sel.anchorNode : sel.focusNode;
+		sel.removeAllRanges();
+
+		var node;
+		if (isPrev) {
+			node = tw.previousNode();
+			if (!node) {
+				tw.currentNode = doc.body.lastChild;
+				node = tw.previousNode();
+			}
+		} else {
+			node = tw.nextNode();
+			if (!node) {
+				tw.currentNode = doc.body;
+				node = tw.nextNode();
+			}
+		}
+		if (!node) return;
+
+		var range = doc.createRange();
+		range.selectNode(node);
+		sel.addRange(range);
+		sel.QueryInterface(Ci.nsISelectionPrivate)
+			.scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
+		range.detach();
+
+		var anchor = doc.evaluate('descendant-or-self::a[@href]|ancestor-or-self::a[@href]',
+			node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		if (anchor && !/^mailto/.test(anchor.href)) {
+			anchor.focus();
+		}
+		node.style.setProperty('outline', '3px solid #36F', 'important');
+		win.setTimeout(function() {
+			node.style.removeProperty('outline');
+		}, 400);
+		sel.collapse(node, 0);
+	},
+	createTreeWalker: function(doc) {
+		return doc.createTreeWalker(
+			doc.body, NodeFilter.SHOW_ELEMENT, this.twFilter.bind(this), false);
+	},
+	twFilter: function(node) {
+		if (node.mozMatchesSelector('.wordhighliht-toolbar-span') && node.offsetHeight) {
+			return NodeFilter.FILTER_ACCEPT;
+		}
+		return NodeFilter.FILTER_SKIP;
+	},
 };
 
 window.gWHT.ItemClass = function() { this.init.apply(this, arguments); }
 window.gWHT.ItemClass.prototype = {
-	SELECTION_OFF                       : 0, // OFF,HIDDEN,ON は fastFind.setSelectionModeAndRepaint で使う？
-	SELECTION_HIDDEN                    : 1, 
-	SELECTION_ON                        : 2, 
-	SELECTION_NONE                      : 0, // 
-	SELECTION_NORMAL                    : 1, // 通常の選択範囲（content.getSelection() で取得可能）
-	SELECTION_SPELLCHECK                : 2, // 赤波の下線（スペルチェック）
-	SELECTION_IME_RAWINPUT              : 4, // 文字色の破線（下線）
-	SELECTION_IME_SELECTEDRAWTEXT       : 8, // 選択状態と同じ色（content.getSelection() では取得不可）
-	SELECTION_IME_CONVERTEDTEXT         : 16, // 4 と同じ？
-	SELECTION_IME_SELECTEDCONVERTEDTEXT : 32, // 8 と同じ？
-	SELECTION_ACCESSIBILITY             : 64, // 変化無し？
-	SELECTION_FIND                      : 128, // ページ内検索のハイライト
 	FIND_FOUND   : 0,
 	FIND_NOTFOUND: 1,
 	FIND_WRAPPED : 2,
 	TYPE: Ci.nsISelectionController.SELECTION_ACCESSIBILITY,
 	finder: Cc["@mozilla.org/embedcomp/rangefind;1"].createInstance().QueryInterface(Ci.nsIFind),
+	sound: Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound),
 	css: ['font: inherit !important;'
 		,'margin: 0px !important;'
 		,'padding: 0px !important;'
 		,'border: none !important;'
 	].join(' '),
-	get length() +this.button.getAttribute("length"),
+	_length: 0,
+	get length() this._length,
 	set length(val) {
 		this.button.setAttribute("length", +val);
-		return val;
+		return this._length = (+val);
 	},
-	getWins: function() {
-		var win = this.browser.contentWindow;
-		var wins = win.frames.length ? [win].concat(Array.slice(win.frames)) : [win];
-		return wins.filter(this.checkWin, this);
-	},
-	checkWin: function(win) {
-		if (!/^(?:http|file|chrome|jar)/.test(win.location.href)) return false;
-		var doc = win.document;
-		if (doc.contentType.indexOf('text') != 0) return;
-		if (!doc.body || !doc.body.hasChildNodes()) return false;
-		if (doc.body instanceof HTMLFrameSetElement) return false;
-		return true;
-	},
+	getWins: function() gWHT.getWins(this.browser.contentWindow),
 	init: function(aWord, aToolbar, aIndex, aColor, isAuto) {
 		this.word = aWord;
 		this.tb = aToolbar;
@@ -488,39 +659,36 @@ window.gWHT.ItemClass.prototype = {
 		this.finder.caseSensitive = false;/* 大文字小文字を区別するか */
 		this.fastFind = this.browser.fastFind;
 
-		this.hbox = this.tb.box.appendChild(document.createElement("hbox"));
-		this.hbox.setAttribute("class", "wordhighliht-toolbar-itembox " + (this.isAuto ? "auto" : "user"));
-		this.hbox.setAttribute("style", this.color);
-		this.hbox.addEventListener("DOMMouseScroll", this, false);
-		this.hbox.addEventListener("click", this, false);
-
-		this.button = this.hbox.appendChild(document.createElement("toolbarbutton"));
+		this.button = document.createElement("toolbarbutton");
 		this.button.setAttribute("label", this.word);
-		this.button.setAttribute("length", "-1");
-		this.button.setAttribute("class", "wordhighliht-toolbar-item");
+		this.button.setAttribute("style", this.color);
+		this.button.setAttribute("length", "0");
+		this.button.setAttribute("class", [
+			"wordhighliht-toolbar-item",
+			"wordhighliht-toolbar" + this.index,
+			(this.isAuto ? "auto" : "user")].join(' ')
+		);
 		this.button.setAttribute("tooltiptext", [
 			'Mausrad runter, oder Linksklick zum Weitersuchen',
 			'Shift + Linksklick, oder Mausrad zum vorherigen Wort',
 			'Mittelklick auf Mausrad zum Löschen'].join('\n')
 		);
+		this.tb.box.appendChild(this.button);
 		this.button.addEventListener("command", this, false);
-
-		this.close = this.hbox.appendChild(document.createElement("toolbarbutton"));
-		this.close.setAttribute("class", "tabs-closebutton");
-		this.close.addEventListener("command", this, false);
+		this.button.addEventListener("DOMMouseScroll", this, false);
+		this.button.addEventListener("click", this, false);
 	},
 	destroy: function() {
-		this.hbox.removeEventListener("DOMMouseScroll", this, false);
-		this.hbox.removeEventListener("click", this, false);
+		this.button.removeEventListener("DOMMouseScroll", this, false);
+		this.button.removeEventListener("click", this, false);
 		this.button.removeEventListener("command", this, false);
-		this.close.removeEventListener("command", this, false);
 		this.lowlightAll();
 
 		var index = this.tb.items.indexOf(this);
 		if (index >= 0)
 			this.tb.items.splice(index, 1);
 
-		this.hbox.parentNode.removeChild(this.hbox);
+		this.button.parentNode.removeChild(this.button);
 	},
 	handleEvent: function(event) {
 		switch(event.type){
@@ -530,14 +698,10 @@ window.gWHT.ItemClass.prototype = {
 				event.stopPropagation();
 				break;
 			case "command":
-				if (event.currentTarget == this.button) {
-					this.find(event.shiftKey);
-				} else if (event.currentTarget == this.close) {
-					this.destroy();
-				}
+				this.find(event.shiftKey);
 				break;
 			case "click":
-				if (event.button != 1 || event.currentTarget != this.hbox) return;
+				if (event.button != 1) return;
 				event.preventDefault();
 				event.stopPropagation();
 				this.destroy();
@@ -545,20 +709,30 @@ window.gWHT.ItemClass.prototype = {
 		}
 	},
 	find: function(isBack) {
-		if (this.fastFind.searchString != this.word)
-			this.fastFind.find(this.word, false);
-		var res = this.fastFind.findAgain(isBack, false);
-		if (res === this.FIND_NOTFOUND) return;
+		var res;
+		if (this.fastFind.searchString != this.word) {
+			res = this.fastFind.find(this.word, false);
+			if (isBack) {
+				res = this.fastFind.findAgain(isBack, false);
+			}
+		} else {
+			res = this.fastFind.findAgain(isBack, false);
+		}
+		if (res === this.FIND_NOTFOUND)
+			return this.sound.beep();
+		if (res === this.FIND_WRAPPED)
+			this.sound.beep();
 		var win = this.fastFind.currentWindow;
 		if (!win) return;
-		var span = win.getSelection().getRangeAt(0).startContainer.parentNode;
+		var sel = win.getSelection();
+		var node = sel.getRangeAt(0).startContainer;
+		var span = node.parentNode;
 		if (!span.classList.contains('wordhighliht-toolbar-span')) return;
-		span.style.setProperty('outline', '5px solid #66F', 'important');
+		sel.collapse(node, 1);
+		span.style.setProperty('outline', '4px solid #36F', 'important');
 		win.setTimeout(function () {
 			span.style.removeProperty('outline');
 		}, 400);
-		// SELECTION_HIDDEN で見えないけど選択された状態にできる
-		this.fastFind.setSelectionModeAndRepaint(this.SELECTION_HIDDEN);
 	},
 	throughSelector: ['script','style','textarea','input','select','.wordhighliht-toolbar-span'].map(function(w) w+', '+w+' *').join(','),
 	highlight: function(aWindow, aRange) {
@@ -579,24 +753,38 @@ window.gWHT.ItemClass.prototype = {
 		var eRange = range.cloneRange();
 		eRange.collapse(true);
 
-		var cls = 'wordhighliht-toolbar'+this.index;
-		var throughSelector = this.throughSelector;
+		var cls = "wordhighliht-toolbar" + this.index ;
+		var cls2 = "wordhighliht-toolbar-span " + (this.isAuto ? "auto" : "user");
 		var len = 0;
 		for (var retRange = null; 
 		     retRange = finder.Find(this.word, range, sRange, eRange); 
 		     sRange = retRange.cloneRange(), sRange.collapse(true)) {
 			var pare = retRange.startContainer.parentNode;
-			if (pare.mozMatchesSelector(throughSelector)) {
+			if (pare.mozMatchesSelector(this.throughSelector)) {
 				if (pare.classList.contains(cls))
-					len++;
+					++len;
 				continue;
 			}
+			var pare = retRange.endContainer.parentNode;
+			if (pare.mozMatchesSelector(this.throughSelector)) {
+				if (pare.classList.contains(cls))
+					++len;
+				continue;
+			}
+			let span = doc.createElementNS("http://www.w3.org/1999/xhtml", "font");
+			span.setAttribute("style", this.css + this.color);
+			span.setAttribute("class", cls2 + " " + cls);
 			try {
-				let span = doc.createElementNS("http://www.w3.org/1999/xhtml", "font");
-				span.setAttribute("style", this.css + this.color);
-				span.setAttribute("class", "wordhighliht-toolbar-span " + cls);
 				retRange.surroundContents(span);
-				len++;
+				++len;
+				continue;
+			} catch (e) {}
+			try {
+				// 範囲内の要素を細切れにしてでも強調する。行儀が悪い
+				span.appendChild(retRange.extractContents());
+				retRange.insertNode(span);
+				++len;
+				continue;
 			} catch (e) {}
 		}
 		this.length += len;
@@ -612,9 +800,11 @@ window.gWHT.ItemClass.prototype = {
 			range.selectNodeContents(elem);
 			var df = range.extractContents();
 			elem.parentNode.replaceChild(df, elem);
+			range.detach();
 		};
 		this.getWins().forEach(function(w){
 			Array.slice(w.document.getElementsByClassName("wordhighliht-toolbar" + this.index)).forEach(rm, this);
+			w.document.body.normalize();
 		}, this);
 	},
 	_getSelectionController : function _getSelectionController(aWindow) {
@@ -649,7 +839,7 @@ function addStyle(css) {
 })(<![CDATA[
 
 .wordhighliht-toolbar-icon {
-  list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAR0lEQVQ4jWNgGDTg6VOG/9euEYefPmX4j6GZHAw3AGbq///EYZhrsRrw8+cxvJgiA8h2AVleIDsMKA7EgTGA4oREcVIeUAAAP+Xk2I6ZppUAAAAASUVORK5CYII=");
+  list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANUlEQVQ4jWNgGBTg6dOi/6RgrAb8/19PFB7EBlAUBoMDFD0t+k8qxjCgngQ4SA2gKAwGDAAAM3SE/usVkKQAAAAASUVORK5CYII=");
 }
 
 .wordhighliht-toolbar-arrowscrollbox > .autorepeatbutton-up,
@@ -662,22 +852,32 @@ function addStyle(css) {
   -moz-transform: rotate(-90deg);
 }
 
+.wordhighliht-toolbar-toolbar .tabs-closebutton {
+  padding: 0px 3px !important;
+}
 .wordhighliht-toolbar-toolbar .tabs-closebutton > .toolbarbutton-icon {
   -moz-padding-end: 0px !important;
   -moz-padding-start: 0px !important;
 }
-.wordhighliht-toolbar-itembox.user {
+.wordhighliht-toolbar-item.user {
   font-weight: bold !important;
 }
 .wordhighliht-toolbar-item {
   -moz-appearance: none !important;
-  padding: 0px 0px 0px 3px !important;
+  -moz-box-align: center !important;
+  padding: 2px 3px !important;
+  margin: 0px 0px 0px 3px !important;
+  border: 1px solid rgba(0,0,0,.2) !important;
+  border-radius: 0 10px 0 10px / 0 10px 0 10px  !important;
+}
+.wordhighliht-toolbar-item:hover {
+  border: 1px outset rgba(0,0,0,.6) !important;
+}
+.wordhighliht-toolbar-item:hover:active {
+  border: 1px inset rgba(0,0,0,.4) !important;
 }
 .wordhighliht-toolbar-item[length]:after {
   content: "(" attr(length) ")" !important;
-}
-.wordhighliht-toolbar-item[length="-1"]:after {
-  content: "(?)" !important;
 }
 .wordhighliht-toolbar-item > .toolbarbutton-icon {
   margin: 0px !important;
@@ -711,4 +911,7 @@ function addStyle(css) {
 .wordhighliht-toolbar-arrowscrollbox:empty ~ * {
   visibility: collapse;
 }
+/*
+#statusbar-display { left: auto !important; }
+*/
 ]]>.toString());
