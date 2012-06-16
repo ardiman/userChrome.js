@@ -2,7 +2,7 @@
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*
 // @include        main
-// @version        1.0.20120427
+// @version        1.0.20120518
 // ==/UserScript==
 
 var uProfMenu = {
@@ -108,6 +108,7 @@ var uProfMenu = {
     menupopup.appendChild(this.createME("menuitem","Profilordner","uProfMenu.prefDirOpen('ProfD');","uProfMenu_folder"),0);
     menupopup.appendChild(this.createME("menuitem","Addonordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfD')+uProfMenu.getDirSep()+'extensions');","uProfMenu_folder"),0);
     menupopup.appendChild(this.createME("menuitem","Installationsordner","uProfMenu.prefDirOpen('CurProcD');","uProfMenu_folder"),0);
+    menupopup.appendChild(this.createME("menuitem","Startup-Cacheordner","uProfMenu.dirOpen(uProfMenu.getPrefDirectoryPath('ProfLD')+uProfMenu.getDirSep()+'startupCache');","uProfMenu_folder"),0);
     // Ende Einbindung von Ordnern
     // Einbindung von abouts
     if (this.abouts.length>0) {
