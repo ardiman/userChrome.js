@@ -1,0 +1,1 @@
+location == "chrome://browser/content/browser.xul" && document.querySelector("#PlacesToolbarItems").addEventListener("mouseover",function(e){e.originalTarget.classList.contains("bookmark-item")&&e.originalTarget.setAttribute('closemenu',"none")},false);
