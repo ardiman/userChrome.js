@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css;charset=UTF-8,%23MemInfo%20.toolbarbutton-icon%20%7B%20display%3Anone%20%21important%3B%20%7D%20" type="text/css"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<toolbar id="addon-bar">
+		<toolbarbutton oncommand='var file=Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);file.initWithPath(Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("SysD", Components.interfaces.nsILocalFile).path + "\\taskmgr.exe");file.launch()' id="MemInfo" type="button" onload="try{MemInfo.show()}catch(e){}" class="bookmark-item" label="MemInfo" tooltiptext="Speicherauslastung||Systemspeicher" insertbefore="abp-toolbarbutton" onclick="if (event.button == 1) openUILinkIn('about:memory','tab');"/>
+	</toolbar>
+	<script>
+		<![CDATA[
+		var MemInfo = {
+			show: function () {
+				Components.utils.import("resource://gre/modules/ctypes.jsm");
+				var isFF13 = Application.version[0] == 13;
+				var dll = ctypes.open(Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("ProfD", Components.interfaces.nsILocalFile).path + "\\chrome\\MemInfo.dll");
+				var osmem = dll.declare("osmem", isFF13 ? ctypes.stdcall_abi : ctypes.winapi_abi, isFF13 ? ctypes.int32_t : ctypes.int);
+				var ffmem = dll.declare("ffmem", isFF13 ? ctypes.stdcall_abi : ctypes.winapi_abi, isFF13 ? ctypes.int32_t : ctypes.int);
+				setInterval(function () {
+					document.querySelector("#MemInfo") ? (document.querySelector("#MemInfo").label = ffmem() + "MB||" + osmem() + "MB") : 0;
+				}, 1000);
+				this.show = function () {};
+			}
+		}
+		window.addEventListener("load", function () {
+			MemInfo.show()
+		}, false)
+		]]>
+	</script>
+</overlay> 
