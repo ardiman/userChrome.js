@@ -1,5 +1,5 @@
 # Memory Info
-Basiert auf dem gleichnamigen Add-On und wurde etwas erweitert. Dieses Skript ist mit "Memory Monitor Mod vergleichbar". Auch hierbei geht es um den 
+Basiert auf dem gleichnamigen Add-On und wurde etwas erweitert. Dieses Skript ist mit "Memory Monitor Mod" vergleichbar. Auch hierbei geht es um den 
 Speicherverbrauch des Firefox (in MB) über eine Verbrauchsanzeige in der Statusbar (die Anzeige kann man ganz leicht in jeder beliebigen Toolbar 
 platzieren). Dazu gibt es noch die aktuelle Speicheranzeige des Systems. Um dies zu erreichen gehört zum Skript eine DLL Datei. Der Pfad dieser 
 Datei wurde im Skript so gewählt, dass sie einfach nur neben dem Skript im Chromeordner abgelegt werden muss.
