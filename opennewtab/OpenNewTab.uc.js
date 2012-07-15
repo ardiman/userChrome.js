@@ -1,3 +1,13 @@
+// ==UserScript==
+// @description     OpenNewTab.uc.js
+// @description     Lesezeichen, Chronik, Searchbar, Urlbar in neuen Tabs
+// @include		    chrome://browser/content/browser.xul
+// @include 		chrome://browser/content/bookmarks/bookmarksPanel.xul
+// @include 		chrome://browser/content/history/history-panel.xul
+// @include 		chrome://browser/content/places/places.xul
+// @compatibility	Firefox 13
+// ==/UserScript==
+
     if (location == "chrome://browser/content/browser.xul") {
 
     /*======= Clear the searchbar after submit & open in new fg tab or current tab if empty (browser.search.openintab = false) =======*/
@@ -20,11 +30,9 @@
     // urlbarBindings.xml
     (function() {
     var urlbar = document.getElementById("urlbar");
-    var str = urlbar.handleCommand.toString();
-    str = str.replace("ope","if (where == 'current' && !/^javascript\:/i.test(url) && !isTabEmpty(gBrowser.selectedTab)) where = 'tab'; $&");
-    str = str.replace("aTriggeringEvent &&","");
-    str = str.replace("aTriggeringEvent.altKey","!/^javascript\:/i.test(url)");
-    eval("urlbar.handleCommand = " + str);
+    var str = gURLBar.handleCommand.toString();
+    str = str.replace(/^\s*(load.+);/gm,"/^javascript:/.test(url)||content.location=='about:blank'?$1:gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});");
+    eval("gURLBar.handleCommand= " + str);
 
 
     /*======= Open bookmark-menu, Library & bookmarks/history sidebar URIs in new fg tab or in current tab if empty =======*/
