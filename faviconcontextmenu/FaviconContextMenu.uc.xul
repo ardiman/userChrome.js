@@ -1,0 +1,39 @@
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<popupset id="mainPopupSet">
+  <popup id="faviconContextMenu">
+    <menuitem id="faviconContext-clearurl"
+              label="Adressleiste leeren"
+              oncommand="gURLBar.value = '';gURLBar.focus();"/>
+    <menuitem id="faviconContext-copyurl"
+              label="Adresse kopieren"
+              oncommand="copyStringToClipboard(gBrowser.currentURI.spec);"/>
+    <menuitem id="faviconContext-pasteandgo"
+              label="Einfügen und öffnen in neuem Tab"
+              oncommand="openUILinkIn(readFromClipboard(), 'tab', true);"/>
+    <menuseparator/>
+    <menuitem id="faviconContext-copyfaviconurl"
+              label="Favicon Adresse kopieren"
+              oncommand="copyStringToClipboard(gProxyFavIcon.src);"/>
+    <menuitem id="faviconContext-savefavicon"
+              label="Favicon speichern"
+              oncommand="openUILinkIn(gProxyFavIcon.src, 'save');"/>
+  </popup>
+</popupset>
+
+<script type="application/x-javascript">
+<![CDATA[
+
+function copyStringToClipboard(s) {
+  var clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+  clipboard.copyString(s);
+}
+
+gProxyFavIcon.setAttribute("context", "faviconContextMenu");
+
+eval("middleMousePaste = " + middleMousePaste.toString()
+  .replace("openUILink(url, event, true);", "openUILink(url, event, true, false, true, postData.value);")
+);
+
+]]>
+</script>
+</overlay>
