@@ -22,17 +22,7 @@ eval("openUILinkIn = " + openUILinkIn.toString()
 
     /*open url in new tab */
     try {
-        var new_str = '_LoadURL(aTriggeringEvent, ';
-        var old_str = /if \(aTriggeringEvent instanceof MouseEvent\) {/;
-        try { // firefox 3.0.*
-            eval("BrowserLoadURL = "+ BrowserLoadURL.toString().replace(
-                old_str, new_str+' aPostData); return; $&'));
-        }
-        catch(e) { // firefox 3.1
-            var urlbar = document.getElementById("urlbar");
-            eval("urlbar.handleCommand="+ urlbar.handleCommand.toString(
-                ).replace(old_str, new_str+' postData); return; $&'));
-        }
+		location=="chrome://browser/content/browser.xul"&&eval("gURLBar.handleCommand="+gURLBar.handleCommand.toString().replace(/^\s*(load.+);/gm,"/^javascript:/.test(url)||content.location=='about:blank'?$1:gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});"))
     }catch(e){}
 
     /*open home in new tab  */
