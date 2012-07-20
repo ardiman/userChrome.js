@@ -4,7 +4,8 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.6
+// @version        0.2.7
+// @note           0.2.7 Firefox 14 でとりあえず動くように修正
 // @note           0.2.6 組み込みの SITEINFO を修正
 // @note           0.2.5 MICROFORMAT も設定ファイルから追加・無効化できるようにした
 // @note           0.2.5 スペースアルクで動かなくなってたのを修正
@@ -52,7 +53,7 @@ var MY_SITEINFO = [
 		,exampleUrl : 'http://eow.alc.co.jp/%E3%81%82%E3%82%8C/UTF-8/ http://eow.alc.co.jp/are'
 	},
 	{
-		url         : '^http://(?:images|www)\\.google(?:\\.[^./]{2,3}){1,2}/(images\\?|search\\?.*tbm=isch)'
+		url         : '^https?://(?:images|www)\\.google(?:\\.[^./]{2,3}){1,2}/(images\\?|search\\?.*tbm=isch)'
 		,nextLink   : 'id("nn")/parent::a | id("navbar navcnt nav")//td[last()]/a'
 		,pageElement: 'id("ImgCont ires")/table | id("ImgContent")'
 		,exampleUrl : 'http://images.google.com/images?ndsp=18&um=1&safe=off&q=image&sa=N&gbv=1&sout=1'
@@ -66,7 +67,7 @@ var MY_SITEINFO = [
 	{
 		url          : '^https?://mobile\\.twitter\\.com/'
 		,nextLink    : '//div[contains(concat(" ",normalize-space(@class)," "), " w-button-more ")]/a[@href]'
-		,pageElement : '//div[@class="timeline"]/table[@class="tweet"]'
+		,pageElement : '//div[@class="timeline"]/table[@class="tweet"] | //div[@class="user-list"]/table[@class="user-item"]'
 		,exampleUrl  : 'https://mobile.twitter.com/ https://mobile.twitter.com/search?q=css'
 	},
 	{
@@ -104,11 +105,11 @@ var SITEINFO_IMPORT_URLS = [
 
 var COLOR = {
 	on: '#0f0',
-	off: '#ccc',
-	enable: '#0f0',
-	disable: '#ccc',
-	loading: '#0ff',
-	terminated: '#00f',
+	Aus: '#ccc',
+	Aktiviert: '#0f0',
+	Deaktiviert: '#ccc',
+	Laden: '#0ff',
+	Beendet: '#00f',
 	error: '#f0f'
 }
 
@@ -227,16 +228,16 @@ var ns = window.uAutoPagerize = {
 		ns.icon = $('status-bar').appendChild($E(
 			<statusbarpanel id="uAutoPagerize-icon"
 			                class="statusbarpanel-iconic-text"
-			                state="disable"
-			                tooltiptext="disable"
+			                state="Deaktiviert"
+			                tooltiptext="Deaktiviert"
 			                onclick="if(event.button != 2) uAutoPagerize.iconClick(event);"
 			                context=""/>
 		));
 */
 		ns.icon = $('urlbar-icons').appendChild($E(
 			<image id="uAutoPagerize-icon"
-			       state="disable"
-			       tooltiptext="disable"
+			       state="Deaktiviert"
+			       tooltiptext="Deaktiviert"
 			       onclick="if(event.button != 2) uAutoPagerize.iconClick(event);"
 			       context="uAutoPagerize-popup" />
 		));
@@ -536,7 +537,7 @@ var ns = window.uAutoPagerize = {
 			});
 		}
 		else if (/^http:\/\/kakaku\.com\/specsearch\/\d+/.test(locationHref)) {
-			let nextLink = '//img[@alt="Nächste"]/parent::a[starts-with(@onclick, "return page")]';
+			let nextLink = '//img[@alt="次へ"]/parent::a[starts-with(@onclick, "return page")]';
 			let next = getFirstElementByXPath(nextLink, doc);
 			if (next) {
 				let df = function (_doc) {
@@ -688,17 +689,17 @@ function AutoPager(doc, info) {
 AutoPager.prototype = {
 	req: null,
 	pageNum: 1,
-	_state: 'disable',
+	_state: 'Deaktiviert',
 	get state() this._state,
 	set state(state) {
-		if (this.state !== "terminated" && this.state !== "error") {
-			if (state === "disable") {
+		if (this.state !== "Beendet" && this.state !== "error") {
+			if (state === "Deaktiviert") {
 				this.abort();
 			}
-			else if (state === "terminated" && state === "error") {
+			else if (state === "Beendet" && state === "error") {
 				this.removeListener();
 			}
-			if (this.state !== "loading" && state !== "loading" || this.isFrame) {
+			if (this.state !== "Laden" && state !== "Laden" || this.isFrame) {
 				Array.forEach(this.doc.getElementsByClassName('autopagerize_icon'), function(e) {
 					e.style.backgroundColor = COLOR[state];
 				});
@@ -740,7 +741,7 @@ AutoPager.prototype = {
 		this.loadedURLs = {};
 		this.loadedURLs[doc.location.href] = true;
 
-		this.state = "enable";
+		this.state = "Aktiviert";
 		this.win.addEventListener("pagehide", this, false);
 		this.addListener();
 
@@ -750,7 +751,7 @@ AutoPager.prototype = {
 			this.body.style.minHeight = (this.win.innerHeight + 1) + 'px';
 	},
 	destroy: function(isRemoveAddPage) {
-		this.state = "disable";
+		this.state = "Deaktiviert";
 		this.win.removeEventListener("pagehide", this, false);
 		this.removeListener();
 		this.abort();
@@ -796,18 +797,18 @@ AutoPager.prototype = {
 				this.stateToggle();
 				break;
 			case "AutoPagerizeEnableRequest":
-				this.state = "enable";
+				this.state = "Aktiviert";
 				break;
 			case "AutoPagerizeDisableRequest":
-				this.state = "disable";
+				this.state = "Deaktiviert";
 				break;
 		}
 	},
 	stateToggle: function() {
-		this.state = this.state == 'disable'? 'enable' : 'disable';
+		this.state = this.state == 'Deaktiviert'? 'Aktiviert' : 'Deaktiviert';
 	},
 	scroll : function(){
-		if (this.state !== 'enable' || !ns.AUTO_START) return;
+		if (this.state !== 'Aktiviert' || !ns.AUTO_START) return;
 		var remain = this.getScrollHeight() - this.win.innerHeight - this.win.scrollY;
 		if (remain < this.remainHeight) {
 			this.request();
@@ -858,8 +859,8 @@ AutoPager.prototype = {
 			onload: function(res) { self.requestLoad.apply(self, [res]); self.req = null; }
 		}
 		this.win.requestFilters.forEach(function(i) { i(opt) }, this);
-		this.state = 'loading';
-		this.req = GM_xmlhttpRequest(opt, isSameDomain? this.win : null);
+		this.state = 'Laden';
+		this.req = GM_xmlhttpRequest(opt);
 	},
 	requestLoad : function(res){
 		var before = res.URI.host;
@@ -902,18 +903,18 @@ AutoPager.prototype = {
 
 		if (!page || page.length < 1 ) {
 			debug('pageElement not found.' , this.info.pageElement);
-			this.state = 'terminated';
+			this.state = 'Beendet';
 			return;
 		}
 
 		if (this.loadedURLs[this.requestURL]) {
 			debug('page is already loaded.', this.requestURL, this.info.nextLink);
-			this.state = 'terminated';
+			this.state = 'Beendet';
 			return;
 		}
 
 		if (typeof this.win.ap == 'undefined') {
-			this.win.ap = { state: 'enabled' };
+			this.win.ap = { state: 'Aktiviert' };
 			updateIcon();
 		}
 		this.loadedURLs[this.requestURL] = true;
@@ -921,7 +922,7 @@ AutoPager.prototype = {
 			this.setInsertPoint();
 			if (!this.insertPoint) {
 				debug("insertPoint not found.", this.info.pageElement);
-				this.state = 'terminated';
+				this.state = 'Beendet';
 				return;
 			}
 			this.setRemainHeight();
@@ -929,12 +930,12 @@ AutoPager.prototype = {
 		page = this.addPage(htmlDoc, page);
 		this.win.filters.forEach(function(i) { i(page) });
 		this.requestURL = url;
-		this.state = 'enable';
+		this.state = 'Aktiviert';
 //		if (!ns.SCROLL_ONLY)
 //			this.scroll();
 		if (!url) {
 			debug('nextLink not found.', this.info.nextLink, htmlDoc);
-			this.state = 'terminated';
+			this.state = 'Beendet';
 		}
 		var ev = this.doc.createEvent('Event');
 		ev.initEvent('GM_AutoPagerizeNextPageLoaded', true, false);
@@ -958,7 +959,7 @@ AutoPager.prototype = {
 			var o = p.insertBefore(this.doc.createElement('div'), p.firstChild);
 			o.setAttribute('class', 'autopagerize_icon');
 			o.style.cssText = [
-				'background: ', COLOR['enable'], ';'
+				'background: ', COLOR['Aktiviert'], ';'
 				,'width: .8em;'
 				,'height: .8em;'
 				,'padding: 0px;'
@@ -1075,12 +1076,12 @@ AutoPager.prototype = {
 function updateIcon(){
 	var newState = "";
 	if (ns.AUTO_START == false) {
-		newState = "off";
+		newState = "Aus";
 	} else {
 		if (content.ap) {
 			newState = content.ap.state;
 		} else {
-			newState = "disable";
+			newState = "Deaktiviert";
 		}
 	}
 	ns.icon.setAttribute('state', newState);
@@ -1426,13 +1427,13 @@ function saveFile(name, data) {
 	-moz-image-region: rect(0px 16px 16px 0px );
 }
 
-#uAutoPagerize-icon[state="enable"]     { -moz-image-region: rect(0px 32px 16px 16px); }
-#uAutoPagerize-icon[state="terminated"] { -moz-image-region: rect(0px 48px 16px 32px); }
+#uAutoPagerize-icon[state="Aktiviert"]     { -moz-image-region: rect(0px 32px 16px 16px); }
+#uAutoPagerize-icon[state="Beendet"] { -moz-image-region: rect(0px 48px 16px 32px); }
 #uAutoPagerize-icon[state="error"]      { -moz-image-region: rect(0px 64px 16px 48px); }
-#uAutoPagerize-icon[state="off"]        { -moz-image-region: rect(0px 80px 16px 64px); }
+#uAutoPagerize-icon[state="Aus"]        { -moz-image-region: rect(0px 80px 16px 64px); }
 
 
-#uAutoPagerize-icon[state="loading"] {
+#uAutoPagerize-icon[state="Laden"] {
 	list-style-image: url(data:image/gif;base64,
 		R0lGODlhEAAQAKEDADC/vyHZ2QD//////yH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCgADACwAAAAAEAAQ
 		AAACIJyPacKi2txDcdJmsw086NF5WviR32kAKvCtrOa2K3oWACH5BAkKAAMALAAAAAAQABAAAAIinI9p
