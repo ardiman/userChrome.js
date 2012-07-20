@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="ar-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript"><![CDATA[
+function reloadAllTabs () {
+	var browser = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+	var mw = browser.getMostRecentWindow("navigator:browser");
+	mw.gBrowser.reloadAllTabs();
+};	
+
+]]></script>
+	<menupopup id="contentAreaContextMenu">
+		<menuitem id="arMenu" accesskey="A" label="Alle Tabs neu laden" insertafter="context-bookmarkpage" oncommand="reloadAllTabs();" />
+	</menupopup>
+	
+	<menupopup id="goPopup">
+        <menuitem id="arMenuPopup" accesskey="A" label="Alle Tabs neu laden" insertbefore="startHistorySeparator" oncommand="reloadAllTabs();" />
+	</menupopup>	
+
+</overlay>
