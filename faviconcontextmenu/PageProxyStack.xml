@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <binding id="page-proxy-plug">
+        <content context="_child">
+            <xul:menupopup>
+                <xul:menuitem label="Adressleiste leeren"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('clear_url');" />
+                <xul:menuitem label="Adresse kopieren"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('copy_url');" />
+				<xul:menuseparator />			  
+                <xul:menuitem label="Einfügen und öffnen in aktivem Tab"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('pasteandgo_url_current');" />
+                <xul:menuitem label="Einfügen und öffnen in neuem Tab (Vordergrund)"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('pasteandgo_url_tab_foreground');" />
+                <xul:menuitem label="Einfügen und öffnen in neuem Tab (Hintergrund)"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('pasteandgo_url_tab_background');" />
+                <xul:menuseparator />
+                <xul:menuitem label="Favicon Adresse kopieren"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('copy_favicon_url');" />
+                <xul:menuitem label="Favicon im base64-Code kopieren"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('copy_favicon_base64');" />
+                <xul:menuitem label="Favicon speichern"
+                              onmousedown="event.preventDefault();event.stopPropagation();"
+                              onclick="event.preventDefault();event.stopPropagation();"
+                              oncommand="this.parentNode.parentNode.do('save_favicon');" />
+            </xul:menupopup>
+            <children />
+        </content>
+        <implementation>
+            <method name="do">
+                <parameter name="command" />
+                <body>
+                    <![CDATA[
+                        switch (command) {
+                            case 'clear_url' :
+                                (gURLBar.value = "") || gURLBar.focus();
+                                break;
+                            case 'copy_url' :
+                                this.writeToClipboard(gBrowser.currentURI.spec);
+                                break;
+                            case 'pasteandgo_url_current' :
+                                openUILinkIn(readFromClipboard(), "current", true);
+                                break;
+                            case 'pasteandgo_url_tab_foreground' :
+                                openUILinkIn(readFromClipboard(), "tab", true);
+                                break;
+                            case 'pasteandgo_url_tab_background' :
+                                gBrowser.loadOneTab(readFromClipboard(), null, null, null, true);
+                                break;
+                            case 'copy_favicon_url' :
+                                this.writeToClipboard(gProxyFavIcon.src);
+                                break;
+                            case 'copy_favicon_base64' :
+                                this.toBase64(gProxyFavIcon.src);
+                                break;
+                            case 'save_favicon' :
+                                openUILinkIn(gProxyFavIcon.src, "save");
+                                break;
+                        }
+                    ]]>
+                </body>
+            </method>
+            <method name="writeToClipboard">
+                <parameter name="string" />
+                <body>
+                    <![CDATA[
+                        Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                  .getService(Components.interfaces.nsIClipboardHelper)
+                                  .copyString(string);
+                    ]]>
+                </body>
+            </method>
+            <method name="toBase64">
+                <parameter name="icon" />
+                <body>
+                    <![CDATA[
+                        const NSURI = "http://www.w3.org/1999/xhtml";
+                        var img = new Image();
+                        var that = this;
+                        img.onload = function () {
+                            var width = this.naturalWidth,
+                                height = this.naturalHeight;
+                            var canvas = document.createElementNS(NSURI, "canvas");
+                            canvas.width = width;
+                            canvas.height = height;
+                            var ctx = canvas.getContext("2d");
+                            ctx.drawImage(this, 0, 0);
+                            that.writeToClipboard(canvas.toDataURL("image/png"));
+                        };
+                        img.onerror = function () {
+                            Components.utils.reportError("Count not load: " + icon);
+                        };
+                        img.src = icon;
+                    ]]>
+                </body>
+            </method>
+        </implementation>
+    </binding>
+</bindings>
