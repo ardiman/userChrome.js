@@ -6,13 +6,11 @@
 (function() {
     /*open bookmark/history in new tab */
     try {
-        eval("whereToOpenLink = " + whereToOpenLink.toString().replace(
-            /var shift/,"Class=e.target.getAttribute('class'); Browser="
-            +"getTopWin().document.getElementById('content'); if ((Bro"
-            +"wser.currentURI.spec!='about:blank' || Browser.webProgre"
-            +"ss.isLoadingDocument) && (Class=='sidebar-placesTreechil"
-            +"dren' || Class.indexOf('bookmark-item')>=0)) return 'tab"
-            +"'; $&"));
+  	var str = openLinkIn.toString();
+		  str = str.replace('w.gBrowser.selectedTab.pinned',
+	        '(!w.isTabEmpty(w.gBrowser.selectedTab) || $&)');
+		  str = str.replace(/&&\s+w\.gBrowser\.currentURI\.host != uriObj\.host/,'');
+		  eval("openLinkIn = " + str);
     }catch(e){}
 	
 	/*open bookmarklets on the page*/
