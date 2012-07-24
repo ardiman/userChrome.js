@@ -268,7 +268,7 @@ var ns = window.uAutoPagerize = {
 				          autoCheck="false"
 				          checked={SCROLL_ONLY}
 				          oncommand="uAutoPagerize.SCROLL_ONLY = !uAutoPagerize.SCROLL_ONLY;" />
-				<menuitem label={U("Seite zu Chronik hizufügen")}
+				<menuitem label={U("Seite zu Chronik hinzufügen")}
 				          id="uAutoPagerize-ADD_HISTORY"
 				          type="checkbox"
 				          autoCheck="false"
