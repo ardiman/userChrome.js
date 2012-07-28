@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="SimpleTranslate-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/x-javascript"><![CDATA[
+const TRANSLATE_LEO = "http://dict.leo.org/ende?search=";
+const EXPLAIN_WIKI = "http://de.wikipedia.org/wiki/Spezial:Search?search=";
+
+
+
+var SimpleTranslate = {
+  onLoad: function() {
+    // initialization code
+    this.initialized = true;
+    document.getElementById("contentAreaContextMenu").addEventListener("popupshowing",SimpleTranslate.onContext,false);
+  },
+  
+  onContext: function(){
+    
+    var bundle = document.getElementById("sitra");
+    var focusedWindow = document.commandDispatcher.focusedWindow;
+    var searchStr = focusedWindow.getSelection();
+    if(searchStr.toString().length == 0) {
+      document.getElementById("transEntry").hidden = true;
+      document.getElementById("transSep").hidden = true;
+      document.getElementById("expEntry").hidden = true;
+      document.getElementById("openEntry").hidden = true;
+    }
+    else {
+      var search = searchStr.toString();
+      document.getElementById("transSep").hidden = false;
+      
+      var reg1 = new RegExp("[.][a-z]{2,3}$", "i")
+      var reg2 = new RegExp("[.][a-z]{2,3}/", "i")
+
+      if(search.substring(0,3) == "www" || search.substring(0,3) == "htt" || search.search(reg1) != -1 || search.search(reg2) != -1)  {
+        document.getElementById("transEntry").hidden = true;
+        document.getElementById("expEntry").hidden = true;
+      
+        document.getElementById("openEntry").hidden = false;
+    	if(search.length < 15) document.getElementById("openEntry").label = bundle.getString("Öffne")+" \""+search+"\"";
+    	else document.getElementById("openEntry").label = bundle.getString('Öffne')+" \""+search.substring(0,15)+"...\"";
+      }
+      else{
+      	document.getElementById("openEntry").hidden = true;
+        document.getElementById("transEntry").hidden = false;
+        document.getElementById("expEntry").hidden = false;
+      
+        if(search.length < 15) {
+          document.getElementById("transEntry").label = bundle.getString("Übersetze")+" \""+search+"\"";
+          document.getElementById("expEntry").label = bundle.getString("Erkläre")+" \""+search+"\"";
+        }
+        else {
+          document.getElementById("transEntry").label = bundle.getString("Übersetze")+" \""+search.substring(0,15)+"...\"";
+          document.getElementById("expEntry").label = bundle.getString("Erkläre")+" \""+search.substring(0,15)+"...\"";
+       }
+
+      }
+
+    }
+    
+
+  },
+
+  translateSelection: function() {
+    var focusedWindow = document.commandDispatcher.focusedWindow;
+    var searchStr = focusedWindow.getSelection();
+    getBrowser().selectedTab = getBrowser().addTab(TRANSLATE_LEO + encodeURIComponent(searchStr.toString()));
+  },
+  
+  explainSelection: function() {
+                    var focusedWindow = document.commandDispatcher.focusedWindow;
+                    var searchStr = focusedWindow.getSelection();
+                    getBrowser().selectedTab = getBrowser().addTab(EXPLAIN_WIKI + encodeURIComponent(searchStr.toString())+"&go=Artikel");
+  },
+
+  openSelection: function() {
+
+
+        var focusedWindow = document.commandDispatcher.focusedWindow;
+        var searchStr = focusedWindow.getSelection();
+        getBrowser().selectedTab = getBrowser().addTab(searchStr.toString());
+  }
+};
+
+window.addEventListener("load", function(e) { SimpleTranslate.onLoad(e); }, false);
+
+]]></script>
+<popup id="contentAreaContextMenu">
+<menuseparator id="transSep" />
+<menu label="Simple Translate"> 
+<menupopup id="SimpleTranslateMenu">
+<menuitem label="Übersetze" id="transEntry" oncommand="SimpleTranslate.translateSelection();"/>
+<menuitem label="Erkläre" id="expEntry" oncommand="SimpleTranslate.explainSelection();"/>
+<menuitem label="Öffne" id="openEntry" oncommand="SimpleTranslate.openSelection();"/>
+</menupopup>
+</menu>
+</popup>
+</overlay>
+
+
