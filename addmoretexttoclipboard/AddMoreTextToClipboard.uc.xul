@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<overlay id="addmoretexttoclipboard-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript"><![CDATA[
+var addmoretexttoclipboard = {
+    onMenuItemCommand: function(e, isNewline) {
+        var clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+        var textInClipboard = readFromClipboard();
+        if (!textInClipboard) {
+            textInClipboard = "";
+        }
+                
+        var selectedString="";
+        var focusedWindow = document.commandDispatcher.focusedWindow;
+        selectedString = focusedWindow.getSelection().toString();
+        if (!selectedString) {
+            var selectedTextArea = focusedWindow.document.activeElement;
+            var selectedString = selectedTextArea.value.substring(selectedTextArea.selectionStart, selectedTextArea.selectionEnd);
+        }
+
+        this.debug.log(selectedString);
+        if(isNewline) {
+            clipboard.copyString(textInClipboard + this.newLine() + selectedString);
+        }
+        else {
+            clipboard.copyString(textInClipboard + selectedString);
+        }
+    },
+    newLine : function() {
+        var platform = navigator.platform.toLowerCase();
+        if (platform.indexOf('win') != -1)
+            return "\r\n";
+        else if (platform.indexOf('mac') != -1)
+            return "\r";
+        else
+            return "\n";
+    },
+    leftClick : function(e) {
+        if (e.button != 2) {
+            var clipboard = Components.classes["@mozilla.org/widget/clipboardhelper;1"].getService(Components.interfaces.nsIClipboardHelper);
+            clipboard.copyString("");
+            
+            var text = "Zwischenablage leeren!";
+            var alertsService = Components.classes["@mozilla.org/alerts-service;1"].getService(Components.interfaces.nsIAlertsService);
+            alertsService.showAlertNotification("chrome://addmoretexttoclipboard/content/icon_small.PNG",  "Mehr Text in der Zwischenablage", text, false, "cleared", null);
+        }
+    },
+    debug: {
+        // https://developer.mozilla.org/en/NsIConsoleService
+        _consoleservice: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
+        _Cc_scripterror: Components.classes["@mozilla.org/scripterror;1"],
+        _Ci_scripterror: Components.interfaces.nsIScriptError,
+        enabled: false, // set true to output
+        noFirebug: false, // don't show object in Firebug
+        prefix: "",  // prefix string
+        createScripterror: function() this._Cc_scripterror.createInstance(this._Ci_scripterror),
+        // log for Firebug with existence check
+        logFirebug: function(x) this.enabled && !this.noFirebug && Firebug && Firebug.Console && Firebug.Console.log(x),
+        logFirebugOnlyObject: function(x) typeof x == "object" && x != null && this.logFirebug(x),
+        // log/warn/error in console
+        log: function(message) {
+            if (this.enabled) {
+                this._consoleservice.logStringMessage(this.prefix+message);
+                this.logFirebugOnlyObject(message);
+            }
+        },
+        warn: function(message) {
+            if (this.enabled) {
+                var stack = Components.stack.caller;
+                var error = this._Cc_scripterror.createInstance(this._Ci_scripterror);
+                error.init(this.prefix+message, stack.filename, null, stack.lineNumber, null, this._Ci_scripterror.warningFlag, null);
+                this._consoleservice.logMessage(error);
+                this.logFirebugOnlyObject(message);
+            }
+        },
+        error: function(message) {
+            if (this.enabled) {
+                var stack = Components.stack.caller;
+                var error = this._Cc_scripterror.createInstance(this._Ci_scripterror);
+                error.init(this.prefix+message, stack.filename, null, stack.lineNumber, null, this._Ci_scripterror.errorFlag, null);
+                this._consoleservice.logMessage(error);
+                this.logFirebugOnlyObject(message);
+            }
+        },
+        // debug with exception (error objects)
+        exception: function(error) {
+            if (this.enabled) {
+                Components.utils.reportError(error);
+                this.logFirebugOnlyObject(error);
+            }
+        },
+        stack: function(error) {
+            if (this.enabled) {
+                if (error instanceof Error) {
+                    this._consoleservice.logStringMessage(this.prefix+error.stack);
+                }
+                else {
+                    error = new Error();
+                    var callerstack = error.stack.replace(/^.*\n.*\n/, "");
+                    this._consoleservice.logStringMessage(this.prefix+callerstack);
+                }
+                this.logFirebugOnlyObject(error);
+            }
+        },
+        // alert and assert
+        alert: function(message) {
+            if (this.enabled) {
+                window.alert(this.prefix + message);
+                this.logFirebugOnlyObject(message);
+            }
+        },
+        assert: function(cond, message) {
+            var failed = this.enabled && !cond;
+            if (failed) {
+                var message = this.prefix+message;
+                var stack = Components.stack.caller;
+                var error = this._Cc_scripterror.createInstance(this._Ci_scripterror);
+                error.init(message, stack.filename, null, stack.lineNumber, null, this._Ci_scripterror.errorFlag, null);
+                this._consoleservice.logMessage(error);
+                window.alert(message);
+                this.logFirebugOnlyObject(message);
+            }
+            return !failed;
+        }
+    },
+};
+
+addmoretexttoclipboard.onFirefoxLoad = function(event) {
+    this.debug.enabled = false;
+    document.getElementById("contentAreaContextMenu")
+            .addEventListener("popupshowing", function (e){ addmoretexttoclipboard.showFirefoxContextMenu(e); }, false);
+};
+
+addmoretexttoclipboard.showFirefoxContextMenu = function(event) {
+    var menuitem  = document.getElementById("context-addmoretexttoclipboard");
+    var menuitem2 = document.getElementById("context-addmoretexttoclipboard-newline");
+
+    if (gContextMenu.isContentSelected) {
+        menuitem.setAttribute("hidden", "false");
+        menuitem2.setAttribute("hidden", "false");
+    }
+    else if(gContextMenu.onTextInput) {
+        var oTextBox = gContextMenu.target;
+        var selectedText = oTextBox.value.substring(oTextBox.selectionStart, oTextBox.selectionEnd);           
+        if (selectedText) {
+            menuitem.setAttribute("hidden", "false");
+            menuitem2.setAttribute("hidden", "false");
+        }
+        else {
+            menuitem.setAttribute("hidden", "true");
+            menuitem2.setAttribute("hidden", "true");
+        }
+    }
+    else {
+        menuitem.setAttribute("hidden", "true");
+        menuitem2.setAttribute("hidden", "true");
+    }
+};
+
+window.addEventListener("load", function() { addmoretexttoclipboard.onFirefoxLoad(); }, false);
+	
+]]></script>  
+  <window id="main-window">
+    <commandset id="addmoretexttoclipboard-commandset">
+      <command id="addmoretexttoclipboard-command"
+               oncommand="addmoretexttoclipboard.onMenuItemCommand(event, true);" />
+    </commandset>
+    <keyset id="mainKeyset">
+      <key id="key_addmoretexttoclipboard" key="C" 
+           command="addmoretexttoclipboard-command" modifiers="accel,alt" />
+    </keyset>
+  </window>
+
+  <popup id="contentAreaContextMenu">
+    <menuitem id="context-addmoretexttoclipboard-newline" label="Einfügen mit Zeilenumbruch"
+              insertafter="context-stop"
+              oncommand="addmoretexttoclipboard.onMenuItemCommand(event, true);"/>
+    <menuitem id="context-addmoretexttoclipboard" label="Einfügen in Zwischenablage"
+              insertafter="context-stop"
+              oncommand="addmoretexttoclipboard.onMenuItemCommand(event, false);"/>
+  </popup>
+
+  <addonbar id="addon-bar">
+    <statusbarpanel id="context-addmoretexttoclipboard-status">
+      <image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAABGdBTUEAALGPC%2FxhBQAAAuxJREFUOE9lk1tTU2cUhj86Xvcv9Fd0vPLS%2B956084w2vFQOy0zth4viuKhnVJbp4QKooDUQxNCQgBFKCaRQiAJhyBUAwJJNskmkHAIp5Dsx7V3phm1a%2BadPd9hvd%2Bz1ppdcc0zx6effKwKBUOZUaEMSwpZUFQYhqUDH1Uohy%2Bq6qoOW%2FfK4Z3OYJ%2Ff5P7LNWzBDD%2F6VviuU%2BfkI42j9xMca9Msfd6apPP5NB%2BG6p9K82d0naaJDLdGMlx1vcY3nWYgovN8SscbSeGLaHgnNXpDcVyDs7T7XuN%2BEeXEz70oz5gOBuzulbx7J9PvE3nTXOzWqXJofPVQ47SQmfryQZK%2B4agYhFPs7EN2y2A7Dz3jKYvorhD9Flihpl%2Fne3dSkuIcb4tZOiGqbE3Q5f8X1RlOsvuOgWN0qUyUl%2F39AhSLsiWUZpjfgqzNaHsaEYLg0vsGI1qZaG3b4F2ZlKs5g%2BUNgw0pubV7EvXX0Bz74vpfCfaAZhlu7EBul7JBOXnTILlukJXzFs846pfOPpJrq%2BwJ6o70wD4UJy%2BIM0sLjEYjFMV8fZvSy5KckuRE1iCdg2Z3GPVsLMuF9uO4A11siasrsGrVNxNbpPrFNzT02ciJwZqcmcmaJC%2BuGuhicLcjhOoJypxf%2BrHHGqkLXefmwA2a%2FXdo8jbQErvF7cUbXHhyCt%2FkGJtSUiwDs%2BkCiXVocgZRHYPz1ovOoIffQzUM5J10ZJt5oNfTFKulbq6GX99c4nywkmrXeWb1PHPL0gchaHELgXtoHnMq0gLe6CtcfHyVK39X8VP4HLaFa9yMXuKHqdOc6ark2USYrJST2yvN9Mi3jaiTtX3c8UxQZw9is4foCSxbh35BvjzxNWf8X2DrrUcT9IUVrDLMaG0fpPq2D%2FXhz%2FHIGy01UaZw1nWUVwmdLRlrahPiG6Xb%2F4RnOXSkFk0a%2Bz%2BDU0L0sH%2BGeucQbd2vZNYRGp2jNDhG%2BOPxMPccwxz87DJpqXs8XuQtQgNT%2ByYl9s0AAAAASUVORK5CYII%3D" 
+	        style="cursor:pointer; width: 16px; height: 16px;" tooltiptext="Zwischenablage leeren" 
+            onclick="addmoretexttoclipboard.leftClick(event);"/>
+    </statusbarpanel> 
+  </addonbar>
+</overlay>
