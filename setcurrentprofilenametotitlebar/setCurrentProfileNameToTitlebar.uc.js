@@ -1,14 +1,16 @@
 // ==UserScript==
 // @name           setCurrentProfileNameToTitlebar
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    在标题栏上显示当前使用的配置文件夹名
+// @description    現在のプロファイル名をタイトルバーに表示
 // @include        main
 // @compatibility  Firefox 2.0 3.0 3.5 3.6a1
 // @author         Alice0775
-// @version        LastMod 2009/07/25 18:00 Bug 506437 -  The titlebar of a tear off window is not updated correctly after having detached a tab
-// @version        LastMod 2008/03/06 15:00
-// @Note           公式Win32版 以外および起動時オプション-profileによりパスを変更しているのものについては知りません
+// @version        2012/08/06 08:00 remove hack privatebrowsingUI
 // ==/UserScript==
+// @version        2010/09/25 23:00 Bug 598221 - Page Title not shown in Title Bar on Session Restore
+// @version        2009/07/25 18:00 Bug 506437 -  The titlebar of a tear off window is not updated correctly after having detached a tab
+// @version        2008/03/06 15:00
+// @Note           公式Win32版 以外および起動時オプション-profileによりパスを変更しているのものについては知りません
 (function(){
   //現在のプロファイル名を得る
   //名称を変更している場合にも対応
@@ -32,7 +34,7 @@
     ini.append("profiles.ini");
     var ini = readFile(ini);
     var profiles = ini.match(/Name=.+/g);
-    var profilesD = ini.match(/Path=.+\/.+/g);
+    var profilesD = ini.match(/Path=.+/g);
     for ( var i = 0; i < profiles.length;i++) {
       if (profilesD[i].indexOf(PrefD.leafName) >= 0) {
         profiles[i].match(/Name=(.+)/);
@@ -52,6 +54,7 @@
     var appBuildID = appInfo.appBuildID;
 
     var mainWindow = document.getElementById("main-window");
+
     if ('gPrivateBrowsingUI' in window && gPrivateBrowsingUI.privateBrowsingEnabled)
       var originalName = mainWindow.getAttribute("title_privatebrowsing");
     else
@@ -74,17 +77,14 @@
       document.title = document.title.replace(new RegExp(originalName+"$", ""), "[" + profile+ "] " + originalName);
   };
 
-  setCurrentProfileNameToTitlebar();
+  if ('gPrivateBrowsingUI' in window &&
+       typeof gPrivateBrowsingUI._privateBrowsingService == 'undefined')
+    gPrivateBrowsingUI._privateBrowsingService = Cc["@mozilla.org/privatebrowsing;1"].
+                                   getService(Ci.nsIPrivateBrowsingService);
 
-  if ('gPrivateBrowsingUI' in window && !('TM_init' in window)) {
-    var func = gPrivateBrowsingUI.toggleMode.toString();
-    func = func.replace(
-    '}',
-    <><![CDATA[
+  setTimeout(function(){
     setCurrentProfileNameToTitlebar();
-    $&
-    ]]></>
-    );
-    eval("gPrivateBrowsingUI.toggleMode = " + func);
-  }
+    //xxx Bug 598221
+    gBrowser.updateTitlebar()
+  }, 500);
 })();
