@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<overlay id="AddonsDownloadsSidebar"
+      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <broadcasterset id="mainBroadcasterSet">
+        <broadcaster id="viewAddonsSidebar" autoCheck="false" label="Add-ons" type="checkbox" group="sidebar" sidebarurl="chrome://mozapps/content/extensions/extensions.xul" sidebartitle="Add-ons" oncommand="toggleSidebar('viewAddonsSidebar');"/>
+        <broadcaster id="viewDownloadsSidebar" autoCheck="false" label="Downloads" type="checkbox" group="sidebar" sidebarurl="chrome://mozapps/content/downloads/downloads.xul" sidebartitle="Downloads" oncommand="toggleSidebar('viewDownloadsSidebar');"/>
+    </broadcasterset>
+
+    <menupopup id="viewSidebarMenu">
+        <menuitem key="addons-view-sidebar" observes="viewAddonsSidebar"/>
+        <menuitem key="downloads-view-sidebar" observes="viewDownloadsSidebar"/>
+    </menupopup>
+</overlay>
