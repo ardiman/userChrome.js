@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23context-style-switcher-button {
+  list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IB2cksfwAACk9pQ0NQUGhvdG9zaG9wIElDQyBQcm9maWxlAAB4nJ1TZ1RT6RY99970QkuIgJRLb1IVCCBSQouAVGmiEpIAoYQYEkDsiKjAiKIighUZFHHA0RGQsSKKhUGx9wF5CCjj4Cg2VN4P3hp9s+a9N2/2r732OWed75x9PgBGYLBEmoWqAWRKFfKIAB88Ni4eJ3cDClQggQOAQJgtC4n0jwIA4Pvx8OyIAB/4AgTgzW1AAABu2ASG4Tj8f1AXyuQKACQMAKaLxNlCAKQQADJyFTIFADIKAOykdJkCACUAAFseGxcPgGoBADtlkk8DAHbSJPcCALYoUyoCQKMAQCbKFIkA0A4AWJejFIsAsGAAKMqRiHMBsJsAYJKhzJQAYO8AgJ0pFmQDEBgAYKIQC1MBCPYAwJBHRfAACDMBKIyUr3jSV1whzlMAAPCyZIvlkpRUBW4htMQdXF25eKA4N0OsUNiECYTpArkI52VlygTSxQCTMwMAgEZ2RIAPzvfjOTu4OjvbONo6fLWo/xr8i4iNi/+XP6/CAQEAhNP1RfuzvKwaAO4YALbxi5a0HaBlDYDW/S+ayR4A1UKA5qtfzcPh+/HwVIVC5mZnl5ubaysRC22FqV/1+Z8JfwFf9bPl+/Hw39eD+4qTBcoMBR4R4IMLszKylHI8WyYQinGbPx7x3y7883dMixAni+ViqVCMR0vEuRJpCs7LkookCkmWFJdI/5OJf7PsD5i8awBg1X4G9kJbULvKBuyXLiCw6IAl7AIA5HffgqnREAYAMQaDk3cPADD5m/8daBkAoNmSFBwAgBcRhQuV8pzJGAEAgAg0UAU2aIM+GIMF2IAjuIA7eIEfzIZQiII4WABCSIVMkEMuLIVVUAQlsBG2QhXshlqoh0Y4Ai1wAs7CBbgC1+AWPIBeGIDnMApvYBxBEDLCRFiINmKAmCLWiCPCRWYhfkgwEoHEIYlICiJFlMhSZDVSgpQjVchepB75HjmOnEUuIT3IPaQPGUZ+Qz6gGMpA2ageaobaoVzUGw1Co9D5aAq6CM1HC9ENaCVagx5Cm9Gz6BX0FtqLPkfHMMDoGAczxGwwLsbDQrF4LBmTY8uxYqwCq8EasTasE7uB9WIj2HsCicAi4AQbgjshkDCXICQsIiwnlBKqCAcIzYQOwg1CH2GU8JnIJOoSrYluRD4xlphCzCUWESuIdcRjxPPEW8QB4hsSicQhmZNcSIGkOFIaaQmplLST1EQ6Q+oh9ZPGyGSyNtma7EEOJQvICnIReTv5EPk0+Tp5gPyOQqcYUBwp/pR4ipRSQKmgHKScolynDFLGqWpUU6obNZQqoi6mllFrqW3Uq9QB6jhNnWZO86BF0dJoq2iVtEbaedpD2is6nW5Ed6WH0yX0lfRK+mH6RXof/T1Dg2HF4DESGErGBsZ+xhnGPcYrJpNpxvRixjMVzA3MeuY55mPmOxWWiq0KX0WkskKlWqVZ5brKC1Wqqqmqt+oC1XzVCtWjqldVR9SoamZqPDWB2nK1arXjanfUxtRZ6g7qoeqZ6qXqB9UvqQ9pkDXMNPw0RBqFGvs0zmn0szCWMYvHErJWs2pZ51kDbBLbnM1np7FL2N+xu9mjmhqaMzSjNfM0qzVPavZyMI4Zh8/J4JRxjnBucz5M0ZviPUU8Zf2UxinXp7zVmqrlpSXWKtZq0rql9UEb1/bTTtfepN2i/UiHoGOlE66Tq7NL57zOyFT2VPepwqnFU49Mva+L6lrpRugu0d2n26U7pqevF6An09uud05vRJ+j76Wfpr9F/5T+sAHLYJaBxGCLwWmDZ7gm7o1n4JV4Bz5qqGsYaKg03GvYbThuZG4016jAqMnokTHNmGucbLzFuN141MTAJMRkqUmDyX1TqinXNNV0m2mn6Vszc7MYs7VmLWZD5lrmfPN88wbzhxZMC0+LRRY1FjctSZZcy3TLnZbXrFArJ6tUq2qrq9aotbO1xHqndc804jTXadJpNdPu2DBsvG1ybBps+mw5tsG2BbYtti/sTOzi7TbZddp9tneyz7CvtX/goOEw26HAoc3hN0crR6FjtePN6czp/tNXTG+d/nKG9QzxjF0z7jqxnEKc1jq1O31ydnGWOzc6D7uYuCS67HC5w2Vzw7il3IuuRFcf1xWuJ1zfuzm7KdyOuP3qbuOe7n7QfWim+UzxzNqZ/R5GHgKPvR69s/BZibP2zOr1NPQUeNZ4PvEy9hJ51XkNelt6p3kf8n7hY+8j9znm85bnxlvGO+OL+Qb4Fvt2+2n4zfWr8nvsb+Sf4t/gPxrgFLAk4EwgMTAocFPgHb4eX8iv54/Odpm9bHZHECMoMqgq6EmwVbA8uC0EDZkdsjnk4RzTOdI5LaEQyg/dHPoozDxsUdiP4aTwsPDq8KcRDhFLIzojWZELIw9GvonyiSqLejDXYq5ybnu0anRCdH302xjfmPKY3li72GWxV+J04iRxrfHk+Oj4uvixeX7zts4bSHBKKEq4Pd98ft78Swt0FmQsOLlQdaFg4dFEYmJM4sHEj4JQQY1gLImftCNpVMgTbhM+F3mJtoiGxR7icvFgskdyefJQikfK5pThVM/UitQRCU9SJXmZFpi2O+1temj6/vSJjJiMpkxKZmLmcamGNF3akaWflZfVI7OWFcl6F7kt2rpoVB4kr8tGsudntyrYCpmiS2mhXKPsy5mVU53zLjc692ieep40r2ux1eL1iwfz/fO/XUJYIlzSvtRw6aqlfcu8l+1djixPWt6+wnhF4YqBlQErD6yirUpf9VOBfUF5wevVMavbCvUKVxb2rwlY01CkUiQvurPWfe3udYR1knXd66ev377+c7Go+HKJfUlFycdSYenlbxy+qfxmYkPyhu4y57JdG0kbpRtvb/LcdKBcvTy/vH9zyObmLfiW4i2vty7ceqliRsXubbRtym29lcGVrdtNtm/c/rEqtepWtU910w7dHet3vN0p2nl9l9euxt16u0t2f9gj2XN3b8De5hqzmop9pH05+57WRtd2fsv9tr5Op66k7tN+6f7eAxEHOupd6usP6h4sa0AblA3DhxIOXfvO97vWRpvGvU2cppLDcFh5+Nn3id/fPhJ0pP0o92jjD6Y/7DjGOlbcjDQvbh5tSW3pbY1r7Tk++3h7m3vbsR9tf9x/wvBE9UnNk2WnaKcKT02czj89dkZ2ZuRsytn+9oXtD87FnrvZEd7RfT7o/MUL/hfOdXp3nr7ocfHEJbdLxy9zL7dccb7S3OXUdewnp5+OdTt3N191udp6zfVaW8/MnlPXPa+fveF748JN/s0rt+bc6rk99/bdOwl3eu+K7g7dy7j38n7O/fEHKx8SHxY/UntU8Vj3cc3Plj839Tr3nuzz7et6EvnkQb+w//k/sv/xcaDwKfNpxaDBYP2Q49CJYf/ha8/mPRt4Lns+PlL0i/ovO15YvPjhV69fu0ZjRwdeyl9O/Fb6SvvV/tczXrePhY09fpP5Zvxt8Tvtdwfec993foj5MDie+5H8sfKT5ae2z0GfH05kTkz8EwOY8/yMmdmiAAAACXBIWXMAAAsSAAALEgHS3X78AAAAB3RJTUUH2QQODQcPO5wusQAAAFF0RVh0RmlsZSBOYW1lAEQ6XERldmVsb3BtZW50XGNvbnRleHQtc3R5bGUtc3dpdGNoZXJcc2tpblx0b29sYmFyYnV0dG9uX2ljb25fc21hbGwucG5nhKNmPQAAABh0RVh0U29mdHdhcmUAQWRvYmUgUGhvdG9zaG9wNMuOZwAAACF0RVh0V3JpdGVyAFN1cGVyUE5HIGJ5IEJyZW5kYW4gQm9sbGVzdPv20QAAAVpJREFUeJylk01KA0EQhb+CvoALUcgigp4lC0EI5A6CEBQieIiArgzBKwhCIJCFZzELdxE9QaZ6ykX/TI26szfT1V31+r1XNfK0vTD+sULbtoABko8KnvzY/7HMCDEqImAmrsYQEQwDS8Upx7ocETAIsY1IyXP3CEgmZpmIuH0hFmKjrthSVqUIFV0S5fJyURU0asp0h4YksHLmvh37lBMa3QOSazt+yRNzN+Zszg8gSULPWOkSPXUTQczRlAQVGm16TasSs97ycumSVBmGGQTNANW1gpAp5mb2zBAnKGjcd30D5qO3Cnf3esp8tHXx2a/7oE3szMvyZpsT6lAAt5uhMw5mm2EFCdFLyAVRm9703p+/A3C9HgDwkOOb9SCNcjKr6AZtI1hSOV0dYQiL8Y6oynR1DBiP4w9UNY1yf1pgMd4BcPVyyHLyWZm0bWQ5+XJxi1w+H/zrd/4G3Ji+rYAIi5YAAAAASUVORK5CYII=);
+}
+
+" type="text/css"?>
+
+<!DOCTYPE window [
+  <!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd">
+  %browserDTD;
+]>
+<overlay id="context-style-switcher_overlay"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+    <script type="application/x-javascript"><![CDATA[
+var contextStyleSwitcher = {
+  init: function () {
+    var contextMenu = document.getElementById("contentAreaContextMenu");
+    contextMenu.addEventListener("popupshowing", contextStyleSwitcher.toggleVisibility, false);
+  },
+
+  toggleVisibility: function () {
+    var sep     = document.getElementById("context-sep-context-style-switcher");
+    var command = document.getElementById("context-context-style-switcher");
+
+    if (gContextMenu.onTextInput || gContextMenu.onImage || gContextMenu.onLink || gContextMenu.isTextSelected) {
+      sep.hidden     = true;
+      command.hidden = true;
+    } else {
+      sep.hidden     = false;
+      command.hidden = false;
+    }
+  }
+};
+
+window.addEventListener("load", contextStyleSwitcher.init, false);
+  
+]]></script>
+  <toolbar id="main-menubar">
+    <toolbarbutton id="context-style-switcher-button"
+      label="&pageStyleMenu.label;"
+      tooltiptext="Webseiten-Stil ändern"
+      type="menu">
+      <menupopup onpopupshowing="stylesheetFillPopup(this);"
+        oncommand="stylesheetSwitchAll(window._content, event.target.getAttribute('data')); setStyleDisabled(false);">
+        <menuitem label="&pageStyleNoStyle.label;"
+          accesskey="&pageStyleNoStyle.accesskey;"
+          oncommand="setStyleDisabled(true); event.stopPropagation();"
+          type="radio"/>
+
+        <menuitem label="&pageStylePersistentOnly.label;"
+          accesskey="&pageStylePersistentOnly.accesskey;"
+          type="radio"
+          checked="true"/>
+
+        <menuseparator/>
+      </menupopup>
+    </toolbarbutton>
+  </toolbar>
+
+  <popup id="contentAreaContextMenu">
+    <menuseparator id="context-sep-context-style-switcher"/>
+
+    <menu id="context-context-style-switcher"
+      label="&pageStyleMenu.label;"
+      accesskey="&pageStyleMenu.accesskey;">
+      <menupopup onpopupshowing="stylesheetFillPopup(this);"
+        oncommand="stylesheetSwitchAll(window._content, event.target.getAttribute('data')); setStyleDisabled(false);">
+        <menuitem label="&pageStyleNoStyle.label;"
+          accesskey="&pageStyleNoStyle.accesskey;"
+          oncommand="setStyleDisabled(true); event.stopPropagation();"
+          type="radio"/>
+
+        <menuitem label="&pageStylePersistentOnly.label;"
+          accesskey="&pageStylePersistentOnly.accesskey;"
+          type="radio"
+          checked="true"/>
+
+        <menuseparator/>
+      </menupopup>
+    </menu>
+  </popup>
+</overlay>
