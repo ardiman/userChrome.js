@@ -20,7 +20,7 @@
 var weatherWidget = {   
   getWeatherInfo: function() {
     var weatherWindowReference = 
-	window.openDialog("HIER KOMMT DIE URL DEINER REGION VOM WETTERKONTOR HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=480,height=420");
+	window.openDialog("http://www.wetterkontor.net/de/wetter/deutschland/vorhersage.asp?w=view&sc=Hamm&lookfor=59063", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=480,height=420");
   }
 }  
 function getWeatherInfo()
@@ -73,7 +73,7 @@ var weatherMenu = {
 
 function getWeatherMenu() 
 {
-    var weatherWindowReference = window.openDialog("HIER KOMMT DIE URL DEINER REGION VOM MSN WETTER HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=615,height=430");
+    var weatherWindowReference = window.openDialog("http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0198&q=Hamm%2c+NRW", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=615,height=430");
 }
 
 var weatherLocal = {
@@ -84,7 +84,13 @@ var weatherLocal = {
 
 function getWeatherLocal() 
 {
-    var weatherWindowReference = window.openDialog("HIER KOMMT DIE URL DEINES BUNDESLANDES VOM WETTERKONTOR HIN", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=485,height=660");
+    var weatherWindowReference = window.openDialog("http://www.wetterkontor.net/de/wetter/deutschland/nordrheinwestfalen0.html", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,width=485,height=660");
+}
+
+var weatherGlobal = {
+  getWeatherGlobal: function() {
+    var weatherWindowReference = window.openDialog("http://www.wetterkontor.net/warnungen/land.asp?c=NRW", "querybox", "status=no,resizable=no,toolbar=no,location=no,menubar=no,dependent=yes,alwaysRaised=yes,width=700,height=550");
+  }
 }  
   
 ]]></script> 
@@ -99,24 +105,25 @@ function getWeatherLocal()
 	    <menupopup id="weatherWidgetmenu">
 		    <menu label="DE Wetterdaten"> 
                 <menupopup id="weatherWidgetdatamenu">		 
-		            <menuitem label="DE Wetterdaten aktuell" oncommand="event.preventDefault(); weatherLocal.getWeatherLocal()"/>
-		            <menuitem label="DE Wetterdaten Vorhersage" oncommand="event.preventDefault(); weatherForecast.getWeatherForecast()"/>
+		            <menuitem label="Wetterdaten aktuell" oncommand="event.preventDefault(); weatherLocal.getWeatherLocal()"/>
+		            <menuitem label="Wetterdaten Vorhersage" oncommand="event.preventDefault(); weatherForecast.getWeatherForecast()"/>
+					<menuitem label="Regionale Wetterwarnungen" oncommand="event.preventDefault(); weatherGlobal.getWeatherGlobal()"/>
 				</menupopup>
 			</menu> 	
 			<menu label="DE Wetterkarten">
 			    <menupopup id="weatherWidgetmapsmenu">
-		            <menuitem label="DE Wetter aktuell" oncommand="event.preventDefault(); weatherWindow.getweatherWindow()"/>
-		            <menuitem label="DE Vorhersage" oncommand="event.preventDefault(); getweatherMaps()"/>
-		            <menuitem label="DE Unwetterwarnung" oncommand="event.preventDefault(); weatherExpectation.getWeatherExpectation()"/>
-                    <menuitem label="DE Regenradar aktuell" oncommand="event.preventDefault(); getWeatherInfo()"/>
-                    <menuitem label="DE Regenradarprognose" oncommand="event.preventDefault(); getweatherWindow()"/>
+		            <menuitem label="Wetter aktuell" oncommand="event.preventDefault(); weatherWindow.getweatherWindow()"/>
+		            <menuitem label="Vorhersage" oncommand="event.preventDefault(); getweatherMaps()"/>
+		            <menuitem label="Unwetterwarnung" oncommand="event.preventDefault(); weatherExpectation.getWeatherExpectation()"/>
+                    <menuitem label="Regenradar aktuell" oncommand="event.preventDefault(); getWeatherInfo()"/>
+                    <menuitem label="Regenradarprognose" oncommand="event.preventDefault(); getweatherWindow()"/>
 				</menupopup>	
 			</menu>
 			<menu label="EU Wetterkarten">
 			    <menupopup id="weatherWidgetmapmenu">
-		            <menuitem label="EU Wetter aktuell" oncommand="event.preventDefault(); weatherMaps.getweatherMaps()"/>
-		            <menuitem label="EU Vorhersage" oncommand="event.preventDefault(); getweatherForecast()"/>
-		            <menuitem label="EU Unwetterwarnung" oncommand="event.preventDefault(); getweatherExpectation()"/>
+		            <menuitem label="Wetter aktuell" oncommand="event.preventDefault(); weatherMaps.getweatherMaps()"/>
+		            <menuitem label="Vorhersage" oncommand="event.preventDefault(); getweatherForecast()"/>
+		            <menuitem label="Unwetterwarnung" oncommand="event.preventDefault(); getweatherExpectation()"/>
 				</menupopup>
 			</menu>	 
         </menupopup>
