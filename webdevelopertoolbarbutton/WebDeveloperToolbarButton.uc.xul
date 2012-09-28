@@ -20,7 +20,7 @@
                    tooltiptext="Web Entwickler"
                    class="toolbarbutton-1"
                    type="button"
-				   context="_child"
+                   context="_child"
                    orient="horizontal">
 
       <menupopup id="webdevelopertoolbarbutton-menu">
@@ -72,6 +72,18 @@
                   label="Fehlerkonsole"
                   tooltiptext="Fehlerkonsole"
                   oncommand="toJavaScriptConsole();" />
+        <menuitem id="webdevelopertoolbarbutton_screentest"
+                  class="menuitem-iconic"
+                  accesskey="g"
+                  label="Bildschirmgrößen testen"
+                  tooltiptext="Bildschirmgrößen testen"
+                  command="Tools:ResponsiveUI" />
+        <menuitem id="webdevelopertoolbarbutton_debugger"
+                  class="menuitem-iconic"
+                  accesskey="D"
+                  label="Debugger"
+                  tooltiptext="Debugger"
+                  command="Tools:Debugger" />
         <menuseparator />
         <menuitem id="webdevelopertoolbarbutton_getMoreDevtools"
                   class="menuitem-iconic"
