@@ -9,14 +9,15 @@
 // @include        main
 // @compatibility  Firefox 2.0 3.0
 // @author         Alice0775
-// @version        2010/04/21 01:00  Firefox3.7a5pre
+// @version        2011/10/06 23:00 Bug 795065 Add privacy status to nsDownload
+// ==/UserScript==
+// @version        2010/04/21 01:00 Firefox3.7a5pre
 // @version        2009/04/10 00:00 Minefield3.6a1pre での動作改善 (メニューのidが"SaveFolder"だとダメ なぜ?)
 // @version        2008/10/17 12:00 コード整理 (DragNgoModoki5.uc.jsも修正)
-// ==/UserScript==
 // Original function of directSaveLink and setLeafName are from Drag de Go.xpi,
 // and author is Yukichi http://bushwhacker.up.seesaa.net/ .
 //
-// ツールメニューで保存するホルダを指定す
+// ツールメニューで保存するホルダを指定する
 // 指定されたホルダは about:config  userChrome.save.folders に 「,」区切りで保存
 //
 // 画像をダブルクリックしたときの保存フォルダをIMAGE_DBLCLICKに指定
@@ -26,10 +27,10 @@
 
 var saveFolderModoki = {
 //-- config --
-  IMAGE_DBLCLICK          : "D:\\Downloads", // 图片上双击鼠标右键的保存文件夹, nullならファイルピッカ起動
-  CONTENTDISPOSITION      : true,       // content-disposition 使用[true], 否false
-  REPLACE_SYSTEM_saveURL  : true,       //  CONTENTDISPOSITION为true的时候, fx设定的saveURL 但content-disposition 是[true], 否false
-  REPLACE_SYSTEM_fileTitle: true,      // 默认文件名为标题的属性 是true, 否[false]
+  IMAGE_DBLCLICK          : "E:\\Downloads", // 画像を右ダブルクリックしたときの保存フォルダ, nullならファイルピッカ起動
+  CONTENTDISPOSITION      : true,       // content-disposition 使う[true], 使わないfalse
+  REPLACE_SYSTEM_saveURL  : true,       // CONTENTDISPOSITIONがtrueのとき, システム既定のsaveURLでもcontent-disposition 使う[true], 使わないfalse
+  REPLACE_SYSTEM_fileTitle: true,      // デフォルトのファイル名にtitle属性を 使うtrue, 使わない[false]
 //-- config --
 
   //リスナー登録
@@ -98,7 +99,7 @@ var saveFolderModoki = {
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"]
             .createInstance(nsIFilePicker);
-    fp.init(window, "Ordnerauswahl", nsIFilePicker.modeGetFolder);
+    fp.init(window, "Wählen Sie einen Ordner", nsIFilePicker.modeGetFolder);
     var file = Components.classes["@mozilla.org/file/directory_service;1"]
                          .getService(Components.interfaces.nsIProperties)
                          .get("TmpD", Components.interfaces.nsIFile);
@@ -373,6 +374,11 @@ var saveFolderModoki = {
     // Leave it to WebBrowserPersist to discover the encoding type (or lack thereof):
     persist.persistFlags |= nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
+    try {
+      var isPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+    } catch (e) {
+      isPrivate = false;
+    }
     // Create download and initiate it (below)
     var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
 
@@ -403,7 +409,7 @@ var saveFolderModoki = {
 
       const kWrapColumn = 80;
       tr.init((aChosenData ? aChosenData.uri : fileInfo.uri),
-              persistArgs.target, "", null, null, null, persist);
+              persistArgs.target, "", null, null, null, persist, isPrivate);
       try{
         persist.progressListener = new DownloadListener(window, tr);
       } catch(e) {
@@ -413,15 +419,18 @@ var saveFolderModoki = {
                            persistArgs.contentType, encodingFlags, kWrapColumn);
     } else {
       tr.init((aChosenData ? aChosenData.uri : source),
-              persistArgs.target, "", null, null, null, persist);
+              persistArgs.target, "", null, null, null, persist, isPrivate);
       try{
         persist.progressListener = new DownloadListener(window, tr);
       } catch(e) {
         persist.progressListener = tr;
       }
+      let privacyContext = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                                .getInterface(Ci.nsIWebNavigation)
+                                .QueryInterface(Ci.nsILoadContext);
       persist.saveURI((aChosenData ? aChosenData.uri : source),
                       null, aReferrer, persistArgs.postData, null,
-                      persistArgs.target);
+                      persistArgs.target, privacyContext);
     }
   },
 
@@ -957,7 +966,7 @@ if (saveFolderModoki.REPLACE_SYSTEM_fileTitle)
 
   ]]></script>
   <menupopup id="menu_ToolsPopup">
-    <menu id="SaveFolderToolsMenu" label="Downloadordner bestimmen" accesskey="S" insertbefore="menu_preferences">
+    <menu id="SaveFolderToolsMenu" label="Downloadordner bestimmen" accesskey="B" insertbefore="menu_preferences">
       <menupopup>
 
         <menuitem label="Downloadordner suchen"
@@ -965,14 +974,14 @@ if (saveFolderModoki.REPLACE_SYSTEM_fileTitle)
                   oncommand="saveFolderModoki.addFolderPath();"/>
         <menuseparator/>
         <menuitem label="Downloadordner editieren"
-                  accesskey="a"
+                  accesskey="E"
                   oncommand="saveFolderModoki.editFolderPath();"/>
       </menupopup>
     </menu>
   </menupopup>
 
   <menupopup id="contentAreaContextMenu">
-    <menu label="Speichern unter..." accesskey="S">
+    <menu label="Speichern unter..." accesskey="U">
       <menupopup id="saveFolderModokiContextMenu"
                  onpopupshowing="saveFolderModoki.popupContextMenu(this);event.stopPropagation();"/>
     </menu>
