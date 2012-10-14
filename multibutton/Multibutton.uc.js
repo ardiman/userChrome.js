@@ -30,6 +30,7 @@
 			BrowserManipulateBtn.setAttribute("removable", "true");
 			BrowserManipulateBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAABGdBTUEAAK%2FINwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAEXSURBVHjaxFPLasJAFL1TErKri%2FyH3ahduitUEcEWEf9g%2BkHxD1xkUa2vQsX%2BVIQQ8xg9l0yMiekmi144zM29Zw6Tc2eEUorqhPHUfq4l8EA1Qws4F6gUzh%2F8Ek80Wx2sajoeMmPufmGZXfBxZ7Ms8ET2C0mSUBzHNHkf4FMWTsKb0QMH3MxEnaARhiEJIWg86pP7uZU5AYlaEASEqZmmWTYxiiI6nUJefd%2Bnt%2BGrPolEjlqec1cA3qy%2Ff8kwDDoePeq9dBnIUUMPnEoBfakW6x%2ByLIs8z2MgR43dVpUCMSON2Wp3INu2GcjTyRR5VxMbjcf8yHiEy81eG6nHKgu87B44qWFVd%2BBmnHmeFvi%2FtyDqPuezAAMABs2WdpRE3M8AAAAASUVORK5CYII%3D)"; //找到好看的图标自己改吧。
 			
+			
 			const localeString = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale");
 			
 			const labelText = localeString.indexOf("zh") == -1?"Multibutton":"\u591a\u529f\u80fd\u6309\u94ae";//create variable Label & tooltip in languages
@@ -70,6 +71,7 @@
 				}
 			}
 		}
+		
 	
 // 通过手动更新 toolbar 的 currentSet 特性来添加按钮到 toolbar 里
 		function updateToolbar() {
@@ -91,3 +93,5 @@
 //    autoAddBtn();
 
 })();
+
+document.getElementById('Multibutton').setAttribute('oncontextmenu','return false');

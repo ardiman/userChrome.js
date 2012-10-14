@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name           multiMiddleClick.uc.js
-// @namespace      http://www.czcp.co.cc/archives/23
+// @namespace      http://script.bitcp.com/multimiddleclick
 // @description    增强中键导航功能
 // @author         zbinlin
-// @homepage       http://www.czcp.co.cc
+// @homepage       http://bitcp.com
+// @version        0.2b 修复主页按钮左键单击失效 bug
 // @version        0.1b
 // ==/UserScript==
 
@@ -20,11 +21,12 @@ multiMiddleClick.init = function () {
     var stopButton = document.getElementById("stop-button");
     var urlbarStopButton = document.getElementById("urlbar-stop-button");
 
+    var self = this;
     if (backButton) {
         backButton.onclick = function () {};
         backButton.addEventListener(
             'click',
-            function (event) {multiMiddleClick.goNumbericURL(event, -1);},
+            function (event) {self.goNumbericURL(event, -1);},
             false
         );
     }
@@ -32,47 +34,48 @@ multiMiddleClick.init = function () {
         forwardButton.onclick = function () {};
         forwardButton.addEventListener(
             'click',
-            function (event) {multiMiddleClick.goNumbericURL(event, +1);},
+            function (event) {self.goNumbericURL(event, +1);},
             false
         );
     }
 
     if (homeButton) {
         var mouseState = 0;
-        homeButton.onclick = function () {};
+        homeButton.onclick = function (event) {
+            if (event.button != 1) BrowserGoHome(event);
+        };
         homeButton.addEventListener("mousedown", function (event) {
             if (event.button == 1) {
                 mouseState = 1;
-                setTimeout(function() {mouseState = mouseState ? 0 : 1}, 300);
+                setTimeout(function() {mouseState = 0;}, 300);
             }
         }, true);
         homeButton.addEventListener("mouseup", function (event) {
-            if (event.button == 1)
-                setTimeout(multiMiddleClick.goURL(mouseState), 0);
+            if (event.button == 1) self.goURL(mouseState);
         }, true);
     }
 
     if (reloadButton) {
         reloadButton.onclick = function () {};
         reloadButton.addEventListener("click", function (event) {
-            multiMiddleClick.reloadSkipCache(event);
+            self.reloadSkipCache(event);
         }, false);
     }
     if (urlbarReloadButton) {
         urlbarReloadButton.onclick = function () {};
         urlbarReloadButton.addEventListener("click", function (event) {
-            multiMiddleClick.reloadSkipCache(event);
+            self.reloadSkipCache(event);
         }, false);
     }
     if (stopButton) {
         stopButton.addEventListener("click", function (event) {
-            multiMiddleClick.reloadSkipCache(event);
+            self.reloadSkipCache(event);
         }, false);
     }
     if (urlbarStopButton) {
         urlbarStopButton.addEventListener("click", function (event) {
-            multiMiddleClick.reloadSkipCache(event);
-        },false);
+            self.reloadSkipCache(event);
+        }, false);
     }
 }
 
