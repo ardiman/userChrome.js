@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="data:text/css,
+@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
+@namespace%20html%20url('http://www.w3.org/1999/xhtml');
+
+%23send_link-button {
+	list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAB3RJTUUH1AwOEh8vGX0qcgAAAAlwSFlzAAAnEAAAJxABlGlRGQAAAARnQU1BAACxjwv8YQUAAALVSURBVHjadVNNSFRRFP7emzvjqKOiMvMmFcMKhUKmH9RFRSIY6iroZ9uqVaQtEgwXEiZKm1ZBiW2CCBraZkFFixwUE9OE0GyU0aTJGWfezNP5ee%2Fe6byZMUT0wOFwD%2B%2F7zne%2Fe56EPTH%2Fsq8cWloxjIwihHAZ3Kxc4VwokCwuZmMKkyUlriZK2vqfOk0M8795OMFKlVrJYnPJNrvNUmBHNu02MJsVTBawSgaCW0AspqNIRGFZmOS7Q5ndVddy5Pw1CzJmzwAyOlU9V40kkIxRxjE6UUd9CafK13Gc%2B%2F6rZiQxDxJUiQDmWeSSU58buZqNDOwWHYKLPQSc5yeKPJjnKk%2BTghRlOkvQe2EGdh4BS6uYCvDDFORJOAH1BH6F%2FRiefo7xwCSCiSiUghJ0VTagLVG3T0GeQPsdQDISgqHF8Ck0i%2B6lMbTXe9DT2gWJzAyof%2FB1bQWvxDcZA%2BjAA7wjArqjoImkxCJxlLmdCOwY6PaNoffSFVQ6ihFNqXAV1pOFJUgbOpyFpdL44vfXRr%2FwyIIapsum2%2FZiGzJJDUO%2BZ7hMk3fBkaSKJqULdzyPcaL0DMqsxThZWV0CK%2FpkoZNJCTVLElqYg7a2ivG1KZyuPoptPQWH1Y0Key0%2BrHqR4kn0ND0icDOqiirNR%2BlkmVQ699ZCwFnjhCBQSI9n73zW1YWLVVexP243D8C3%2FMVcC4VpURXL0%2FPQolpSi20vqeH4D5lJ7QE1WBFOvMDMho9WIUPbWIibnnsotjnwxDeCeCplKgiy8OZWZ2RjczW6uO2%2F4fXmHngAozPr%2FluN7hr8jU5B1zO42zKCIrr78Mc%2BTPg%2FY10LmQTjEg6KARxjFnmus6HRYRqm6wLn3K3Y0iKYXZvGVmIbM%2BrPuNCF52CCHEkHkXjJbYdpGBOMZCdpchgrO8E4rfN1DOL94QRmDKKO%2Fq%2F7ZFYnnRTatSBkvKXNH8EQVsxP%2FgF2E3IoLKMngQAAAABJRU5ErkJggg%3D%3D);
+}
+
+" type="text/css"?>
+
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd" >
+%browserDTD;
+<!ENTITY % globalRegionDTD SYSTEM "chrome://global-region/locale/region.dtd">
+%globalRegionDTD;
+]>
+
+<overlay id="sendlinkoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<toolbar id="nav-bar">
+	<toolbarbutton id="send_link-button" tooltiptext="&emailPageCmd.label;" label="&emailPageCmd.label;" insertafter="urlbar-container" command="Browser:SendLink" class="toolbarbutton-1"/>
+</toolbar>
+
+<popup id="contentAreaContextMenu">
+  <menuitem id="send_link-context" label="&emailPageCmd.label;" insertafter="context-bookmarkpage" command="Browser:SendLink"/>
+</popup>
+
+</overlay>
