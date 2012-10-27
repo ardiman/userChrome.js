@@ -18,12 +18,25 @@
 
 <overlay id="sendlinkoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
+  <script type="application/x-javascript"><![CDATA[
+var ContextMenu = {
+  sendLink: function() {
+  	var content = document.popupNode.toString();
+    if(content.indexOf("http") == 0 || content.indexOf("ftp") == 0) {
+			MailIntegration.sendMessage(document.popupNode, "");
+		} else {
+    	MailIntegration.sendLinkForWindow(window.content);
+    }
+  },
+}
+
+]]></script>
 <toolbar id="nav-bar">
 	<toolbarbutton id="send_link-button" tooltiptext="&emailPageCmd.label;" label="&emailPageCmd.label;" insertafter="urlbar-container" command="Browser:SendLink" class="toolbarbutton-1"/>
 </toolbar>
 
 <popup id="contentAreaContextMenu">
-  <menuitem id="send_link-context" label="&emailPageCmd.label;" insertafter="context-bookmarkpage" command="Browser:SendLink"/>
+    <menuitem id="send_link-context" label="&emailPageCmd.label;" insertafter="context-bookmarkpage" oncommand="ContextMenu.sendLink()"/>
 </popup>
 
 </overlay>
