@@ -78,7 +78,7 @@
 		var toolbars = document.querySelectorAll("toolbar");
 		Array.slice(toolbars).forEach(function (toolbar) {
 		        var currentset = toolbar.getAttribute("currentset");
-		        if (currentset.split(",").indexOf("home-button"/* ID des Buttons, neben dem der Multibutton positioniert werden soll */) < 0) return;
+		        if (currentset.split(",").indexOf("Multibutton"/* ID des Buttons, neben dem der Multibutton positioniert werden soll */) < 0) return;
         		toolbar.currentSet = currentset;
         		try {
         		    BrowserToolboxCustomizeDone(true);
