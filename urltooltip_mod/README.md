@@ -1,5 +1,5 @@
 # URLTooltip_mod
-Ähnlich wie"Popup Url" bringt das Skript etwas modifiziert 2 Tooltips direkt an einem Link.
+Ähnlich wie"Popup Url" bringt das Skript etwas modifiziert 2 Tooltips direkt an einem Link zum Vorschein.
 
 Das **Ergebnis des Skripts**:
 
