@@ -7,6 +7,15 @@ Durch Anpassung der folgenden Zeilen lässt sich der Dropmarker (s. Pfeil im Scr
     SHOW_BUTTON:		true,
     MENU_BUTTON:		true,
 
+Die Anzeige der Erweiterungen kann über den Wert
+
+    LIST_DISPLAY: 1,
+
+geregelt werden. Mit `0` werden nur die Erweiterungen aufgeführt, die aktiviert sind und Einstellungen besitzen. `1` listet auch Erweiterungen auf, 
+die keine Einstellungen ermöglichen. Mit `2` werden außerdem die deaktivierten Erweiterungen berücksichtigt, unabhängig davon, ob sie ein 
+Einstellungsfenster besitzen, oder nicht.
+
+
 Weitere mögliche Anpassungen (z.B. kleineres Puzzlesymbol) werden unter http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=94691 
 diskutiert.
 
