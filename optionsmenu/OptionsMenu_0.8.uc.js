@@ -17,6 +17,7 @@
 // @version			0.6 Linux 版 Minefield(Fx3.1)の為に大小文字を無視したソートを有効にした。
 // @version			0.7 uc.xul から uc.js へ変更して Fx/Tb を自動判定するようにした。
 // @version			0.8 Firefox4.0 対応中
+// @version			0.8.1 Versionsnummer der Extensions, deaktivierte und Erweiterungen ohne Optionen ebenfalls (aber deaktiviert) anzeigen
 // @Note		-----------------------------------------------------------------------------------------------------------
 // @Note		Fx4 で利用する場合は userChromeJS 1.2 または Alice0775 氏による trunk 4.0b2pre用のuserchrome.js 0.8の修正版
 // @Note		http://space.geocities.jp/alice0775/STORE/userchrome.js-0.8.010070203-Fx4.0.xpi が必要です。
@@ -47,13 +48,13 @@ var ucjs_optionmenu = {
 	OM_NAME: "Addons Optionen",
 
 	// ボタン、独自アイコンを持たない拡張用の画像
-	ICON_URL: "chrome://mozapps/skin/xpinstall/xpinstallItemGeneric.png",
+	// ICON_URL: "chrome://mozapps/skin/xpinstall/xpinstallItemGeneric.png",
 	// hiermit bekommt man ein kleineres Icon
-	//ICON_URL: "chrome://mozapps/skin/extensions/extensionGeneric-16.png",
-
+	ICON_URL: "chrome://mozapps/skin/extensions/extensionGeneric-16.png",
+	
 	// 初期化
 	init: function() {
-
+		if (location != "chrome://browser/content/browser.xul") return;
 		// ボタンの画像とメニューのアイコンを小さくする CSS
 		var style = <![CDATA[
 			#om-button>image,
@@ -181,8 +182,8 @@ var ucjs_optionmenu = {
 
 		// 拡張の設定リスト・メニューを作る
 		for (var j = 0; j < Addons.length; j++) {
-            if (Addons[j].userDisabled) continue;
-			if (!Addons[j].optionsURL) continue;
+			// if (Addons[j].userDisabled) continue;
+			// if (!Addons[j].optionsURL) continue;
 
 			// 拡張のオプション・ダイアログを開くコマンドを登録
 			var tempItem = document.createElement("menuitem");
@@ -190,12 +191,15 @@ var ucjs_optionmenu = {
 			tempItem.setAttribute("oncommand", "ucjs_optionmenu.openOptionsDialog(\""+optionsURL+"\")");
 			// 拡張のアイコンを登録
 			var iconURL=Addons[j].iconURL;
-			if( iconURL=="") iconURL = this.ICON_URL;
+			if( iconURL=="" || iconURL==null) iconURL = this.ICON_URL;
 			tempItem.setAttribute("class", "menuitem-iconic menu-iconic optionsmenu");
 			tempItem.setAttribute("style", "list-style-image: url("+iconURL+");");
+			if (Addons[j].userDisabled || !Addons[j].optionsURL) tempItem.setAttribute("disabled", true);
 			// 拡張名を登録
 			var name = Addons[j].name;
-			tempItem.setAttribute("label", name);
+			var version = Addons[j].version;
+			// tempItem.setAttribute("label", name);
+			tempItem.setAttribute("label", name+" ["+version+"]");
 			// 拡張のオプション・リストをソートする(linux版 Fx3.1 で大小文字を無視したソートが必要だった為有効にした。)
 			var added=false;
 			var numMenuItems = menu.childNodes.length;
