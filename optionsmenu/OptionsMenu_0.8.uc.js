@@ -17,7 +17,7 @@
 // @version			0.6 Linux 版 Minefield(Fx3.1)の為に大小文字を無視したソートを有効にした。
 // @version			0.7 uc.xul から uc.js へ変更して Fx/Tb を自動判定するようにした。
 // @version			0.8 Firefox4.0 対応中
-// @version			0.8.1 Versionsnummer der Extensions, deaktivierte und Erweiterungen ohne Optionen ebenfalls (aber deaktiviert) anzeigen
+// @version			0.8.1a Versionsnummer der Extensions, deaktivierte und Erweiterungen ohne Optionen ebenfalls (aber deaktiviert) anzeigen
 // @Note		-----------------------------------------------------------------------------------------------------------
 // @Note		Fx4 で利用する場合は userChromeJS 1.2 または Alice0775 氏による trunk 4.0b2pre用のuserchrome.js 0.8の修正版
 // @Note		http://space.geocities.jp/alice0775/STORE/userchrome.js-0.8.010070203-Fx4.0.xpi が必要です。
@@ -32,6 +32,7 @@ var ucjs_optionmenu = {
 	SHOW_BUTTON:		true,			// ボタンを追加する
 	MENU_BUTTON:		true,			//　ボタンの形式	true: メニュー・ボタン
 										// 					false: コンテクスト・メニュー・ボタン
+	LIST_DISPLAY:		1,				// 0= nur aktive mit Optionen, 1= nur aktive, auch ohne Optionen, 2= alle (deaktiviert und ohne Optionen)
 	TOOLBAR_FX:			"nav-bar",			// Firefox の場合のツールバー
 	TARGET_BUTTON_FX:	"window-controls",	// Firefox の場合のターゲット・ボタン(null: 最後の位置)
 
@@ -182,8 +183,8 @@ var ucjs_optionmenu = {
 
 		// 拡張の設定リスト・メニューを作る
 		for (var j = 0; j < Addons.length; j++) {
-			// if (Addons[j].userDisabled) continue;
-			// if (!Addons[j].optionsURL) continue;
+			if (Addons[j].userDisabled && this.LIST_DISPLAY < 2) continue;
+			if (!Addons[j].optionsURL && this.LIST_DISPLAY == 0) continue;
 
 			// 拡張のオプション・ダイアログを開くコマンドを登録
 			var tempItem = document.createElement("menuitem");
