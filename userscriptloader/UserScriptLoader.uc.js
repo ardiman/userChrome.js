@@ -5,7 +5,9 @@
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.7.8
+// @version        0.1.7.9
+// @note           0.1.7.9 __exposedProps__ を付けた
+// @note           0.1.7.9 uAutoPagerize との連携をやめた
 // @note           0.1.7.8 window.open や target="_blank" で実行されないのを修正
 // @note           0.1.7.7 @delay 周りのバグを修正
 // @note           0.1.7.6 require で外部ファイルの取得がうまくいかない場合があるのを修正
@@ -224,6 +226,12 @@ USL.ScriptEntry.prototype = {
 
 USL.Console = function Console() {};
 USL.Console.prototype = {
+	__exposedProps__: {
+		log: "r",
+		dir: "r",
+		time: "r",
+		timeEnd: "r",
+	},
 	log: function(str){ Application.console.log(str); },
 	dir: function(obj){ window.inspectObject? inspectObject(obj): this.log(obj); },
 	time: function(name) { this['_' + name] = new Date().getTime(); },
@@ -254,6 +262,14 @@ USL.API = function(script, sandbox, win, doc) {
 		['onload','onerror','onreadystatechange'].forEach(function(k) {
 			if(obj[k] && (typeof(obj[k]) == 'function' || obj[k] instanceof Function)) req[k] = function() {
 				obj[k]({
+					__exposedProps__: {
+						status: "r",
+						statusText: "r",
+						responseHeaders: "r",
+						responseText: "rw",
+						readyState: "r",
+						finalUrl: "r"
+					},
 					status          : (req.readyState == 4) ? req.status : 0,
 					statusText      : (req.readyState == 4) ? req.statusText : '',
 					responseHeaders : (req.readyState == 4) ? req.getAllResponseHeaders() : '',
@@ -853,17 +869,6 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	if (!USL.CACHE_SCRIPT)
 		USL.reloadScripts();
 
-	var winObj = {
-		window: safeWindow,
-		get AutoPagerize() {
-			return this.window.AutoPagerize;
-		},
-		set AutoPagerize(a) {
-			delete this.window.AutoPagerize;
-			return this.window.AutoPagerize = a;
-		},
-		__proto__: safeWindow
-	};
 	var console = new USL.Console();
 	var documentEnds = [];
 	var windowLoads = [];
@@ -915,13 +920,12 @@ USL.injectScripts = function(safeWindow, rsflag) {
 		let GM_API = new USL.API(script, sandbox, safeWindow, aDocument);
 		for (let n in GM_API)
 			sandbox[n] = GM_API[n];
-		[sandbox.Components, sandbox.Cc, sandbox.Ci, sandbox.Cr, sandbox.Cu] = [Components, Cc, Ci, Cr, Cu];
 
 		sandbox.XPathResult  = Ci.nsIDOMXPathResult;
 		sandbox.unsafeWindow = safeWindow.wrappedJSObject;
 		sandbox.document     = safeWindow.document;
 		sandbox.console      = console;
-		sandbox.window       = script.run_at === "document-start" ? safeWindow : winObj;
+		sandbox.window       = safeWindow;
 
 		sandbox.__proto__ = safeWindow;
 		USL.evalInSandbox(script, sandbox);
@@ -1015,43 +1019,9 @@ USL.saveSetting = function() {
 	USL.saveText(aFile, JSON.stringify(USL.database));
 };
 
-USL.getContents_old = function(aURL, callback){
-	try {
-		urlSecurityCheck(aURL, gBrowser.contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
-	} catch(ex) {
-		return;
-	}
-	var channel = Services.io.newChannel(aURL, null, null);
-	if (channel.URI.scheme != 'http' && channel.URI.scheme != 'https')
-		return USL.error('getContents is "http" or "https" only');
-
-	var listener = {
-		data: "",
-		onStartRequest: function (request, context) {
-			this.data = "";
-		},
-		onDataAvailable: function (request, context, inputStream, offset, count)  {
-			var bs = Cc["@mozilla.org/binaryinputstream;1"].createInstance(Ci.nsIBinaryInputStream);
-			bs.setInputStream(inputStream);
-			var n =  bs.available();
-			var bytes = bs.readBytes(n);
-			this.data += bytes;
-			bs.close();
-		},
-		onStopRequest: function (request, context, statusCode) {
-			if (Components.isSuccessCode(statusCode)) {
-				this.callback.apply(this, [this.data, channel.contentType]);
-			}
-		},
-		callback: callback
-	};
-	channel.asyncOpen(listener, null);
-	USL.debug("getContents: " + aURL);
-};
-
 USL.getContents = function(aURL, aCallback){
 	try {
-		urlSecurityCheck(aURL, gBrowser.contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
+		urlSecurityCheck(aURL, gBrowser.contentPrincipal, Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
 	} catch(ex) {
 		return;
 	}

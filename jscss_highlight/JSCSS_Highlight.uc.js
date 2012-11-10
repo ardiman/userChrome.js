@@ -7,18 +7,53 @@
 // @compatibility  Firefox 10
 // @charset        UTF-8
 // @include        main
-// @version        0.0.2
+// @version        0.0.3
+// @note           0.0.3 超高速化した
 // @note           0.0.2 AutoHotkey も強調してみた
 // @note           0.0.2 細部の調整
 // ==/UserScript==
 
 (function(){
 
+var BASE_Style = {
+	MlutiComment   : 'color:#080;',
+	LineComment    : 'color:#080;',
+	DoubleQuotation: 'color:#c11;',
+	SingleQuotation: 'color:#c11;',
+	URL            : '',
+	CDATA          : 'color:#c11;',
+};
+
+var JS_Style = {
+	keyword  : 'color:#a09;',
+	object   : 'color:#c15;',
+	method   : 'color:#027;',
+	property : 'color:#06a;',
+	hougen   : 'color:#06a;',
+	CDATA    : 'color:#c11;',
+};
+
+var CSS_Style = {
+	keyword  : 'color:#a09;',
+	pseudo   : 'color:#a09;',
+	property : 'color:#06a;',
+	hougen   : 'color:#06a;',
+};
+
+var AHK_Style = {
+	keyword  : 'color:#a09;',
+	keyword2 : 'color:#a09;',
+	property : 'color:#06a;',
+	key      : 'color:#06a;',
+};
+
+
 var JS = {};
 var CSS = {};
 var XML = {};
 var BASE = {};
 var AHK = {};
+
 
 JS.keyword = [
 "abstract","boolean","break","byte","case","catch","char","class","const",
@@ -28,7 +63,7 @@ JS.keyword = [
 "null","package","private","protected","public","return","short","static",
 "super","switch","synchronized","this","throw","throws","transient","true","try",
 "typeof","var","void","volatile","while","with",
-"let","yield","infinity","NaN","undefined"
+"let","yield","infinity","NaN","undefined","of"
 ];
 
 JS.object = [
@@ -58,25 +93,54 @@ JS.hougen = [
 "GM_getMetadata","GM_setClipboard","GM_safeHTMLParser","GM_generateUUID"
 ];
 
-JS.keyword.sort(function(a,b) b.length - a.length);
-JS.object.sort(function(a,b) b.length - a.length);
-JS.method.sort(function(a,b) b.length - a.length);
-JS.property.sort(function(a,b) b.length - a.length);
-JS.hougen.sort(function(a,b) b.length - a.length);
 
 
 CSS.keyword = [
 "@import","@charset","@media","@font-face","@page","@namespace","@keyframes",
-"(?:\\!important)\\;",
+"!important",
 "@-moz-document",
-":root",":not","::?before","::?after","::?first-letter","::?first-line",
-":link",":visited",":active",":focus",":hover",
-":target",":enabled",":disabled",":checked",":default",":empty",
-":nth-(?:last-)child",":nth-(?:last-)of-type",":(?:first|last|only)-child",
-":(?:first|last|only)-of-type"
 ];
 
-CSS.property = ['padding','margin','border','border-radius','background','font','overflow'];
+CSS.pseudo = [
+":before",":after",":first-letter",":first-line",
+"::before","::after","::first-letter","::first-line","::selection",
+":root",":not", ":link",":visited",":active",":focus",":hover",
+":target",":enabled",":disabled",":checked",":default",":empty",
+":nth-child",":nth-of-type",":first-child",":last-child",":only-child",
+":nth-last-child",":nth-last-of-type",
+":first-of-type",":last-of-type",":only-of-type",
+
+"::-moz-anonymous-block","::-moz-anonymous-positioned-block",":-moz-any",
+":-moz-any-link",":-moz-bound-element",":-moz-broken","::-moz-canvas",
+"::-moz-cell-content",":-moz-drag-over",":-moz-first-node","::-moz-focus-inner",
+"::-moz-focus-outer",":-moz-focusring",":-moz-full-screen",":-moz-full-screen-ancestor",
+":-moz-handler-blocked",":-moz-handler-crashed",":-moz-handler-disabled","::-moz-inline-table",
+":-moz-last-node",":-moz-list-bullet",":-moz-list-number",":-moz-loading",
+":-moz-locale-dir",":-moz-lwtheme",":-moz-lwtheme-brighttext",":-moz-lwtheme-darktext",
+":-moz-math-stretchy",":-moz-math-anonymous",":-moz-only-whitespace","::-moz-page",
+"::-moz-page-sequence","::-moz-pagebreak","::-moz-pagecontent",":-moz-placeholder",
+":-moz-read-only",":-moz-read-write","::-moz-selection","::-moz-scrolled-canvas",
+"::-moz-scrolled-content","::-moz-scrolled-page-sequence",":-moz-suppressed",
+":-moz-submit-invalid","::-moz-svg-foreign-content",":-moz-system-metric",
+"::-moz-table","::-moz-table-cell","::-moz-table-column","::-moz-table-column-group",
+"::-moz-table-outer","::-moz-table-row","::-moz-table-row-group",":-moz-tree-checkbox",
+":-moz-tree-cell",":-moz-tree-cell-text",":-moz-tree-column",":-moz-tree-drop-feedback",
+":-moz-tree-image",":-moz-tree-indentation",":-moz-tree-line",":-moz-tree-progressmeter",
+":-moz-tree-row",":-moz-tree-separator",":-moz-tree-twisty",":-moz-ui-invalidGecko",
+":-moz-ui-validGecko",":-moz-user-disabled","::-moz-viewport","::-moz-viewport-scroll",
+":-moz-window-inactive","::-moz-xul-anonymous-block"
+];
+
+CSS.property = [
+"padding","margin","background","font","overflow",
+"border","border-radius",
+"border-color","border-width","border-style",
+"border-top","border-right","border-bottom","border-left",
+"outline","-moz-outline-radius","-moz-column-rule",
+"-moz-padding-start","-moz-padding-end",
+"-moz-margin-start","-moz-margin-end",
+"-moz-border-start","-moz-border-end"
+];
 CSS.hougen = [];
 var s = getComputedStyle(document.documentElement, null);
 for(var i = 0, p; p = s[i]; i++) {
@@ -102,21 +166,28 @@ CSS.colors = [
 'Highlight','HighlightText','InactiveBorder','InactiveCaption',
 'InactiveCaptionText','InfoBackground','InfoText','Menu','MenuText',
 'Scrollbar','ThreeDDarkShadow','ThreeDFace','ThreeDHighlight',
-'ThreeDLightShadow','ThreeDShadow','Window','WindowFrame','WindowText'
+'ThreeDLightShadow','ThreeDShadow','Window','WindowFrame','WindowText',
+
+'-moz-activehyperlinktext','-moz-hyperlinktext','-moz-visitedhyperlinktext',
+'-moz-buttondefault','-moz-buttonhoverface','-moz-buttonhovertext','-moz-cellhighlight',
+'-moz-cellhighlighttext','-moz-field','-moz-fieldtext','-moz-dialog','-moz-dialogtext',
+'-moz-dragtargetzone','-moz-mac-accentdarkestshadow','-moz-mac-accentdarkshadow',
+'-moz-mac-accentface','-moz-mac-accentlightesthighlight','-moz-mac-accentlightshadow',
+'-moz-mac-accentregularhighlight','-moz-mac-accentregularshadow','-moz-mac-chrome-active',
+'-moz-mac-chrome-inactive','-moz-mac-focusring','-moz-mac-menuselect','-moz-mac-menushadow',
+'-moz-mac-menutextselect','-moz-menuhover','-moz-menuhovertext','-moz-win-communicationstext',
+'-moz-win-mediatext','-moz-nativehyperlinktext'
 ];
-CSS.property.sort(function(a,b) b.length - a.length);
-CSS.hougen.sort(function(a,b) b.length - a.length);
-CSS.colors.sort(function(a,b) b.length - a.length);
 
 
 AHK.keyword = [
-"^#AllowSameLineComments","^#ClipboardTimeout","^#CommentFlag","^#ErrorStdOut",
-"^#EscapeChar","^#HotkeyInterval","^#HotkeyModifierTimeout","^#Hotstring",
-"^#IfWinExist","^#IfWinNotActive","^#IfWinNotExist","^#Include","^#IncludeAgain",
-"^#InstallKeybdHook","^#InstallMouseHook","^#KeyHistory","^#LTrim","^#MaxHotkeysPerInterval",
-"^#MaxMem","^#MaxThreads","^#MaxThreadsBuffer","^#MaxThreadsPerHotkey","^#NoEnv",
-"^#NoTrayIcon","^#Persistent","^#SingleInstance","^#UseHook","^#WinActivateForce",
-"^#IfWinActive"
+"#AllowSameLineComments","#ClipboardTimeout","#CommentFlag","#ErrorStdOut",
+"#EscapeChar","#HotkeyInterval","#HotkeyModifierTimeout","#Hotstring",
+"#IfWinExist","#IfWinNotActive","#IfWinNotExist","#Include","#IncludeAgain",
+"#InstallKeybdHook","#InstallMouseHook","#KeyHistory","#LTrim","#MaxHotkeysPerInterval",
+"#MaxMem","#MaxThreads","#MaxThreadsBuffer","#MaxThreadsPerHotkey","#NoEnv",
+"#NoTrayIcon","#Persistent","#SingleInstance","#UseHook","#WinActivateForce",
+"#IfWinActive"
 ];
 
 AHK.keyword2 = [
@@ -217,285 +288,226 @@ AHK.property = [
 ];
 
 AHK.key = [
-"[LR]?SHIFT","[LR]?ALT","[LR]?CONTROL","[LR]?CTRL","[LR]WIN","[LMR]Button",
-"APPSKEY","WheelUp","WheelDown","WheelLeft","WheelRight","XButton1","XButton2",
-"Joy[1-9]","Joy1[0-9]","Joy2[0-9]","Joy3[0-2]","Joy[XYZRUV]","JoyPOV",
-"JoyName","JoyButtons","JoyAxes","JoyInfo","SPACE","TAB","ENTER","ESCAPE","ESC",
-"BACKSPACE","BS","DELETE","DEL","INSERT","INS","PGUP","PGDN","HOME","END","UP",
-"DOWN","LEFT","RIGHT","PRINTSCREEN","CTRLBREAK","PAUSE","ScrollLock","Capslock",
-"Numlock","NUMPAD[0-9]","NUMPADMULT","NUMPADADD","NUMPADSUB","NUMPADDIV","NUMPADDOT",
-"NUMPADDEL","NUMPADINS","NUMPADCLEAR","NUMPADUP","NUMPADDOWN","NUMPADLEFT","NUMPADRIGHT",
-"NUMPADHOME","NUMPADEND","NUMPADPGUP","NUMPADPGDN","NUMPADENTER","F[1-9]","F1[0-9]",
-"F2[0-4]","BROWSER_BACK","BROWSER_FORWARD","BROWSER_REFRESH","BROWSER_STOP","BROWSER_SEARCH",
-"BROWSER_FAVORITES","BROWSER_HOME","VOLUME_MUTE","VOLUME_DOWN","VOLUME_UP","MEDIA_NEXT",
-"MEDIA_PREV","MEDIA_STOP","MEDIA_PLAY_PAUSE","LAUNCH_MAIL","LAUNCH_MEDIA","LAUNCH_APP1",
-"LAUNCH_APP2",
+"LButton","RButton","MButton","WheelDown","WheelUp","XButton1","XButton2","Joystick",
+"Joy1","Joy2","Joy3","Joy4","Joy5","Joy6","Joy7","Joy8","Joy9","Joy10",
+"Joy11","Joy12","Joy13","Joy14","Joy15","Joy16","Joy17","Joy18","Joy19","Joy20",
+"Joy21","Joy22","Joy23","Joy24","Joy25","Joy26","Joy27","Joy28","Joy29","Joy30",
+"Joy31","Joy32","JoyX","JoyY","JoyZ","JoyR","JoyU","JoyV","JoyPOV","JoyName",
+"JoyButtons","JoyAxes","JoyInfo",
+"Space","Tab","Return","Esc","BS","Del","Ins","Home","End","PgUp","PgDn","Up","Down",
+"Left","Right","ScrollLock","CapsLock","NumLock","NumpadDiv","NumpadMult",
+"NumpadAdd","NumpadSub","NumpadEnter","NumpadDel","NumpadIns","NumpadClear","NumpadUp",
+"NumpadDown","NumpadLeft","NumpadRight","NumpadHome","NumpadEnd","NumpadPgUp","NumpadPgDn",
+"Numpad0","Numpad1","Numpad2","Numpad3","Numpad4","Numpad5","Numpad6","Numpad7",
+"Numpad8","Numpad9","NumpadDot","F1","F2","F3","F4","F5","F6","F7","F8","F9","F10",
+"F11","F12","F13","F14","F15","F16","F17","F18","F19","F20","F21","F22","F23","F24",
+"AppsKey","Shift","Ctrl","Alt","LWin","RWin","LShift","LCtrl","LAlt","RShift","RCtrl",
+"RAlt","PrintScreen","CtrlBreak","Pause","Break","Help","Sleep","Browser_Back",
+"Browser_Forward","Browser_Refresh","Browser_Stop","Browser_Search","Browser_Favorites",
+"Browser_Home","Volume_Mute","Volume_Down","Volume_Up","Media_Next","Media_Prev",
+"Media_Stop","Media_Play_Pause","Launch_Mail","Launch_Media","Launch_App1","Launch_App2"
 ];
-AHK.keyword.sort(function(a,b) b.length - a.length);
-AHK.keyword2.sort(function(a,b) b.length - a.length);
-AHK.property.sort(function(a,b) b.length - a.length);
-AHK.key.sort(function(a,b) b.length - a.length);
 
 
-JS.keyword_r  = '\\b(?:' + JS.keyword.join('|') + ')\\b';
-JS.object_r   = '\\b(?:' + JS.object.join('|') + ')\\b';
-JS.method_r   = '\\b(?:' + JS.method.join('|') + ')\\b';
-JS.property_r = '\\b(?:' + JS.property.join('|') + ')\\b';
-JS.hougen_r   = '\\b(?:' + JS.hougen.join('|') + ')\\b';
-JS.regexp_r   = "\\\/\(\(\?\:\\\\\.\|\\\[\(\?\:\\\\\.\|\[\^\\\]\]\)\*\\\]\|\[\^\\\/\\n\]\)\{0\,100\}\)\\\/\(\[gimy\]\*\)";
-JS.CDATA_r    = "&lt\\;\\!\\\[CDATA\\\[\[\\s\\S\]\*\?\\\]\\\]&gt\\;";
+var JS_Words = {};
+Object.keys(JS).forEach(function(key){
+	JS[key].forEach(function(word){
+		JS_Words[word] = JS_Style[key];
+	});
+});
 
-CSS.keyword_r  = '(?:' + CSS.keyword.join('|') + ')';
-CSS.property_r = '\\b(?:' + CSS.property.join('|') + ')\\b';
-CSS.colors_r   = '\\b(?:' + CSS.colors.join('|') + ')\\b';
-CSS.hougen_r   = '(?:' + CSS.hougen.join('|') + ')\\b';
-CSS.url_r      = 'url\\([^)]+\\)';
+var CSS_Words = {};
+Object.keys(CSS).forEach(function(key){
+	CSS[key].forEach(function(word){
+		CSS_Words[word] = key === "colors" ? "color: " + word + ";" : CSS_Style[key];
+	});
+});
 
-AHK.keyword_r  = '(?:' + AHK.keyword.join('|') + ')\\b';
-AHK.keyword2_r = '\\b(?:' + AHK.keyword2.join('|') + ')\\b';
-AHK.property_r = '\\b(?:' + AHK.property.join('|') + ')\\b';
-AHK.key_r      = '\\b(?:' + AHK.key.join('|') + ')\\b';
-AHK.SComment_r = '(^|\\s+)\\;.*';
+var AHK_Words = {};
+Object.keys(AHK).forEach(function(key){
+	AHK[key].forEach(function(word){
+		AHK_Words[word] = AHK_Style[key];
+	});
+});
 
-XML.MComment_r = '&lt\\;!--[\\s\\S]+?--&gt\\;';
+//JS.regexp_r   = "\\\/\(\(\?\:\\\\\.\|\\\[\(\?\:\\\\\.\|\[\^\\\]\]\)\*\\\]\|\[\^\\\/\\n\]\)\{0\,100\}\)\\\/\(\[gimy\]\*\)";
 
-BASE.URL_r      = '(?:https?|ftp|file|chrome|data):\\/\\/\\/?[a-z0-9](?:[\\w#$%()=~^@:;?_.,\\/+-]|&amp;)+(?:[\\w#$%=:;?_,\\/+-]|&amp;)';
-BASE.BASE64_r   = "data:image/[a-zA-Z-]+\;base64\,[a-zA-Z0-9/+]+={0,2}";
-BASE.MComment_r = "\\\/\\\*\[\\s\\S\]\*\?\\\*\\\/";
-BASE.SComment_r = "\\\/\\\/\.\*";
-BASE.string_r   = '"(?:[^\\n"\\\\]|\\\\.|\\\\\\n)*"' + '|' +
-                  "'(?:[^\\n'\\\\]|\\\\.|\\\\\\n)*'";
+AHK.SComment_r  = '^\\;.*|\\s+\\;.*';
+XML.MComment_r  = '&lt\\;!--[\\s\\S]+?--&gt\\;';
+BASE.URL_r      = ['h?t?tps?://\\w+\\.wikipedia\\.org/wiki/\\S*'
+                  ,'(?:h?t?tps?|ftp)://\\w+\\.[\\w.]+(?:[\\w#%()=~^_?.;:+*/-]|&amp\\;)*'
+                  ,'(?:chrome|resource)://[^&\\s]+'
+                  ,'(?:jar:)?file:///\\w:/[^&\\s]+'
+                  ,'data:\\w+/[a-zA-Z-]+\\;[\\w-]+?\\,[a-zA-Z0-9/+%\\s]+={0,2}'
+                  ].join('|');
+BASE.MComment_r = "/\\*[\\s\\S]*?\\*/";
+BASE.SComment_r = "//.*";
+BASE.DString_r  = '"(?:[^\\n"\\\\]|\\\\.|\\\\\\n)*"';
+BASE.SString_r  = "'(?:[^\\n'\\\\]|\\\\.|\\\\\\n)*'";
+BASE.CDATA_r    = "&lt\\;\\!\\[CDATA\\[[\\s\\S\]*?\\]\\]&gt\\;";
 
-
-JS.keyword_s  = 'color:#a09;';
-JS.object_s   = 'color:#c15;';
-JS.method_s   = 'color:#027;';
-JS.property_s = 'color:#06a;';
-JS.hougen_s   = 'color:#06a;';
-JS.regexp_s   = 'color:#c11;';
-JS.CDATA_s    = 'color:#c11;';
-
-CSS.keyword_s  = 'color:#a09;';
-CSS.property_s = 'color:#06a;';
-CSS.hougen_s   = 'color:#06a;';
-
-AHK.keyword_s  = 'color:#a09;';
-AHK.keyword2_s = 'color:#a09;';
-AHK.property_s = 'color:#06a;';
-AHK.key_s      = 'color:#06a;';
-AHK.SComment_s = 'color:#080;';
-
-XML.MComment_s = 'color:#080;';
-
-BASE.MComment_s = 'color:#080;';
-BASE.SComment_s = 'color:#080;';
-BASE.string_s   = 'color:#c11;';
-BASE.URL_s      = '';
-BASE.BASE64_s   = 'color:green;';
-
-JS.R_keyword  = new RegExp(JS.keyword_r);
-JS.R_object   = new RegExp(JS.object_r);
-JS.R_method   = new RegExp(JS.method_r);
-JS.R_property = new RegExp(JS.property_r);
-JS.R_hougen   = new RegExp(JS.hougen_r);
-
-CSS.R_keyword  = new RegExp(CSS.keyword_r);
-CSS.R_property = new RegExp(CSS.property_r);
-CSS.R_colors   = new RegExp(CSS.colors_r);
-CSS.R_hougen   = new RegExp(CSS.hougen_r);
-CSS.R_url      = new RegExp(CSS.url_r);
-
-AHK.R_keyword  = new RegExp(AHK.keyword_r, 'm');
-AHK.R_keyword2 = new RegExp(AHK.keyword2_r);
-AHK.R_property = new RegExp(AHK.property_r);
-AHK.R_key      = new RegExp(AHK.key_r);
-AHK.R_SComment = new RegExp(AHK.SComment_r, 'm');
-
-
-BASE.R_URL = new RegExp(BASE.URL_r, "g");
-BASE.R_BASE64 = new RegExp(BASE.BASE64_r, "g");
+AHK.R_SComment = new RegExp(AHK.SComment_r, "g");
+BASE.R_URL = new RegExp(BASE.URL_r, "gm");
 
 JS.R_ALL = new RegExp([
 	BASE.MComment_r
 	,BASE.SComment_r
-	,BASE.string_r
-	,JS.CDATA_r
-	,JS.keyword_r
-	,JS.object_r
-	,JS.method_r
-	,JS.property_r
-	,JS.hougen_r
-//	,JS.regexp_r
-].join('|'), "g");
+	,BASE.DString_r
+	,BASE.SString_r
+	,BASE.CDATA_r
+	,'[\\w$]+'
+].join('|'), "gm");
 
 CSS.R_ALL = new RegExp([
 	BASE.MComment_r
-	,BASE.string_r
-	,CSS.keyword_r
-	,CSS.property_r
-	,CSS.colors_r
-	,CSS.hougen_r
-].join('|'), "g");
+	,BASE.DString_r
+	,BASE.SString_r
+	,'(?::?:|\\b|@)[a-zA-Z\\-]+\\b'
+	,'\\!important\\b'
+].join('|'), "gm");
 
 AHK.R_ALL = new RegExp([
 	BASE.MComment_r
 	,AHK.SComment_r
-	,BASE.string_r
-	,AHK.keyword_r
-	,AHK.keyword2_r
-	,AHK.property_r
-	,AHK.key_r
+	,BASE.DString_r
+	,BASE.SString_r
+	,'^#[a-zA-Z]+\\b'
+	,'\\w+'
 ].join('|'), "gm");
 
 XML.R_ALL = new RegExp([
 	XML.MComment_r
-	,JS.CDATA_r
-	,BASE.string_r
-].join('|'), "g");
+	,BASE.CDATA_r
+	,BASE.DString_r
+	,BASE.SString_r
+].join('|'), "gm");
 
 BASE.R_ALL = new RegExp([
 	XML.MComment_r
-	,BASE.string_r
-	,CSS.colors_r
-].join('|'), 'g');
+	,BASE.DString_r
+	,BASE.SString_r
+	,'[\\w$]+'
+].join('|'), "gm");
+
+function parseLink(aText) {
+	return aText.replace(BASE.R_URL, function(str){
+		var url = str;
+		if (url.indexOf("data:image/") === 0)
+			return '<img src="'+ url +'" alt="'+ str +'">';
+
+		url = url.replace(/^h?t?tp(s)?/,'http$1');
+		return '<a href="'+ url +'" style="'+ BASE_Style.URL +'">'+ str +'</a>';
+	});
+}
 
 function parse(aText, type) {
 	aText = aText.replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
-	if (type == "CSS") aText = CSSParser(aText);
-	else if (type == "JS") aText = JSParser(aText);
-	else if (type == "XML") aText = XMLParser(aText);
-	else if (type == "AHK") aText = AHKParser(aText);
-	else aText = EXParset(aText);
+	if (type === "CSS") aText = CSSParser(aText);
+	else if (type === "JS") aText = JSParser(aText);
+	else if (type === "XML") aText = XMLParser(aText);
+	else if (type === "AHK") aText = AHKParser(aText);
+	else aText = TXTParser(aText);
 
-	aText = aText.replace(BASE.R_BASE64, '<img src="$&" alt="$&">');
-	aText = aText.replace(BASE.R_URL, '<a href="$&" style="'+ BASE.URL_s +'">$&</a>');
+	aText = parseLink(aText);
 	return aText;
 }
 
 function JSParser(aText) {
 	return aText.replace(JS.R_ALL, function(str, offset, s) {
 		if (str.indexOf("//") === 0) {
-			return '<span style="'+ BASE.SComment_s +'">' + str + '</span>';
+			return '<span style="'+ BASE_Style.LineComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("/*") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+		if (str.indexOf("/*") === 0) {
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("'") === 0 || str.indexOf('"') === 0) {
-			return '<span style="'+ BASE.string_s +'">' + str + '</span>';
+		if (str[0] === "'") {
+			return '<span style="'+ BASE_Style.DoubleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (str.indexOf("/") === 0) {
-			return '<span style="'+ JS.regexp_s +'">' + str + '</span>';
+		if (str[0] === '"') {
+			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (str.indexOf("&lt;![CDATA[") === 0) {
-			if (CSS.R_keyword.test(str)) return CSSParser(str);
-			return '<span style="'+ JS.CDATA_s +'">' + str + '</span>';
+		if (str.indexOf("&lt;![CDATA[") === 0) {
+			if (/^\s*\@|\!important|url\(/.test(str))
+				return CSSParser(str);
+			return '<span style="'+ (JS_Style.CDATA || BASE_Style.CDATA) +'">' + str + '</span>';
 		}
-		else if (JS.R_keyword.test(str)) {
-			return '<span style="'+ JS.keyword_s +'">' + str + '</span>';
+		if (JS_Words[str]) {
+			return '<span style="'+ JS_Words[str] +'">' + str + '</span>';
 		}
-		else if (JS.R_object.test(str)) {
-			return '<span style="'+ JS.object_s +'">' + str + '</span>';
-		}
-		else if (JS.R_method.test(str)) {
-			return '<span style="'+ JS.method_s +'">' + str + '</span>';
-		}
-		else if (JS.R_property.test(str)) {
-			return '<span style="'+ JS.property_s +'">' + str + '</span>';
-		}
-		else if (JS.R_hougen.test(str)) {
-			return '<span style="'+ JS.hougen_s +'">' + str + '</span>';
-		}
-		else {
-			return str;
-		}
+		return str;
 	});
 }
 
 function XMLParser(aText) {
 	return aText.replace(XML.R_ALL, function(str, offset, s) {
 		if (str.indexOf("&lt;!--") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("'") === 0 || str.indexOf('"') === 0) {
-			return '<span style="'+ BASE.string_s +'">' + str + '</span>';
+		if (str[0] === "'") {
+			return '<span style="'+ BASE_Style.DoubleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (str.indexOf("&lt;![CDATA[") === 0) {
+		if (str[0] === '"') {
+			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
+		}
+		if (str.indexOf("&lt;![CDATA[") === 0) {
 			let res = JSParser(str.replace("&lt;![CDATA[", "").replace("]]&gt;", ""));
 			return "&lt;![CDATA[" + res + "]]&gt;";
 		}
-		else {
-			return str;
-		}
+		return str;
 	});
 }
 
 function CSSParser(aText) {
 	return aText.replace(CSS.R_ALL, function(str, offset, s) {
 		if (str.indexOf("/*") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("'") === 0 || str.indexOf('"') === 0) {
-			return '<span style="'+ BASE.string_s +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
+		if (str[0] === "'") {
+			return '<span style="'+ BASE_Style.DoubleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (CSS.R_hougen.test(str)) {
-			return '<span style="'+ CSS.hougen_s +'">' + str + '</span>';
+		if (str[0] === '"') {
+			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (CSS.R_colors.test(str)) {
-			return '<span style="color:'+ str +';">' + str + '</span>';
+		if (CSS_Words[str]) {
+			return '<span style="'+ CSS_Words[str] +'">' + str + '</span>';
 		}
-		else if (CSS.R_keyword.test(str)) {
-			return '<span style="'+ CSS.keyword_s +'">' + str + '</span>';
-		}
-		else if (CSS.R_property.test(str)) {
-			return '<span style="'+ CSS.property_s +'">' + str + '</span>';
-		}
-		else {
-			return str;
-		}
+		return str;
 	});
 }
 function AHKParser(aText) {
 	return aText.replace(AHK.R_ALL, function(str, offset, s) {
 		if (str.indexOf("/*") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("'") === 0 || str.indexOf('"') === 0) {
-			return '<span style="'+ BASE.string_s +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
+		if (AHK.R_SComment.test(str)) {
+			return '<span style="'+ BASE_Style.LineComment +';">' + str + '</span>';
 		}
-		else if (AHK.R_SComment.test(str)) {
-			return '<span style="'+ AHK.SComment_s +'">' + str + '</span>';
+		if (str[0] === "'") {
+			return '<span style="'+ BASE_Style.DoubleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (AHK.R_keyword.test(str)) {
-			return '<span style="'+ AHK.keyword_s +'">' + str + '</span>';
+		if (str[0] === '"') {
+			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (AHK.R_keyword2.test(str)) {
-			return '<span style="'+ AHK.keyword2_s +'">' + str + '</span>';
+		if (AHK_Words[str]) {
+			return '<span style="'+ AHK_Words[str] +'">' + str + '</span>';
 		}
-		else if (AHK.R_property.test(str)) {
-			return '<span style="'+ AHK.property_s +'">' + str + '</span>';
-		}
-		else if (AHK.R_key.test(str)) {
-			return '<span style="'+ AHK.key_s +'">' + str + '</span>';
-		}
-		else {
-			return str;
-		}
+		return str;
 	});
 }
 
-function EXParset(aText) {
+function TXTParser(aText) {
 	return aText.replace(BASE.R_ALL, function(str, offset, s) {
 		if (str.indexOf("/*") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("&lt;!--") === 0) {
-			return '<span style="'+ BASE.MComment_s +'">' + str + '</span>';
+		if (str.indexOf("&lt;!--") === 0) {
+			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		else if (str.indexOf("'") === 0 || str.indexOf('"') === 0) {
-			return '<span style="'+ BASE.string_s +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
+		if (str[0] === "'") {
+			return '<span style="'+ BASE_Style.DoubleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
-		else if (CSS.R_colors.test(str)) {
-			return '<span style="color:'+ str +';">' + str + '</span>';
+		if (str[0] === '"') {
+			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
 		return str;
 	});
@@ -523,7 +535,7 @@ window.JSCSS = {
 	init: function() {
 		var menuitem = document.createElement("menuitem");
 		menuitem.setAttribute("id", "JSCSS-menuitem");
-		menuitem.setAttribute("label", "JSCSS hervorheben");
+		menuitem.setAttribute("label", "JSCSS Highlight");
 		menuitem.setAttribute("type", "checkbox");
 		menuitem.setAttribute("checked", "true");
 		menuitem.setAttribute("autoCheck", "false");
@@ -549,7 +561,7 @@ window.JSCSS = {
 				if (!/css|javascript|plain/.test(doc.contentType) || 
 				    doc.location.protocol === "view-source:"
 				) return;
-				this.run(doc, 100000);
+				this.run(doc, 300000);
 				break;
 			case "unload":
 				this.uninit();
@@ -587,10 +599,10 @@ window.JSCSS = {
 		if (pre.textContent.length > maxLength) {
 			var browser = gBrowser.getBrowserForDocument(doc);
 			var notificationBox = gBrowser.getNotificationBox(browser);
-			var message = "Der Text ist zu lang. Wollen Sie hervorheben? (Es besteht Absturzgefahr!)"
+			var message = "テキストが長すぎます。強調しますか？（フリーズする危険があります）"
 			var buttons = [{
-				label: "Ja",
-				accessKey: "J",
+				label: "はい",
+				accessKey: "Y",
 				callback: function (aNotification, aButton) {
 					 self.write(pre);
 				}

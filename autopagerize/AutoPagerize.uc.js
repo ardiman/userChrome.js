@@ -4,7 +4,8 @@
 // @description    loading next page and inserting into current page.
 // @include        main
 // @compatibility  Firefox 5.0
-// @version        0.2.7
+// @version        0.2.8
+// @note           0.2.8 履歴に入れる機能を廃止
 // @note           0.2.7 Firefox 14 でとりあえず動くように修正
 // @note           0.2.6 組み込みの SITEINFO を修正
 // @note           0.2.5 MICROFORMAT も設定ファイルから追加・無効化できるようにした
@@ -105,11 +106,11 @@ var SITEINFO_IMPORT_URLS = [
 
 var COLOR = {
 	on: '#0f0',
-	Aus: '#ccc',
-	Aktiviert: '#0f0',
-	Deaktiviert: '#ccc',
-	Laden: '#0ff',
-	Beendet: '#00f',
+	off: '#ccc',
+	enable: '#0f0',
+	disable: '#ccc',
+	loading: '#0ff',
+	terminated: '#00f',
 	error: '#f0f'
 }
 
@@ -122,7 +123,6 @@ if (typeof window.uAutoPagerize != 'undefined') {
 }
 
 // 以下 設定が無いときに利用する
-var ADD_HISTORY = false;
 var FORCE_TARGET_WINDOW = true;
 var BASE_REMAIN_HEIGHT = 400;
 var DEBUG = false;
@@ -133,17 +133,15 @@ var XHR_TIMEOUT = 30 * 1000;
 
 
 var ns = window.uAutoPagerize = {
-	_INCLUDE       : INCLUDE,
-	_EXCLUDE       : EXCLUDE,
 	INCLUDE_REGEXP : /./,
 	EXCLUDE_REGEXP : /^$/,
 	MICROFORMAT    : MICROFORMAT.slice(),
 	MY_SITEINFO    : MY_SITEINFO.slice(),
-	SITEINFOs      : [],
+	SITEINFO       : [],
 
 	get prefs() {
 		delete this.prefs;
-		return this.prefs = Services.prefs.getBranch("uAutoPagerize.")
+		return this.prefs = Services.prefs.getBranch("uAutoPagerize.");
 	},
 	get file() {
 		var aFile = Services.dirsvc.get('UChrm', Ci.nsILocalFile);
@@ -151,29 +149,25 @@ var ns = window.uAutoPagerize = {
 		delete this.file;
 		return this.file = aFile;
 	},
-	get INCLUDE() {
-		return this._INCLUDE;
-	},
+	get INCLUDE() INCLUDE,
 	set INCLUDE(arr) {
 		try {
 			this.INCLUDE_REGEXP = arr.length > 0 ? 
 				new RegExp(arr.map(wildcardToRegExpStr).join("|")) :
 				/./;
-			this._INCLUDE = arr;
+			INCLUDE = arr;
 		} catch (e) {
 			log(U("INCLUDE が不正です"));
 		}
 		return arr;
 	},
-	get EXCLUDE() {
-		return this._EXCLUDE;
-	},
+	get EXCLUDE() EXCLUDE,
 	set EXCLUDE(arr) {
 		try {
 			this.EXCLUDE_REGEXP = arr.length > 0 ?
 				new RegExp(arr.map(wildcardToRegExpStr).join("|")) :
 				/^$/;
-			this._EXCLUDE = arr;
+			EXCLUDE = arr;
 		} catch (e) {
 			log(U("EXCLUDE が不正です"));
 		}
@@ -198,12 +192,6 @@ var ns = window.uAutoPagerize = {
 		if (m) m.setAttribute("checked", DEBUG = !!bool);
 		return bool;
 	},
-	get ADD_HISTORY() ADD_HISTORY,
-	set ADD_HISTORY(bool) {
-		let m = $("uAutoPagerize-ADD_HISTORY");
-		if (m) m.setAttribute("checked", ADD_HISTORY = !!bool);
-		return bool;
-	},
 	get FORCE_TARGET_WINDOW() FORCE_TARGET_WINDOW,
 	set FORCE_TARGET_WINDOW(bool) {
 		let m = $("uAutoPagerize-FORCE_TARGET_WINDOW");
@@ -217,27 +205,22 @@ var ns = window.uAutoPagerize = {
 		return bool;
 	},
 
-	get historyService() {
-		delete historyService;
-		return historyService = Cc["@mozilla.org/browser/global-history;2"].getService(Ci.nsIBrowserHistory);
-	},
-
 	init: function() {
 		ns.style = addStyle(css);
 /*
 		ns.icon = $('status-bar').appendChild($E(
 			<statusbarpanel id="uAutoPagerize-icon"
 			                class="statusbarpanel-iconic-text"
-			                state="Deaktiviert"
-			                tooltiptext="Deaktiviert"
+			                state="disable"
+			                tooltiptext="disable"
 			                onclick="if(event.button != 2) uAutoPagerize.iconClick(event);"
 			                context=""/>
 		));
 */
 		ns.icon = $('urlbar-icons').appendChild($E(
 			<image id="uAutoPagerize-icon"
-			       state="Deaktiviert"
-			       tooltiptext="Deaktiviert"
+			       state="disable"
+			       tooltiptext="disable"
 			       onclick="if(event.button != 2) uAutoPagerize.iconClick(event);"
 			       context="uAutoPagerize-popup" />
 		));
@@ -268,12 +251,6 @@ var ns = window.uAutoPagerize = {
 				          autoCheck="false"
 				          checked={SCROLL_ONLY}
 				          oncommand="uAutoPagerize.SCROLL_ONLY = !uAutoPagerize.SCROLL_ONLY;" />
-				<menuitem label={U("Seite zu Chronik hinzufügen")}
-				          id="uAutoPagerize-ADD_HISTORY"
-				          type="checkbox"
-				          autoCheck="false"
-				          checked={ADD_HISTORY}
-				          oncommand="uAutoPagerize.ADD_HISTORY = !uAutoPagerize.ADD_HISTORY;" />
 				<menuitem label={U("Testmodus")}
 				          id="uAutoPagerize-DEBUG"
 				          type="checkbox"
@@ -283,7 +260,7 @@ var ns = window.uAutoPagerize = {
 			</menupopup>
 		));
 
-		["DEBUG", "AUTO_START", "ADD_HISTORY", "FORCE_TARGET_WINDOW", "SCROLL_ONLY"].forEach(function(name) {
+		["DEBUG", "AUTO_START", "FORCE_TARGET_WINDOW", "SCROLL_ONLY"].forEach(function(name) {
 			try {
 				ns[name] = ns.prefs.getBoolPref(name);
 			} catch (e) {}
@@ -294,15 +271,15 @@ var ns = window.uAutoPagerize = {
 
 		if (!getCache())
 			requestSITEINFO();
-		ns.INCLUDE = ns._INCLUDE;
-		ns.EXCLUDE = ns._EXCLUDE;
+		ns.INCLUDE = INCLUDE;
+		ns.EXCLUDE = EXCLUDE;
 		ns.addListener();
 		ns.loadSetting();
 		updateIcon();
 	},
 	uninit: function() {
 		ns.removeListener();
-		["DEBUG", "AUTO_START", "ADD_HISTORY", "FORCE_TARGET_WINDOW", "SCROLL_ONLY"].forEach(function(name) {
+		["DEBUG", "AUTO_START", "FORCE_TARGET_WINDOW", "SCROLL_ONLY"].forEach(function(name) {
 			try {
 				ns.prefs.setBoolPref(name, ns[name]);
 			} catch (e) {}
@@ -312,7 +289,7 @@ var ns = window.uAutoPagerize = {
 		} catch (e) {}
 	},
 	theEnd: function() {
-		var ids = ["uAutoPagerize-icon", "uAutoPagerize-context", "uAutoPagerize-context-next", "uAutoPagerize-popup"];
+		var ids = ["uAutoPagerize-icon", "uAutoPagerize-popup"];
 		for (let [, id] in Iterator(ids)) {
 			let e = document.getElementById(id);
 			if (e) e.parentNode.removeChild(e);
@@ -428,23 +405,17 @@ var ns = window.uAutoPagerize = {
 				elem.setAttribute('target', '_blank');
 			});
 		});
-		win.documentFilters.push(function(_doc, _requestURL, _info) {
-			if (!ns.ADD_HISTORY) return;
-			var uri = makeURI(_requestURL);
-			ns.historyService.removePage(uri)
-			ns.historyService.addPageWithDetails(uri, _doc.title, new Date().getTime() * 1000);
-		});
 
-		var index = -1, info, nextLink, pageElement;
+		var index = -1, info;
 		if (/^http\:\/\/\w+\.google\.(co\.jp|com)/.test(locationHref)) {
 			if (!timer || timer < 400) timer = 400;
 			win.addEventListener("hashchange", function(event) {
 				if (!win.ap) {
 					win.setTimeout(function(){
-						let [index, info, nextLink] = [-1, null];
-						if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win);
-						if (!info) [, info, nextLink] = ns.getInfo(null, win);
-						if (info) win.ap = new AutoPager(win.document, info, nextLink);
+						let [index, info] = [-1, null];
+						if (!info) [, info] = ns.getInfo(ns.MY_SITEINFO, win);
+						if (!info) [, info] = ns.getInfo(null, win);
+						if (info) win.ap = new AutoPager(win.document, info);
 						updateIcon();
 					}, timer);
 					return;
@@ -574,12 +545,34 @@ var ns = window.uAutoPagerize = {
 			win.ap = null;
 			miscellaneous.forEach(function(func){ func(doc, locationHref); });
 			var index = -1;
-			if (!info) [, info, nextLink] = ns.getInfo(ns.MY_SITEINFO, win, true);
+			if (!info) [, info] = ns.getInfo(ns.MY_SITEINFO, win);
+			if (info) {
+				if (info.requestFilter)
+					win.requestFilters.push(info.requestFilter.bind(win));
+				if (info.responseFilter)
+					win.responseFilters.push(info.responseFilter.bind(win));
+				if (info.documentFilter)
+					win.documentFilters.push(info.documentFilter.bind(win));
+				if (info.filter)
+					win.filters.push(info.filter.bind(win));
+				if (info.fragmentFilter)
+					win.fragmentFilters.push(info.fragmentFilter.bind(win));
+
+				if (info.startFilter)
+					info.startFilter.call(win, win.document);
+				if (info.stylish) {
+					let style = doc.createElement("style");
+					style.setAttribute("id", "uAutoPagerize-style");
+					style.setAttribute("type", "text/css");
+					style.appendChild(doc.createTextNode(info.stylish));
+					doc.getElementsByTagName("head")[0].appendChild(style);
+				}
+			}
 			//var s = new Date().getTime();
-			if (!info) [index, info, nextLink] = ns.getInfo(null, win, true);
+			if (!info) [index, info] = ns.getInfo(ns.SITEINFO, win);
 			//debug(index + 'th/' + (new Date().getTime() - s) + 'ms');
-			if (!info) [, info, nextLink] = ns.getInfo(ns.MICROFORMAT, win, true);
-			if (info) win.ap = new AutoPager(win.document, info, nextLink);
+			if (!info) [, info] = ns.getInfo(ns.MICROFORMAT, win);
+			if (info) win.ap = new AutoPager(win.document, info);
 
 			updateIcon();
 		}, timer||0);
@@ -588,8 +581,7 @@ var ns = window.uAutoPagerize = {
 		if (!event || !event.button) {
 			ns.toggle();
 		} else if (event.button == 1) {
-			if (confirm('Seiten Infos zurücksetzen?'))
-				requestSITEINFO();
+			ns.loadSetting(true);
 		}
 	},
 	resetSITEINFO: function() {
@@ -607,8 +599,8 @@ var ns = window.uAutoPagerize = {
 			else updateIcon();
 		}
 	},
-	getInfo: function (list, win, isDebug) {
-		if (!list) return ns.getInfo2(win, isDebug);
+	getInfo: function (list, win) {
+		if (!list) list = ns.SITEINFO;
 		if (!win)  win  = content;
 		var doc = win.document;
 		var locationHref = doc.location.href;
@@ -624,13 +616,13 @@ var ns = window.uAutoPagerize = {
 				if (!nextLink) {
 					// FIXME microformats case detection.
 					// limiting greater than 12 to filter microformats like SITEINFOs.
-					if (info.url.length > 12 && isDebug)
+					if (info.url.length > 12)
 						debug('nextLink not found.', info.nextLink);
 					continue;
 				}
 				var pageElement = getFirstElementByXPath(info.pageElement, doc);
 				if (!pageElement) {
-					if (info.url.length > 12 && isDebug)
+					if (info.url.length > 12)
 						debug('pageElement not found.', info.pageElement);
 					continue;
 				}
@@ -641,44 +633,18 @@ var ns = window.uAutoPagerize = {
 		}
 		return [-1, null];
 	},
-	getInfo2: function(win, isDebug) {
-		if (!win) win = content;
-		var locationHref = win.location.href;
-		for (let [index, list] in Iterator(ns.SITEINFOs)) {
-			var exp = list.url_regexp || Object.defineProperty(list, "url_regexp", {
-					enumerable: false,
-					value: new RegExp([url for each({url} in list)].join("|"))
-				}).url_regexp;
-			if (!exp.test(locationHref)) continue;
-
-			let res = ns.getInfo(list, win, isDebug);
-			if (res[1]) return res;
-		}
-		return [-1, null];
-	},
 	getInfoFromURL: function (url) {
-		var locationHref = url || content.location.href;
-		var list = ns.SITEINFOs;
-		var res = [];
-		for (let [, list] in Iterator(ns.SITEINFOs)) {
-			var exp = list.url_regexp || Object.defineProperty(list, "url_regexp", {
-					enumerable: false,
-					value: new RegExp([url for each({url} in list)].join("|"))
-				}).url_regexp;
-			if (!exp.test(locationHref)) continue;
-
-			for (let [, info] in Iterator(list)) {
-				try {
-					var exp = info.url_regexp || Object.defineProperty(info, "url_regexp", {
-							enumerable: false,
-							value: new RegExp(info.url)
-						}).url_regexp;
-					if ( !exp.test(locationHref) ) continue;
-					res.push(info);
-				} catch(e) { }
-			}
-		}
-		return res;
+		if (!url) url = content.location.href;
+		var list = ns.SITEINFO;
+		return list.filter(function(info, index, array) {
+			try {
+				var exp = info.url_regexp || Object.defineProperty(info, "url_regexp", {
+						enumerable: false,
+						value: new RegExp(info.url)
+					}).url_regexp;
+				return exp.test(url);
+			} catch(e){ }
+		});
 	},
 };
 
@@ -702,6 +668,7 @@ AutoPager.prototype = {
 			if (this.state !== "Laden" && state !== "Laden" || this.isFrame) {
 				Array.forEach(this.doc.getElementsByClassName('autopagerize_icon'), function(e) {
 					e.style.backgroundColor = COLOR[state];
+					e.setAttribute("state", state);
 				});
 			}
 			this._state = state;
@@ -709,7 +676,7 @@ AutoPager.prototype = {
 		}
 		return state;
 	},
-	init: function(doc, info, nextLink, pageElement) {
+	init: function(doc, info) {
 		this.doc = doc;
 		this.win = doc.defaultView;
 		this.documentElement = doc.documentElement;
@@ -765,6 +732,9 @@ AutoPager.prototype = {
 				range.deleteContents();
 				range.detach();
 			}
+			var style = this.doc.getElementById("uAutoPagerize-style");
+			if (style)
+				style.parentNode.removeChild(style);
 		}
 
 		this.win.ap = null;
@@ -785,7 +755,12 @@ AutoPager.prototype = {
 	handleEvent: function(event) {
 		switch(event.type) {
 			case "scroll":
-				this.scroll();
+				if (this.timer)
+					this.win.clearTimeout(this.timer);
+				this.timer = this.win.setTimeout(function(){
+					this.scroll();
+					this.timer = null;
+				}.bind(this), 100);
 				break;
 			case "click":
 				this.stateToggle();
@@ -821,11 +796,13 @@ AutoPager.prototype = {
 		}
 	},
 	isThridParty: function(aHost, bHost) {
-		var aTLD = Services.eTLD.getBaseDomainFromHost(aHost);
-		var bTLD = Services.eTLD.getBaseDomainFromHost(bHost);
-		return aTLD === bTLD/* && ["yahoo.co.jp", "livedoor.com"].some(function(h){
-			return aTLD === h;
-		});*/
+		try {
+			var aTLD = Services.eTLD.getBaseDomainFromHost(aHost);
+			var bTLD = Services.eTLD.getBaseDomainFromHost(bHost);
+			return aTLD === bTLD;
+		} catch (e) {
+			return aHost === bHost;
+		}
 	},
 	request : function(){
 //		if (!this.requestURL || this.lastRequestURL == this.requestURL) return;
@@ -935,7 +912,7 @@ AutoPager.prototype = {
 //			this.scroll();
 		if (!url) {
 			debug('nextLink not found.', this.info.nextLink, htmlDoc);
-			this.state = 'Beendet';
+			this.state = 'terminated';
 		}
 		var ev = this.doc.createEvent('Event');
 		ev.initEvent('GM_AutoPagerizeNextPageLoaded', true, false);
@@ -945,6 +922,14 @@ AutoPager.prototype = {
 		var fragment = this.doc.createDocumentFragment();
 		page.forEach(function(i) { fragment.appendChild(i); });
 		this.win.fragmentFilters.forEach(function(i) { i(fragment, htmlDoc, page) }, this);
+
+		if (this.info.wrap) {
+			var div = this.doc.createElement("div");
+			div.setAttribute("class", "uAutoPagerize-wrapper");
+			div.appendChild(fragment);
+			fragment = this.doc.createDocumentFragment();
+			fragment.appendChild(div);
+		}
 
 		var hr = this.doc.createElement('hr');
 		hr.setAttribute('class', 'autopagerize_page_separator');
@@ -958,8 +943,9 @@ AutoPager.prototype = {
 		if (!this.isFrame) {
 			var o = p.insertBefore(this.doc.createElement('div'), p.firstChild);
 			o.setAttribute('class', 'autopagerize_icon');
+			o.setAttribute('state', 'enable');
 			o.style.cssText = [
-				'background: ', COLOR['Aktiviert'], ';'
+				'background: ', COLOR['enable'], ';'
 				,'width: .8em;'
 				,'height: .8em;'
 				,'padding: 0px;'
@@ -1052,6 +1038,7 @@ AutoPager.prototype = {
 		var div = this.doc.createElement("div");
 		div.setAttribute('id', 'autopagerize_icon');
 		div.setAttribute('class', 'autopagerize_icon');
+		div.setAttribute('state', this.state);
 		div.style.cssText = [
 			'font-size: 12px;'
 			,'position: fixed;'
@@ -1224,10 +1211,7 @@ function getCache() {
 		var cache = loadFile('uAutoPagerize.json');
 		if (!cache) return false;
 		cache = JSON.parse(cache);
-		ns.SITEINFOs = [];
-		while(cache.length) {
-			ns.SITEINFOs.push(cache.splice(0, 100));
-		}
+		ns.SITEINFO = cache;
 		log('Load cacheInfo.');
 		return true;
 	}catch(e){
@@ -1300,10 +1284,7 @@ function getCacheCallback(res, url) {
 	info.sort(function(a, b) b.url.length - a.url.length);
 	saveFile('uAutoPagerize.json', JSON.stringify(info));
 
-	ns.SITEINFOs = [];
-	while(info.length) {
-		ns.SITEINFOs.push(info.splice(0, 100));
-	}
+	ns.SITEINFO = info;
 	log('getCacheCallback:' + url);
 }
 
