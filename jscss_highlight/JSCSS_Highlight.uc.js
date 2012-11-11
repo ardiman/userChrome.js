@@ -7,7 +7,8 @@
 // @compatibility  Firefox 10
 // @charset        UTF-8
 // @include        main
-// @version        0.0.3
+// @version        0.0.4
+// @note           0.0.4 URLをリンク化する正規表現を修正
 // @note           0.0.3 超高速化した
 // @note           0.0.2 AutoHotkey も強調してみた
 // @note           0.0.2 細部の調整
@@ -334,10 +335,10 @@ Object.keys(AHK).forEach(function(key){
 
 AHK.SComment_r  = '^\\;.*|\\s+\\;.*';
 XML.MComment_r  = '&lt\\;!--[\\s\\S]+?--&gt\\;';
-BASE.URL_r      = ['h?t?tps?://\\w+\\.wikipedia\\.org/wiki/\\S*'
+BASE.URL_r      = ['h?t?tps?://\\w+\\.wikipedia\\.org/wiki/[^\\s<]+'
                   ,'(?:h?t?tps?|ftp)://\\w+\\.[\\w.]+(?:[\\w#%()=~^_?.;:+*/-]|&amp\\;)*'
-                  ,'(?:chrome|resource)://[^&\\s]+'
-                  ,'(?:jar:)?file:///\\w:/[^&\\s]+'
+                  ,'(?:chrome|resource)://[\\w/.#-]+'
+                  ,'(?:jar:)?file:///\\w:/[\\w/.#-]+'
                   ,'data:\\w+/[a-zA-Z-]+\\;[\\w-]+?\\,[a-zA-Z0-9/+%\\s]+={0,2}'
                   ].join('|');
 BASE.MComment_r = "/\\*[\\s\\S]*?\\*/";
