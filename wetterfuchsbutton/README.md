@@ -37,7 +37,7 @@ Bezeichner, die angepasst werden sollten.
 
 ### Für den Rechtsklick (Wetterkontor Lokalwetter)
 Als Erstes geht man auf http://www.wetterkontor.net , sucht über die Wettersuche-Searchbar dort nach einem "Wunschort". Nach deren Auswahl die URL 
-kopieren und im Objekt `urlobj` den Bezeichner `MO_Rechtsklick suchen`, anschliessend die Adresse zwischen den "" hinter `url:` einfügen.
+kopieren und im Objekt `urlobj` den Bezeichner `MO_Rechtsklick` suchen, anschliessend die Adresse zwischen den `""` hinter `url:` einfügen.
 
 ### Für den Doppel-Linksklick (MSN Lokalwetter)
 Die gleiche Vorgehensweise für die zweite Wetterstation bei http://wetter.msn.com/sitemap.aspx . Nach der Wunschortauswahl wird die kopierte URL für 
