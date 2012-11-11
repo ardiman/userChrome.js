@@ -2,11 +2,12 @@
 Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da einige Zeilen anzupassen sind und das optische Ergebnis durch 
 Einbinden von 2 CSS-Dateien verschönert werden muss.
 
-Das **Ergebnis des Skripts** (mit Bildern für Berlin- bzw. Brandenburg-Vorschau) mit ausgeblendetem Dropmarker (s. unten):
-
 Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart muss der Button "Wetterfuchs" über "Anpassen" in die gewünschte 
 Leiste gezogen werden. Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
-sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau usw.:
+sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau usw. Sobald ein Panel angezeigt wird, 
+öffnet ein Mittelklick darauf die Adresse in einem extra Tab.
+
+Das **Ergebnis des Skripts** (mit Bildern für Berlin- bzw. Brandenburg-Vorschau) mit ausgeblendetem Dropmarker (s. unten):
 
 ![Screenshot Wetterfuchsbutton Menue](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_menu.png)
 
