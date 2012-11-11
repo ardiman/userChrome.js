@@ -1,51 +1,64 @@
 # Wetterfuchsbutton
-Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da 3 Zeilen anzupassen sind und das optische Ergebnis durch 
+Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da einige Zeilen anzupassen sind und das optische Ergebnis durch 
 Einbinden von 2 CSS-Dateien verschönert werden muss.
 
-Das **Ergebnis des Skripts** (mit Bildern für Berlin- bzw. Brandenburg-Vorschau):
+Das **Ergebnis des Skripts** (mit Bildern für Berlin- bzw. Brandenburg-Vorschau) mit ausgeblendetem Dropmarker (s. unten):
 
-Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart gibt es in der Menubar einen kleinen Wetterbutton. 
-Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
-sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau:
+Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart muss der Button "Wetterfuchs" über "Anpassen" in die gewünschte 
+Leiste gezogen werden. Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
+sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau usw.:
 
-![Screenshot Wetterfuchsbutton Menuebutton](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_menubutton.png)
+![Screenshot Wetterfuchsbutton Menue](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_menu.png)
 
-Mit einem **Links-Doppelklick** auf den Button geht oben links ein kleines Fenster auf, in dem **lokale Wetterinfos** erscheinen. 
-Dabei kann man bis zu 4 verschiedene Orte über eine kleine Searchbar suchen und wählen, die aber nur in der aktuellen 
-Browsersession verbleiben. Nach dem Neustart gibt es wieder nur die eine eigene fest vergebene Adresse/Ort. Wetter gibts aktuell, 
-für 2 Tage im 3 Std. Takt, 5 und 10 Tage Vorschau:
+Mit einem **Links-Doppelklick** auf den Button öffnet ein Panel, in dem **lokale Wetterinfos** erscheinen. 
 
-![Screenshot Wetterfuchsbutton Doppel-Linksklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_linksdoppelklick.png)
+![Screenshot Wetterfuchsbutton Doppel-Linksklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_linksdoppelklick.png)
 
-Über den **Rechtsklick** gibt es Wetter für nur eine vorher selbst **bestimmte Adresse/Ort**. Aktuell mit Details, für zwei Tage mit 
-Details, 5 Tage Vorschau und umfangreiches Biowetter, sowie aktuelle lokale Warnmeldungen:
+Über den **Rechtsklick** gibt es Wetter für nur eine vorher selbst **bestimmte Adresse/Ort**. Aktuell mit Details und - sofern man scrollen kann 
+(s. unten) - für zwei Tage mit Details, 5 Tage Vorschau und umfangreiches Biowetter, sowie aktuelle lokale Warnmeldungen:
 
-![Screenshot Wetterfuchsbutton Rechtsklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_rechtsklick.png)
+![Screenshot Wetterfuchsbutton Rechtsklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_rechtsklick.png)
 
-Mit dem **Mittelklick** auf dem Button erscheint in der linken oberen Ecke ein kleines Fenster mit einer vorher selbst bestimmten 
-Wetterdatenkarte seines **Bundeslandes** in 6 Tage-Vorschau:
+Mit dem **Mittelklick** auf dem Button erscheint ein Panel mit einer vorher selbst bestimmten Wetterdatenkarte seines **Bundeslandes** in 
+6 Tage-Vorschau:
 
-![Screenshot Wetterfuchsbutton Mittelklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_mittelklick.png)
+![Screenshot Wetterfuchsbutton Mittelklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_mittelklick.png)
 
-In allen geöffneten Wetterfenstern kann mit den Pfeiltasten der Tastatur gescrollt werden. Bei installierter Erweiterung 
-"Smooth Wheel" klappt das Scrollen auch mit dem Mausrad.
+In allen geöffneten Wetterfenstern kann mit den Pfeiltasten der Tastatur gescrollt werden. Bei installierten Erweiterungen wie z.B. 
+"Smooth Wheel" oder "Yet Another Smooth Scrolling" klappt das Scrollen auch mit dem Mausrad.
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils und nehme folgende Anpassungen vor:
+Kopiere die uc.js-Datei in den Chromeordner des Profils und füge den Button über "Anpassen" zur gewünschten Symbolleiste hinzu.
+
+Die zu öffnenden Seiten werden im Objekt `urlobj` ab **Zeile 10** angegeben. Neben dem Bezeichner werden die Adresse (url), Breite (width) und 
+Höhe (width) eingetragen. Anhand des Bezeichners ist zu erkennen, welche Aktion bzw. welcher Menüpunkt definiert wird. Es folgt eine Auswahl der 
+Bezeichner, die angepasst werden sollten.
 
 ### Für den Rechtsklick (Wetterkontor Lokalwetter)
-Als Erstes geht man auf http://www.wetterkontor.net , sucht über die Wettersuche-Searchbar dort nach einem "Wunschort". 
-Nach deren Auswahl die URL kopieren und im Skript in der **Zeile Nr.23** zwischen die "" hinter `openDialog(` einfügen.
+Als Erstes geht man auf http://www.wetterkontor.net , sucht über die Wettersuche-Searchbar dort nach einem "Wunschort". Nach deren Auswahl die URL 
+kopieren und im Objekt `urlobj` den Bezeichner `MO_Rechtsklick suchen`, anschliessend die Adresse zwischen den "" hinter `url:` einfügen.
 
 ### Für den Doppel-Linksklick (MSN Lokalwetter)
-Die gleiche Vorgehensweise für die zweite Wetterstation bei http://wetter.msn.com/sitemap.aspx . Nach der Wunschortauswahl 
-wird die kopierte URL im Skript in die **Zeile Nr.76** zwischen die "" hinter `openDialog(` eingefügt. 
+Die gleiche Vorgehensweise für die zweite Wetterstation bei http://wetter.msn.com/sitemap.aspx . Nach der Wunschortauswahl wird die kopierte URL für 
+den Bezeichner `MO_Doppelklick` eingetragen.
 
 ### Für den Mittelklick (Wetterkontor Bundeslandwetter)
-Für das eigene Bundesland nimmt man dessen Url von http://www.wetterkontor.net und kopiert sie genau auf die gleiche Art und 
-Weise, wie die beiden ersten in die **Zeile Nr.87** (Skript bitte am besten mit einem "vernünftigen" Editor bearbeiten, z.B. 
-Notepad++).
+Für das eigene Bundesland nimmt man dessen Url von http://www.wetterkontor.net und kopiert sie genau auf die gleiche Art und Weise, wie die beiden 
+ersten, dieses Mal verändert man den Eintrag des Bezecihners `MO_Mittelklick`.
 
-### Das Aussehen der Wetterfenster
-Zum Skript gehören zwei CSS Dateien, die am einfachsten entweder über das UserCSSLoader Skript oder die userChrome.css in den 
+### Regionales Wetter
+Hier lauten die Bezeichner `RE_WetterAktuell`, `RE_Vorhersage`, `RE_Wetterwarnungen`, `RE_RegenradarAktuell` und `RE_RegenradarPrognose`.
+
+## Das Aussehen der Wetterfenster
+Zum Skript gehören zwei CSS Dateien, die am einfachsten entweder über das "UserCSSLoader" Skript oder die userChrome.css in den 
 Firefox eingebunden werden. Falls die Erweiterung "Stylish" eingesetzt wird, muss jeweils die `namespace`-Zeile entfernt werden.
+
+## Ausblenden des Dropmarkers
+Wer den Menüdropmarker am Button nicht haben möchte, muss ihn mit einem separaten CSS Code ausblenden:
+
+    @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+    @-moz-document url(chrome://browser/content/browser.xul) {
+      #wetterfuchs-toolbarbutton > dropmarker {
+        display: none;
+      }
+    }
