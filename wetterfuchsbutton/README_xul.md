@@ -1,5 +1,5 @@
 # Wetterfuchsbutton
-**Dies ist die Anleitung für das nicht mehr weiter entwickelte Skript im ux.xul-Format. Bitte nur noch die uc.js-Variante einsetzen!**
+**Dies ist die Anleitung für das nicht mehr weiter entwickelte Skript im uc.xul-Format. Bitte nur noch die uc.js-Variante einsetzen!**
 
 Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da 3 Zeilen anzupassen sind und das optische Ergebnis durch 
 Einbinden von 2 CSS-Dateien verschönert werden muss.
