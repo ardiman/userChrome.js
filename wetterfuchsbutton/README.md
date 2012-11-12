@@ -63,3 +63,12 @@ Wer den Menüdropmarker am Button nicht haben möchte, muss ihn mit einem separa
         display: none;
       }
     }
+
+Benutzer anderer Themes wie z.B. "Silvermel" probieren es hiermit:
+
+    @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+    @-moz-document url(chrome://browser/content/browser.xul) {
+      #wetterfuchs-toolbarbutton .toolbarbutton-menu-dropmarker {
+        display: none;
+      }
+    }
