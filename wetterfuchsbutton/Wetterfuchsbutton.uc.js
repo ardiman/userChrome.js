@@ -2,7 +2,7 @@
 // @name           wetterfuchsbutton.uc.js
 // @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*
 // @include        main
-// @version        1.0.20121110
+// @version        1.0.20121113
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -42,8 +42,7 @@ var wetterfuchs = {
     Btn.setAttribute("label","Wetterfuchs");
     Btn.setAttribute("tooltiptext","Lokale und globale Wetter Infos");
     Btn.setAttribute("ondblclick","if (event.button == 0) { wetterfuchs.openPanel('MO_Doppelklick',event,'b')}");
-    Btn.setAttribute("onclick","if (event.button == 2) {wetterfuchs.openPanel('MO_Rechtsklick',event,'b')}");
-    Btn.setAttribute("onmousedown","if (event.button == 1) {wetterfuchs.openPanel('MO_Mittelklick',event,'b')}");
+    Btn.setAttribute("onclick","if (event.button == 1) {wetterfuchs.openPanel('MO_Mittelklick',event,'b')};if (event.button == 2) {wetterfuchs.openPanel('MO_Rechtsklick',event,'b')}");
     navigator.palette.appendChild(Btn);
     var menu = this.$E(
 		<menupopup id="wetterfuchsmenu">
@@ -113,7 +112,7 @@ var wetterfuchs = {
 </popupset>
     );
     mytarget = document.getElementById("main-window");  //irgendwo muss das Popupset angefügt werden
-    if (mytarget==null) return;
+    if (mytarget == null) return;
     mytarget.appendChild(mypopup);
   },
   myEventhandler: function (e,toDo) {
@@ -130,25 +129,27 @@ var wetterfuchs = {
       break;
     }
   },
-   clearPanel: function() {
-     myiframe = document.getElementById("wetterfuchs-iframe");
-     myiframe.parentNode.width = 146;
-     myiframe.parentNode.height = 146;
-     myiframe.setAttribute("src","http://img.cdn.tl/loading51.gif");
+  clearPanel: function() {
+    myiframe = document.getElementById("wetterfuchs-iframe");
+    myiframe.parentNode.width = 146;
+    myiframe.parentNode.height = 146;
+    myiframe.setAttribute("src","http://img.cdn.tl/loading51.gif");
   },
-   openUrlFromPanel: function() {
-     getBrowser().selectedTab = getBrowser().addTab(document.getElementById("wetterfuchs-iframe").getAttribute("src"));
-     document.getElementById("wetterfuchs-panel").hidePopup();
+  openUrlFromPanel: function() {
+    getBrowser().selectedTab = getBrowser().addTab(document.getElementById("wetterfuchs-iframe").getAttribute("src"));
+    document.getElementById("wetterfuchs-panel").hidePopup();
   },
-    openPanel: function(bezeichner,e,toDo) {
-     this.myEventhandler(e,toDo);
-     document.getElementById("wetterfuchsmenu").hidePopup();
-     myiframe = document.getElementById("wetterfuchs-iframe");
-     myiframe.parentNode.width = this.urlobj[bezeichner]["width"];
-     myiframe.parentNode.height = this.urlobj[bezeichner]["height"];
-     myiframe.setAttribute("src",this.urlobj[bezeichner]["url"]);
-     mypanel = document.getElementById("wetterfuchs-panel");
-     mypanel.openPopup(document.getElementById("wetterfuchs-toolbarbutton"));
+  openPanel: function(bezeichner,e,toDo) {
+    this.myEventhandler(e,toDo);
+    mymenu = document.getElementById("wetterfuchsmenu");
+    if (mymenu.state == "open" && e.button != 0) return;
+    mymenu.hidePopup();
+    myiframe = document.getElementById("wetterfuchs-iframe");
+    myiframe.parentNode.width = this.urlobj[bezeichner]["width"];
+    myiframe.parentNode.height = this.urlobj[bezeichner]["height"];
+    myiframe.setAttribute("src",this.urlobj[bezeichner]["url"]);
+    mypanel = document.getElementById("wetterfuchs-panel");
+    mypanel.openPopup(document.getElementById("wetterfuchs-toolbarbutton"));
   },
   $E: function(xml, doc) {
     doc = doc || document;
