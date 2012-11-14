@@ -17,7 +17,7 @@
 // @version			0.6 Linux 版 Minefield(Fx3.1)の為に大小文字を無視したソートを有効にした。
 // @version			0.7 uc.xul から uc.js へ変更して Fx/Tb を自動判定するようにした。
 // @version			0.8 Firefox4.0 対応中
-// @version			0.8.1a Versionsnummer der Extensions, deaktivierte und Erweiterungen ohne Optionen ebenfalls (aber deaktiviert) anzeigen
+// @version			0.8.1b Versionsnummer der Extensions, deaktivierte und Erweiterungen ohne Optionen ebenfalls (aber deaktiviert) anzeigen
 // @Note		-----------------------------------------------------------------------------------------------------------
 // @Note		Fx4 で利用する場合は userChromeJS 1.2 または Alice0775 氏による trunk 4.0b2pre用のuserchrome.js 0.8の修正版
 // @Note		http://space.geocities.jp/alice0775/STORE/userchrome.js-0.8.010070203-Fx4.0.xpi が必要です。
@@ -36,7 +36,7 @@ var ucjs_optionmenu = {
 	TOOLBAR_FX:			"nav-bar",			// Firefox の場合のツールバー
 	TARGET_BUTTON_FX:	"window-controls",	// Firefox の場合のターゲット・ボタン(null: 最後の位置)
 
-	TOOLBAR_TB:			"mail-bar3",		// Thunderbird の場合のツールバー
+	TOOLBAR_TB:			"mail-toolbar-menubar2",		// Thunderbird の場合のツールバー
 	TARGET_BUTTON_TB:	null,				// Thunderbird の場合のターゲット・ボタン(null: 最後の位置)
 
 	// メニュー
@@ -55,7 +55,7 @@ var ucjs_optionmenu = {
 	
 	// 初期化
 	init: function() {
-		if (location != "chrome://browser/content/browser.xul") return;
+		if (this.getProgType() === 1 && location != "chrome://browser/content/browser.xul") return;
 		// ボタンの画像とメニューのアイコンを小さくする CSS
 		var style = <![CDATA[
 			#om-button>image,
