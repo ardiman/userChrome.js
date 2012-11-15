@@ -2,7 +2,7 @@
 // @name           wetterfuchsbutton.uc.js
 // @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*
 // @include        main
-// @version        1.0.20121114
+// @version        1.0.20121115
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -21,7 +21,7 @@ var wetterfuchs = {
     DE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx",width:568,height:530},
     DE_RegenradarPrognose: {url:"http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
     EU_AktuellVorhersage: {url:"http://www.wetterkontor.net/de/wetter/welt/europa-0.html",width:478,height:460},
-    EU_Unwetterwarnung: {url:"http://www.meteoalarm.eu/map.php?",width:582,height:490},
+    EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:530,height:530},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     RE_WetterAktuell: {url:"http://www.dwd.de/wundk/wetter/de/Nordost.jpg",width:558,height:518},
@@ -76,7 +76,7 @@ var wetterfuchs = {
 				<menupopup id="wetterfuchsRegiomapsmenu">
 					<menuitem label="Wetter aktuell" oncommand="wetterfuchs.openPanel('RE_WetterAktuell',event,'p')"/>
 					<menuitem label="Vorhersage" oncommand="wetterfuchs.openPanel('RE_Vorhersage',event,'p')"/>
-					<menuitem label="Wetterwarnungen" oncommand="wetterfuchs.openPanel('RE_Wetterwarnungen',event,'p')"/>
+					<menuitem label="Unwetterwarnung" oncommand="wetterfuchs.openPanel('RE_Wetterwarnungen',event,'p')"/>
 					<menuitem label="Regenradar aktuell" oncommand="wetterfuchs.openPanel('RE_RegenradarAktuell',event,'p')"/>
 					<menuitem label="Regenradarprognose" oncommand="wetterfuchs.openPanel('RE_RegenradarPrognose',event,'p')"/>
 				</menupopup>
