@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           Simple Session Manager
-// @version        0.4
+// @version        0.4b
 // @description    简易会话管理器
 // @author         NightsoN
 // @include        chrome://browser/content/browser.xul
@@ -58,14 +58,13 @@
 			(t < 10) ? t = "0" + t : t;
 			return t;
 		}
-		var t = addzero(d.getDay()) + "." + addzero(d.getMonth()) + "." + d.getFullYear() + "-" + addzero(d.getHours()) + ":" + addzero(d.getMinutes());
+		var t = addzero(d.getDate()) + "." + addzero(d.getMonth()+1) + "." + d.getFullYear() + "-" + addzero(d.getHours()) + ":" + addzero(d.getMinutes());
 		return t;
 	}
 
 	//保存会话
 	function saveSession(ssdata) {
-		var Jetzt = new Date();
-		var name = prompt("Speichern unter",Jetzt.toLocaleString());
+		var name = prompt("Speichern unter",getTime());
 		if (name != null) {
 			if (loadFile() === false) {
 				var data = {};
