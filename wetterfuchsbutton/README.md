@@ -49,10 +49,10 @@ ersten, dieses Mal verändert man den Eintrag des Bezeichners `MO_Mittelklick`. 
 im Panel zur Verfügung gestellt werden.
 
 ### Regionales Wetter
-Hier lauten die Bezeichner `RE_WetterAktuell`, `RE_Vorhersage`, `RE_Wetterwarnungen`, `RE_RegenradarAktuell` und `RE_RegenradarPrognose`.
+Hier lauten die Bezeichner `RE_AktuellVorhersage`, `RE_Unwetterwarnung`, `RE_RegenradarAktuell` und `RE_RegenradarPrognose`.
 
 ## Das Aussehen der Wetterfenster
-Zum Skript gehören zwei CSS Dateien, die am einfachsten entweder über das "UserCSSLoader" Skript oder die userChrome.css in den 
+Zum Skript gehören drei CSS Dateien, die am einfachsten entweder über das "UserCSSLoader" Skript oder die userChrome.css in den 
 Firefox eingebunden werden. Falls die Erweiterung "Stylish" eingesetzt wird, muss jeweils die `namespace`-Zeile entfernt werden.
 
 ## Ausblenden des Dropmarkers
