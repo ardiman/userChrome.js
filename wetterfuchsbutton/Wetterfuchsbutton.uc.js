@@ -2,14 +2,14 @@
 // @name           wetterfuchsbutton.uc.js
 // @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*
 // @include        main
-// @version        1.0.20121115
+// @version        1.0.20121117
 // ==/UserScript==
 
 var wetterfuchs = {
   urlobj: {
     MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:390},
     MO_Rechtsklick: {url:"http://www.wetterkontor.net/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
-    MO_Mittelklick: {url:"http://www.wetterkontor.net/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
+    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:678,height:370},
     DED_WetterAktuell: {url:"http://www.wetterkontor.net/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
     DED_Vorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
     DED_PollenbelastungAktuell: {url:"http://www.wetterkontor.net/de/bio/pollenflug_aktuell.asp?p=1",width:478,height:590},
@@ -24,9 +24,8 @@ var wetterfuchs = {
     EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:530,height:530},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
-    RE_WetterAktuell: {url:"http://www.dwd.de/wundk/wetter/de/Nordost.jpg",width:558,height:518},
-    RE_Vorhersage: {url:"http://www.dwd.de/wundk/wetter/de/Nordost_morgen_spaet.jpg",width:558,height:518},
-    RE_Wetterwarnungen: {url:"http://www.wetterkontor.net/warnungen/land.asp?c=BB",width:700,height:550},
+    RE_AktuellVorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
+    RE_Unwetterwarnung: {url:"http://www.wetterkontor.net/warnungen/land.asp?c=BB",width:700,height:550},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
     RE_RegenradarPrognose: {url:"http://img6.imagebanana.com/img/1o6c2u53/Globus2.gif",width:255,height:260}
   },
@@ -74,9 +73,8 @@ var wetterfuchs = {
 			</menu>
 			<menu label="Regionales Wetter">
 				<menupopup id="wetterfuchsRegiomapsmenu">
-					<menuitem label="Wetter aktuell" oncommand="wetterfuchs.openPanel('RE_WetterAktuell',event,'p')"/>
-					<menuitem label="Vorhersage" oncommand="wetterfuchs.openPanel('RE_Vorhersage',event,'p')"/>
-					<menuitem label="Unwetterwarnung" oncommand="wetterfuchs.openPanel('RE_Wetterwarnungen',event,'p')"/>
+					<menuitem label="Aktuell und Vorhersage" oncommand="wetterfuchs.openPanel('RE_AktuellVorhersage',event,'p')"/>
+					<menuitem label="Unwetterwarnung" oncommand="wetterfuchs.openPanel('RE_Unwetterwarnung',event,'p')"/>
 					<menuitem label="Regenradar aktuell" oncommand="wetterfuchs.openPanel('RE_RegenradarAktuell',event,'p')"/>
 					<menuitem label="Regenradarprognose" oncommand="wetterfuchs.openPanel('RE_RegenradarPrognose',event,'p')"/>
 				</menupopup>
