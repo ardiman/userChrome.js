@@ -1,0 +1,28 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+@-moz-document domain(www.daswetter.com) {
+
+#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),#izquierda > UL > LI:last-child {
+display: none !important;}
+#cookies {
+margin-left: -325px !important;}
+#cuerpo{
+margin-top: -140px !important;
+max-width: 653px !important;}
+#buscador{
+max-width: 150px !important;
+margin-left: -205px !important;}
+.sprite.nuevobuscador.img_buscador/*,#cuerpo*/,#superior{
+max-width: 655px !important;}
+#superior{
+height: 60px !important;}
+.tabla_prediccion{
+margin-bottom: 10px !important;}
+#izquierda{
+margin-left: 17px !important;}
+.sprite.nuevobuscador.img_buscador{
+background-image: none! important;
+background-color: #BFEFFF! important;}
+}
+#principal {
+width: 660px !important;)
+}
