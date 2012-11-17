@@ -95,7 +95,7 @@ window.UCL = {
 			<menu id="usercssloader-menu" label="CSS" accesskey="C">
 				<menupopup id="usercssloader-menupopup">
 					<menu label={U("Style Loader Menü")}
-					      accesskey="C">
+					      accesskey="M">
 						<menupopup id="usercssloader-submenupopup">
 							<menuitem label="Styles importieren"
 							          accesskey="R"
