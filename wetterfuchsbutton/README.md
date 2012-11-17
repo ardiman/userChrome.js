@@ -1,6 +1,6 @@
 # Wetterfuchsbutton
 Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da einige Zeilen anzupassen sind und das optische Ergebnis durch 
-Einbinden von 2 CSS-Dateien verschönert werden muss.
+Einbinden von 3 CSS-Dateien verschönert werden muss.
 
 Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart muss der Button "Wetterfuchs" über "Anpassen" in die gewünschte 
 Leiste gezogen werden. Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
@@ -20,8 +20,8 @@ Mit einem **Links-Doppelklick** auf den Button öffnet ein Panel, in dem **lokal
 
 ![Screenshot Wetterfuchsbutton Rechtsklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_rechtsklick.png)
 
-Mit dem **Mittelklick** auf dem Button erscheint ein Panel mit einer vorher selbst bestimmten Wetterdatenkarte seines **Bundeslandes** in 
-6 Tage-Vorschau:
+Mit dem **Mittelklick** auf dem Button erscheint ein Panel mit den Wetterdaten seines **Wunschortes** mit einer Vorschau bis zu 14 Tage, außerdem 
+können hier weitere Orte zur Verfügung gestellt werden (am besten Cookies für diese Seite zulassen!):
 
 ![Screenshot Wetterfuchsbutton Mittelklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_mittelklick.png)
 
@@ -43,9 +43,10 @@ kopieren und im Objekt `urlobj` den Bezeichner `MO_Rechtsklick` suchen, anschlie
 Die gleiche Vorgehensweise für die zweite Wetterstation bei http://wetter.msn.com/sitemap.aspx . Nach der Wunschortauswahl wird die kopierte URL für 
 den Bezeichner `MO_Doppelklick` eingetragen.
 
-### Für den Mittelklick (Wetterkontor Bundeslandwetter)
-Für das eigene Bundesland nimmt man dessen Url von http://www.wetterkontor.net und kopiert sie genau auf die gleiche Art und Weise, wie die beiden 
-ersten, dieses Mal verändert man den Eintrag des Bezecihners `MO_Mittelklick`.
+### Für den Mittelklick (DasWetter.com Städtewetter)
+Für den eigenen Wohnort sucht man auf http://www.daswetter.com/ und kopiert die Adresse genau auf die gleiche Art und Weise, wie die beiden 
+ersten, dieses Mal verändert man den Eintrag des Bezeichners `MO_Mittelklick`. Lässt man für diese Seite Cookies zu, können 2 weitere Orte 
+im Panel zur Verfügung gestellt werden.
 
 ### Regionales Wetter
 Hier lauten die Bezeichner `RE_WetterAktuell`, `RE_Vorhersage`, `RE_Wetterwarnungen`, `RE_RegenradarAktuell` und `RE_RegenradarPrognose`.
