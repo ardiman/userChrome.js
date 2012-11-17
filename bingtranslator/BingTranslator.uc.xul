@@ -106,10 +106,10 @@
 }).call(this);
 
 ]]></script>
-  <window id="main-window">
-    <panel id="wayaku-box" minwidth="140" maxwidth="700" titlebar="normal" close="true" noautohide="true" label="Übersetzung">
+  <popupset id="mainPopupSet">
+    <panel id="wayaku-box" minwidth="400" maxwidth="700" titlebar="normal" close="true" noautohide="true" label="Übersetzung">
       <label id="wayaku" onclick="removeWayaku(this);">Übersetzungsergebnis</label>
     </panel>
-  </window>
+  </popupset>
 </overlay>
 
