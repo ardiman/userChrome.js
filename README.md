@@ -55,7 +55,7 @@ Andere Methoden werden auf der [Seite Skriptcache im Wiki](https://github.com/ar
 
 ## Umlaute
 Ab userChromeJS 1.5 werden Umlaute in den uc.js-Dateien anders behandelt. Am Anfang des Aufbaus dieser Sammlung war userChromeJS 1.4 aktuell 
-, deshalb kann es Probleme mit der Darstellung von Sonderzeichen geben (s. [Thread im deutschen Firefoxforum](http://www.camp-firefox.de/forum/viewtopic.php?p=778500#p778500)).
+, deshalb kann es Probleme mit der Darstellung von Sonderzeichen geben (s. [Thread im deutschen Firefoxforum](http://www.camp-firefox.de/forum/viewtopic.php?p=832387#p832387)).
 
 Mögliche Lösungen:
 
@@ -63,5 +63,5 @@ Mögliche Lösungen:
 - die Umlaute werden mit dem Notepad++-Plugin "HTML Tag" konvertiert
 
 # Quellen
-- http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=90403
+- http://www.camp-firefox.de/forum/viewtopic.php?f=16&t=100898
 - https://github.com/ardiman/userChrome.js
