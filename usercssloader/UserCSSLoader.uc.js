@@ -6,12 +6,13 @@
 // @include        main
 // @license        MIT License
 // @compatibility  Firefox 4
-// @version        0.0.3.a
+// @version        0.0.3.b
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
 // @note           ファイルが削除された場合 rebuild 時に CSS を解除しメニューを消すようにした
 // @note           uc で読み込まれた .uc.css の再読み込みに仮対応
-// @note           Version 0.0.3.a ermoeglicht anderen Dateimanager (s. vFileManager in Zeile 50)
+// @note           Version 0.0.3.a ermoeglicht anderen Dateimanager (s. vFileManager in Zeile 51)
+// @note           Version 0.0.3.b ermoeglicht "Styles importieren" per Mittelklick (s. Zeile 96)
 // ==/UserScript==
 
 /****** 使い方 ******
@@ -92,7 +93,7 @@ window.UCL = {
 	},
 	init: function() {
 		var menu = $E(
-			<menu id="usercssloader-menu" label="CSS" accesskey="C">
+			<menu id="usercssloader-menu" label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">
 				<menupopup id="usercssloader-menupopup">
 					<menu label={U("Style Loader Menü")}
 					      accesskey="M">
