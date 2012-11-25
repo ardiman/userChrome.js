@@ -1,0 +1,103 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+
+@-moz-document domain(www.wetterkontor.net) {
+	#wkHeader,#wkGlobalNav,#wkLCol,#wkFooter,.wk_details_header,#wkRCol > TABLE > TBODY > TR > TD:last-child > DIV:first-child,#wkRCol > TABLE > TBODY > TR > TD:last-child > DIV:nth-child(2),#wkRCol > TABLE > TBODY > TR > TD:last-child,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(8) > DIV,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(9) > H2,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(9) > DIV,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(11),#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(12),#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(14),#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(15),#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:last-child > TABLE > TBODY > TR > TD:last-child > P:first-child,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:last-child > TABLE > TBODY > TR > TD:last-child > P:nth-child(2),#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:last-child > TABLE > TBODY > TR > TD:last-child > P:last-child,.link_trend,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > TABLE:nth-child(16) > TBODY > TR:first-child > TD:last-child > IMG,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > TABLE:nth-child(16) > TBODY > TR:first-child > TD:last-child > A,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(18) > TABLE > TBODY > TR:last-child > TD,#socialshareprivacy,.text_klein,.contentbox,.cbox_229,.cbox_470.cbpadding,.contentbox2,.header,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > H1,#banner_rechts,#banner_470,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(4) > DIV,#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(4) > TABLE {
+		display: none !important;
+	}
+	#wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(8), #wkRCol > TABLE > TBODY > TR > TD:first-child > DIV > DIV:nth-child(9) {
+		width: 0px !important;
+	}
+	HTML > BODY > TABLE {
+		width: 470px !important;
+		max-width: 470px !important;
+	}
+	body {
+		margin-left: -180px !important;
+		overflow: hidden !important;
+	}
+}
+
+@-moz-document domain(wetter.msn.com) {
+	#weathermap,#head,#nav,#subhead,#Breadcrumb,#MehrUeber,#area2,#subfoot,#foot,#tptrck,#__mcnnav,#navCollPart,#postarea1,.nav_hover,.parent.chrome24.single1.weamap.customcontainer.blue,#reporting,.heading.alignright,.wearss,.observedat.firstleft, #mediaarea > DIV:first-child > DIV:last-child > NOSCRIPT {
+		display: none !important;
+	}
+	#mediaarea {
+		background-color: #BFEFFF !important;
+	}
+	body {
+		overflow: hidden !important;
+		margin-left: -25px !important;
+	}
+}
+
+@-moz-document domain(www.daswetter.com) {
+	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),#izquierda > UL > LI:last-child {
+		display: none !important;
+	}
+	#cookies {
+		margin-left: -325px !important;
+	}
+	#cuerpo {
+		margin-top: -140px !important;
+		max-width: 653px !important;
+	}
+	#buscador {
+		max-width: 150px !important;
+		margin-left: -205px !important;
+	}
+	.sprite.nuevobuscador.img_buscador,#superior {
+		max-width: 655px !important;
+	}
+	#superior {
+		height: 60px !important;
+	}
+	.tabla_prediccion {
+		margin-bottom: 10px !important;
+	}
+	#izquierda {
+		margin-left: 17px !important;
+	}
+	.sprite.nuevobuscador.img_buscador {
+		background-image: none! important;
+		background-color: #BFEFFF! important;
+	}
+	#principal {
+		width: 660px !important;
+	}
+	body {
+		overflow: hidden !important;
+	}
+}
+
+@-moz-document domain(wetter.faz.net) {
+	#FAZHeader,.Breadcrumbs,.QuickSearchBox,#FAZContentRight,.ServicesFooter,#FAZFooter,.WetterHeaderContent,.BoxenReiter,#FAZPartnerContentInner > DIV:last-child,.ContentFooter,#getstag,#loginRequiredModal,#ivw,.clear,#WDC50ad41b8ac988_cities,#wx_nav > B,#wx_nav > BR:nth-child(2),.w_xs {
+		display: none !important;
+	}
+	#FAZSeite {
+		max-width: 555px !important;
+		max-height: 365px !important;
+		margin-top: -10px !important;
+	}
+	.WetterReiterContent {
+		margin-left: -9px !important;
+		margin-top: -5px !important;
+	}
+	.WetterRubrik  {
+		margin-top: -5px !important;
+	}
+	#choose_wx {
+		opacity: 0 !important;
+		width: 110px !important; 
+		height: 100px !important;
+	}
+	#choose_wx:hover {
+		opacity: 0.7 !important;
+	}
+	#wx_link {
+		font-family: helvetica !important;
+	}
+	body {
+		overflow: hidden !important;
+	}
+}
+
