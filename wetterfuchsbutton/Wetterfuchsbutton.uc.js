@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*
+// @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*,17.*
 // @include        main
-// @version        1.0.20121117
+// @version        1.0.20121124
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -24,10 +24,12 @@ var wetterfuchs = {
     EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:530,height:530},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
+    WE_WetterAktuell: {url:"http://wetter.faz.net/wetter/wettervorhersage/wetter_welt/?offset=0",width:575,height:380},
+    WE_Vorhersage: {url:"http://wetter.faz.net/wetter/wettervorhersage/wetter_welt/?offset=1",width:575,height:380},
     RE_AktuellVorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
     RE_Unwetterwarnung: {url:"http://www.wetterkontor.net/warnungen/land.asp?c=BB",width:700,height:550},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"http://img6.imagebanana.com/img/1o6c2u53/Globus2.gif",width:255,height:260}
+    RE_RegenradarPrognose: {url:"http://www.wetterkontor.net/de/radar/?r=o",width:478,height:478}
   },
   createBtn: function() {
     var navigator = document.getElementById("navigator-toolbox");
@@ -69,6 +71,12 @@ var wetterfuchs = {
 					<menuitem label="Unwetterwarnung" oncommand="wetterfuchs.openPanel('EU_Unwetterwarnung',event,'p')"/>
 					<menuitem label="Regenradar aktuell" oncommand="wetterfuchs.openPanel('EU_RegenradarAktuell',event,'p')"/>
 					<menuitem label="Regenradarprognose" oncommand="wetterfuchs.openPanel('EU_RegenradarPrognose',event,'p')"/>
+				</menupopup>
+			</menu>
+			<menu label="Welt Wetter">
+				<menupopup id="wetterfuchsWEmapsmenu">
+					<menuitem label="Wetter aktuell" oncommand="wetterfuchs.openPanel('WE_WetterAktuell',event,'p')"/>
+					<menuitem label="Vorhersage" oncommand="wetterfuchs.openPanel('WE_Vorhersage',event,'p')"/>
 				</menupopup>
 			</menu>
 			<menu label="Regionales Wetter">
