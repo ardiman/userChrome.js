@@ -1,6 +1,6 @@
 # Wetterfuchsbutton
 Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da einige Zeilen anzupassen sind und das optische Ergebnis durch 
-Einbinden von 3 CSS-Dateien verschönert werden muss.
+Einbinden einer CSS-Datei verschönert werden muss.
 
 Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart muss der Button "Wetterfuchs" über "Anpassen" in die gewünschte 
 Leiste gezogen werden. Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
@@ -52,8 +52,8 @@ im Panel zur Verfügung gestellt werden.
 Hier lauten die Bezeichner `RE_AktuellVorhersage`, `RE_Unwetterwarnung`, `RE_RegenradarAktuell` und `RE_RegenradarPrognose`.
 
 ## Das Aussehen der Wetterfenster
-Zum Skript gehören drei CSS Dateien, die am einfachsten entweder über das "UserCSSLoader" Skript oder die userChrome.css in den 
-Firefox eingebunden werden. Falls die Erweiterung "Stylish" eingesetzt wird, muss jeweils die `namespace`-Zeile entfernt werden.
+Zum Skript gehört die Datei `wetterfuchsbutton.css`, die am einfachsten entweder über das "UserCSSLoader" Skript oder die userChrome.css in den 
+Firefox eingebunden werden kann. Falls die Erweiterung "Stylish" eingesetzt wird, muss die `namespace`-Zeile entfernt werden.
 
 ## Ausblenden des Dropmarkers
 Wer den Menüdropmarker am Button nicht haben möchte, muss ihn mit einem separaten CSS Code ausblenden:
