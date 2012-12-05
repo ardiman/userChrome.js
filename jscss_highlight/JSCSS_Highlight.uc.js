@@ -600,10 +600,10 @@ window.JSCSS = {
 		if (pre.textContent.length > maxLength) {
 			var browser = gBrowser.getBrowserForDocument(doc);
 			var notificationBox = gBrowser.getNotificationBox(browser);
-			var message = "テキストが長すぎます。強調しますか？（フリーズする危険があります）"
+			var message = "Der Text ist zu lang. Wollen Sie hervorheben? (Es besteht Absturzgefahr!)"
 			var buttons = [{
-				label: "はい",
-				accessKey: "Y",
+				label: "Ja,
+				accessKey: "J",
 				callback: function (aNotification, aButton) {
 					 self.write(pre);
 				}
