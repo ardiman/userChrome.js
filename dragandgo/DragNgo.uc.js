@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
 // @author         Alice0775
+// @version        2011/10/24 23:00 href=javascript://のリンクテキストの処理変更
 // @version        2011/10/06 23:00 Bug 795065 Add privacy status to nsDownload
 // ==/UserScript==
 // @version        2012/10/06 07:00 Bug 722872  call .init(null) for nsITransferable instance
@@ -993,7 +994,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('Pfadangabe', 0, true);
+        this.setStatusMessage('パスを記入', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -1004,7 +1005,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('xpi oder jar Installation', 0, true);
+        this.setStatusMessage('xpiやjarのインストール', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -1425,6 +1426,13 @@ var DragNGo = {
               info.nodes.push(data);
               info.files.push(null);
               info.fname.push(self.candidateFname(data, url));
+              self.sourcenode = data;
+            } else if(url) {
+              info.urls.push(null);
+              info.texts.push(gatherTextUnder(data));
+              info.nodes.push(data);
+              info.files.push(null);
+              info.fname.push(null);
               self.sourcenode = data;
             }
           }
