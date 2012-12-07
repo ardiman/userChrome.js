@@ -4,7 +4,7 @@ zusätzlich die userChromeJS-Skripte aus dem Chrome-Ordner zur Auswahl, um sie i
 möglich, einige about:-Seiten zu öffnen (ggf. das Array `abouts` im Konfigurationsabschnitt erweitern). Falls das Skript "Add Restart Button" 
 (das genannte Skript muss mindestens in Version 1.0.20120105mod vorliegen) installiert ist, wird außerdem eine Möglichkeit zum Neustart angeboten.
 
-Ein Mittelklick auf den Button bzw. den Menüpunkt öffnet direkt `about:config`.
+Ein Mittelklick auf den Button bzw. ein Doppelklick auf den Menüpunkt öffnet direkt `about:config`.
 
 Seit Version  1.0.20120101 kann versucht werden, per Mittelklick das userChromeJS-Skript in diesem Projekt zu öffnen (dies funktioniert aufgrund der 
 Benennung nicht bei allen Skripten!). Mit Rechtsklick findet eine Suche auf GitHub statt (es gibt nur Treffer, wenn der Dateiname z.B. in 
