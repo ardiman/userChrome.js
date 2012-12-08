@@ -2,7 +2,7 @@
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*, 13.*, 14.*, 15.*, 16.*, 17.*
 // @include        main
-// @version        1.0.20121207
+// @version        1.0.20121208
 // ==/UserScript==
 
 var uProfMenu = {
@@ -13,7 +13,7 @@ var uProfMenu = {
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
   // vFileManager: 'C:\\Program Files (x86)\\FreeCommander\\FreeCommander.exe'
   vFileManager: '',
-  // In der folgenden Zeile (19) 'menu' eintragen, damit es unter "Extras" als Menue erscheint, sonst die id des gewuenschten 
+  // In der folgenden Zeile (19) 'menu' eintragen, damit es unter "Extras" als Menue erscheint, sonst die id des gewuenschten
   // Elements *nach* dem der Button erscheinen soll (z.B. 'urlbar', 'searchbar', 'undoclosetab-button','abp-toolbarbutton')
   // Bitte nicht so etwas wie die Menue- oder Navigationsleiste (sondern einen Menuepunkt oder einen Button mit id auf diesen Leisten) eintragen:
   warpmenuto: 'urlbar',
@@ -35,7 +35,7 @@ var uProfMenu = {
   // Um den Eintrag "Neustart" zu erzwingen (falls z.B. das andere Skript zu spaet eingebunden und nicht erkannt wird), auf 1 setzen:
   enableRestart: 0,
   // Ende der Konfiguration
-  
+
   init: function() {
     if (this.warpmenuto.toLowerCase() == 'menu') {
       // aufgrund des gewaehlten warpmenuto als Untermenue von Extras anlegen
@@ -63,7 +63,7 @@ var uProfMenu = {
       menu.setAttribute("class", "toolbarbutton-1");
       menu.setAttribute("type", "menu");
       menu.setAttribute("tooltiptext", "Extra Config Men\u00FC\nMittelklick \u00F6ffnet about:config");
-      menu.setAttribute("onclick","var mymenu = document.getElementById('ExtraConfigMenu-popup');if (event.button === 1 && mymenu.state !='open') {getBrowser (). selectedTab = getBrowser (). addTab ('about:config')};");
+      menu.setAttribute("onclick","if (event.button === 1 && !this.open) {getBrowser (). selectedTab = getBrowser (). addTab ('about:config')};");
     }
     //ab hier ist alles gleich, egal ob Button oder Menue
     var css = <![CDATA[
@@ -78,8 +78,7 @@ var uProfMenu = {
     var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
     sss.loadAndRegisterSheet(uri,sss.AGENT_SHEET);
     menu.setAttribute("onpopupshowing","uProfMenu.getScripts(0)");
-    var menupopup = menu.appendChild(document.createElement('menupopup'));
-    menupopup.setAttribute("id", "ExtraConfigMenu-popup");
+    var menupopup = menu.appendChild(this.createME("menupopup",0,0,0,"ExtraConfigMenu-popup"));
     menupopup.appendChild(this.createME("menuitem","userChrome.js","uProfMenu.edit(0,'userChrome.js');","uProfMenu_edit",0));
     // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
     var submenu=menupopup.appendChild(this.createME("menu","uc.js",0,0,"submenu-ucjs"));
@@ -94,7 +93,7 @@ var uProfMenu = {
     menupopup.appendChild(this.createME("menuitem","userContent.css","uProfMenu.edit(0,'userContent.css');","uProfMenu_edit",0));
     menupopup.appendChild(this.createME("menuitem","prefs.js","uProfMenu.edit(1,'prefs.js');","uProfMenu_edit",0));
     menupopup.appendChild(this.createME("menuitem","user.js","uProfMenu.edit(1,'user.js');","uProfMenu_edit"),0);
-    // Einbindung von Konfigdateien
+    // Ende Einbindung von Konfigdateien
     menupopup.appendChild(document.createElement('menuseparator'));
     // Einbindung von Ordnern
     switch (this.gmOrdner) {
@@ -145,7 +144,7 @@ var uProfMenu = {
 
   getDirSep:function() {
     // Betriebssystem nach https://developer.mozilla.org/en/Code_snippets/Miscellaneous ermitteln
-    var osString = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS; 
+    var osString = Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS;
     var dirsep="/";
     switch(osString) {
       case "WINNT":
@@ -355,7 +354,6 @@ var uProfMenu = {
       case "menupopup":
         //this.createME("menupopup",0,0,0,"GewuenschteIdDesMenupopups");
         m.setAttribute('id', sId);
-
         break;
     }
     return m;
@@ -387,7 +385,7 @@ var uProfMenu = {
     for (var i = 0; i < regs.length; i++) {
       sName=sName.replace(regs[i],"");
     }
-    return sName; 
+    return sName;
   }
 
 };
