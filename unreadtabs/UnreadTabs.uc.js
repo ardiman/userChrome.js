@@ -1,45 +1,46 @@
 // ==UserScript==
 // @name           unreadTabs.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    ã‚¿ãƒ–ã®ç§»å‹•å¾Œã‚‚ã‚¿ãƒ–ã®é¸æŠžçŠ¶æ…‹(æœªèª­çŠ¶æ…‹)ã‚’ç¶­æŒã™ã‚‹ã€‚ The selected attribute (unread state) of tabs after moving a tab is preserved.
+// @description    タブの移動後もタブの選択状態(未読状態)を維持する。 The selected attribute (unread state) of tabs after moving a tab is preserved.
 // @author         Alice0775
 // @include        main
 // @modified by    Alice0775
 // @compatibility  4.0b8pre - 9
-// @version        2011/10/16 12:00 ã‚¨ãƒ©ãƒ¼
+// @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
+// ==/UserScript==
+// @version        2011/10/16 12:00 エラー
 // @version        2011/09/16 01:00 Bug 487242 - Implement 'unread' attribute for tabbrowser tabs
-// @version        2011/07/23 01:00 16æ¡ã®æ—¥ä»˜
-// @version        2010/12/22 11:00 æœ€è¿‘ã®Tree Style Tabã¯å¤‰æ›´å¤šã™ãŽã‚‹ã‹ã‚‰ã‚‚ã†çŸ¥ã‚‰ã‚“
+// @version        2011/07/23 01:00 16桁の日付
+// @version        2010/12/22 11:00 最近のTree Style Tabは変更多すぎるからもう知らん
 // @version        2010/10/12 11:00 by Alice0775  4.0b8pre
 // @version        2010/03/26 13:00 Minefield/3.7a4pre Bug 554991 -  allow tab context menu to be modified by normal XUL overlays
 // @version        2010/03/15 00:00 Minefield/3.7a4pre Bug 347930 -  Tab strip should be a toolbar instead
 // @version        2010/01/29 16:00 http://piro.sakura.ne.jp/latest/blosxom/mozilla/extension/treestyletab/2009-09-29_debug.htm
-// @version        2010/01/12 13:00 deleteTabValueä¾‹å¤–å‡¦ç†
-// ==/UserScript==
-// @version        2009/09/02 13:00 xulãƒ‰ã‚­ãƒ¥ãƒ¡ãƒ³ãƒˆç­‰èª­ã¿è¾¼ã‚“ã å ´åˆã®ä¾‹å¤–å‡¦ç†
-// @version        2009/09/01 19:00 ã‚³ãƒ¼ãƒ‰æ•´ç†, typo
-// @version        2009/08/22 14:00 ã‚¿ãƒ–ã®ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆ"Remove UnRead For All Tabs"ã‚’è¡¨ç¤º
-// @version        2009/08/21 08:00 CHECK_MD5 falseã‚’æ—¢å®šå€¤ã«ã—ãŸ
-// @version        2009/08/06 12:10 typeä¿®æ­£, CHECK_MD5=falseãŒåŠ¹ã‹ãªããªã£ã¦ã„ãŸã®ã§ä¿®æ­£, tabãŒbusyã®æ™‚DOMContentLoadedã®è©•ä¾¡ã‚’ã¡ã‚‡ã£ã¨é…å»¶ã•ã›ã¦ã¿ãŸ
+// @version        2010/01/12 13:00 deleteTabValue例外処理
+// @version        2009/09/02 13:00 xulドキュメント等読み込んだ場合の例外処理
+// @version        2009/09/01 19:00 コード整理, typo
+// @version        2009/08/22 14:00 タブのコンテキスト"Remove UnRead For All Tabs"を表示
+// @version        2009/08/21 08:00 CHECK_MD5 falseを既定値にした
+// @version        2009/08/06 12:10 type修正, CHECK_MD5=falseが効かなくなっていたので修正, tabがbusyの時DOMContentLoadedの評価をちょっと遅延させてみた
 // @version        2009/08/06 restoreUnreadForTab
 // @version        2009/08/06 typo this.setUnreadTa b (event.target);
-// @version        2009/08/05 CSSã¯æœ€å¾Œã«å®Ÿè¡Œã™ã‚‹ã‚ˆã†ã«ã—ãŸ userChrome.cssäºŒè¨˜è¿°ã—ã¦ãŠãã®ãŒã„ã„ã‹ã‚‚
-// @version        2009/07/19 ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã®æœªèª­åˆ¤å®šã«æ–‡æ›¸ã®md5ã‚’è¦‹ã‚‹ã‹ã©ã†ã‹è¿½åŠ 
+// @version        2009/08/05 CSSは最後に実行するようにした userChrome.css二記述しておくのがいいかも
+// @version        2009/07/19 コンテンツの未読判定に文書のmd5を見るかどうか追加
 // @version        2009/07/19
 var unreadTabs = {
   // -- config --
-  CONTENT_LOAD: true,     // [true]: Tab wird laden, false: Erst laden, wenn neuer und ungelesener Tab
-  CHECK_MD5:    true,     // CONTENT_LOAD=true, wenn
+  CONTENT_LOAD: true, // [true]: Tab wird laden, false: Erst laden, wenn neuer und ungelesener Tab
+  CHECK_MD5: true, // CONTENT_LOAD=true, wenn
                           // true: Prüfung des MD5 der ungelesenen Tabs, [false]: Keine Prüfung
                           // (auch frame-Tab wird mit false gleich behandelt)
 
   READ_SCROLLCLICK: false,// true: Scrollen, oder Klicken des Tabs [false]: Tabauswahl und lesen
-  TABCONTEXTMENU: true,   // Tab-Kontextmenü-Eintrag:"Markierung für ungelesene Tabs entfernen" [ture]: Einblenden, false: Ausblenden
-  READ_TIMER: 900,        // Umschaltzeit während der Tabauswahl READ_TIMER(msec)
+  TABCONTEXTMENU: true, // Tab-Kontextmenü-Eintrag:"Markierung für ungelesene Tabs entfernen" [ture]: Einblenden, false: Ausblenden
+  READ_TIMER: 900, // Umschaltzeit während der Tabauswahl READ_TIMER(msec)
 
-  UNREAD_COLOR: 'red',    // Farbe rot: ungelesen
+  UNREAD_COLOR: 'red', // Farbe rot: ungelesen
   UNREAD_STYLE: 'italic', // Schrift kursiv: ungelesen
-  LOADING_COLOR:'blue',   // Farbe blau: Ladevorgang
+  LOADING_COLOR:'blue', // Farbe blau: Ladevorgang
   LOADING_STYLE:'normal', // Ladevorgang Schrift: normal
   // -- config --
 
@@ -65,7 +66,7 @@ var unreadTabs = {
     gBrowser.tabContainer.addEventListener('SSTabRestoring', this, false);
     gBrowser.tabContainer.addEventListener('SSTabRestored', this, false);
 
-    // æ—¢ã«ã‚ã‚‹ã‚¿ãƒ–ã«å¯¾ã—ã¦
+    // 既にあるタブに対して
     var that = this;
     init(0);
     function init(i){
@@ -100,15 +101,13 @@ var unreadTabs = {
       func = gBrowser.treeStyleTab.performDrop.toString();
         func = func.replace(
         'targetBrowser.swapBrowsersAndCloseOther(tab, aTab);',
-        <><![CDATA[
-//window.userChrome_js.debug("swap  " + aTab.label + "  " + aTab.hasAttribute("unreadTab"));
-        if (aTab.hasAttribute("unreadTab")) {
-          tab.setAttribute('unreadTab', true);
-        } else {
-          tab.removeAttribute('unreadTab');
-        }
-        $&
-        ]]></>
+        " \
+        if (aTab.hasAttribute('unreadTab')) { \
+          tab.setAttribute('unreadTab', true); \
+        } else { \
+          tab.removeAttribute('unreadTab'); \
+        } \
+        $&"
         );
       eval("gBrowser.treeStyleTab.performDrop = "+ func);
 
@@ -116,15 +115,13 @@ var unreadTabs = {
       func = gBrowser._onDrop.toString();
         func = func.replace(
         'this.swapBrowsersAndCloseOther(newTab, draggedTab);',
-        <><![CDATA[
-//window.userChrome_js.debug("swap  " + draggedTab.label + "  " + draggedTab.hasAttribute("unreadTab"));
-        if (draggedTab.hasAttribute("unreadTab")) {
-          newTab.setAttribute("unreadTab", true);
-        } else {
-          newTab.removeAttribute("unreadTab");
-        }
-        $&
-        ]]></>
+        " \
+        if (draggedTab.hasAttribute('unreadTab')) { \
+          newTab.setAttribute('unreadTab', true); \
+        } else { \
+          newTab.removeAttribute('unreadTab'); \
+        } \
+        $& "
         );
       eval("gBrowser._onDrop = "+ func);
     }
@@ -137,24 +134,23 @@ var unreadTabs = {
       menupopup.appendChild(menuitem);
     }
 
-    var style = <><![CDATA[
-    @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-      /*æœªèª­ã®ã‚¿ãƒ–ã®æ–‡å­—è‰²*/
-      .tabbrowser-tab[unreadTab] .tab-text,
-      .alltabs-item[unreadTab]
-      {
-        color: %UNREAD_COLOR%;
-        font-style: %UNREAD_STYLE%;
-      }
-
-      /*èª­ã¿è¾¼ã¿ä¸­ã®ã‚¿ãƒ–ã®æ–‡å­—è‰²*/
-      .tabbrowser-tab[busy] .tab-text,
-      .alltabs-item[busy]
-      {
-        color: %LOADING_COLOR%;
-        font-style: %LOADING_STYLE%;
-      }
-    ]]></>.toString().
+    var style = ' \
+    @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); \
+      /*未読のタブの文字色*/ \
+      .tabbrowser-tab[unreadTab] .tab-text, \
+      .alltabs-item[unreadTab] \
+      { \
+        color: %UNREAD_COLOR%; \
+        font-style: %UNREAD_STYLE%; \
+      } \
+ \
+      /*読み込み中のタブの文字色*/ \
+      .tabbrowser-tab[busy] .tab-text, \
+      .alltabs-item[busy] \
+      { \
+        color: %LOADING_COLOR%; \
+        font-style: %LOADING_STYLE%; \
+      } '.
                   replace(/%UNREAD_STYLE%/g, this.UNREAD_STYLE).
                   replace(/%UNREAD_COLOR%/g, this.UNREAD_COLOR).
                   replace(/%LOADING_STYLE%/g, this.LOADING_STYLE).
@@ -170,11 +166,11 @@ var unreadTabs = {
   },
 
   uninit: function(){
-    // ã‚¿ã‚¤ãƒžãƒ¼ã‚¯ãƒªã‚¢
+    // タイマークリア
     if (this._timer)
       clearTimeout(this._timer);
 
-    // ã‚¤ãƒ™ãƒ³ãƒˆãƒªã‚¹ãƒŠã‚’å‰Šé™¤
+    // イベントリスナを削除
     window.removeEventListener('unload', this, false);
     gBrowser.tabContainer.removeEventListener('TabOpen', this, false);
     gBrowser.tabContainer.removeEventListener('TabClose', this, false);
@@ -182,7 +178,7 @@ var unreadTabs = {
     gBrowser.tabContainer.removeEventListener('SSTabRestoring', this, false);
     gBrowser.tabContainer.removeEventListener('SSTabRestored', this, false);
 
-    // ã‚¿ãƒ–ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒªã‚¹ãƒŠã‚’å‰Šé™¤
+    // タブのイベントリスナを削除
     for (var i = 0; i < gBrowser.mTabs.length; i++) {
       try {
         gBrowser.mTabs[i].unreadTabsEventListener.destroy();
@@ -204,13 +200,13 @@ var unreadTabs = {
   },
 
 
-  // ã‚¿ãƒ–ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒªã‚¹ãƒŠã‚’ç™»éŒ²
+  // タブのイベントリスナを登録
   initTab: function(aTab){
     if (typeof aTab.unreadTabsEventListener == 'undefined')
       aTab.unreadTabsEventListener = new unreadTabsEventListener(aTab);
   },
 
-  // ã‚¿ãƒ–ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒªã‚¹ãƒŠã‚’å‰Šé™¤
+  // タブのイベントリスナを削除
   uninitTab: function(aTab){
     if (aTab.unreadtimer)
       clearTimeout(aTab.unreadtimer);
@@ -228,7 +224,7 @@ var unreadTabs = {
       data._tabStillLoading = false;
   },
 
-  // ã‚¿ãƒ–ã®çŠ¶æ…‹ã‚’ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã«ä¿å­˜
+  // タブの状態をセッションデータに保存
   saveUnreadForTab: function (aTab){
     if (aTab.hasAttribute("unreadTab"))
       this.ss.setTabValue(aTab, "unreadTab", true);
@@ -241,7 +237,7 @@ var unreadTabs = {
     }
   },
 
-  // ã‚¿ãƒ–ã®çŠ¶æ…‹ã‚’ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰å¾©å…ƒ
+  // タブの状態をセッションデータから復元
   restoreUnreadForTab: function(aTab){
     var retrievedData = this.ss.getTabValue(aTab, "unreadTab");
 //window.userChrome_js.debug( "restoreUnreadForTab " + !!retrievedData)
@@ -252,7 +248,7 @@ var unreadTabs = {
     return retrievedData;
   },
 
-  // ã‚¿ãƒ–ã®MD5ã‚’ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã«ä¿å­˜
+  // タブのMD5をセッションデータに保存
   saveMD5ForTab: function (aTab){
     if (!this.CHECK_MD5)
       return;
@@ -267,7 +263,7 @@ var unreadTabs = {
     }
   },
 
-  // ã‚¿ãƒ–ã®MD5ã‚’ã‚»ãƒƒã‚·ãƒ§ãƒ³ãƒ‡ãƒ¼ã‚¿ã‹ã‚‰å¾©å…ƒ
+  // タブのMD5をセッションデータから復元
   restoreMD5ForTab: function(aTab){
     if (!this.CHECK_MD5)
       return;
@@ -367,14 +363,15 @@ var unreadTabs = {
 
 
 function unreadTabsEventListener(aTab) {
-  this.init(aTab);
+  this.mTab = aTab;
+  this.init();
 }
 
 unreadTabsEventListener.prototype = {
   mTab : null,
-  init : function(aTab) {
+  init : function() {
     //window.userChrome_js.debug('init');
-    this.mTab = aTab;
+    //this.mTab = aTab;
     if (unreadTabs.CONTENT_LOAD)
       this.mTab.linkedBrowser.addEventListener('DOMContentLoaded', this, false);
     if (unreadTabs.READ_SCROLLCLICK) {
@@ -411,7 +408,7 @@ unreadTabsEventListener.prototype = {
     }
   },
 
-  // ã‚³ãƒ³ãƒ†ãƒ³ãƒˆèª­ã¿è¾¼ã¿æ™‚ã®å‡¦ç†
+  // コンテント読み込み時の処理
   contentLoad: function(aEvent){
       var aTab = this.mTab;
 /**/
@@ -422,7 +419,7 @@ unreadTabsEventListener.prototype = {
         return;
       }
 
-      // ã‚³ãƒ³ãƒ†ãƒ³ãƒˆã®æ–‡æ›¸ã®MD5
+      // コンテントの文書のMD5
       var doc = aTab.linkedBrowser.contentDocument;
       var md5 = null;
       var prevmd5 = null;
@@ -434,7 +431,7 @@ unreadTabsEventListener.prototype = {
         aTab.setAttribute('md5', md5);
       }
 
-      // ã‚³ãƒ³ãƒ†ãƒ³ãƒˆã‚’èª­ã¿è¾¼ã‚“ã ã®ãŒå‰é¢ã®ã‚¿ãƒ–ãªã‚‰æ—¢èª­ã«ã‚»ãƒƒãƒˆ
+      // コンテントを読み込んだのが前面のタブなら既読にセット
       if (aTab.selected) {
           aTab.removeAttribute('unreadTabs-restoring')
         if (!aTab.hasAttribute('unreadTab'))
@@ -443,13 +440,13 @@ unreadTabsEventListener.prototype = {
         return;
       }
 
-      // ã‚¿ãƒ–ã®å¾©å…ƒä¸­ãªã‚‰ä½•ã‚‚ã—ãªã„
+      // タブの復元中なら何もしない
       if (aTab.hasAttribute('unreadTabs-restoring')) {
         //aTab.removeAttribute('unreadTabs-restoring')
         return;
       }
 
-      // ã‚³ãƒ³ãƒ†ãƒ³ãƒˆã‚’èª­ã¿è¾¼ã‚“ã ã®ãŒèƒŒé¢ã®ã‚¿ãƒ–ãªã‚‰æœªèª­ã«ã‚»ãƒƒãƒˆ
+      // コンテントを読み込んだのが背面のタブなら未読にセット
       if (unreadTabs.CONTENT_LOAD) {
         if (!unreadTabs.CHECK_MD5 || md5 != prevmd5) {
           unreadTabs.setUnreadForTab(aTab);
@@ -471,12 +468,12 @@ unreadTabsEventListener.prototype = {
   calculateHashFromStr: function(str) {
     var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
                               .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-    // ã“ã“ã§ã¯ UTF-8 ã‚’ä½¿ã„ã¾ã™ã€‚ä»–ã®ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‡ã‚£ãƒ³ã‚°ã‚‚é¸ã¶ã“ã¨ã‚‚ã§ãã¾ã™ã€‚
+    // ここでは UTF-8 を使います。他のエンコーディングも選ぶこともできます。
     converter.charset = "UTF-8";
-    // result ã¯å‡ºåŠ›ç”¨ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã™ã€‚
-    // result.value ã¯é…åˆ—ã®é•·ã•ã‚’ä¿æŒã—ã¾ã™ã€‚
+    // result は出力用パラメータです。
+    // result.value は配列の長さを保持します。
     var result = {};
-    // data ã¯ãƒã‚¤ãƒˆã®é…åˆ—ã§ã™ã€‚
+    // data はバイトの配列です。
     var data = converter.convertToByteArray(str, result);
     var ch = Components.classes["@mozilla.org/security/hash;1"]
                        .createInstance(Components.interfaces.nsICryptoHash);
@@ -485,13 +482,13 @@ unreadTabsEventListener.prototype = {
     ch.update(data, data.length);
     var hash = ch.finish(false);
     str = data = ch = null;
-    // 1 ãƒã‚¤ãƒˆã«å¯¾ã—ã¦ 2 ã¤ã® 16 é€²æ•°ã‚³ãƒ¼ãƒ‰ã‚’è¿”ã™ã€‚
+    // 1 バイトに対して 2 つの 16 進数コードを返す。
     function toHexString(charCode)
     {
       return ("0" + charCode.toString(16)).slice(-2);
     }
 
-    // ãƒã‚¤ãƒŠãƒªã®ãƒãƒƒã‚·ãƒ¥ãƒ‡ãƒ¼ã‚¿ã‚’ 16 é€²æ•°æ–‡å­—åˆ—ã«å¤‰æ›ã™ã‚‹ã€‚
+    // バイナリのハッシュデータを 16 進数文字列に変換する。
     return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
   }
 
