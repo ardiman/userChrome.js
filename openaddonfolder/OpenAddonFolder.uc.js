@@ -2,44 +2,60 @@
 // @name         Open Add-on Folder
 // @description  Add "Add-on Folder" to Add-on Manager
 // @author       GOLF-AT
-// @version      1.0.20100717
+// @version      1.2.20121015
 // ==/UserScript==
 
 var OpenAddonFolder = {
 
-    ContentLoaded : function() {
+    ContentLoaded : function(e) {
       try {
-          var popup = gBrowser.contentWindow.document.getElementById(
-              "addonitem-popup");
+          popup = e.target.getElementById("addonitem-popup");
           if (popup && !popup.hasAttribute('OpenAddonFolder')) {
+              popup.addEventListener("popupshowing", OpenAddonFolder
+                  .onPopupShowing, true);
               popup.setAttribute('OpenAddonFolder', 'true');
-              var menuitem = document.createElement("menuitem");
-              //menuitem.setAttribute("id", "open_addon_folder");
+              menuitem = document.createElement("menuitem");
+              menuitem.setAttribute("id", "open_addon_folder");
               menuitem.setAttribute("label", "Addon-Ordner öffnen");
               menuitem.setAttribute("oncommand", "Services.wm.get"+
                   "MostRecentWindow('navigator:browser').document"+
                   ".defaultView.OpenAddonFolder.OpenFolder()");
-              popup.appendChild(menuitem);
+              popup.insertBefore(menuitem, e.target.getElementById(
+                  "menuitem_about"));
           }
-      }catch(e) {}
+      }catch(ex) {}
     },
     
     OpenFolder : function() {
-        var dir = Components.classes['@mozilla.org/file/directory_service;1'
-            ].getService(Components.interfaces.nsIProperties).get('ProfD',
-            Components.interfaces.nsILocalFile);
-        var Addons = gBrowser.contentWindow.document.getElementById(
+        Addons = gBrowser.contentWindow.document.getElementById(
             'addon-list').childNodes;
+
+        const cc = Components.classes;
+        dir = cc['@mozilla.org/file/directory_service;1'].
+            getService(Components.interfaces.nsIProperties).get(
+            'ProfD',Components.interfaces.nsILocalFile);
         for(var i=0; i<Addons.length; i++) {
-            if (Addons[i].getAttribute('current') == 'true') {
-                dir.append('extensions');
-                dir.append(Addons[i].getAttribute('value'));
-                if (dir.exists()) dir.reveal();
-                return;
-            }
+            if (Addons[i].getAttribute('current') != 'true')
+                continue;
+            dir.append('extensions');
+            dir.append(Addons[i].getAttribute('value'));
+            if (!dir.exists()) dir.initWithPath(dir.path+'.xpi');
+            if (dir.exists()) dir.reveal();
+            return;
         }
     },
 
+    onPopupShowing : function(e) {
+        var selItemId = gBrowser.contentDocument.getElementById(
+            "categories").getAttribute('last-selected');
+        var menuitem = gBrowser.contentDocument.getElementById(
+            "open_addon_folder");
+        if (menuitem)
+            menuitem.hidden = selItemId=='category-userscript' ||
+                selItemId=='category-plugin';
+    },
 };
 
-document.addEventListener("DOMContentLoaded", OpenAddonFolder.ContentLoaded, false);
+if (document.getElementById('main-window'))
+    document.addEventListener("DOMContentLoaded", OpenAddonFolder.
+        ContentLoaded, false);

@@ -3,8 +3,9 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @license        MIT License
-// @version        0.0.6
-// @note           IME_DISABLE_STYLE を空にすれば IME が OFF の時は色を変えないようにできるようにした
+// @version        0.0.7
+// @note           0.0.7 CSS のリセットの処理を修正
+// @note           0.0.6 IME_DISABLE_STYLE を空にすれば IME が OFF の時は色を変えないようにできるようにした
 // @note           0.0.5 Firefox 5.0 で動くように微修正。 3.6 とかもう(ﾟ⊿ﾟ)ｼﾗﾈ
 // ==/UserScript==
 
@@ -51,11 +52,18 @@ IMEColorsClass.prototype = {
 			null;
 
 		this.elem = this.textbox || this.inputField;
-		this.defStyle = this.elem.getAttribute('style');
+		var s = this.elem.style;
+		this.originalStyle = {};
+		this.backupPropertyNames.forEach(function(n){
+			this.originalStyle[n] = s.getPropertyValue(n);
+		}, this);
 		this.inputFieldStyle = this.win.getComputedStyle(this.inputField, null);
-		if (this.textbox)
-			this.borderWidth = this.win.getComputedStyle(this.textbox, null).borderTopWidth;
-
+		if (this.textbox) {
+			this.originalStyle['border-top-width'] = s.getPropertyValue('border-top-width');
+			var borderWidth = this.win.getComputedStyle(this.textbox, null).borderTopWidth;
+			s.setProperty('-moz-appearance', 'none', 'important');
+			s.setProperty('border-width', borderWidth, 'important');
+		}
 		this.setColor();
 		if (doc !== document)
 			this.win.addEventListener('pagehide', this, false);
@@ -69,22 +77,16 @@ IMEColorsClass.prototype = {
 		var obj  = ime? this.IME_ENABLE_STYLE : this.IME_DISABLE_STYLE;
 		var obj2 = ime? this.IME_DISABLE_STYLE : this.IME_ENABLE_STYLE;
 		var s = this.elem.style;
-		for (let n in obj2)
-			if (!obj[n])
-				s.removeProperty(n);
-		for (let n in obj)
-			s.setProperty(n, obj[n], 'important');
-		if (this.textbox) {
-			s.setProperty('-moz-appearance', 'none', 'important');
-			s.setProperty('border-width', this.borderWidth, 'important');
-		}
+		Object.keys(obj2).forEach(function(n) obj[n] || s.removeProperty(n) );
+		Object.keys(obj).forEach(function(n) s.setProperty(n, obj[n], 'important') );
 		this.state = ime;
 	},
 	resetColor: function() {
-		if (this.defStyle == null)
-			this.elem.removeAttribute('style');
-		else 
-			this.elem.setAttribute('style', this.defStyle || '');
+		var s = this.elem.style;
+		Object.keys(this.originalStyle).forEach(function(n){
+			let val = this.originalStyle[n];
+			val ? s.setProperty(n, val) : s.removeProperty(n);
+		}, this);
 	},
 	handleEvent: function(event) {
 		switch(event.type) {
@@ -110,6 +112,9 @@ IMEColorsClass.prototype = {
 		}
 	},
 };
+IMEColorsClass.prototype.backupPropertyNames = Object.keys(IMEColorsClass.prototype.IME_ENABLE_STYLE)
+	.concat(Object.keys(IMEColorsClass.prototype.IME_DISABLE_STYLE))
+	.filter(function(e,i,a) a.indexOf(e) === i);
 
 
 function IMEColors({ originalTarget: elem }){

@@ -1,30 +1,35 @@
 // ==UserScript==
-// @description  NewTabPlus.uc.js
-// @description V‚µ‚¢ƒ^ƒu‚ÅŠJ‚­i‹ó”’ƒ^ƒu‚ğ—˜—pj
-// @include		chrome://browser/content/browser.xul
-// @include 		chrome://browser/content/bookmarks/bookmarksPanel.xul
-// @include 		chrome://browser/content/history/history-panel.xul
-// @include 		chrome://browser/content/places/places.xul
-// @compatibility	Firefox 4.0
+// @name            NewTabPlus.uc.js
+// @description     æ–°ã—ã„ã‚¿ãƒ–ã§é–‹ãï¼ˆç©ºç™½ã‚¿ãƒ–ã‚’åˆ©ç”¨ï¼‰
+// @include         main
+// @include         chrome://browser/content/bookmarks/bookmarksPanel.xul
+// @include         chrome://browser/content/history/history-panel.xul
+// @include         chrome://browser/content/places/places.xul
+// @compatibility   Firefox 20
 // ==/UserScript==
-
 (function() {
-
-    /* ƒuƒbƒNƒ}[ƒN•—š—ğ‚ğV‚µ‚¢ƒ^ƒu‚ÅŠJ‚­ */
+    /* Lesezeichen und Chronik */
     try {
-  	var str = openLinkIn.toString();
-		  str = str.replace('w.gBrowser.selectedTab.pinned',
-	        '(!w.isTabEmpty(w.gBrowser.selectedTab) || $&)');
-		  str = str.replace(/&&\s+w\.gBrowser\.currentURI\.host != uriObj\.host/,'');
-		  eval("openLinkIn = " + str);
+        eval('openLinkIn = ' + openLinkIn.toString().
+        replace('w.gBrowser.selectedTab.pinned', '(!w.isTabEmpty(w.gBrowser.selectedTab) || $&)').
+        replace(/&&\s+w\.gBrowser\.currentURI\.host != uriObj\.host/, ''));
     }catch(e){}
 
-    /* URLƒo[‚©‚çV‚µ‚¢ƒ^ƒu‚ÅŠJ‚­ */
+    /* Adressleiste */
     try {
-		location=="chrome://browser/content/browser.xul"&&eval("gURLBar.handleCommand="+gURLBar.handleCommand.toString().replace(/^\s*(load.+);/gm,"/^javascript:/.test(url)||content.location=='about:blank'?$1:gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});"))
+        location == 'chrome://browser/content/browser.xul' && 
+        eval('gURLBar.handleCommand = ' + gURLBar.handleCommand.toString().
+        replace(/^\s*(load.+);/gm, '\
+            if(/^javascript:/.test(url) || isTabEmpty(gBrowser.selectedTab)){\
+                loadCurrent();\
+            }else{\
+                this.handleRevert();\
+                gBrowser.loadOneTab(url,{postData:postData,inBackground:false,allowThirdPartyFixup:true});\
+            }\
+        '));
     }catch(e){}
-
-    /* ŒŸõƒo[‚©‚çV‚µ‚¢ƒ^ƒu‚ÅŠJ‚­ */
+	
+    /* Suchleiste: Dieser Abschnitt ist noch nicht fÃ¼r den Fuchs 20 geÃ¤ndert! */
     try {
         var searchbar = document.getElementById("searchbar");
         eval("searchbar.handleSearchCommand="+searchbar.handleSearchCommand.
@@ -32,22 +37,20 @@
             "if (!gBrowser.webProgress.isLoadingDocument && gBrowser.curren"
             +"tURI.spec=='about:blank') where='current'; else where='tab'; "
             +"$&"));
+    }catch(e){}	
+
+    /* Fokus auf die mittlere Maustaste */
+    try {
+        eval('whereToOpenLink = ' + whereToOpenLink.toString().
+        replace(/ \|\| \(?middle && middleUsesTabs\)\)?/, ')').
+        replace('if (alt', 'if (middle && middleUsesTabs) return shift ? "tab" : "tabshifted";\n\n  $&'));
     }catch(e){}
 
+    /* Tab schlieÃŸen durch Doppelklick */
+    try {
+        location == 'chrome://browser/content/browser.xul' && 
+        gBrowser.mTabContainer.addEventListener('dblclick', function(event){
+            if(event.target.localName == 'tab' && event.button == 0) gBrowser.removeCurrentTab();
+        }, false);
+    }catch(e){}
 })();
- 
-	/* ‹ó”’ƒ^ƒu‚ª‘¶İ‚·‚éê‡—˜—p‚·‚é */
-	function _LoadURL(aTriggeringEvent, aPostData)
-	{
-		var where = (gBrowser.currentURI.spec!='about:blank' ||
-			gBrowser.webProgress.isLoadingDocument) ? 'tab' :'current';
-		if (gURLBar.value!='') openUILinkIn(gURLBar.value, where);
-		return true;
-	}
-
-	/* ƒ^ƒu‚ğƒ_ƒuƒ‹ƒNƒŠƒbƒN‚Å•Â‚¶‚é */
-	gBrowser.mTabContainer.addEventListener('dblclick', function (event){
-	if (event.target.localName == 'tab' && event.button == 0){
-		document.getElementById('cmd_close').doCommand();
-		}
-	}, false);

@@ -4,9 +4,12 @@
 // @description    右クリック→検索の強化
 // @include        main
 // @compatibility  Firefox 4
-// @version        0.0.6
-// @note           splitmenu をやめた（menu 部分をクリックして検索可能）
-// @note           Mac でカーソル下の単語をうまく拾えてなかったらしいのを修正したかも
+// @version        0.0.7
+// @note           0.0.7 リンク上でも単語を取得するように変更
+// @note           0.0.7 単語の取得を効率化
+// @note           0.0.6 カタカナの正規表現のミスを修正
+// @note           0.0.6 splitmenu をやめた（menu 部分をクリックして検索可能）
+// @note           0.0.6 Mac でカーソル下の単語をうまく拾えてなかったらしいのを修正したかも
 // @note           0.0.5 サブメニューを中クリックすると２回実行される問題を修正
 // @note           0.0.5 メニューの検索エンジン名を非表示にした
 // @note           0.0.5 カーソル下の単語の取得を調整
@@ -15,7 +18,7 @@
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
 // ホイールで既定のエンジン変更、サブメニューから他の検索エンジンの利用
-// 右クリックの位置により リンクのテキスト、選択文字列、カーソル下の単語を検索可能
+// 右クリックの位置により選択文字列、カーソル下の単語を検索可能
 
 if (window.contextSearcher) {
   window.contextSearcher.destroy();
@@ -26,19 +29,20 @@ window.contextSearcher = {
   NEW_TAB: true,
 
   _regexp: {
-    hiragana: "[\\u3040-\\u309F]",
-    katakana: "[\\u30A0-\\u30FA\u30FC]",
-    kanji   : "[\\u4E00-\\u9FA0]",
-    //suuji   : "[0-9_./,%-]",
-    eisu_han: "[a-zA-Z0-9_-]",
-    eisu_zen: "[\\uFF41-\\uFF5A\\uFF21-\\uFF3A\\uFF10-\\uFF19]",
-    hankaku : "[\\uFF00-\\uFFEF]",
+    hiragana: "[\\u3040-\\u309F]+",
+    katakana: "[\\u30A0-\\u30FA\\u30FC]+",
+    kanji   : "[\\u4E00-\\u9FA0]+",
+    suuji   : "[0-9_./,%-]+",
+    eisu_han: "\\w[\\w\\-]*",
+    eisu_zen: "[\\uFF41-\\uFF5A\\uFF21-\\uFF3A\\uFF10-\\uFF19]+",
+    hankaku : "[\\uFF00-\\uFFEF]+",
+    hangul  : "[\\u1100-\\u11FF\\uAC00-\\uD7AF\\u3130-\\u318F]+",
   },
 
   get startReg() {
     let reg = {};
     for(let n in this._regexp) {
-      reg[n] = new RegExp('^' + this._regexp[n] + '+');
+      reg[n] = new RegExp('^' + this._regexp[n]);
     }
     delete this.startReg;
     return this.startReg = reg;
@@ -46,11 +50,24 @@ window.contextSearcher = {
   get endReg() {
     let reg = {};
     for(let n in this._regexp) {
-      reg[n] = new RegExp(this._regexp[n] + '+$');
+      reg[n] = new RegExp(this._regexp[n] + '$');
     }
     delete this.endReg;
     return this.endReg = reg;
   },
+  getCharType: function(aChar) {
+    var c = aChar.charCodeAt(0);
+    //if (c >= 0x30 && c <= 0x39) return "suuji";
+    if (c >= 0x30 && c <= 0x39 || c >= 0x41 && c <= 0x5A || c >= 0x61 && c <= 0x7A || c === 0x5F) return "eisu_han";
+    if (c >= 0x30A0 && c <= 0x30FA || c === 0x30FC) return "katakana";
+    if (c >= 0x3040 && c <= 0x309F) return "hiragana";
+    if (c >= 0x4E00 && c <= 0x9FA0) return "kanji";
+    if (c >= 0xFF41 && c <= 0x9F5A || c >= 0xFF21 && c <= 0xFF3A || c >= 0xFF10 && c <= 0xFF19) return "eisu_zen";
+    if (c >= 0xFF00 && c <= 0xFFEF) return "hankaku";
+    if (c >= 0x1100 && c <= 0x11FF || c >= 0xAC00 && c <= 0xD7AF || c >= 0x3130 && c <= 0x318F) return "hangul";
+    return "";
+  },
+
   searchText: '',
   searchEngines: [],
   init: function(){
@@ -63,7 +80,7 @@ window.contextSearcher = {
     this.menu = this.context.insertBefore(document.createElement('menu'), searchselect);
     this.menu.setAttribute('id', 'context-searcher');
     this.menu.setAttribute('class', 'menu-iconic');
-    this.menu.setAttribute('accesskey', gNavigatorBundle.getString("contextMenuSearchText.accesskey"));
+    this.menu.setAttribute('accesskey', searchselect.accessKey);
     this.menu.setAttribute('onclick', 'if (event.target == this) { contextSearcher.command(event); closeMenus(this); }');
 
     this.popup = this.menu.appendChild( document.createElement('menupopup') );
@@ -170,7 +187,7 @@ window.contextSearcher = {
     this.searchText = 
       gContextMenu.isTextSelected? this.getBrowserSelection() :
       gContextMenu.onImage? gContextMenu.target.getAttribute('alt') :
-      gContextMenu.onLink? gContextMenu.linkText() :
+      //gContextMenu.onLink? gContextMenu.linkText() :
       gContextMenu.onTextInput? this.getTextInputSelection() :
       this.getCursorPositionText();
 
@@ -243,8 +260,9 @@ window.contextSearcher = {
     if (!node || node.nodeType !== Node.TEXT_NODE)
       return "";
 
-    // 文字の右半分をクリック時に次の文字を取得する対策
     var text = node.nodeValue;
+
+    // 文字の右半分をクリック時に次の文字を取得する対策
     var range = node.ownerDocument.createRange();
     range.setStart(node, offset);
     var rect = range.getBoundingClientRect();
@@ -252,18 +270,13 @@ window.contextSearcher = {
     if (rect.left >= this._clientX)
       offset--;
 
-    var mae = text.substr(0, offset);
-    var ato = text.substr(offset); // text[offset] はこっちに含まれる
-    var ato_word, type;
-    for (let [key, reg] in Iterator(this.startReg)) {
-      if (reg.test(ato)) {
-        type = key;
-        ato_word = RegExp.lastMatch;
-        break;
-      }
-    }
+    if (!text[offset]) return "";
+    var type = this.getCharType(text[offset]);
     if (!type) return "";
 
+    var mae = text.substr(0, offset);
+    var ato = text.substr(offset); // text[offset] はこっちに含まれる
+    var ato_word = (this.startReg[type].exec(ato) || [""])[0];
     var str = this.endReg[type].test(mae) ? RegExp.lastMatch + ato_word : ato_word;
 
     if (str.length === 1) {
@@ -277,7 +290,7 @@ window.contextSearcher = {
     
     return str;
   },
-
+  
   log: function() {
     Application.console.log("[contextSearcher] " + Array.slice(arguments));
   }

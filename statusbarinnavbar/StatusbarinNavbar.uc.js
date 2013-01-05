@@ -2,99 +2,83 @@
 // @name           ChromeStatusbarModoki.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
-// @version        0.0.2
+// @compatibility  Firefox 4
+// @version        0.0.9
+// @note           0.0.9 Remove E4X
+// @note           Firefox 4 正式版に合わせて簡素化した
 // ==/UserScript==
-(function(){
-	var display = document.getElementById('statusbar-display');
-	var tooltip = document.createElement('tooltip');
-	tooltip.setAttribute('id', 'chrome-tooltip');
-	tooltip.setAttribute('onmouseover', 'event.currentTarget.hidePopup();');
-	var label = tooltip.appendChild(document.createElement('label'));
-	label.setAttribute('id', 'chrome-tooltip-label');
-	label.setAttribute('crop', 'end');// end or center.
-	document.getElementById('mainPopupSet').appendChild(tooltip);
+// Firefox 3.6 は古い Ver. を使ってください
+// https://gist.github.com/300255/4144baa96f7b12d271fd3cc5b8017c038822fa12
 
-	tooltip.timer = null;
-	tooltip.open = function(text){
-		this.firstChild.setAttribute('value', text);
-		if (this.state == 'open')
-			return;
-		// タイトルバー非表示で位置がずれる問題の修正
-		var y = Math.abs(window.innerHeight - screen.availHeight) <= 4?
-			gBrowser.clientHeight - 4:
-			gBrowser.clientHeight;
-		this.openPopup(gBrowser, 'before_start', 0, y);
-		
-		// タイマー処理
-		if (this.timer)
-			clearTimeout(this.timer);
-		var self = this;
-		this.timer = setTimeout(function(){
-			self.hidePopup();
-			self.timer = null;
-		}, 5000);
-	}
+(function(css) {
+  if (typeof LinkTargetDisplay == "undefined") return;
 
-	// ステータスバーを監視
-	display.addEventListener('DOMAttrModified', function(event){
-		if (event.attrName != 'value') return;
-		var text = event.newValue;
-		if (text != '' && text != XULBrowserWindow.defaultStatus){
-			tooltip.open(text);
-		}
-	}, false);
+  // Show/Hide delay. original: 70/150(ms)
+  LinkTargetDisplay.DELAY_SHOW = 0;
+  LinkTargetDisplay.DELAY_HIDE = 1000;
+
+  // Cut "http://"
+  XULBrowserWindow._overLink = "";
+  XULBrowserWindow.__defineGetter__("overLink", function() {
+    return this._overLink;
+  });
+  XULBrowserWindow.__defineSetter__("overLink", function(text) {
+    if (text && text.indexOf('http://') === 0) {
+      text = text.substr(7);
+    }
+    return this._overLink = text;
+  });
 
 
-	// ステータスパネルをメニューバー内に
-	var statusBar = document.getElementById('status-bar');
-	// var statusBar = document.getElementById("addon-bar");
-	statusBar.setAttribute('context', '');
-	display.hidden = true;
-	var insert = document.getElementById('search-container') || document.getElementById('urlbar-container');
-	insert.parentNode.insertBefore(statusBar, insert.nextSibling);
+  // Hide Animation
+  if (!XULBrowserWindow.updateStatusField_org) {
+    XULBrowserWindow.updateStatusField_org = XULBrowserWindow.updateStatusField;
+  }
+  eval("XULBrowserWindow.updateStatusField = " + XULBrowserWindow.updateStatusField_org.toString().replace(
+    'field.setAttribute("crop", type == "overLink" ? "center" : "end");',
+    'if (text) field.setAttribute("crop", type == "overLink" ? "center" : "end");'
+  ));
 
-	document.insertBefore(document.createProcessingInstruction(
-	'xml-stylesheet',
-	'type="text/css" href="data:text/css,' + encodeURI(
-	<![CDATA[
+  XULBrowserWindow.statusTextField.__defineGetter__('label', function() {
+    return this.getAttribute("label");
+  });
+  XULBrowserWindow.statusTextField.__defineSetter__('label', function(str) {
+    if (str) {
+      this.setAttribute('label', str);
+      this.style.opacity = 1;
+    } else {
+      this.style.opacity = 0;
+      
+      // 消えたら左側に帰ってきて欲しい
+      setTimeout(function(){ XULBrowserWindow.statusTextField.removeAttribute('mirror'); }, 110);
+    }
+    return str;
+  });
 
-		#chrome-tooltip {
-			font-family: sans-serif !important;
-			font-size: 10pt !important;
-			white-space: nowrap !important; 
 
-			-moz-appearance: none !important;
-			background-color: #D2E1F6 !important;
-			color: #646464 !important;
-			border: 1px solid rgba(192, 192, 192, .2) !important;
+  // Statusbar in URLBar
+  var urlbarIcons = document.getElementById('urlbar-icons');
+  if (urlbarIcons) {
+    var statusBar = document.getElementById('status-bar');
+    urlbarIcons.insertBefore(statusBar, urlbarIcons.firstChild);
+    statusBar.setAttribute('context', '');
+  }
 
-			min-width: 20em !important;
-			max-width: 60em !important;
-			padding: 0 4px !important;
-			margin: 0 !important;
+  addStyle(css);
 
-		}
-		#chrome-tooltip-label {
-			margin: 0 !important;
-		}
+  function addStyle(css) {
+    var pi = document.createProcessingInstruction(
+      'xml-stylesheet',
+      'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(css) + '"'
+    );
+    return document.insertBefore(pi, document.documentElement);
+  }
 
-		#main-window:not([active="true"]) #chrome-tooltip{
-			visibility: collapse !important;
-		}
-
-		#status-bar,
-		#status-bar statusbarpanel {
-			-moz-appearance: none !important;
-			background-color: transparent !important;
-			border: none !important;
-		}
-
-		#statusbar-display,
-		#statusbar-progresspanel,
-		.statusbar-resizerpanel
-		{ display: none !important; }
-
-	]]>.toString()
-	) + '"'), document.documentElement);
-
-})();
+})('\
+@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
+\
+.statusbar-resizerpanel {\
+  display: none !important;\
+}\
+\
+');

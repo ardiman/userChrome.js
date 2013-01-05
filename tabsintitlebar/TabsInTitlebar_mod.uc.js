@@ -4,8 +4,9 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @include        main
-// @version        0.0.1
 // @compatibility  Firefox 4
+// @version        0.0.2
+// @note           Remove E4X
 // ==/UserScript==
 // @SS http://f.hatena.ne.jp/Griever/20110408002650
 
@@ -22,24 +23,18 @@
 		e.parentNode.insertBefore(m, e.nextSibling);
 	});
 
-	var titlebar = document.getElementById("titlebar");
-	var spacer = document.createElement("hbox");
-	spacer.setAttribute("id", "tabs-in-titlebar-spacer");
-	titlebar.appendChild(spacer);
-
-
 	if (typeof updateAppButtonDisplay_org == "undefined")
 		updateAppButtonDisplay_org = updateAppButtonDisplay;
 
 	eval("updateAppButtonDisplay = " + updateAppButtonDisplay_org.toString()
 		.replace(
 			'document.getElementById("titlebar").hidden = !displayAppButton;',
-			<![CDATA[
-				var drawInTitlebar = Services.prefs.getBoolPref(TabsInTitlebar._prefName);
-				if (!displayAppButton)
-					displayAppButton = drawInTitlebar;
-				document.getElementById("titlebar").hidden = !displayAppButton;
-			]]>.toString()
+			[
+				'var drawInTitlebar = Services.prefs.getBoolPref(TabsInTitlebar._prefName);'
+				,'if (!displayAppButton)'
+				,'	displayAppButton = drawInTitlebar;'
+				,'document.getElementById("titlebar").hidden = !displayAppButton;'
+			].join("\n")
 		)
 		.replace(
 			'TabsInTitlebar.allowedBy("drawing-in-titlebar", displayAppButton);',
@@ -68,28 +63,24 @@
 */
 		function $(id) document.getElementById(id);
 		let titlebar = $("titlebar");
-		let titlebarSpacer = $("tabs-in-titlebar-spacer");
 
 		if (allowed) {
-			titlebar.style.marginBottom = "";
-			titlebarSpacer.style.minHeight = "";
-			docElement.setAttribute("tabsintitlebar", "true");
-
 			let rect = function rect(ele) ele.getBoundingClientRect();
 
 			let appmenuButtonBox = $("appmenu-button-container");
 			let captionButtonsBox = $("titlebar-buttonbox");
 			let tabsToolbar = $("TabsToolbar");
-
 			let titlebarHeight = titlebar.boxObject.height;
 			let tabsHeight = tabsToolbar.boxObject.height;
-			let minHeight = titlebarHeight - tabsHeight > 4 ? 0 : tabsHeight - titlebarHeight + 4;
+			let marginBottom = titlebarHeight - 4;
+			if (marginBottom > tabsHeight)
+				marginBottom = tabsHeight;
 
 			this._sizePlaceholder("appmenu-button", rect(appmenuButtonBox).width);
 			this._sizePlaceholder("caption-buttons", rect(captionButtonsBox).width);
 
-			titlebar.style.marginBottom = - tabsHeight + "px";
-			titlebarSpacer.style.minHeight = minHeight + "px";
+			titlebar.style.marginBottom = - marginBottom + "px";
+			docElement.setAttribute("tabsintitlebar", "true");
 
 			if (!this._draghandle) {
 				let tmp = {};
@@ -100,14 +91,17 @@
 				};
 			}
 		} else {
-			docElement.removeAttribute("tabsintitlebar");
 			titlebar.style.marginBottom = "";
-			titlebarSpacer.style.minHeight = "";
+			docElement.removeAttribute("tabsintitlebar");
 		}
 	}
+	
 	addStyle(css)
 
-	TabsInTitlebar._update();
+	updateAppButtonDisplay();
+	setTimeout(function(){
+		TabsInTitlebar._update();
+	}, 1000);
 
 
 	function addStyle(css) {
@@ -118,17 +112,30 @@
 		return document.insertBefore(pi, document.documentElement);
 	}
 
-})(<![CDATA[
-@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
-#main-window[tabsintitlebar="true"] #TabsToolbar {
-  -moz-box-ordinal-group: 1 !important;
-}
-#main-window[tabsintitlebar="true"] #toolbar-menubar > .titlebar-placeholder {
-  display: none;
-}
-
-#main-window[tabsintitlebar]:not([inFullscreen]) #TabsToolbar:not(:-moz-lwtheme) {
-  background: none !important;
-}
-
-]]>.toString());
+})('\
+@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
+#main-window[tabsintitlebar] #TabsToolbar {\
+  -moz-box-ordinal-group: 1 !important;\
+}\
+#main-window[tabsintitlebar] #toolbar-menubar > .titlebar-placeholder {\
+  display: none;\
+}\
+#main-window[tabsintitlebar]:not([inFullscreen]) #TabsToolbar:not(:-moz-lwtheme) {\
+  background: -moz-linear-gradient(rgba(50%,50%,50%,0), ActiveCaption 60%) !important;\
+  color: CaptionText !important;\
+}\
+#main-window[tabsintitlebar]:not([inFullscreen]) #TabsToolbar:not(:-moz-lwtheme):-moz-window-inactive {\
+  background: -moz-linear-gradient(rgba(50%,50%,50%,0), InactiveCaption 60%) !important;\
+  color: InactiveCaptionText !important;\
+}\
+#main-window[tabsintitlebar]:not([inFullscreen]) #TabsToolbar:not(:-moz-lwtheme) #main-menubar> menu,\
+#main-window[tabsintitlebar]:not([inFullscreen]) #TabsToolbar:not(:-moz-lwtheme) toolbarbutton {\
+  color: inherit !important;\
+}\
+\
+#main-window[title="Firefox - Tab-Gruppen"] #titlebar-buttonbox-container,\
+#main-window[title="Firefox - Tab-Gruppen"] #appmenu-button-container\
+{\
+  visibility: hidden !important;\
+}\
+');

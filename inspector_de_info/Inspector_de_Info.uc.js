@@ -8,8 +8,8 @@
 // @charset        UTF-8
 // @include        main
 // @screenshot     http://f.hatena.ne.jp/Griever/20120409200608
-// @version        0.0.1
-// @note           
+// @version        0.0.2
+// @note           0.0.2 Remove E4X
 // ==/UserScript==
 
 (function(CSS){
@@ -27,6 +27,9 @@ window.Inspector_de_Info = {
 		return (!win || win == window) ? window.content : win;
 	},
 	init: function() {
+		var popup = document.getElementById("inspector-node-popup");
+		if (!popup) return;
+		
 		this.xulstyle = addStyle(CSS);
 		this.icon = $("inspector-tools").appendChild(document.createElement("toolbarbutton"));
 		this.icon.setAttribute("id", "idei-button");
@@ -35,86 +38,96 @@ window.Inspector_de_Info = {
 		this.icon.setAttribute("accesskey", "I");
 		this.icon.setAttribute("oncommand", "Inspector_de_Info.run();");
 
-		var ins = $("inspector-toolbar");
-		ins.parentNode.insertBefore($E(
-			<hbox id="idei-container" hidden="true">
-				<popupset>
-					<menupopup id="idei-popup" 
-						onpopupshowing="Inspector_de_Info.onPopupshowing(event)" />
-					<menupopup id="idei-textbox-popup">
-						<menuitem label={'@class="value" → contains()'}
-							tooltiptext={'class 属性を contains() を使った形式にします'}
-							oncommand={'Inspector_de_Info.replaceAttrXPath('+ this.NORMAL_TO_CLASS +')'} />
-						<menuitem label={'@name="value" → starts-with(@name, "value")'}
-							tooltiptext={'属性を starts-with(@name, "value") にします'}
-							oncommand={'Inspector_de_Info.replaceAttrXPath('+ this.NORMAL_TO_STARTS +')'} />
-						<menuitem label={'@name="value" → ends-with(@name, "value")'}
-							tooltiptext={'属性を substring(@name, string-length(@name) - string-length("value") + 1) = "value" にします'}
-							oncommand={'Inspector_de_Info.replaceAttrXPath('+ this.NORMAL_TO_ENDS +')'} />
-						<menuseparator />
-						<menuitem label={'starts/ends/contains → @name="value"'}
-							tooltiptext={'属性を @name="value" に戻します'}
-							oncommand={'Inspector_de_Info.replaceAttrXPath('+ this.SOME_TO_NORMAL +')'} />
-						<menuseparator />
-						<menuitem label=":first-child"
-							tooltiptext={"CSS の :first-child に相当する XPath を挿入します\n[not(preceding-sibling::*)]"}
-							oncommand="Inspector_de_Info.insertText('[not(preceding-sibling::*)]');" />
-						<menuitem label=":last-child"
-							tooltiptext={"CSS の :last-child に相当する XPath を挿入します\n[not(following-sibling::*)]"}
-							oncommand="Inspector_de_Info.insertText('[not(following-sibling::*)]');" />
-						<menuitem label=":only-child"
-							tooltiptext={"CSS の :only-child に相当する XPath を挿入します\n[count(parent::*/child::*) = 1]"}
-							oncommand="Inspector_de_Info.insertText('[count(parent::*/child::*) = 1]');" />
-						<menuitem label=":empty"
-							tooltiptext={"CSS の :empty に相当する XPath を挿入します\n[not(*) and not(text())]"}
-							oncommand="Inspector_de_Info.insertText('[not(*) and not(text())]');" />
-						<menuitem label="E の後の F ( E + F )"
-							tooltiptext={"CSS の E + F に相当する XPath を挿入します\nE/following-sibling::*[1][self::F]"}
-							oncommand="Inspector_de_Info.insertText('E/following-sibling::*[1][self::F]');" />
-						<menuitem label="E 以降の F ( E ~ F )"
-							tooltiptext={"CSS の E ~ F に相当する XPath を挿入します\nE/following-sibling::F"}
-							oncommand="Inspector_de_Info.insertText('E/following-sibling::F');" />
-						<menuitem label="E の前の F"
-							tooltiptext={"E/preceding-sibling::*[1][self::F]"}
-							oncommand="Inspector_de_Info.insertText('E/preceding-sibling::*[1][self::F]');" />
-						<menuitem label="E 以前の F"
-							tooltiptext={"E/preceding-sibling::F"}
-							oncommand="Inspector_de_Info.insertText('E/preceding-sibling::F');" />
-					</menupopup>
-				</popupset>
-				<vbox id="idei-hbox">
-					<button label="JSON"
-						oncommand="Inspector_de_Info.checkInfo(true);"/>
-					<button label="launch"
-						oncommand="Inspector_de_Info.launch();"
-						tooltiptext="uAutoPagerize で実行してみます"/>
-				</vbox>
-				<grid id="idei-grid" flex="1">
-					<columns>
-						<column />
-						<column flex="1"/>
-					</columns>
-					<rows>
-						<row>
-							<label value="url"/>
-							<textbox id="idei-url"/>
-						</row>
-						<row>
-							<label value="nextLink"/>
-							<textbox id="idei-nextLink" context="idei-textbox-popup"/>
-						</row>
-						<row>
-							<label value="pageElement"/>
-							<textbox id="idei-pageElement" context="idei-textbox-popup"/>
-						</row>
-						<row>
-							<label value="insertBefore"/>
-							<textbox id="idei-insertBefore" context="idei-textbox-popup"/>
-						</row>
-					</rows>
-				</grid>
-			</hbox>
-		), ins.nextSibling);
+		var m = document.createElement("menu");
+		m.setAttribute("id", "idei-popup");
+		m.setAttribute("label", "Get XPath");
+		var p = m.appendChild(document.createElement("menupopup"));
+		p.setAttribute("id", "idei-popup");
+		p.setAttribute("onpopupshowing", "Inspector_de_Info.onPopupshowing(event)");
+		popup.insertBefore(m, popup.firstChild);
+
+		var xml = '\
+			<hbox id="idei-container" hidden="true">\
+				<popupset>\
+					<menupopup id="idei-textbox-popup">\
+						<menuitem label="@class=&quot;value&quot; → contains()"\
+						          tooltiptext="class 属性を contains() を使った形式にします"\
+						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_CLASS)" />\
+						<menuitem label="@name=&quot;value&quot; → starts-with(@name, &quot;value&quot;)"\
+						          tooltiptext="属性を starts-with(@name, &quot;value&quot;) にします"\
+						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_STARTS)" />\
+						<menuitem label="@name=&quot;value&quot; → ends-with(@name, &quot;value&quot;)"\
+						          tooltiptext="属性を substring(@name, string-length(@name) - string-length(&quot;value&quot;) + 1) = &quot;value&quot; にします"\
+						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_ENDS)" />\
+						<menuseparator />\
+						<menuitem label="starts/ends/contains → @name=&quot;value&quot;"\
+						          tooltiptext="属性を @name=&quot;value&quot; に戻します"\
+						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.SOME_TO_NORMAL)" />\
+						<menuseparator />\
+						<menuitem label=":first-child"\
+						          tooltiptext="CSS の :first-child に相当する XPath を挿入します\n[not(preceding-sibling::*)]"\
+						          oncommand="Inspector_de_Info.insertText(\'[not(preceding-sibling::*)]\');" />\
+						<menuitem label=":last-child"\
+						          tooltiptext="CSS の :last-child に相当する XPath を挿入します\n[not(following-sibling::*)]"\
+						          oncommand="Inspector_de_Info.insertText(\'[not(following-sibling::*)]\');" />\
+						<menuitem label=":only-child"\
+						          tooltiptext="CSS の :only-child に相当する XPath を挿入します\n[count(parent::*/child::*) = 1]"\
+						          oncommand="Inspector_de_Info.insertText(\'[count(parent::*/child::*) = 1]\');" />\
+						<menuitem label=":empty"\
+						          tooltiptext="CSS の :empty に相当する XPath を挿入します\n[not(*) and not(text())]"\
+						          oncommand="Inspector_de_Info.insertText(\'[not(*) and not(text())]\');" />\
+						<menuitem label="E の後の F ( E + F )"\
+						          tooltiptext="CSS の E + F に相当する XPath を挿入します\nE/following-sibling::*[1][self::F]"\
+						          oncommand="Inspector_de_Info.insertText(\'E/following-sibling::*[1][self::F]\');" />\
+						<menuitem label="E 以降の F ( E ~ F )"\
+						          tooltiptext="CSS の E ~ F に相当する XPath を挿入します\nE/following-sibling::F"\
+						          oncommand="Inspector_de_Info.insertText(\'E/following-sibling::F\');" />\
+						<menuitem label="E の前の F"\
+						          tooltiptext="E/preceding-sibling::*[1][self::F]"\
+						          oncommand="Inspector_de_Info.insertText(\'E/preceding-sibling::*[1][self::F]\');" />\
+						<menuitem label="E 以前の F"\
+						          tooltiptext="E/preceding-sibling::F"\
+						          oncommand="Inspector_de_Info.insertText(\'E/preceding-sibling::F\');" />\
+					</menupopup>\
+				</popupset>\
+				<vbox id="idei-hbox">\
+					<button label="JSON"\
+					        oncommand="Inspector_de_Info.checkInfo(true);"/>\
+					<button label="launch"\
+					        oncommand="Inspector_de_Info.launch();"\
+					        tooltiptext="uAutoPagerize で実行してみます"/>\
+				</vbox>\
+				<grid id="idei-grid" flex="1">\
+					<columns>\
+						<column />\
+						<column flex="1"/>\
+					</columns>\
+					<rows>\
+						<row>\
+							<label value="url"/>\
+							<textbox id="idei-url"/>\
+						</row>\
+						<row>\
+							<label value="nextLink"/>\
+							<textbox id="idei-nextLink" context="idei-textbox-popup"/>\
+						</row>\
+						<row>\
+							<label value="pageElement"/>\
+							<textbox id="idei-pageElement" context="idei-textbox-popup"/>\
+						</row>\
+						<row>\
+							<label value="insertBefore"/>\
+							<textbox id="idei-insertBefore" context="idei-textbox-popup"/>\
+						</row>\
+					</rows>\
+				</grid>\
+			</hbox>\
+		';
+		var range = document.createRange();
+		range.selectNode($("inspector-toolbar"));
+		range.collapse(false);
+		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
+		range.detach();
 
 		this.popup = $("idei-popup");
 		$("browser-bottombox").addEventListener("click", this, false);
@@ -126,7 +139,7 @@ window.Inspector_de_Info = {
 	},
 	destroy: function() {
 		this.uninit();
-		["idei-button","idei-popup", "idei-container"].forEach(function(id){
+		["idei-button","idei-popup", "idei-container","idei-popup"].forEach(function(id){
 			var elem = $(id);
 			if (elem) elem.parentNode.removeChild(elem);
 		}, this);
@@ -189,14 +202,14 @@ window.Inspector_de_Info = {
 		if (id) res.push('id("' + id + '")');
 		var cls = node.getAttribute('class');
 		if (cls) {
-			res.push('//' + localName + '[@class='+ escapeXPathExpr(cls) +']');
+			res.push(localName + '[@class='+ escapeXPathExpr(cls) +']');
 			let cs = cls.trim().split(/\s+/).map(function(c) {
 				let contains = 'contains(concat(" ",normalize-space(@class)," "), " '+ c +' ")';
-				res.push('//' + localName + '[' + contains + ']');
+				res.push(localName + '[' + contains + ']');
 				return contains;
 			}, this);
 			if (cs.length > 1)
-				res.push('//' + localName + '[' + cs.join(' and ') + ']');
+				res.push(localName + '[' + cs.join(' and ') + ']');
 		}
 		var attrs = [
 			[nodeName, nodeValue]
@@ -205,21 +218,21 @@ window.Inspector_de_Info = {
 		var all = attrs.map(function([n, v]){
 			if (n === 'href' || n === 'src') {
 				if (v.indexOf('javascript:') === 0) {
-					res.push('//' + localName + '[starts-width(@'+ n +', "javascript:")]');
+					res.push(localName + '[starts-width(@'+ n +', "javascript:")]');
 				} else if (v.indexOf('data:') === 0) {
 					var str = (/^data\:.*?\,/.exec(v)||['data:'])[0];
-					res.push('//' + localName + '[starts-width(@'+ n +', "'+ str +'")]');
+					res.push(localName + '[starts-width(@'+ n +', "'+ str +'")]');
 				}
 			}
-			res.push('//' + localName + '[@'+ n +'='+ escapeXPathExpr(v) +']');
+			res.push(localName + '[@'+ n +'='+ escapeXPathExpr(v) +']');
 			return '@'+ n +'='+ escapeXPathExpr(v) +'';
 		});
 		if (all.length > 1)
-			res.push('//' + localName + '[' + all.join(' and ') + ']');
+			res.push(localName + '[' + all.join(' and ') + ']');
 		var first = node.firstChild;
 		if (first instanceof Text && /\S/.test(first.textContent))
-			res.push('//' + localName + '[text()=' + escapeXPathExpr(first.textContent).replace(/\'/g, "\\\'") + ']')
-		res.push('//' + localName);
+			res.push(localName + '[text()=' + escapeXPathExpr(first.textContent).replace(/\'/g, "\\\'") + ']')
+		res.push(localName);
 		return res;
 	},
 	getSelectorAll: function(node) {
@@ -229,12 +242,23 @@ window.Inspector_de_Info = {
 		var id = node.getAttribute('id');
 		if (id) res.push('#' + id);
 		var cls = node.getAttribute('class');
-		if (cls) res.push(localName + '.' + Array.slice(node.classList).join('.'));
+		if (cls) res.push('.' + Array.slice(node.classList).join('.'));
 		var attrs = [
-			'['+ n +'="'+ v +'"]'
-				for each({ nodeName:n, nodeValue:v} in $A(node.attributes))
-					if (!/^(?:id|class)$/i.test(n))].join("");
-		if (attrs) res.push(localName + attrs);
+			[nodeName, nodeValue]
+				for each({nodeName, nodeValue} in $A(node.attributes))
+					if (!/^(?:id|class)$/i.test(nodeName))];
+		var all = attrs.map(function([n, v]){
+			if (n === 'href' || n === 'src') {
+				if (v.indexOf('data:') === 0) {
+					var str = (/^data\:.*?\,/.exec(v)||['data:'])[0];
+					res.push(localName + '['+ n +'="'+ str +'"]');
+				}
+			}
+			res.push(localName + '['+ n +'="'+ v +'"]');
+			return '[' + n +'="'+ v +'"]';
+		});
+		if (all.length > 1)
+			res.push(localName + all.join(''));
 		res.push(localName);
 		return res;
 	},
@@ -401,22 +425,13 @@ function ends2normal(xpath) {
 
 function $(id) { return document.getElementById(id); }
 function $$(exp, doc) { return Array.prototype.slice.call((doc || document).querySelectorAll(exp)); }
-// http://gist.github.com/321205
+
 function $A(args) { return Array.prototype.slice.call(args); }
 function U(text) 1 < 'あ'.length ? decodeURIComponent(escape(text)) : text;
-function $E(xml, doc) {
-	doc = doc || document;
-	xml = <root xmlns={doc.documentElement.namespaceURI}/>.appendChild(xml);
-	var settings = XML.settings();
-	XML.prettyPrinting = false;
-	var root = new DOMParser().parseFromString(xml.toXMLString(), 'application/xml').documentElement;
-	XML.setSettings(settings);
-	doc.adoptNode(root);
-	var range = doc.createRange();
-	range.selectNodeContents(root);
-	var frag = range.extractContents();
-	range.detach();
-	return frag.childNodes.length < 2 ? frag.firstChild : frag;
+function $C(name, attr) {
+	var el = document.createElement(name);
+	if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+	return el;
 }
 function addStyle(css) {
 	var pi = document.createProcessingInstruction(

@@ -6,13 +6,14 @@
 // @include        main
 // @license        MIT License
 // @compatibility  Firefox 4
-// @version        0.0.3.b
+// @charset        UTF-8
+// @version        0.0.4b
+// @note           0.0.4 Remove E4X
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
 // @note           ファイルが削除された場合 rebuild 時に CSS を解除しメニューを消すようにした
 // @note           uc で読み込まれた .uc.css の再読み込みに仮対応
-// @note           Version 0.0.3.a ermoeglicht anderen Dateimanager (s. vFileManager in Zeile 51)
-// @note           Version 0.0.3.b ermoeglicht "Styles importieren" per Mittelklick (s. Zeile 96)
+// @note           Version 0.0.4.b ermoeglicht "Styles importieren" per Mittelklick und anderen Dateimanager (s. vFileManager in Zeile 52)
 // ==/UserScript==
 
 /****** 使い方 ******
@@ -92,60 +93,67 @@ window.UCL = {
 		return win;
 	},
 	init: function() {
-		var menu = $E(
-			<menu id="usercssloader-menu" label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">
-				<menupopup id="usercssloader-menupopup">
-					<menu label={U("Style Loader Menü")}
-					      accesskey="M">
-						<menupopup id="usercssloader-submenupopup">
-							<menuitem label="Styles importieren"
-							          accesskey="R"
-							          acceltext="Alt + R"
-							          oncommand="UCL.rebuild();" />
-							<menuseparator />
-							<menuitem label={U("CSS Datei erstellen")}
-							          accesskey="N"
-							          oncommand="UCL.create();" />
-							<menuitem label={U("CSS Ordner öffnen")}
-							          accesskey="O"
-							          oncommand="UCL.openFolder();" />
-							<menuitem label={U("userChrome.css bearbeiten")}
-							          hidden="true"
-							          oncommand="UCL.editUserCSS('userChrome.css')" />
-							<menuitem label={U("userContent.css bearbeiten")}
-							          hidden="true"
-							          oncommand="UCL.editUserCSS('userContent.css')" />
-							<menuseparator />
-							<menuitem label={U("Style Test (Chrome)")}
-							          id="usercssloader-test-chrome"
-							          accesskey="C"
-							          oncommand="UCL.styleTest(window);" />
-							<menuitem label={U("Style Test (Web)")}
-							          id="usercssloader-test-content"
-							          accesskey="W"
-							          oncommand="UCL.styleTest();" />
-							<menuitem label={U("Styles dieser Seite auf userstyles.org finden")}
-							          accesskey="S"
-							          oncommand="UCL.searchStyle();" />
-						</menupopup>
-					</menu>
-					<menu label=".uc.css" accesskey="U" hidden={!(UCL.USE_UC)}>
-						<menupopup id="usercssloader-ucmenupopup">
-							<menuitem label="Importieren(.uc.js)"
-							          oncommand="UCL.UCrebuild();" />
-							<menuseparator id="usercssloader-ucsepalator"/>
-						</menupopup>
-					</menu>
-					<menuseparator id="ucl-sepalator"/>
-				</menupopup>
-			</menu>
-		);
+		var xml = '\
+			<menu id="usercssloader-menu" label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">\
+				<menupopup id="usercssloader-menupopup">\
+					<menu label="Style Loader Menü"\
+					      accesskey="M">\
+						<menupopup id="usercssloader-submenupopup">\
+							<menuitem label="Styles importieren"\
+							          accesskey="R"\
+							          acceltext="Alt + R"\
+							          oncommand="UCL.rebuild();" />\
+							<menuseparator />\
+							<menuitem label="CSS Datei erstellen"\
+							          accesskey="D"\
+							          oncommand="UCL.create();" />\
+							<menuitem label="CSS Ordner öffnen"\
+							          accesskey="O"\
+							          oncommand="UCL.openFolder();" />\
+							<menuitem label="userChrome.css bearbeiten"\
+							          hidden="true"\
+							          oncommand="UCL.editUserCSS(\'userChrome.css\')" />\
+							<menuitem label="userContent.css bearbeiten"\
+							          hidden="true"\
+							          oncommand="UCL.editUserCSS(\'userContent.css\')" />\
+							<menuseparator />\
+							<menuitem label="Style Test (Chrome)"\
+							          id="usercssloader-test-chrome"\
+							          accesskey="C"\
+							          oncommand="UCL.styleTest(window);" />\
+							<menuitem label="Style Test (Web)"\
+							          id="usercssloader-test-content"\
+							          accesskey="W"\
+							          oncommand="UCL.styleTest();" />\
+							<menuitem label="Styles dieser Seite auf userstyles.org finden"\
+							          accesskey="S"\
+							          oncommand="UCL.searchStyle();" />\
+						</menupopup>\
+					</menu>\
+					<menu label=".uc.css" accesskey="U" hidden="'+ !UCL.USE_UC +'">\
+						<menupopup id="usercssloader-ucmenupopup">\
+							<menuitem label="Importieren(.uc.js)"\
+							          oncommand="UCL.UCrebuild();" />\
+							<menuseparator id="usercssloader-ucsepalator"/>\
+						</menupopup>\
+					</menu>\
+					<menuseparator id="ucl-sepalator"/>\
+				</menupopup>\
+			</menu>\
+		';
 
-		var mainMenubar = document.getElementById("main-menubar");
-		mainMenubar.appendChild(menu);
+		var range = document.createRange();
+		range.selectNodeContents($('main-menubar'));
+		range.collapse(false);
+		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
+		range.detach();
 
-		var key = $E(<key id="usercssloader-rebuild-key" oncommand="UCL.rebuild();" key="R" modifiers="alt" />);
-		document.getElementById("mainKeyset").appendChild(key)
+		$("mainKeyset").appendChild($C("key", {
+			id: "usercssloader-rebuild-key",
+			oncommand: "UCL.rebuild();",
+			key: "R",
+			modifiers: "alt",
+		}));
 
 		this.rebuild();
 		this.initialized = true;
@@ -195,7 +203,7 @@ window.UCL = {
 			this.rebuildMenu(leafName);
 		}
 		if (this.initialized)
-			XULBrowserWindow.statusTextField.label = U("Styles importieren");
+			XULBrowserWindow.statusTextField.label = "Styles importieren";
 	},
 	loadCSS: function(aFile) {
 		var CSS = this.readCSS[aFile.leafName];
@@ -270,7 +278,7 @@ window.UCL = {
 		let word = win.location.host || win.location.href;
 		openLinkIn("http://userstyles.org/styles/browse/site/" + word, "tab", {});
 	},
-	openFolder:function(){
+	openFolder: function() {
 		if (this.vFileManager.length != 0) {
 			var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
 			var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
@@ -291,7 +299,7 @@ window.UCL = {
 	},
 	edit: function(aFile) {
 		var editor = Services.prefs.getCharPref("view_source.editor.path");
-		if (!editor) return alert(U("Unter about:config den vorhandenen Schalter:\n view_source.editor.path mit dem Editorpfad erg\u00E4nzen"));
+		if (!editor) return alert("Unter about:config den vorhandenen Schalter:\n view_source.editor.path mit dem Editorpfad ergänzen");
 		try {
 			var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
 			UI.charset = window.navigator.platform.toLowerCase().indexOf("win") >= 0? "Shift_JIS": "UTF-8";
@@ -304,7 +312,7 @@ window.UCL = {
 		} catch (e) {}
 	},
 	create: function(aLeafName) {
-		if (!aLeafName) aLeafName = prompt(U("Name des Styles"), new Date().toLocaleFormat("Neuer Style"));
+		if (!aLeafName) aLeafName = prompt("Name des Styles", new Date().toLocaleFormat("Neuer Style"));
 		if (aLeafName) aLeafName = aLeafName.replace(/\s+/g, " ").replace(/[\\/:*?\"<>|]/g, "");
 		if (!aLeafName || !/\S/.test(aLeafName)) return;
 		if (!/\.css$/.test(aLeafName)) aLeafName += ".css";
@@ -412,7 +420,7 @@ CSSEntry.prototype = {
 			}
 		}
 		if (this.lastModifiedTime !== 1 && isEnable && isForced) {
-			log(U(this.leafName + " の更新を確認しました。"));
+			log(this.leafName + " の更新を確認しました。");
 		}
 		this.lastModifiedTime = lastModifiedTime;
 		return this._enabled = isEnable;
@@ -459,25 +467,25 @@ CSSTester.prototype = {
 				break;
 			case "load":
 				var doc = this.dialog.document;
-				doc.body.innerHTML = <![CDATA[
-					<style type="text/css">
-						:not(input):not(select) { padding: 0px; margin: 0px; }
-						table { border-spacing: 0px; }
-						body, html, #main, #textarea { width: 100%; height: 100%; }
-						#textarea { font-family: monospace; }
-					</style>
-					<table id="main">
-						<tr height="100%">
-							<td colspan="4"><textarea id="textarea"></textarea></td>
-						</tr>
-						<tr height="40">
-							<td><input type="button" value="Vorschau" /></td>
-							<td><input type="button" value="Speichern" /></td>
-							<td width="80%"><span class="log"></span></td>
-							<td><input type="button" value="Schließen" /></td>
-						</tr>
-					</table>
-				]]>.toString();
+				doc.body.innerHTML = '\
+					<style type="text/css">\
+						:not(input):not(select) { padding: 0px; margin: 0px; }\
+						table { border-spacing: 0px; }\
+						body, html, #main, #textarea { width: 100%; height: 100%; }\
+						#textarea { font-family: monospace; }\
+					</style>\
+					<table id="main">\
+						<tr height="100%">\
+							<td colspan="4"><textarea id="textarea"></textarea></td>\
+						</tr>\
+						<tr height="40">\
+							<td><input type="button" value="Vorschau" /></td>\
+							<td><input type="button" value="Speichern" /></td>\
+							<td width="80%"><span class="log"></span></td>\
+							<td><input type="button" value="Schließen" /></td>\
+						</tr>\
+					</table>\
+				';
 				this.textbox = doc.querySelector("textarea");
 				this.previewButton = doc.querySelector('input[value="Vorschau"]');
 				this.saveButton = doc.querySelector('input[value="Speichern"]');
@@ -555,21 +563,13 @@ CSSTester.prototype = {
 UCL.init();
 
 function $(id) { return document.getElementById(id); }
-function U(text) 1 < 'あ'.length ? decodeURIComponent(escape(text)) : text;
-function $E(xml, doc) {
-	doc = doc || document;
-	xml = <root xmlns={doc.documentElement.namespaceURI}/>.appendChild(xml);
-	var settings = XML.settings();
-	XML.prettyPrinting = false;
-	var root = new DOMParser().parseFromString(xml.toXMLString(), 'application/xml').documentElement;
-	XML.setSettings(settings);
-	doc.adoptNode(root);
-	var range = doc.createRange();
-	range.selectNodeContents(root);
-	var frag = range.extractContents();
-	range.detach();
-	return frag.childNodes.length < 2 ? frag.firstChild : frag;
+function $A(arr) Array.slice(arr);
+function $C(name, attr) {
+	var el = document.createElement(name);
+	if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+	return el;
 }
+
 function log() { Application.console.log(Array.slice(arguments)); }
 
 })();

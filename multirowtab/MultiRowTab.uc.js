@@ -1,17 +1,22 @@
 // ==UserScript==
-// @name           zzzz-MultiRowTabforFx3.7.uc.js
+// @name           zzzz-MultiRowTabforFx4.0.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    多段タブもどき実験版 CSS入れ替えまくりバージョン
 // @include        main
-// @compatibility  Firefox 4.0 5.0 6.0a1
+// @compatibility  Firefox 17.0-20.0a1(Firefox17以上はzzzz-removeTabMoveAnimation.uc.js併用)
 // @author         Alice0775
-// @note           CSS checked it only on a defailt theme.
+// @note           CSS checked it only on a defailt theme. Firefox17以上はzzzz-removeTabMoveAnimation.uc.js併用
+// @version        2012/12/19 12:00 wheelscroll
+// @version        2012/12/18 22:00"user strict";
+// @version        2012/12/18 16:00 remove Stop Rendering Library
+// @version        2012/12/17 09:00 use Stop Rendering Library by piro
+// @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
 // @version        2011/04/23 css setTabWidthAutomatically
 // @version        2011/04/21 dtopIndicator
 // @version        2011/04/15 tryserver Bug 455694
 // @version        2011/04/13 nightly
 // ==/UserScript==
-
+"user strict";
 
 zzzz_MultiRowTab();
 
@@ -32,6 +37,7 @@ function zzzz_MultiRowTab(){
   // Tree Style tab
   if('TreeStyleTabService' in window) return;
 
+  var timer = timer2 = null;
   if (!gPrefService)
     gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
                                  .getService(Components.interfaces.nsIPrefBranch);
@@ -39,111 +45,115 @@ function zzzz_MultiRowTab(){
   gPrefService.setBoolPref("browser.tabs.animate", false);
 
     /*タブが多い時に多段で表示するCSS適用 インラインを使用しないバージョン*/
-    var style = <![CDATA[
-      @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
-      .tabbrowser-tabs
-      {
-        max-height: {TAB_HEIGHT}px;
-        min-height: 0px;
-        background-repeat: repeat !important;
-        overflow-x: hidden;
-        overflow-y: hidden;
-      }
-      
-      .tabbrowser-tabs > .tabbrowser-tab:not([pinned]) {
-        min-width: {TAB_MIN_WIDTH}px;
-      }          
-
-      .tabbrowser-tabs > .tabbrowser-tab:not([pinned])[fadein] {
-        max-width: {TAB_MAX_WIDTH}px;
-      }          
-      .tabbrowser-tabs[positionpinnedtabs] > .tabbrowser-tab[pinned] {
-        display: -moz-box!important;
-        position: static !important;
-      }          
-      .tabbrowser-tabs .tabbrowser-arrowscrollbox
-      {
-        /*height: 78px;*/
-        overflow: auto;
-      }
-      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox
-      {
-        overflow: visible;
-      }
-      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox > box
-      {
-        display: block;
-        overflow: visible;
-      }
-
-      /* hide the scroll arrows and alltabs button */
-      .tabbrowser-tabs .scrollbutton-up,
-      .tabbrowser-tabs .scrollbutton-down
-      {
-        display: none;
-      }
-
-      .tabbrowser-tabs .tabbrowser-arrowscrollbox > .tabs-newtab-button
-      {
-        display: none;
-      }
-      #new-tab-button
-      {
-        visibility: visible !important;
-      }
-
-      .closing-tabs-spacer {
-        height: 0px !important;
-        width: 0px !important;
-        display: none !important;
-      }
-
-
-
-      /* Tabs デフォテーマ*/
-      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox
-      {
-        margin-top: 0px;
-        margin-bottom: 0px;
-      }
-
-        .tabbrowser-tab,
-        .tabbrowser-tab:not([selected="true"]),
-        .tabbrowser-tab[pinned="true"]:not([selected="true"]),
-        .tabbrowser-tab[selected="true"],
-        .tabbrowser-tab[pinned="true"][selected="true"]
-        {
-        -moz-appearance: none !important;
-        min-height: {TAB_HEIGHT}px !important;
-        max-height: {TAB_HEIGHT}px !important;
-        margin: 0px !important;
-        padding: 0px !important;
-        border: 1px solid ThreeDShadow !important;
-
-        -moz-border-radius-topleft : 0 !important;
-        -moz-border-radius-topright : 0 !important;
-        -moz-border-radius-bottomleft : 0 !important;
-        -moz-border-radius-bottomright : 0 !important;
-        }
-
-        .tabbrowser-tab:not([selected="true"]):hover
-        {
-        background-color: ThreeDHighlight;
-        }
-
-        .tabbrowser-tab[selected="true"]:hover
-        {
-        background-color: ThreeDHighlight;
-        }
-        #TabsToolbar .toolbarbutton-1
-        {
-        height: 18px;
-        }
-        #TabsToolbar .toolbarbutton-1:hover
-        {
-        height: 18px;
-        }
-    ]]>.toString().replace(/\s+/g, " ")
+    var style = ' \
+      @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
+      .tabbrowser-tabs \
+      { \
+        max-height: {TAB_HEIGHT}px; \
+        min-height: 0px; \
+        background-repeat: repeat !important; \
+        overflow-x: hidden; \
+        overflow-y: hidden; \
+      } \
+       \
+      .tabbrowser-tabs > .tabbrowser-tab:not([pinned]) { \
+        min-width: {TAB_MIN_WIDTH}px; \
+      } \
+       \
+      .tabbrowser-tabs > .tabbrowser-tab:not([pinned])[fadein] { \
+        max-width: {TAB_MAX_WIDTH}px; \
+      }\
+      .tabbrowser-tabs[positionpinnedtabs] > .tabbrowser-tab[pinned] { \
+        display: -moz-box!important; \
+        position: static !important; \
+      } \
+      .tabbrowser-tabs .tabbrowser-arrowscrollbox \
+      { \
+        /*height: 78px;*/ \
+        overflow: auto; \
+      } \
+      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox \
+      { \
+        overflow: visible; \
+      } \
+      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox > box \
+      { \
+        display: block; \
+        overflow: visible; \
+      } \
+       \
+      /* hide the scroll arrows and alltabs button */ \
+      .tabbrowser-tabs .scrollbutton-up, \
+      .tabbrowser-tabs .scrollbutton-down \
+      { \
+        display: none; \
+      } \
+       \
+      .tabbrowser-tabs .tabbrowser-arrowscrollbox > .tabs-newtab-button \
+      { \
+        display: none; \
+      } \
+      #new-tab-button \
+      { \
+        visibility: visible !important; \
+      } \
+      #alltabs-button \
+      { \
+        visibility: visible !important; \
+      } \
+       \
+      .closing-tabs-spacer { \
+        height: 0px !important; \
+        width: 0px !important; \
+        display: none !important; \
+      } \
+       \
+       \
+       \
+      /* Tabs デフォテーマ*/ \
+      .tabbrowser-tabs .tabbrowser-arrowscrollbox > scrollbox \
+      { \
+        margin-top: 0px; \
+        margin-bottom: 0px; \
+      } \
+       \
+        .tabbrowser-tab, \
+        .tabbrowser-tab:not([selected="true"]), \
+        .tabbrowser-tab[pinned="true"]:not([selected="true"]), \
+        .tabbrowser-tab[selected="true"], \
+        .tabbrowser-tab[pinned="true"][selected="true"] \
+        { \
+        -moz-appearance: none !important; \
+        min-height: {TAB_HEIGHT}px !important; \
+        max-height: {TAB_HEIGHT}px !important; \
+        margin: 0px !important; \
+        padding: 0px !important; \
+        border: 1px solid ThreeDShadow !important; \
+        \
+        -moz-border-radius-topleft : 0 !important; \
+        -moz-border-radius-topright : 0 !important; \
+        -moz-border-radius-bottomleft : 0 !important; \
+        -moz-border-radius-bottomright : 0 !important; \
+        } \
+        \
+        .tabbrowser-tab:not([selected="true"]):hover \
+        { \
+        background-color: ThreeDHighlight; \
+        } \
+        \
+        .tabbrowser-tab[selected="true"]:hover \
+        { \
+        background-color: ThreeDHighlight; \
+        } \
+        #TabsToolbar .toolbarbutton-1 \
+        { \
+        height: 18px; \
+        } \
+        #TabsToolbar .toolbarbutton-1:hover \
+        { \
+        height: 18px; \
+        } \
+    '.replace(/\s+/g, " ")
        .replace(new RegExp("{TABBROWSERTABS_MAXHEIGHT}", "g"), TABBROWSERTABS_MAXROWS*multirowtabH())
        .replace(new RegExp("{TAB_HEIGHT}", "g"), TAB_HEIGHT)
        .replace(new RegExp("{TAB_MIN_WIDTH}", "g"), TAB_MIN_WIDTH)
@@ -187,11 +197,11 @@ function zzzz_MultiRowTab(){
   var func = gBrowser.tabContainer._setEffectAllowedForDataTransfer.toString();
   func = func.replace(
     'event.screenX <= sourceNode.boxObject.screenX + sourceNode.boxObject.width',
-    <><![CDATA[
-    $& &&
-    event.screenY > sourceNode.boxObject.screenY &&
-    event.screenY < sourceNode.boxObject.screenY + sourceNode.boxObject.height
-    ]]></>
+    ' \
+    $& && \
+    event.screenY > sourceNode.boxObject.screenY && \
+    event.screenY < sourceNode.boxObject.screenY + sourceNode.boxObject.height \
+    '
   );
   eval("gBrowser.tabContainer._setEffectAllowedForDataTransfer = " + func);
 
@@ -219,12 +229,27 @@ function zzzz_MultiRowTab(){
     this.MultiRowTabonDragOver(event);
 
     //event.stopPropagation();
-      this.clearDropIndicator();
+    this.clearDropIndicator();
     var newIndex = this._getDropIndex(event);
     if (newIndex == null) {
       return;
     }
-
+    let tab = document.evaluate(
+                'ancestor-or-self::*[local-name()="tab"][1]',
+                event.originalTarget,
+                null,
+                XPathResult.FIRST_ORDERED_NODE_TYPE,
+                null
+              ).singleNodeValue;
+    if (tab &&
+        (event.type == "drop" || event.type == "dragover") &&
+        this._setEffectAllowedForDataTransfer(event) == "link") {
+      let boxObject = tab.boxObject;
+      if (event.screenX >= boxObject.screenX + boxObject.width * .25 &&
+          event.screenX <= boxObject.screenX + boxObject.width * .75) {
+        return;
+      }
+    }
     if (newIndex < this.childNodes.length) {
       this.childNodes[newIndex].style.setProperty("border-left-color","red","important");
     } else {
@@ -237,14 +262,23 @@ function zzzz_MultiRowTab(){
   gBrowser.tabContainer.addEventListener("dragover", gBrowser.tabContainer._onDragOver, true);
 
   gBrowser.tabContainer._getDragTargetTab = function(event) {
-    var tab = document.evaluate(
+    let tab = document.evaluate(
                 'ancestor-or-self::*[local-name()="tab"][1]',
                 event.originalTarget,
                 null,
                 XPathResult.FIRST_ORDERED_NODE_TYPE,
                 null
               ).singleNodeValue;
-    return tab;
+     if (tab &&
+         (event.type == "drop" || event.type == "dragover") &&
+         this._setEffectAllowedForDataTransfer(event) == "link") {
+       let boxObject = tab.boxObject;
+       if (event.screenX < boxObject.screenX + boxObject.width * .25 ||
+           event.screenX > boxObject.screenX + boxObject.width * .75) {
+         return null;
+       }
+     }
+     return tab;
   };
 
 gBrowser.tabContainer._handleTabDrag = function(event) {
@@ -305,10 +339,9 @@ gBrowser.tabContainer._handleTabDrag = function(event) {
 }
 
 
-  gBrowser.tabContainer._getDropIndex = function(aEvent) {
-      var tabs = this.childNodes;
-      var tab = this._getDragTargetTab(aEvent);
-      if (window.getComputedStyle(this, null).direction == "ltr") {
+ gBrowser.tabContainer._getDropIndex = function(aEvent) {
+    var tabs = this.childNodes;
+    if (window.getComputedStyle(this, null).direction == "ltr") {
       for (let i = 0; i < tabs.length; i++){
         if (aEvent.screenY > tabs[i].boxObject.screenY &&
             aEvent.screenY < tabs[i].boxObject.screenY + tabs[i].boxObject.height) {
@@ -379,7 +412,38 @@ gBrowser.tabContainer._handleTabDrag = function(event) {
       mShell.scrollElementIntoView(tab);
       return true;
     }catch(e){}
-};
+  };
+
+  gBrowser.tabContainer.MultiRowTabsScroll = function(event) {
+    var tab = null
+    let containerTop = gBrowser.tabContainer.boxObject.screenY;
+    let containerBottom = containerTop + gBrowser.tabContainer.boxObject.height;
+    if (event.detail > 0) {
+      for (let i=0, len=gBrowser.tabs.length; i<len; i++) {
+        tab = gBrowser.tabs.item(i);
+        let tabBottom = tab.boxObject.screenY + tab.boxObject.height;
+        if (tabBottom > containerBottom) {
+          break;
+        }
+      }
+    } else {
+      for (let i=gBrowser.tabs.length - 1; i > -1; i--) {
+        tab = gBrowser.tabs.item(i);
+        let tabTop = tab.boxObject.screenY;
+        if (tabTop < containerTop) {
+          break;
+        }
+      }
+    }
+    if (tab)
+    try {
+      var mShell = Components.classes["@mozilla.org/inspector/flasher;1"]
+               .createInstance(Components.interfaces.inIFlasher);
+      mShell.scrollElementIntoView(tab);
+    }catch(e){}
+  }
+
+  document.getElementById("TabsToolbar").addEventListener("DOMMouseScroll", gBrowser.tabContainer.MultiRowTabsScroll, true);
 
 
 //ここからはタブ幅自動調整
@@ -387,9 +451,14 @@ gBrowser.tabContainer._handleTabDrag = function(event) {
     this.mTabstrip.ensureElementIsVisible(this.selectedItem, false);
     return;
   }
-
+  gBrowser.tabContainer._handleTabSelect = function(aSmoothScroll) {
+      setTabWidthAutomatically();
+      setTimeout(function(self) {
+        self.mTabstrip.ensureElementIsVisible(self.selectedItem, aSmoothScroll);
+      }, 100, this);
+  }
   //タブ幅自動調整
-  var tabbrowsertabs = gBrowser.mTabContainer;
+  var tabbrowsertabs = gBrowser.tabContainer ;
   var arrowscrollbox = gBrowser.tabContainer.mTabstrip;
   var scrollbox = document.getAnonymousElementByAttribute(arrowscrollbox, "class", "arrowscrollbox-scrollbox");
   var newtabbutton = document.getAnonymousElementByAttribute(tabbrowsertabs, "anonid", "newtab-button");
@@ -398,99 +467,122 @@ gBrowser.tabContainer._handleTabDrag = function(event) {
 
   window.setTabWidthAutomatically =function(event) {
 
+    gBrowser.tabContainer.style.removeProperty("-moz-padding-start");
+    gBrowser.tabContainer.style.removeProperty("-moz-margin-start");
+    gBrowser.tabContainer.style.removeProperty("max-height");
 
-    var allTabs = gBrowser.tabs; 
-    var w1 = w2 =0, n = 0;
-    for (let i=0, len=allTabs.length; i<len; i++) {
-      if (!allTabs.item(i).getAttribute("hidden")) {
-        if (allTabs[i].getAttribute("pinned")) {
-          w1 += allTabs[i].boxObject.width;
+    var w2 = n = 0;
+    
+    var remain = remainForNormal = scrollbox.boxObject.width;
+    var numForNormal = numForPinned = 0
+    for (let i=0, len=gBrowser.tabs.length; i<len; i++) {
+      let aTab = gBrowser.tabs.item(i);
+      if (!aTab.getAttribute("hidden")) {
+        aTab.style.removeProperty("-moz-margin-start");
+        aTab.setAttribute("context", "tabContextMenu");
+        if (aTab.getAttribute("pinned")) {
+          aTab.style.removeProperty("min-width");
+          remainForNormal -= aTab.boxObject.width;
+          numForPinned++;
         } else {
-          w2 +=  TAB_MIN_WIDTH;
-          n++;
+          numForNormal++;
         }
       }
-    }
-
-    if (event &&
-        event.type=="TabOpen") {
-      arrowscrollbox.style.setProperty("height", arrowscrollbox.boxObject.height + "px", "");
     }
 
     if (event &&
         event.type=="TabClose") {
-      w2 -=  TAB_MIN_WIDTH;
-      n--;
+      if (event.target.getAttribute("pinned")) {
+        remainForNormal += event.target.boxObject.width;
+        numForPinned--;
+      } else {
+        numForNormal--;
+      }
     }
 
-    var remain = scrollbox.boxObject.width - w1;
-    //userChrome_js.debug("r= "+remain);
-    //userChrome_js.debug("n= "+n);
-    var flg = false;
-    if (n > 0) {
-      let w = Math.floor(remain / n);
-      if (w > TAB_MIN_WIDTH) {
-        flg = true;
-        w = Math.min(w, TAB_MAX_WIDTH);
-        for (let i=0, len=allTabs.length; i<len; i++) {
-          if (!allTabs[i].getAttribute("pinned") && 
-              !allTabs[i].getAttribute("hidden")) {
-            allTabs[i].style.setProperty("min-width", w+"px", "");
-          }
+
+    //calclation number of rows and width
+    var maxbottom  = m = 0;
+    var numrows = 1;
+    var room = remain;
+
+    let maxnum = Math.ceil(remainForNormal / TAB_MIN_WIDTH);
+    if (remainForNormal >= numForNormal * TAB_MIN_WIDTH)
+      maxnum = numForNormal;
+    let ww = Math.min(Math.floor(remainForNormal / maxnum), TAB_MAX_WIDTH);
+
+    var w;
+    for (let i=0, len=gBrowser.tabs.length; i<len; i++) {
+      let aTab = gBrowser.tabs.item(i);
+      if (event &&
+          event.type == "TabClose" && event.target == aTab)
+        continue;
+
+      if (!aTab.getAttribute("hidden")) {
+        if (!aTab.getAttribute("pinned")) {
+          aTab.style.setProperty("min-width", ww + "px", "");
+          w = ww;
+        } else {
+          w = aTab.boxObject.width;
         }
-      } else {
-        for (let i=0, len=allTabs.length; i<len; i++) {
-          if (!allTabs[i].getAttribute("pinned")) {
-            allTabs[i].style.removeProperty("min-width");
-          }
+        room -= w;
+        if (room < 0) {
+          numrows++;
+          room = remain - w;
         }
       }
     }
 
-    var bottom = m = 0;
-    n = 0;
-    for(let i = 0; i < gBrowser.mTabs.length; i++) {
-      let aTab = gBrowser.mTabs[i];
-      aTab.style.removeProperty("-moz-margin-start");
-      aTab.setAttribute("context", "tabContextMenu");
-      maxbottom = aTab.boxObject.y + aTab.boxObject.height;
-      if (bottom < maxbottom) {
-        bottom = maxbottom
-        n++;
-        m = 1;
-      } else {
-        m = 0;
-      }
-    }
-    
-    gBrowser.tabContainer.style.removeProperty("-moz-margin-start");
     // persona privent unexpected vertical scroll bar
     if (scrollbox.boxObject.height > TABBROWSERTABS_MAXROWS * multirowtabH()) {
       arrowscrollbox.style.setProperty("overflow-y", "auto", "important")
+      tabbrowsertabs.setAttribute("overflow", true);
     } else {
       arrowscrollbox.style.setProperty("overflow-y", "hidden", "important");
+      tabbrowsertabs.removeAttribute("overflow");
     }
 
-    if (event && event.type=="resize") {
-      arrowscrollbox.style.setProperty("height", (n) * multirowtabH() + "px", "");
-      setTimeout(function(){arrowscrollbox.style.setProperty("height", scrollbox.boxObject.height + "px", "");}, 250);
-    } else if (event && event.type=="TabClose" && m == 1) {
-      arrowscrollbox.style.setProperty("height", (n - 1) * multirowtabH() + "px", "");
-      setTimeout(function(){arrowscrollbox.style.setProperty("height", scrollbox.boxObject.height + "px", "");}, 250);
-    } else if (!flg) {
-      arrowscrollbox.style.setProperty("height", scrollbox.boxObject.height + "px", "");
-    } else {
-      arrowscrollbox.style.removeProperty("height");
-    }
-    gBrowser.mTabContainer.style.setProperty("max-height", TABBROWSERTABS_MAXROWS * multirowtabH()+"px", "");
+    arrowscrollbox.style.setProperty("height", (numrows) * multirowtabH() + "px", "");
+    //setTimeout(function(){arrowscrollbox.style.setProperty("height", scrollbox.boxObject.height + "px", "");}, 250);
+
+    gBrowser.tabContainer .style.setProperty("max-height", TABBROWSERTABS_MAXROWS * multirowtabH()+"px", "");
   };
-  
-  window.setTabWidthAutomatically2 =function(event) {
-    if (event.target.getAttribute("selected") != "true")
-      setTabWidthAutomatically(event);
-    else
-      setTimeout(function(){setTabWidthAutomatically(event);}, 250);
+
+  //以下はタブ幅自動調整のためのイベント登録
+  window.addEventListener("resize", function(event) {
+    if(event.originalTarget == window) {
+      if (timer)
+        clearTimeout(timer);
+      setTimeout(function(event){setTabWidthAutomatically(event);}, 0, {type:"resize"});
+      timer = setTimeout(function(event){ensureVisibleElement(gBrowser.selectedTab);}, 250);
+   }
+  }, true);
+
+  function ensureVisibleElement(aTab){
+    var selectedTab = gBrowser.selectedTab || aTab
+    try{
+      var mShell = Components.classes["@mozilla.org/inspector/flasher;1"]
+               .createInstance(Components.interfaces.inIFlasher);
+      mShell.scrollElementIntoView(selectedTab);
+    }catch(e){}
   }
+
+  //初回起動時ダミーイベント
+  function forceResize() {
+    if (timer)
+      clearTimeout(timer);
+    timer = setTimeout(function(event){
+      setTabWidthAutomatically(event);
+      ensureVisibleElement();
+    }, 500, {type:"resize"});
+  }
+  forceResize();
+
+  gBrowser.tabContainer.addEventListener('TabSelect', ensureVisibleElement, false);
+  gBrowser.tabContainer.addEventListener('TabClose', setTabWidthAutomatically, true);
+  gBrowser.tabContainer.addEventListener('TabOpen', setTabWidthAutomatically, true);
+  gBrowser.tabContainer.addEventListener("TabPinned", setTabWidthAutomatically, false);
+  gBrowser.tabContainer.addEventListener("TabUnpinned", setTabWidthAutomatically, false);
 
   //pref読み込み
   function getPref(aPrefString, aPrefType, aDefault) {
@@ -509,54 +601,6 @@ gBrowser.tabContainer._handleTabDrag = function(event) {
     }catch(e){
     }
     return aDefault;
-  }
-
-  //以下はタブ幅自動調整のためのイベント登録
-  setTimeout(function(){setTabWidthAutomatically({type:"resize"});}, 10);
-  window.addEventListener("resize", function(event) {
-    if(event.originalTarget==window)
-      setTabWidthAutomatically(event);
-  }, true);
-
-
-  //初回起動時ダミーイベント
-  setTimeout(function(){
-      var event = document.createEvent("Events");
-      event.initEvent("resize", true, false);
-      window.dispatchEvent(event);
-  }, 800);
-  setTimeout(function(){
-      var event = document.createEvent("Events");
-      event.initEvent("resize", true, false);
-      window.dispatchEvent(event);
-  }, 2000);
-
-  gBrowser.tabContainer.addEventListener('TabClose', setTabWidthAutomatically2,false);
-  gBrowser.tabContainer.addEventListener('TabOpen', setTabWidthAutomatically,false);
-
-  //ここからは, 現在のタブがいつも見えるようにスクロールさせる
-  gBrowser.tabContainer.addEventListener('TabSelect', ensureVisible, false);
-  function ensureVisible(event){
-    setTimeout(function(){setTabWidthAutomatically({type:"resize"});}, 250);
-    if (event.target.selected)
-      ensureVisibleElement(event.target);
-  }
-  function ensureVisibleElement(aTab){
-    try{
-      var mShell = Components.classes["@mozilla.org/inspector/flasher;1"]
-               .createInstance(Components.interfaces.inIFlasher);
-      mShell.scrollElementIntoView(aTab);
-    }catch(e){}
-  }
-  gBrowser.tabContainer.mTabstrip.ensureElementIsVisible = ensureVisibleElement;
-
-
-  function getVer(){
-    const Cc = Components.classes;
-    const Ci = Components.interfaces;
-    var info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
-    var ver = parseInt(info.version.substr(0,3) * 10,10) / 10;
-    return ver;
   }
 
 }

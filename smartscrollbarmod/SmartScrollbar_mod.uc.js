@@ -1,9 +1,11 @@
 // ==UserScript==
-// @name           SmartScrollbar_mod.uc.js
+// @name           SmartScrollbar.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
-// @version        0.0.4
-// @note           encodeURIComponent を使うように修正
+// @version        0.0.5
+// @note           0.0.5 Remove E4X
+// @note           CSS を微調整
+// @note           SmartScrollbar に改名
 // ==/UserScript==
 // thx! http://www.geocities.jp/adsldenet/past/sample.html
 
@@ -12,44 +14,33 @@
   const HIDE_ALL       = true; // falseならコンテンツの一番外側のスクロールバーのみ有効
   const HIDE_SCROLLBAR = false;
 
-  // Die fuenf 3px-Werte muessen gleich sein
-
-  var css = <![CDATA[
-    html|html > scrollbar[orient="vertical"] > slider > thumb
-    {
-      max-width: 3px !important;				
-      min-width: 3px !important;				
-    }
-
-    html|html > scrollbar[orient="horizontal"] > slider > thumb
-    {
-      max-height: 3px !important;
-      min-height: 3px !important;
-    }
-
-scrollbar[orient="vertical"] 
-{ min-width: 3px !important
-}
-
-scrollbar , 
-scrollbar thumb 
-{ -moz-appearance: none !important
-}
-
-    html|html > scrollbar > slider > thumb
-    {
-      -moz-appearance: none !important;
-      border: none !important;
-      background-color: #0c6 !important;			// Hier Farbe aendern
-    }
-
-    html|html > scrollbar > scrollbarbutton,
-    html|html > resizer
-    {
-      display: none !important;
-    }
-
-  ]]>.toString();
+  // 色、太さは適宜調整
+  var css = '\
+    html|html > scrollbar[orient="vertical"] > slider > thumb\
+    {\
+      max-width: 3px !important;\
+      min-width: 3px !important;\
+    }\
+\
+    html|html > scrollbar[orient="horizontal"] > slider > thumb\
+    {\
+      max-height: 3px !important;\
+      min-height: 3px !important;\
+    }\
+\
+    html|html > scrollbar > slider > thumb\
+    {\
+      -moz-appearance: none !important;\
+      border: none !important;\
+      background-color: #0c6 !important;\
+    }\
+\
+    html|html > scrollbar > scrollbarbutton,\
+    html|html > resizer\
+    {\
+      display: none !important;\
+    }\
+  ';
 
   if (HIDE_SCROLLBAR)
     css = 'html|html > scrollbar { visibility: collapse !important; }';
@@ -65,7 +56,7 @@ scrollbar thumb
 
   var p = document.getElementById('devToolsSeparator');
   var m = document.createElement('menuitem');
-  m.setAttribute('label', "SmartScrollbar");
+  m.setAttribute('label', "Smart Scrollbar");
   m.setAttribute('type', 'checkbox');
   m.setAttribute('autocheck', 'false');
   m.setAttribute('checked', HIDE_START);
