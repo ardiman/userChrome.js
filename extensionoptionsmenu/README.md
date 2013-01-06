@@ -1,4 +1,4 @@
-# ExtensionOptionsMenu
+# Extension Options Menu
 Das Skript stellt einen Button für den bequemen Zugriff auf die Add-On-Einstellungen in der Menüleiste zur Verfügung.
 
 Rechtsklick auf den Button selbst öffnet den Add-Ons-Manager.
@@ -10,7 +10,7 @@ Rechtsklick auf den Button selbst öffnet den Add-Ons-Manager.
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot ExtensionOptionsMenu](https://github.com/ardiman/userChrome.js/raw/master/extensionoptionsmenu/scr_extensionoptionsmenu.png)
+![Screenshot Extension Options Menu](https://github.com/ardiman/userChrome.js/raw/master/extensionoptionsmenu/scr_extensionoptionsmenu.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils und passe das Aussehen/Verhalten zwischen Zeile 19 bis 27 an.
