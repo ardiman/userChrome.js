@@ -3,11 +3,12 @@
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    ファイル名をD&D
 // @include        main
-// @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
+// @compatibility  Firefox 10.0
 // @author         Alice0775
-// @version        2011/10/24 23:00 href=javascript://のリンクテキストの処理変更
-// @version        2011/10/06 23:00 Bug 795065 Add privacy status to nsDownload
+// @version        2013/01/01 15:00 Avoid to overwrite data on dragstart. And Bug 789546
 // ==/UserScript==
+// @version        2012/10/24 23:00 href=javascript://のリンクテキストの処理変更
+// @version        2012/10/06 23:00 Bug 795065 Add privacy status to nsDownload
 // @version        2012/10/06 07:00 Bug 722872  call .init(null) for nsITransferable instance
 // @version        2012/07/10 12:00 'テキストをConQueryで検索'にlink追加
 // @version        2012/06/01 23:00 regression 04/19
@@ -573,23 +574,27 @@ var DragNGo = {
     return file; // nsILocalFileObject or null
   },
 
-  saveAs: function(aURL, aFileName, aReferrer){
+  saveAs: function(aURL, aFileName, aReferrer, aSourceDocument){
+    if (aReferrer instanceof HTMLDocument) {
+      aReferrer = aReferrer.documentURIObject;
+    }
     var contentType = this.getContentType(aURL);
-    if (this.imageLinkRegExp.test(aURL) || /^image\//i.test(contentType)){
-      if (/^data:/.test(aURL))
-        saveImageURL(aURL, "index.png", null, true, false, aReferrer );
-      else
-        saveImageURL(aURL, null, null, false, false, aReferrer );
+    if (this.imageLinkRegExp.test(aURL) || /^image\//i.test(contentType)) {
+      if (/^data:/.test(aURL)) {
+        saveImageURL(aURL, "index.png", null, true, false, aReferrer, aSourceDocument);
+      } else {
+        saveImageURL(aURL, null, null, false, false, aReferrer, aSourceDocument);
+      }
     }else{
-      this.saveURL(aURL, aFileName, null, true, false, aReferrer );
+      this.saveURL(aURL, aFileName, null, true, false, aReferrer, aSourceDocument);
     }
   },
 
   //urlを名前を付けて保存
   saveURL: function saveURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
-                 aSkipPrompt, aReferrer){
+                 aSkipPrompt, aReferrer, aSourceDocument) {
     window.saveURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
-                 aSkipPrompt, aReferrer)
+                 aSkipPrompt, aReferrer, aSourceDocument)
   },
 
   //aURLのcontentTypeをキャッシュから得る
@@ -994,7 +999,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('パスを記入', 0, true);
+        this.setStatusMessage('Pfad angeben', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -1005,7 +1010,7 @@ var DragNGo = {
         event.preventDefault();
         return true;
       } else {
-        this.setStatusMessage('xpiやjarのインストール', 0, true);
+        this.setStatusMessage('xpi und jar Installation', 0, true);
         dragSession.canDrop = true;
         event.preventDefault();
         return true;
@@ -1117,10 +1122,14 @@ var DragNGo = {
 
     // 転送データをセットする
     if (event.originalTarget instanceof HTMLImageElement) {
-      event.dataTransfer.mozSetDataAt("application/x-moz-node", event.originalTarget , 0);
-      event.dataTransfer.mozSetDataAt("text/x-moz-url", event.originalTarget.src+"\n"+event.originalTarget.src ,0);
-      event.dataTransfer.mozSetDataAt("text/uri-list", event.originalTarget.src ,0);
-      event.dataTransfer.mozSetDataAt("text/plain", event.originalTarget.src ,0);
+      if (!event.dataTransfer.mozGetDataAt("application/x-moz-node" ,0))
+        event.dataTransfer.mozSetDataAt("application/x-moz-node", event.originalTarget , 0);
+      if (!event.dataTransfer.mozGetDataAt("text/x-moz-url" ,0))
+        event.dataTransfer.mozSetDataAt("text/x-moz-url", event.originalTarget.src+"\n"+event.originalTarget.src ,0);
+      if (!event.dataTransfer.mozGetDataAt("text/uri-list" ,0))
+        event.dataTransfer.mozSetDataAt("text/uri-list", event.originalTarget.src ,0);
+      if (!event.dataTransfer.mozGetDataAt("text/plain" ,0))
+        event.dataTransfer.mozSetDataAt("text/plain", event.originalTarget.src ,0);
     }
     // xxx Bug 475045 Can't drag unlinkified URL to bookmarks toolbar (regression from Firefox 3)
     if (event.originalTarget instanceof Text) {
@@ -1136,7 +1145,8 @@ var DragNGo = {
           if (arr[i].match(this.linkRegExp)) {
             try {
               uri = makeURI(RegExp.$1);
-              event.dataTransfer.mozSetDataAt("text/x-moz-url", uri.spec + "\n" + uri.spec, j);
+             if (!event.dataTransfer.mozGetDataAt("text/x-moz-url", j))
+               event.dataTransfer.mozSetDataAt("text/x-moz-url", uri.spec + "\n" + uri.spec, j);
               j++;
             } catch (ex) {}
           }
@@ -1148,7 +1158,8 @@ var DragNGo = {
       var href = event.originalTarget.href;
       if (/^javascript:/.test(href)) {
         var str = gatherTextUnder(event.originalTarget);
-        event.dataTransfer.mozSetDataAt("text/x-moz-url", href + "\n" + str, 0);
+        if (!event.dataTransfer.mozGetDataAt("text/x-moz-url", 0))
+          event.dataTransfer.mozSetDataAt("text/x-moz-url", href + "\n" + str, 0);
       }
     }
   },
@@ -1357,7 +1368,7 @@ var DragNGo = {
       }
     }; // GESTURES
     if (!dragSession.canDrop) {
-      self.setStatusMessage('未定義', 0, false);
+      self.setStatusMessage('Nicht definiert', 0, false);
     }
   },
 
@@ -1493,7 +1504,7 @@ var DragNGo = {
                 if (url.trim() && self.dragDropSecurityCheck(event, dragSession, url)) {
                   info.urls.push(url);
                   info.texts.push(url);
-                  info.nodes.push(null);
+                  info.nodes.push(node);
                   info.files.push(null);
                   info.fname.push(self.candidateFname(null, url));
                 }
@@ -1503,7 +1514,7 @@ var DragNGo = {
                 if (url.trim() && self.dragDropSecurityCheck(event, dragSession, url)) {
                   info.urls.push(url);
                   info.texts.push(url);
-                  info.nodes.push(null);
+                  info.nodes.push(node);
                   info.files.push(null);
                   info.fname.push(self.candidateFname(null, url));
                 }
@@ -1674,7 +1685,7 @@ var DragNGo = {
   },
 
   debug: function(aMsg){
-    return;
+    //return;
 
     const UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].
           createInstance(Ci.nsIScriptableUnicodeConverter);
