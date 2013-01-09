@@ -1,64 +1,60 @@
 (function () {
-	if (location != "chrome://browser/content/browser.xul") return
-	var urlinput = (document.getAnonymousElementByAttribute(document.querySelector("#urlbar"), "class", "autocomplete-textbox-container") || document.getAnonymousElementByAttribute(document.querySelector("#urlbar"), "anonid", "textbox-container")).childNodes.item(0).childNodes.item(0)
-	var locationbar = urlinput.parentNode.appendChild(document.createElement("hbox"));
-	locationbar.style.display = "none";
-	urlinput.parentNode.addEventListener("click", function (e) {
-		if (e.button == 0 && e.originalTarget.localName == "label") {
-			return
+	if (location != "chrome://browser/content/browser.xul") return;
+	var URLBarInput = gURLBar.mInputField;
+	var locationBar = URLBarInput.parentNode.appendChild(document.createElement("hbox"));
+	locationBar.style.display = "none";
+	URLBarInput.parentNode.addEventListener("click", function () {
+		if (URLBarInput.style.display === "none") {
+			URLBarInput.style.display = "";
+			locationBar.style.display = "none";
+			gURLBar.select();
 		}
-		if (urlinput.style.display == "none") {
-			urlinput.reset = 1;
-			urlinput.style.display = "";
-			locationbar.style.display = "none";
-			document.querySelector("#urlbar").select();
+	}, false);
+	URLBarInput.parentNode.addEventListener("mouseout", function () {
+		if (document.activeElement !== gURLBar.inputField) {
+			locationBar.style.display = "none";
+			URLBarInput.style.display = "";
+			gURLBar._urlTooltip && gURLBar._hideURLTooltip();
 		}
-	}, false)
-	urlinput.parentNode.onmouseout = function (e) {
-		locationbar.style.display = "none";
-		urlinput.style.display = "";
-		document.querySelector("#urlTooltip").hidden = 1;
-	}
-	urlinput.onmouseover = function () {
-		if (urlinput.reset == 1) {
-			urlinput.reset = 0;
+	}, false);
+	URLBarInput.addEventListener("mouseover", function (event) {
+		if (event.ctrlKey || document.activeElement === gURLBar.inputField) {
 			return;
 		}
-		document.querySelector("#urlTooltip").hidden = 0;
-		locationbar.parentNode.removeChild(locationbar);
-		locationbar = urlinput.parentNode.appendChild(document.createElement("hbox"));
-		locationbar.style.overflow = "hidden";
-		locationbar.style.width = urlinput.clientWidth + "px"
-		document.querySelector("#urlbar").value.split("?")[0].split("/").map(function (u, n, c) {
-			return n + 1 == c.length ? (document.querySelector("#urlbar").value.split("?")[1] ? (u + "?" + document.querySelector("#urlbar").value.split("?")[1]) : u) : u
-		}).map(function (u, n, i) {
-			var sec = locationbar.appendChild(document.createElement("label"));
+		locationBar.parentNode.removeChild(locationBar);
+		locationBar = URLBarInput.parentNode.appendChild(document.createElement("hbox"));
+		locationBar.style.overflow = "hidden";
+		locationBar.style.width = URLBarInput.clientWidth + "px";
+		gURLBar.value.split("?")[0].split("/").map(function (value, index, arr) {
+			return index + 1 === arr.length ? (gURLBar.value.split("?")[1] ? (value + "?" + gURLBar.value.split("?")[1]) : value) : value;
+		}).map(function (value, index, arr) {
+			var sec = locationBar.appendChild(document.createElement("label"));
 			sec.style.margin = 0;
-			sec.value = u;
-			if (n < i.length - 1) sec.value = u.replace(/[^\/]$/, "$&/");
-			n == 0 && (sec.style.marginLeft = "1px");
-			if (n == 0 && /:\/$/.test(sec.value)) {
+			sec.value = value;
+			if (index < arr.length - 1) sec.value = value.replace(/[^\/]$/, "$&/");
+			index === 0 && (sec.style.marginLeft = "1px");
+			if (index === 0 && /:\/$/.test(sec.value)) {
 				sec.value += "/";
 			} else {
-				sec.onmouseover = function (e) {
-					document.querySelector("#urlTooltip").hidden = 0;
-					e.target.style.textDecoration = "underline";
-					e.target.style.cursor = "pointer";
+				sec.onmouseover = function () {
+					this.style.textDecoration = "underline";
+					this.style.cursor = "pointer";
 				}
-				sec.onmouseout = function (e) {
-					e.target.style.textDecoration = "";
+				sec.onmouseout = function () {
+					this.style.textDecoration = "";
 				}
-				sec.onclick = function (e) {
-					if (e.button == 0) {
-						loadURI(urlinput.value.split(e.target.value)[0] + e.target.value);
-						while (e.target.nextSibling) {
-							e.target.nextSibling.parentNode.removeChild(e.target.nextSibling)
+				sec.onclick = function (event) {
+					if (event.button === 0) {
+						loadURI(URLBarInput.value.split(this.value)[0] + this.value);
+						while (this.nextSibling) {
+							this.nextSibling.parentNode.removeChild(this.nextSibling);
 						}
+						event.stopPropagation();
 					}
 				}
-				urlinput.style.display = "none";
-				locationbar.style.display = "";
+				URLBarInput.style.display = "none";
+				locationBar.style.display = "";
 			}
 		})
-	}
+	}, false);
 })()
