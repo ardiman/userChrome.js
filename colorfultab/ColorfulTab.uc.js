@@ -3,16 +3,16 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @include        main
-// @version        下書き1
+// @version        ä¸‹æ›¸ã1
 // @compatibility  Firefox 4
 // ==/UserScript==
 
 (function(css_temp){
 
-// 使う色の数 default:10, min:2, max:15
+// ä½¿ã†è‰²ã®æ•° default:10, min:2, max:15
 const PALETTE_LENGTH = 10; 
 
-// ドメイン毎に色を変えるか。 default:false
+// ãƒ‰ãƒ¡ã‚¤ãƒ³æ¯Žã«è‰²ã‚’å¤‰ãˆã‚‹ã‹ã€‚ default:false
 const DOMAIN = false;
 
 
@@ -120,33 +120,27 @@ function addStyle(css) {
   return document.insertBefore(pi, document.documentElement);
 }
 
-})(<![CDATA[
-/*
-
-※要改善
-選択中のタブがわかりにくい
-
-*/
-@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
-.tabbrowser-tab[colorful="%NUMBER%"] {
-  color: #000 !important;
-  background-image:
-    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.3), hsla(%COLOR%,100%,65%,.3) 40%, hsla(%COLOR%,100%,55%,.3) 50%, hsla(%COLOR%,100%,50%,.3)),
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;
-}
-.tabbrowser-tab[colorful="%NUMBER%"]:hover {
-  color: #000 !important;
-  background-image:
-    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.5), hsla(%COLOR%,100%,65%,.5) 40%, hsla(%COLOR%,100%,55%,.5) 50%, hsla(%COLOR%,100%,50%,.5)),
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;
-}
-.tabbrowser-tab[colorful="%NUMBER%"][selected="true"] {
-  color: #000 !important;
-  background-image:
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.7), hsla(%COLOR%,100%,65%,.7) 40%, hsla(%COLOR%,100%,55%,.7) 50%, hsla(%COLOR%,100%,50%,.7)),
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;
-}
-
-]]>.toString());
+})('\
+@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
+.tabbrowser-tab[colorful="%NUMBER%"] {\
+  color: #000 !important;\
+  background-image:\
+    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),\
+    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.3), hsla(%COLOR%,100%,65%,.3) 40%, hsla(%COLOR%,100%,55%,.3) 50%, hsla(%COLOR%,100%,50%,.3)),\
+    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
+}\
+.tabbrowser-tab[colorful="%NUMBER%"]:hover {\
+  color: #000 !important;\
+  background-image:\
+    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),\
+    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.5), hsla(%COLOR%,100%,65%,.5) 40%, hsla(%COLOR%,100%,55%,.5) 50%, hsla(%COLOR%,100%,50%,.5)),\
+    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
+}\
+.tabbrowser-tab[colorful="%NUMBER%"][selected="true"] {\
+  color: #000 !important;\
+  background-image:\
+    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.7), hsla(%COLOR%,100%,65%,.7) 40%, hsla(%COLOR%,100%,55%,.7) 50%, hsla(%COLOR%,100%,50%,.7)),\
+    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
+}\
+\
+');
