@@ -31,7 +31,7 @@
 }
 
 @-moz-document domain(www.daswetter.com) {
-	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),#izquierda > UL > LI:last-child {
+	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),.top,#izquierda > UL:last-child > LI:last-child > DIV:last-child > UL,#izquierda > UL:last-child > LI:last-child > DIV:last-child > A > IMG {
 		display: none !important;
 	}
 	#cookies {
@@ -56,6 +56,9 @@
 	}
 	#izquierda {
 		margin-left: 17px !important;
+	}
+	#izquierda > UL:last-child > LI:last-child > DIV:first-child > UL {
+		max-width: 1180px !important;
 	}
 	.sprite.nuevobuscador.img_buscador {
 		background-image: none! important;
@@ -87,7 +90,7 @@
 	}
 	#choose_wx {
 		opacity: 0 !important;
-		width: 110px !important; 
+		width: 110px !important;
 		height: 100px !important;
 	}
 	#choose_wx:hover {
