@@ -13,4 +13,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Extension Options Menu](https://github.com/ardiman/userChrome.js/raw/master/extensionoptionsmenu/scr_extensionoptionsmenu.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils und passe das Aussehen/Verhalten zwischen Zeile 19 bis 27 an.
+Kopiere die uc.js-Datei in den Chromeordner des Profils und passe das Aussehen/Verhalten zwischen den `config`-Zeilen an.
