@@ -2,10 +2,9 @@
 Dieses Skript ist auf jeden Fall nicht für Anfänger gedacht, da einige Zeilen anzupassen sind und das optische Ergebnis durch 
 Einbinden einer CSS-Datei verschönert werden muss.
 
-Im Groben funktioniert das Skript folgendermassen: Nach dem Browserstart muss der Button "Wetterfuchs" über "Anpassen" in die gewünschte 
-Leiste gezogen werden. Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen und europäischen Wetterkarten, 
-sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau usw. Sobald ein Panel angezeigt wird, 
-öffnet ein Mittelklick darauf die Adresse in einem extra Tab.
+Im Groben funktioniert das Skript folgendermassen: Mit einem Linksklick auf den Button öffnet sich ein Menü mit Untermenüs mit einigen deutschen 
+und europäischen Wetterkarten, sowie detaillierten aktuellen deutschen Wetterdaten und einer deutschen Wetterdatenkarte in 6 Tage-Vorschau usw. 
+Sobald ein Panel angezeigt wird, öffnet ein Mittelklick darauf die Adresse in einem extra Tab.
 
 Das **Ergebnis des Skripts** (mit Bildern für Berlin- bzw. Brandenburg-Vorschau) mit ausgeblendetem Dropmarker (s. unten):
 
@@ -29,7 +28,8 @@ In allen geöffneten Wetterfenstern kann mit den Pfeiltasten der Tastatur gescro
 "Smooth Wheel" oder "Yet Another Smooth Scrolling" klappt das Scrollen auch mit dem Mausrad.
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils und füge den Button über "Anpassen" zur gewünschten Symbolleiste hinzu.
+Kopiere die uc.js-Datei in den Chromeordner des Profils und füge den Button zur gewünschten Symbolleiste hinzu, indem du `TOOLBAR` und `TARGET_BUTTON` 
+anpasst. Der Throbber kann durch Änderung von `wfthrobber` eingestellt werden.
 
 Die zu öffnenden Seiten werden im Objekt `urlobj` ab **Zeile 10** angegeben. Neben dem Bezeichner werden die Adresse (url), Breite (width) und 
 Höhe (width) eingetragen. Anhand des Bezeichners ist zu erkennen, welche Aktion bzw. welcher Menüpunkt definiert wird. Es folgt eine Auswahl der 
