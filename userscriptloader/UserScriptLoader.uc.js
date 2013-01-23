@@ -5,7 +5,8 @@
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
-// @version        0.1.8.0
+// @version        0.1.8.1
+// @note           0.1.8.1 Save Script が機能していないのを修正
 // @note           0.1.8.0 Remove E4X
 // @note           0.1.8.0 @match, @unmatch に超テキトーに対応
 // @note           0.1.8.0 .tld を Scriptish を参考にテキトーに改善
@@ -773,8 +774,11 @@ USL.saveScript = function() {
 
 			var wbp = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
 			wbp.persistFlags = wbp.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
-			var uri = makeURI(win.location.href);
-			wbp.saveURI(uri, null, null, null, null, fp.file);
+			var uri = doc.documentURIObject;
+			var loadContext = win.QueryInterface(Ci.nsIInterfaceRequestor)
+				.getInterface(Ci.nsIWebNavigation)
+				.QueryInterface(Ci.nsILoadContext);
+			wbp.saveURI(uri, null, uri, null, null, fp.file, loadContext);
 		}
 	}
 	fp.open(callbackObj);

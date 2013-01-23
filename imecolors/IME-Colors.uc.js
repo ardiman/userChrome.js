@@ -3,7 +3,7 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @license        MIT License
-// @version        0.0.7
+// @version        0.0.8
 // @note           0.0.7 CSS のリセットの処理を修正
 // @note           0.0.6 IME_DISABLE_STYLE を空にすれば IME が OFF の時は色を変えないようにできるようにした
 // @note           0.0.5 Firefox 5.0 で動くように微修正。 3.6 とかもう(ﾟ⊿ﾟ)ｼﾗﾈ
@@ -59,7 +59,8 @@ IMEColorsClass.prototype = {
 		}, this);
 		this.inputFieldStyle = this.win.getComputedStyle(this.inputField, null);
 		if (this.textbox) {
-			this.originalStyle['border-top-width'] = s.getPropertyValue('border-top-width');
+			this.originalStyle['border-width'] = s.getPropertyValue('border-width');
+			this.originalStyle['-moz-appearance'] = s.getPropertyValue('-moz-appearance');
 			var borderWidth = this.win.getComputedStyle(this.textbox, null).borderTopWidth;
 			s.setProperty('-moz-appearance', 'none', 'important');
 			s.setProperty('border-width', borderWidth, 'important');

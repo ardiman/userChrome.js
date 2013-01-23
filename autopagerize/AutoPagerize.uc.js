@@ -5,7 +5,8 @@
 // @include        main
 // @compatibility  Firefox 17
 // @charset        UTF-8
-// @version        0.2.9
+// @version        0.3.0
+// @note           0.3.0 本家に倣って Cookie の処理を変更した
 // @note           0.2.9 remove E4X
 // @note           0.2.8 履歴に入れる機能を廃止
 // @note           0.2.7 Firefox 14 でとりあえず動くように修正
@@ -244,23 +245,23 @@ var ns = window.uAutoPagerize = {
 				          id="uAutoPagerize-FORCE_TARGET_WINDOW"\
 				          type="checkbox"\
 				          autoCheck="false"\
-				          checked="true"\
+				          checked="'+ FORCE_TARGET_WINDOW +'"\
 				          oncommand="uAutoPagerize.FORCE_TARGET_WINDOW = !uAutoPagerize.FORCE_TARGET_WINDOW;"/>\
 				<menuitem label="Abstand"\
 				          id="uAutoPagerize-BASE_REMAIN_HEIGHT"\
-				          tooltiptext="400"\
+				          tooltiptext="'+ BASE_REMAIN_HEIGHT +'"\
 				          oncommand="uAutoPagerize.BASE_REMAIN_HEIGHT = prompt(\'\', uAutoPagerize.BASE_REMAIN_HEIGHT);"/>\
 				<menuitem label="Nur Scrollen"\
 				          id="uAutoPagerize-SCROLL_ONLY"\
 				          type="checkbox"\
 				          autoCheck="false"\
-				          checked="false"\
+				          checked="'+ SCROLL_ONLY +'"\
 				          oncommand="uAutoPagerize.SCROLL_ONLY = !uAutoPagerize.SCROLL_ONLY;"/>\
 				<menuitem label="Testmodus"\
 				          id="uAutoPagerize-DEBUG"\
 				          type="checkbox"\
 				          autoCheck="false"\
-				          checked="false"\
+				          checked="'+ DEBUG +'"\
 				          oncommand="uAutoPagerize.DEBUG = !uAutoPagerize.DEBUG;"/>\
 			</menupopup>\
 		';
@@ -439,25 +440,23 @@ var ns = window.uAutoPagerize = {
 			}, false);
 
 			// Google Video
-			var js = '';
-			var df = function (newDoc) {
-				Array.slice(doc.querySelectorAll('[id^="vidthumb"]')).forEach(function(e){
-					e.removeAttribute('id');
+			var datas = [];
+			var docFil = function(newDoc) {
+				var x = getFirstElementByXPath('//script/text()[contains(self::text(), "data:image/jpeg")]', newDoc);
+				if (!x) return;
+				datas = x.nodeValue.match(/data:image\/jpeg\;base64\,[A-Za-z0-9/+]+(?:\\x3d)*/g) || [];
+			};
+			var dfrFil = function(df) {
+				datas.forEach(function(d, i){
+					var elem = df.querySelector('#vidthumb' + (i+1) + ', .vidthumb' + (i+1));
+					if (!elem) return;
+					elem.src = d.replace(/\\x3d/g, "=");
 				});
-				var x = getElementsByXPath('//script/text()[starts-with(self::text(), "(function(x){x&&(x.src=")]', newDoc);
-				js = x.map(function(e) e.textContent).join('\n');
-			}
-			var af = function af(elems) {
-				var s = doc.createElement('script');
-				s.type = 'text/javascript';
-				s.textContent = js;
-				doc.body.appendChild(s);
-				js = '';
-			}
-			win.documentFilters.push(df);
-			doc.addEventListener("GM_AutoPagerizeNextPageLoaded", af, false);
+			};
+			win.documentFilters.push(docFil);
+			win.fragmentFilters.push(dfrFil);
 		}
-		else if (/^http:\/\/(?:images|www)\.google(?:\.[^.\/]{2,3}){1,2}\/(images\?|search\?.*tbm=isch)/.test(locationHref)) {
+		else if (/^https?:\/\/(?:images|www)\.google(?:\.[^.\/]{2,3}){1,2}\/(images\?|search\?.*tbm=isch)/.test(locationHref)) {
 			// Google Image
 			[, info] = ns.getInfo(ns.MY_SITEINFO, win);
 			if (info) {
@@ -834,7 +833,7 @@ AutoPager.prototype = {
 		var self = this;
 		var headers = {};
 		if (isSameDomain)
-			headers.Cookie = this.doc.cookie;
+			headers.Cookie = getCookie(reqHost, reqScheme === 'https');
 		var opt = {
 			method: 'get',
 			get url() self.requestURL,
@@ -845,7 +844,7 @@ AutoPager.prototype = {
 			onload: function(res) { self.requestLoad.apply(self, [res]); self.req = null; }
 		}
 		this.win.requestFilters.forEach(function(i) { i(opt) }, this);
-		this.state = 'Laden';
+		this.state = 'loading';
 		this.req = GM_xmlhttpRequest(opt);
 	},
 	requestLoad : function(res){
@@ -1213,6 +1212,19 @@ function getElementBottom(elem) {
 	return top ? (top + height) : null;
 }
 
+function getCookie(host, needSecureCookie) {
+	var result = []
+	var cookieManager = Cc['@mozilla.org/cookiemanager;1'].getService(Ci.nsICookieManager2);
+	var enumerator = cookieManager.getCookiesFromHost(host);
+	var cookie;
+	while (enumerator.hasMoreElements()) {
+		cookie = enumerator.getNext().QueryInterface(Ci.nsICookie2);
+		if (!cookie.isSecure || needSecureCookie) {
+			result.push(cookie.name + '=' + cookie.value);
+		}
+	}
+	return result.join('; ');
+}
 
 // end utility functions.
 function getCache() {
@@ -1405,8 +1417,8 @@ function saveFile(name, data) {
 	-moz-image-region: rect(0px 16px 16px 0px );\
 }\
 \
-#uAutoPagerize-icon[state="Aktiviert"]     { -moz-image-region: rect(0px 32px 16px 16px); }\
-#uAutoPagerize-icon[state="Beendet"] { -moz-image-region: rect(0px 48px 16px 32px); }\
+#uAutoPagerize-icon[state="Aktiviert"]  { -moz-image-region: rect(0px 32px 16px 16px); }\
+#uAutoPagerize-icon[state="Beendet"]    { -moz-image-region: rect(0px 48px 16px 32px); }\
 #uAutoPagerize-icon[state="error"]      { -moz-image-region: rect(0px 64px 16px 48px); }\
 #uAutoPagerize-icon[state="Aus"]        { -moz-image-region: rect(0px 80px 16px 64px); }\
 \
