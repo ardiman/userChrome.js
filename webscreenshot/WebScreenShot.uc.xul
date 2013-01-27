@@ -152,21 +152,23 @@ window.WebScreenShot.prototype = {
 		});
 	},
 
-	capture: function(win, x, y, w, h) {
-		var tab = gBrowser.addTab();
-		var browser = gBrowser.getBrowserForTab(tab);
-		browser.addEventListener('load', function(event) {
-			browser.removeEventListener('load', arguments.callee, true);
-			var doc = browser.contentDocument;
-			var canvas = doc.body.appendChild(doc.createElement('canvas'));
-			canvas.style.display = 'inline';
-			canvas.width = w;
-			canvas.height = h;
-			var ctx = canvas.getContext("2d");
-			ctx.drawWindow(win, x, y, x + w, y + h, "rgb(255,255,255)");
-			gBrowser.selectedTab = tab;
-		}, true);
-	},
+capture: function(win, x, y, w, h) {
+    var tab = gBrowser.addTab("about:support");
+    var browser = gBrowser.getBrowserForTab(tab);
+    browser.addEventListener('load', function(event) {
+    browser.removeEventListener('load', arguments.callee, true);
+        var doc = browser.contentDocument;
+        doc.head.innerHTML = doc.body.innerHTML=""
+        var canvas = doc.body.appendChild(doc.createElement('canvas'));       
+        canvas.style.border = "1px solid red"
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext("2d");
+        ctx.drawWindow(win, x, y, x + w, y + h, "rgb(255,255,255)");
+        gBrowser.selectedTab = tab;
+
+    }, true);
+},
 
 	imageCapture: function(img) {
 		var base64;
