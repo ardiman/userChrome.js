@@ -122,7 +122,7 @@ var WebScreenShotByClipping = {
                 this.doc = this.win.document;
                 this.body = this.doc.body;
                 if (!this.body instanceof HTMLBodyElement){
-                        alert("Screenshot/Capture nicht moeglich.");
+                        alert("Screenshot/Capture nicht möglich.");
                         return false;
                 }
                 this.flag = null;
