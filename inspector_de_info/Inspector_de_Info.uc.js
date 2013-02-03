@@ -8,7 +8,9 @@
 // @charset        UTF-8
 // @include        main
 // @screenshot     http://f.hatena.ne.jp/Griever/20120409200608
-// @version        0.0.2
+// @version        0.0.3
+// @note           0.0.3 CSS Selector も取得してみた
+// @note           0.0.3 E4X の修正忘れを修正
 // @note           0.0.2 Remove E4X
 // ==/UserScript==
 
@@ -39,11 +41,21 @@ window.Inspector_de_Info = {
 		this.icon.setAttribute("oncommand", "Inspector_de_Info.run();");
 
 		var m = document.createElement("menu");
-		m.setAttribute("id", "idei-popup");
-		m.setAttribute("label", "Get XPath");
+		m.setAttribute("label", "Get Selector");
+		m.setAttribute("id", "idei-selector-menu");
+		m.setAttribute("accesskey", "S");
 		var p = m.appendChild(document.createElement("menupopup"));
-		p.setAttribute("id", "idei-popup");
 		p.setAttribute("onpopupshowing", "Inspector_de_Info.onPopupshowing(event)");
+		p.setAttribute("idei-type", "selector");
+		popup.insertBefore(m, popup.firstChild);
+
+		var m = document.createElement("menu");
+		m.setAttribute("label", "Get XPath");
+		m.setAttribute("id", "idei-xpath-menu");
+		m.setAttribute("accesskey", "X");
+		var p = m.appendChild(document.createElement("menupopup"));
+		p.setAttribute("onpopupshowing", "Inspector_de_Info.onPopupshowing(event)");
+		p.setAttribute("idei-type", "xpath");
 		popup.insertBefore(m, popup.firstChild);
 
 		var xml = '\
@@ -129,17 +141,14 @@ window.Inspector_de_Info = {
 		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
 		range.detach();
 
-		this.popup = $("idei-popup");
-		$("browser-bottombox").addEventListener("click", this, false);
 		window.addEventListener("unload", this, false);
 	},
 	uninit: function() {
-		$("browser-bottombox").removeEventListener("click", this, false);
 		window.removeEventListener("unload", this, false);
 	},
 	destroy: function() {
 		this.uninit();
-		["idei-button","idei-popup", "idei-container","idei-popup"].forEach(function(id){
+		["idei-button","idei-container","idei-selector-menu","idei-xpath-menu"].forEach(function(id){
 			var elem = $(id);
 			if (elem) elem.parentNode.removeChild(elem);
 		}, this);
@@ -147,12 +156,6 @@ window.Inspector_de_Info = {
 	},
 	handleEvent: function(event) {
 		switch(event.type){
-			case "click":
-				if (event.button != 2) return;
-				if (!(event.target instanceof HTMLElement)) return;
-				if (event.target instanceof HTMLInputElement) return;
-				$("idei-popup").openPopupAtScreen(event.screenX+16, event.screenY-10);
-				break;
 			case "unload":
 				this.uninit();
 				break;
@@ -169,7 +172,9 @@ window.Inspector_de_Info = {
 		if (elem instanceof Text) elem = elem.parentNode;
 		if (!(elem instanceof Element)) return;
 
-		var array = this.getXPathAll(elem);
+		var array = popup.getAttribute("idei-type") === "selector" ? 
+			this.getSelectorAll(elem):
+			this.getXPathAll(elem);
 		this.createMenuitem(popup, array);
 	},
 	createMenuitem: function(popup, items) {
@@ -250,8 +255,13 @@ window.Inspector_de_Info = {
 		var all = attrs.map(function([n, v]){
 			if (n === 'href' || n === 'src') {
 				if (v.indexOf('data:') === 0) {
-					var str = (/^data\:.*?\,/.exec(v)||['data:'])[0];
-					res.push(localName + '['+ n +'="'+ str +'"]');
+					var str = (/^data\:.*?\,/.exec(v) || ['data:'])[0];
+					res.push(localName + '['+ n +'^="'+ str +'"]');
+				} else {
+					var str = (/[^/]+\/?$/.exec(v) || [""])[0];
+					var pre = v.slice(0, -str.length);
+					if (pre && pre != v) res.push(localName + '['+ n +'^="'+ pre +'"]');
+					if (str && str != v) res.push(localName + '['+ n +'$="'+ str +'"]');
 				}
 			}
 			res.push(localName + '['+ n +'="'+ v +'"]');
@@ -461,19 +471,18 @@ function escapeXPathExpr(text) {
 	}
 }
 
-})(<![CDATA[
-
-#inspector-toolbar[hidden="true"] ~ #idei-container
-  { display: none !important; }
-
-#idei-container row {
-  -moz-box-align: center !important;
-}
-#idei-container label {
-  margin: 0px !important;
-}
-#idei-container textbox {
-  margin: 1px !important;
-}
-
-]]>.toString());
+})('\
+#inspector-toolbar[hidden="true"] ~ #idei-container\
+  { display: none !important; }\
+\
+#idei-container row {\
+  -moz-box-align: center !important;\
+}\
+#idei-container label {\
+  margin: 0px !important;\
+}\
+#idei-container textbox {\
+  margin: 1px !important;\
+}\
+\
+');
