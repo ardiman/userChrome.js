@@ -4,7 +4,7 @@ Wiederherstellung bekommt.
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot Undo Close Tab Menu](https://github.com/ardiman/userChrome.js/raw/master/inspector_de_info/scr_inspector_de_info.png)
+![Screenshot Undo Close Tab Menu](https://github.com/ardiman/userChrome.js/raw/master/undoclosetabmenu/scr_undoclosetabmenu.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
