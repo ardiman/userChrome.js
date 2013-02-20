@@ -7,7 +7,9 @@
 // @compatibility  Firefox 10
 // @charset        UTF-8
 // @include        main
-// @version        0.0.5
+// @version        0.0.6
+// @note           0.0.6 CSS で #FFFFFF も強調するようにした
+// @note           0.0.6 pre 要素で右クリックメニューから実行できるようにした
 // @note           0.0.5 URLをリンク化する正規表現を修正
 // @note           0.0.3 超高速化した
 // @note           0.0.2 AutoHotkey も強調してみた
@@ -339,7 +341,7 @@ BASE.URL_r      = ['h?t?tps?://\\w+\\.wikipedia\\.org/wiki/[^\\s<]+'
                   ,'(?:h?t?tps?|ftp)://[\\w\\-]+\\.[\\w.\\-]+(?:[\\w#%=~^_?.;:+*/\\-]|&amp\\;)*'
                   ,'(?:chrome|resource)://[\\w/.#()\\-]+'
                   ,'(?:jar:)?file:///\\w:/[\\w/.#()\\-]+'
-                  ,'data:\\w+/[a-zA-Z-]+\\;[\\w-]+?\\,[a-zA-Z0-9/+%\\s]+={0,2}'
+                  ,'data:\\w+/[a-zA-Z-]+\\;[\\w-]+?\\,[a-zA-Z0-9/+%\\s\\\\]+={0,2}'
                   ].join('|');
 BASE.MComment_r = "/\\*[\\s\\S]*?\\*/";
 BASE.SComment_r = "//.*";
@@ -347,7 +349,7 @@ BASE.DString_r  = '"(?:[^\\n"\\\\]|\\\\.|\\\\\\n)*"';
 BASE.SString_r  = "'(?:[^\\n'\\\\]|\\\\.|\\\\\\n)*'";
 BASE.CDATA_r    = "&lt\\;\\!\\[CDATA\\[[\\s\\S\]*?\\]\\]&gt\\;";
 
-AHK.R_SComment = new RegExp(AHK.SComment_r, "g");
+AHK.R_SComment = new RegExp(AHK.SComment_r, "gm");
 BASE.R_URL = new RegExp(BASE.URL_r, "gm");
 
 JS.R_ALL = new RegExp([
@@ -365,6 +367,7 @@ CSS.R_ALL = new RegExp([
 	,BASE.SString_r
 	,'(?::?:|\\b|@)[a-zA-Z\\-]+\\b'
 	,'\\!important\\b'
+	,'#[0-9A-Fa-f]{3}[0-9A-Fa-f]{3}?'
 ].join('|'), "gm");
 
 AHK.R_ALL = new RegExp([
@@ -394,7 +397,7 @@ function parseLink(aText) {
 	return aText.replace(BASE.R_URL, function(str){
 		var url = str;
 		if (url.indexOf("data:image/") === 0)
-			return '<img src="'+ url +'" alt="'+ str +'">';
+			return '<img src="'+ url.replace(/\\/g, '') +'" alt="'+ str +'">';
 
 		url = url.replace(/^h?t?tp(s)?/,'http$1');
 		return '<a href="'+ url +'" style="'+ BASE_Style.URL +'">'+ str +'</a>';
@@ -469,6 +472,9 @@ function CSSParser(aText) {
 		if (str[0] === '"') {
 			return '<span style="'+ BASE_Style.SingleQuotation +'">' + str.replace(/\"/g, "&quot;").replace(/\'/g, "&apos;") + '</span>';
 		}
+		if (str[0] === '#') {
+			return '<span style="color:'+ str +';">' + str + '</span>';
+		}
 		if (CSS_Words[str]) {
 			return '<span style="'+ CSS_Words[str] +'">' + str + '</span>';
 		}
@@ -480,7 +486,7 @@ function AHKParser(aText) {
 		if (str.indexOf("/*") === 0) {
 			return '<span style="'+ BASE_Style.MlutiComment +'">' + str + '</span>';
 		}
-		if (AHK.R_SComment.test(str)) {
+		if (str[0] === ";" || /^\s+;/.test(str)) {
 			return '<span style="'+ BASE_Style.LineComment +';">' + str + '</span>';
 		}
 		if (str[0] === "'") {
@@ -530,7 +536,9 @@ window.JSCSS = {
 				gBrowser.mPanelContainer.addEventListener("DOMContentLoaded", this, false);
 			}
 		}
-		document.getElementById("JSCSS-menuitem").setAttribute("checked", !bool);
+		var elem = document.getElementById("JSCSS-menuitem");
+		if (elem)
+			elem.setAttribute("checked", !bool);
 		return _disabled = !!bool;
 	},
 	init: function() {
@@ -544,19 +552,52 @@ window.JSCSS = {
 		var ins = document.getElementById("devToolsSeparator");
 		ins.parentNode.insertBefore(menuitem, ins);
 
+		var menu = document.createElement("menu");
+		menu.setAttribute("id", "JSCSS-context-menu");
+		menu.setAttribute("label", "JSCSS Highlight");
+		var popup = menu.appendChild(document.createElement("menupopup"));
+		popup.setAttribute("id", "JSCSS-context-menupopup");
+		var menuitem = popup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("label", "JavaScript");
+		menuitem.setAttribute("oncommand", "JSCSS.write(gContextMenu.target, 'JS');");
+		var menuitem = popup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("label", "CSS");
+		menuitem.setAttribute("oncommand", "JSCSS.write(gContextMenu.target, 'CSS');");
+		var menuitem = popup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("label", "XML");
+		menuitem.setAttribute("oncommand", "JSCSS.write(gContextMenu.target, 'XML');");
+		var menuitem = popup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("label", "AutoHotkey");
+		menuitem.setAttribute("oncommand", "JSCSS.write(gContextMenu.target, 'AHK');");
+		var menuitem = popup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("label", "Text");
+		menuitem.setAttribute("oncommand", "JSCSS.write(gContextMenu.target, 'TXT');");
+		var context = document.getElementById("contentAreaContextMenu");
+		context.appendChild(menu);
+
 		this.disabled = false;
+		context.addEventListener("popupshowing", this, false);
 		window.addEventListener("unload", this, false);
 	},
 	uninit: function() {
+		document.getElementById("contentAreaContextMenu").removeEventListener("popupshowing", this, false);
 		this.disabled = true;
 	},
 	destroy: function() {
 		this.disabled = true;
-		var i = document.getElementById("JSCSS-menuitem");
-		if (i) i.parentNode.removeChild(i);
+		["JSCSS-menuitem", "JSCSS-context-menu"].forEach(function(id){
+			var elem = document.getElementById(id);
+			if (elem) elem.parentNode.removeChild(elem);
+		}, this);
+		this.uninit();
 	},
 	handleEvent: function(event) {
 		switch(event.type){
+			case "popupshowing":
+				var elem = document.getElementById("JSCSS-context-menu");
+				if (elem)
+					elem.hidden = !(gContextMenu.target instanceof HTMLPreElement);
+				break;
 			case "DOMContentLoaded":
 				var doc = event.target;
 				if (!/css|javascript|plain/.test(doc.contentType) || 
@@ -569,18 +610,20 @@ window.JSCSS = {
 				break;
 		}
 	},
-	write: function(pre) {
+	write: function(pre, type) {
 		var doc = pre.ownerDocument;
-		var { contentType, URL } = doc;
-		var type = contentType.indexOf('javascript') >= 0 ? 'JS' : 
-			contentType.indexOf('css') >= 0 ? 'CSS' : 
-			contentType === 'text/plain' ?
-				/\.(?:xul|xml)(?:\.txt)?$/.test(URL) ? 'XML' :
-				/\.(?:js|jsm|jsee|ng)(?:\.txt)?$/i.test(URL) ? 'JS' :
-				/\.(?:css)$/i.test(URL) ? 'CSS' :
-				/\.(?:ahk)(?:\.txt)?$|\/autohotkey\.ini$/.test(URL) ? 'AHK' :
-				'TXT' :
-			'TXT';
+		if (!type) {
+			var { contentType, URL } = doc;
+			type = contentType.indexOf('javascript') >= 0 ? 'JS' :
+				contentType.indexOf('css') >= 0 ? 'CSS' :
+				contentType === 'text/plain' ?
+					/\.(?:xul|xml)(?:\.txt)?$/.test(URL) ? 'XML' :
+					/\.(?:js|jsm|jsee|ng)(?:\.txt)?$/i.test(URL) ? 'JS' :
+					/\.(?:css)$/i.test(URL) ? 'CSS' :
+					/\.(?:ahk)(?:\.txt)?$|\/autohotkey\.ini$/.test(URL) ? 'AHK' :
+					'TXT' :
+				'TXT';
+		}
 		var html = parse(pre.textContent, type);
 		var preRange = doc.createRange();
 		preRange.selectNodeContents(pre);

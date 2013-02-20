@@ -4,7 +4,9 @@
 // @description    右クリック→検索の強化
 // @include        main
 // @compatibility  Firefox 4
-// @version        0.0.7
+// @version        0.0.8
+// @note           0.0.8 Firefox 19 で入力欄で使えなくなったのを修正
+// @note           0.0.8 NEW_TAB の初期値を browser.search.openintab にした
 // @note           0.0.7 リンク上でも単語を取得するように変更
 // @note           0.0.7 単語の取得を効率化
 // @note           0.0.6 カタカナの正規表現のミスを修正
@@ -26,7 +28,7 @@ if (window.contextSearcher) {
 }
 
 window.contextSearcher = {
-  NEW_TAB: true,
+  NEW_TAB: Services.prefs.getBoolPref("browser.search.openintab"),
 
   _regexp: {
     hiragana: "[\\u3040-\\u309F]+",
@@ -141,15 +143,14 @@ window.contextSearcher = {
     if (!submission)
       return;
 
-    var newtab = this.NEW_TAB || e.button === 1 || e.shiftKey || e.ctrlKey;
-    if (!newtab) {
-      loadURI(submission.uri.spec, null, submission.postData, false);
-    } else {
-      gBrowser.selectedTab = gBrowser.addTab(submission.uri.spec, {
-        postData: submission.postData,
-        ownerTab: gBrowser.mCurrentTab,
-      });
-    }
+    var where = whereToOpenLink(e);
+    if (this.NEW_TAB && where === 'current' || where === 'save')
+      where = 'tab';
+
+    openLinkIn(submission.uri.spec, where, {
+      postData: submission.postData,
+      relatedToCurrent: true
+    });
   },
 
   click: function(event) {
@@ -185,10 +186,10 @@ window.contextSearcher = {
     if (e.target != this.context) return;
 
     this.searchText = 
+      gContextMenu.onTextInput? this.getTextInputSelection() :
       gContextMenu.isTextSelected? this.getBrowserSelection() :
       gContextMenu.onImage? gContextMenu.target.getAttribute('alt') :
       //gContextMenu.onLink? gContextMenu.linkText() :
-      gContextMenu.onTextInput? this.getTextInputSelection() :
       this.getCursorPositionText();
 
     if (!this.searchText || !/\S/.test(this.searchText)) {
