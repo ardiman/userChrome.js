@@ -7,20 +7,13 @@
 // @compatibility  Firefox 17
 // @charset        UTF-8
 // @include        main
-// @version        0.0.4
-// @note           0.0.4 他の拡張などと干渉しにくくした
-// @note           0.0.3 Remove E4X
-// @note           0.0.3 新しいタブへの引継ぎを改善
-// @note           0.0.2 試験的に要素をまたいでいても強引にハイライトできるようにした
-// @note           0.0.2 キーボード操作に対応した( N or Shift+N )
-// @note           0.0.2 フレーム読み込み時にもちゃんとハイライトするようにした
-// @note           0.0.2 次のワード検索時に折り返したらビープ音を鳴らすようにした
-// @note           0.0.2 次のワード検索後うまく文字選択できなくなるのを修正
-// @note           0.0.2 ↑の弊害で"AA"を検索時に"AAAAAA"で引っかかるorz
-// @note           0.0.2 AutoPagerize.user.js で継ぎ足しのハイライトができてなかったのを修正
-// @note           0.0.2 タブを背面に複数開いた際にワードが引き継がれないのを修正
-// @note           0.0.2 UI を弄りまくった
-// @note           0.0.2 キーワードの取得を見なおした
+// @version        0.0.5
+// @note           0.0.5 大幅に変更（変更し過ぎてどこを変更したのかすら忘れた）
+// @note           0.0.5 外部からイベントでハイライトできるようにした
+// @note           0.0.5 "戻る"動作にツールバーが連動するようにした
+// @note           0.0.5 色を選んで強調できるようにしてみた
+// @note           0.0.5 ツールバーが無駄にスペースをとる場合があるのを修正
+// @note           0.0.5
 // ==/UserScript==
 
 (function(CSS){
@@ -31,7 +24,19 @@ if (window.gWHT) {
 	delete window.gWHT;
 }
 
+
+const UID = Math.random().toString(36).slice(-8);
+const PREFIX = 'wordhighlight-toolbar-';
+const CLASS_ICON  = PREFIX + 'icon';
+const CLASS_ITEM  = PREFIX + 'item';
+const CLASS_SPAN  = PREFIX + 'span';
+const CLASS_INDEX = PREFIX + 'index';
+const EVENT_RESPONSE = 'RESPONSE_' + UID;
+
+var wmap = new WeakMap();
+
 window.gWHT = {
+	DEBUG: false,
 	GET_KEYWORD: true, // キーワードを自動取得する [default:true]
 	SITEINFO: [
 		/**
@@ -60,77 +65,68 @@ window.gWHT = {
 //			input: 'input[type="text"]:-moz-any([name="q"],[name="word"],[name="keyword"],[name="search"],[name="query"],[name="search_query"]), input[type="search"]'
 //		},
 	],
-	toolbars: {},
-	getWins: function(win) {
-		var wins = win.frames.length ? [win].concat(Array.slice(win.frames)) : [win];
-		return wins.filter(function(win) this.checkDoc(win.document), this);
-	},
-	checkDoc: function(doc) {
-		if (!(doc instanceof HTMLDocument)) return false;
-		if (!window.mimeTypeIsTextBased(doc.contentType)) return false;
-		if (!doc.body || !doc.body.hasChildNodes()) return false;
-		if (doc.body instanceof HTMLFrameSetElement) return false;
-		return true;
-	},
-	getFocusedWindow: function () {
-		var win = document.commandDispatcher.focusedWindow;
-		return (!win || win == window) ? content : win;
-	},
-	getRangeAll: function (win) {
-		var sel = (win || this.getFocusedWindow()).getSelection();
-		var res = [];
-		if (sel.isCollapsed) return res;
 
-		for(var i = 0, l = sel.rangeCount; i < l; i++) {
-			res.push(sel.getRangeAt(i));
-		}
-		return res;
-	},
-	getBrowserSelection: function (win) {
-		return this.getRangeAll(win).join(" ").trim();
-	},
+	FIND_FOUND   : 0,
+	FIND_NOTFOUND: 1,
+	FIND_WRAPPED : 2,
+	sound: Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound),
+	getWins: getWins,
+	checkDoc: checkDoc,
+	getFocusedWindow: getFocusedWindow,
+	getRangeAll: getRangeAll,
+	wmap:wmap,
+	tabhistory: {},
+
 	init: function() {
 		this.xulstyle = addStyle(CSS);
 
 		var bb = document.getElementById("appcontent");
-		this.container = bb.appendChild(document.createElement("vbox"));
-		this.container.setAttribute("id", "wordhighliht-toolbar-box");
+		var container = bb.appendChild(document.createElement("hbox"));
+		container.setAttribute("id", PREFIX + "box");
+		container.setAttribute("style", "max-height: 0px;");
+		//container.setAttribute("ordinal", "0");
+		this.container = container;
 
 		var sep = document.getElementById("context-viewpartialsource-selection");
-		var menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight");
-		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-		menuitem.setAttribute("label", "Hervorheben");
-		menuitem.setAttribute("oncommand", "gWHT.highlightWord();");
+		var menu = sep.parentNode.insertBefore(document.createElement("menu"), sep);
+		menu.setAttribute("label", "Hervorheben");
+		menu.setAttribute("id", PREFIX + "highlight");
+		menu.setAttribute("class", CLASS_ICON + " menu-iconic");
+		menu.setAttribute("accesskey", "H");
+		menu.setAttribute("onclick", "\
+			if (event.target != this) return;\
+			closeMenus(this);\
+			if (event.button === 0) gWHT.highlightWord();\
+			else if (event.button === 1) gWHT.highlightWordAuto();\
+		");
+		var menupopup = menu.appendChild(document.createElement("menupopup"));
 
-		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-auto");
-		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-		menuitem.setAttribute("label", "Getrennt hervorheben");
+		var menuitem = menupopup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("class", CLASS_ICON + " menuitem-iconic");
+		menuitem.setAttribute("label", "Hervorheben");
+		menuitem.setAttribute("accesskey", "H");
+		menuitem.setAttribute("oncommand", "gWHT.highlightWord();");
+		var menuitem = menupopup.appendChild(document.createElement("menuitem"));
+		menuitem.setAttribute("class", CLASS_ICON + " menuitem-iconic");
+		menuitem.setAttribute("label", "Getrennt Hervorheben");
 		menuitem.setAttribute("oncommand", "gWHT.highlightWordAuto();");
-		
-//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-split");
-//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-//		menuitem.setAttribute("label", "分割してハイライト");
-//		menuitem.setAttribute("oncommand", "gWHT.highlightWordSplit();");
-//		menuitem.style.display = "none";
-//		
-//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-input");
-//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-//		menuitem.setAttribute("label", "この入力欄のワードをハイライト");
-//		menuitem.setAttribute("oncommand", "gWHT.highlightWordInput();");
-//
-//		menuitem = sep.parentNode.insertBefore(document.createElement("menuitem"), sep);
-//		menuitem.setAttribute("id", "wordhighliht-toolbar-highlight-recovery");
-//		menuitem.setAttribute("class", "menuitem-iconic wordhighliht-toolbar-icon");
-//		menuitem.setAttribute("label", "ハイライトを直す");
-//		menuitem.setAttribute("oncommand", "gWHT.recoveryItems();");
+
+		var cp = menupopup.appendChild(document.createElement("colorpicker"));
+		cp.setAttribute("onclick", "\
+			closeMenus(this);\
+			var word = getBrowserSelection();\
+			setTimeout(function(){\
+				gWHT.addWord({ word: word, bgcolor: this.color, bold: true });\
+			}.bind(this), 10);\
+		");
 
 		gBrowser.mPanelContainer.addEventListener("DOMContentLoaded", this, false);
-		gBrowser.mPanelContainer.addEventListener("click", this, false);
-		gBrowser.mPanelContainer.addEventListener("drop", this, false);
+		// gBrowser.mPanelContainer.addEventListener("click", this, false);
+		// gBrowser.mPanelContainer.addEventListener("dragend", this, false);
+		gBrowser.mPanelContainer.addEventListener("pageshow", this, false);
+		gBrowser.mPanelContainer.addEventListener(EVENT_RESPONSE, this, true);
+		gBrowser.mPanelContainer.addEventListener("WordHighlightToolbarAddWord", this, false, true);
+		gBrowser.mPanelContainer.addEventListener("WordHighlightToolbarRemoveWord", this, false, true);
 		gBrowser.mTabContainer.addEventListener("TabOpen", this, false);
 		gBrowser.mTabContainer.addEventListener("TabSelect", this, false);
 		gBrowser.mTabContainer.addEventListener("TabClose", this, false);
@@ -139,8 +135,12 @@ window.gWHT = {
 	},
 	uninit: function() {
 		gBrowser.mPanelContainer.removeEventListener("DOMContentLoaded", this, false);
-		gBrowser.mPanelContainer.removeEventListener("click", this, false);
-		gBrowser.mPanelContainer.removeEventListener("drop", this, false);
+		// gBrowser.mPanelContainer.removeEventListener("click", this, false);
+		// gBrowser.mPanelContainer.removeEventListener("dragend", this, false);
+		gBrowser.mPanelContainer.removeEventListener("pageshow", this, false);
+		gBrowser.mPanelContainer.removeEventListener(EVENT_RESPONSE, this, true);
+		gBrowser.mPanelContainer.removeEventListener("WordHighlightToolbarAddWord", this, false);
+		gBrowser.mPanelContainer.removeEventListener("WordHighlightToolbarRemoveWord", this, false);
 		gBrowser.mTabContainer.removeEventListener("TabOpen", this, false);
 		gBrowser.mTabContainer.removeEventListener("TabSelect", this, false);
 		gBrowser.mTabContainer.removeEventListener("TabClose", this, false);
@@ -148,19 +148,20 @@ window.gWHT = {
 		window.removeEventListener("unload", this, false);
 	},
 	destroy: function() {
-		for (let [key, val] in Iterator(this.toolbars)) {
-			val.destroy();
-		}
-		$$('[id^="wordhighliht-toolbar-"]').forEach(function(elem) elem.parentNode.removeChild(elem));
+		[PREFIX + "box", PREFIX + "highlight"].forEach(function(id){
+			var elem = $(id);
+			if (elem) elem.parentNode.removeChild(elem);
+		}, this);
 		this.uninit();
 		if (this.xulstyle) this.xulstyle.parentNode.removeChild(this.xulstyle);
 	},
+
 	handleEvent: function(event) {
 		switch(event.type) {
 			case "click":
 				this.lastClickedTime = new Date().getTime();
 				break;
-			case "drop":
+			case "dragend":
 				var dt = event.dataTransfer;
 				if (dt) {
 					if (dt.types.contains("text/x-moz-place")) return;
@@ -171,160 +172,365 @@ window.gWHT = {
 			case "DOMContentLoaded":
 				var doc = event.target;
 				var win = doc.defaultView;
-				// フレームでは既存のワードをハイライトする
-				if (win.frameElement && win.frameElement instanceof HTMLIFrameElement) return;
-				if (win != win.parent)
-					return this.launchFrame(win);
-
-				if (!this.checkDoc(doc)) {
-					var tab = gBrowser._getTabForContentWindow(win);
-					var toolbar = this.getToolbar(tab);
-					if (toolbar)
-						toolbar.destroyAutoWord();
+				// iframe では動作しない
+				if (win.frameElement instanceof HTMLIFrameElement) return;
+				// frame 内の動作は考え中
+				if (win != win.parent) {
+					//this.launchFrame(doc);
 					return;
 				}
-
+				// フレームや HTMLDocument じゃない場合
+				if (!checkDoc(doc)) {
+					// this.updateToolbar();
+					return;
+				}
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
 				this.launch(doc, keywords);
 				break;
-			case "TabSelect":
-				var selectedId = event.target.linkedPanel;
-				for (let [linkedPanel, cls] in Iterator(this.toolbars)) {
-					cls.toolbar.hidden = !(selectedId === linkedPanel);
+			case "pageshow":
+				var doc = event.target;
+				var win = doc.defaultView;
+				if (win != win.parent) return;
+				if (event.persisted) {// bfcache から
+					this.updateToolbar( wmap.get(doc) );
+				} else {
+					this.updateToolbar( wmap.get(doc) );
 				}
+				if (!event.persisted) return;
 				break;
-			case "TabClose":
-				var tab = event.target;
-				var toolbar = this.toolbars[tab.linkedPanel];
-				if (toolbar) toolbar.destroy();
-				delete this.toolbars[tab.linkedPanel];
+			case EVENT_RESPONSE:
+				event.stopPropagation();
+				this.onResponse(event);
+				break;
+			case "WordHighlightToolbarAddWord":
+				var { target, type, detail } = event;
+				debug(type, detail);
+				if (!detail) return;
+				var doc = target.ownerDocument || target;
+				var range;
+				if (doc != target) {
+					range = doc.createRange();
+					range.selectNode(target);
+				}
+				this.addWord(detail, false, range);
+				break;
+			case "WordHighlightToolbarRemoveWord":
+				var { target, type, detail } = event;
+				debug(type, detail);
+				var doc = target.ownerDocument || target;
+				if (!doc.wht) return;
+				var words = Array.isArray(detail) ? detail : [detail];
+				words.forEach(function(word) doc.wht.removeWord(word));
+				break;
+			case "TabSelect":
+				var doc = event.target.linkedBrowser.contentDocument;
+				var toolbar = wmap.get(doc);
+				this.updateToolbar(toolbar);
 				break;
 			case "TabOpen":
 				this.lastOpenedTab = event.target;
 				this.lastOpenedTime = new Date().getTime();
 				break;
+			case "TabClose":
+				delete this.tabhistory[event.target.linkedPanel];
+				break;
 			case "popupshowing":
 				if (event.target != event.currentTarget) return;
 				var {isTextSelected, onTextInput, target} = gContextMenu;
-				gContextMenu.showItem("wordhighliht-toolbar-highlight", isTextSelected);
-				//gContextMenu.showItem("wordhighliht-toolbar-highlight-split", isTextSelected);
-				gContextMenu.showItem("wordhighliht-toolbar-highlight-auto", isTextSelected);
-				//gContextMenu.showItem("wordhighliht-toolbar-highlight-input", 
-				//	onTextInput && !(target instanceof HTMLTextAreaElement));
-				//var toolbar = this.getToolbar();
-				//gContextMenu.showItem("wordhighliht-toolbar-highlight-recovery", 
-				//	(!toolbar || !toolbar.items.length) && target && 
-				//	target.ownerDocument.querySelector('.wordhighliht-toolbar-span'));
+				gContextMenu.showItem(PREFIX + "highlight", isTextSelected && !onTextInput);
 				break;
 			case "unload":
 				this.uninit();
 				break;
 		}
 	},
+	onResponse: function(event) {
+		var { target, detail: { name, args } } = event;
+		debug(name, args, target);
+		var doc = target.ownerDocument || target;
+		var win = doc.defaultView;
+		var topWin = win.top;
+
+		if ('initialized' === name) {
+			doc.addEventListener("dragend", this, false);
+			doc.addEventListener("click", this, false);
+			var tab = gBrowser._getTabForContentWindow(topWin);
+			var linkedPanel = tab.linkedPanel;
+			var { index, count } = tab.linkedBrowser.docShell.sessionHistory;
+			this.tabhistory[linkedPanel][index] = doc.wht.items;
+			return;
+		}
+
+		var toolbar = wmap.get(topWin.document);
+		if (!toolbar) {
+			toolbar = this.addToolbar();
+			wmap.set(doc, toolbar);
+			wmap.set(topWin.document, toolbar);
+		}
+		if ('highlight' === name || 'highlightAll' === name) {
+			var itemArr = args.length > 0 ? args : Object.keys(doc.wht.items).map(function(key) doc.wht.items[key]);
+			itemArr.forEach(function(item) {
+				var button = toolbar.querySelector('.' + CLASS_ITEM + '[index="'+ item.index +'"]');
+				button = this.addButton(toolbar, item, button);
+			}, this);
+			this.updateToolbar(toolbar);
+			return;
+		}
+		if ('lowlight' === name) {
+			var item = args[0];
+			var button = toolbar.querySelector('.' + CLASS_ITEM + '[index="'+ item.index +'"]');
+			if (button) {
+				button.parentNode.removeChild(button);
+			}
+			return;
+		}
+		if ('lowlightAll' === name) {
+			var range = document.createRange();
+			range.selectNodeContents(toolbar.getElementsByTagName('arrowscrollbox')[0]);
+			range.deleteContents();
+			//delete this.tabhistory[linkedPanel][index];
+			return;
+		}
+
+	},
+	_launch: function(doc, tab) {
+		if (!tab) {
+			tab = gBrowser._getTabForContentWindow(doc.defaultView.top);
+		}
+		var linkedPanel = tab.linkedPanel;
+		var { count, index } = tab.linkedBrowser.docShell.sessionHistory;
+		var tabhis = this.tabhistory[linkedPanel] || (this.tabhistory[linkedPanel] = []);
+		if (!doc.wht) {
+			doc.wht = new this.ContentClass(doc);
+			tabhis[index] = doc.wht.items;
+			if (tabhis.length > count) {
+				tabhis.splice(count);
+			}
+		}
+	},
 	launch: function(doc, keywords) {
 		var win = doc.defaultView;
-		var tab = gBrowser._getTabForContentWindow(win);
-		var toolbar = this.toolbars[tab.linkedPanel];
-		var canGoBack = tab.linkedBrowser.docShell.canGoBack;
-		var owntab = tab.owner;
-		var clickflag = this.lastOpenedTime - this.lastClickedTime < 100;
-
-		if (owntab) {
-			if (!canGoBack && (clickflag || win.opener)) {
-				let ownbar = this.toolbars[owntab.linkedPanel];
-				if (ownbar && ownbar.items.length) {
-					toolbar = this.addToolbar(tab);
-					ownbar.items.forEach(function(obj) toolbar.addWord(obj.word, obj.isAuto));
-				}
-			} else if (toolbar && keywords.length) {
-				// 新たなワードがある場合は古いワードは削除
-				toolbar.destroyAutoWord();
-			}
-		} else {
-			// Bookmark等から開かれた場合は古いワードは削除
-			if (toolbar)
-				toolbar.destroyAutoWord();
-		}
-
-		// 新たなワードがあるならそれを追加する
-		if (keywords.length) {
-			if (!toolbar)
-				toolbar = this.addToolbar(tab);
-			keywords.forEach(function(word) toolbar.addWord(word, true));
-		}
-		if (toolbar)
-			toolbar.goHighlight(true);
-	},
-	launchFrame: function(win) {
-		if (win.top.document.readyState != "complete") return;
-		if (!this.checkDoc(win.document)) return;
 		var tab = gBrowser._getTabForContentWindow(win.top);
-		var toolbar = this.getToolbar(tab);
-		if (!toolbar) return;
-		var temp = toolbar.items.slice();
-		if (!temp.length) return;
+		var linkedPanel = tab.linkedPanel;
 
-		var gh = function () {
-			temp.shift().highlight(win);
-			if (temp.length)
-				win.setTimeout(gh, 10);
-		};
-		gh();
-		return;
-	},
-	getToolbar: function(aTab) {
-		return this.toolbars[(aTab || gBrowser.mCurrentTab).linkedPanel];
-	},
-	addToolbar: function(aTab) {
-		if (!aTab)
-			aTab = gBrowser.mCurrentTab;
-		return this.toolbars[aTab.linkedPanel] ||
-			 (this.toolbars[aTab.linkedPanel] = new this.ToolbarClass(aTab));
-	},
-	highlightWord: function(aWord, aTab) {
-		var win = this.getFocusedWindow();
-		var words = aWord ? [aWord+""] : this.getRangeAll(win).map(function(r) r.toString());
-		if (!words.length) return;
-		this.addWord(words, aTab);
-		win.getSelection().removeAllRanges();
-	},
-	highlightWordSplit: function(aWord, aTab) {
-		var win = this.getFocusedWindow();
-		var words = (aWord || this.getBrowserSelection(win)).split(/[\u3000\u3001\u3002\uFF1A\uFF1B;:,\s]+/g);
-		if (!words.length) return;
-		this.addWord(words, aTab);
-		win.getSelection().removeAllRanges();
-	},
-	highlightWordAuto: function(aWord, aTab) {
-		var win = this.getFocusedWindow();
-		var words = (aWord || this.getBrowserSelection(win)).match(this.tangoReg);
-		if (!words || !words.length) return;
-		this.addWord(words, aTab);
-		win.getSelection().removeAllRanges();
-	},
-	highlightWordInput: function(aWord, aTab) {
-		var elem = document.commandDispatcher.focusedElement;
-		if (!elem || !elem.value || !(elem instanceof HTMLInputElement)) return;
-		var words = this.clean(elem.value);
-		if (!words.length) return;
-		this.addWord(words, aTab);
-	},
-	addWord: function(aWord, aTab) {
-		var words;
-		if (!aWord) {
-			words = prompt("", "");
-			if (!words || !/\S/.test(words)) return;
-			words = [words];
-		} else if (Array.isArray(aWord)) {
-			words = aWord.filter(function(e,i,a) e && a.indexOf(e) === i);
-		} else {
-			words = [aWord+""];
+		// loadType 1=Bookmark, 2=Reload, 4=History, 4>other
+		var { loadType, sessionHistory: { count, index } } = tab.linkedBrowser.docShell;
+		var tabhis = this.tabhistory[linkedPanel] || (this.tabhistory[linkedPanel] = []);
+
+		var owntab = tab.owner;
+		var newtabflag = this.lastOpenedTime - this.lastClickedTime < 250; // newtab from user.
+		this.lastOpenedTime = Infinity;
+		keywords || (keywords = []);
+
+		let hikitugi = [];
+		let hiki_for_items = function(items, boldOnly) {
+			Object.keys(items).map(function(key) {
+				var item = items[key];
+				if (boldOnly && !item.bold) return;
+				hikitugi.push({
+					word: item.word,
+					//index: item.index,
+					bgcolor: item.bgcolor,
+					fgcolor: item.fgcolor,
+					bold: item.bold,
+				});
+			})
 		}
-		if (!words.length) return;
+		if (newtabflag) { // newtab from user.
+			if (owntab) {
+				let ownhis = this.tabhistory[owntab.linkedPanel];
+				if (ownhis) {
+					let items = ownhis[owntab.linkedBrowser.docShell.sessionHistory.index];
+					if (items) {
+						hiki_for_items(items, keywords.length > 0);
+					}
+				}
+			}
+		} else if (loadType === 2) { // reload
+			var items = tabhis[index];
+			if (items) {
+				hiki_for_items(items, keywords.length > 0);
+			}
+		} else if (loadType > 1) { // currenttab for user
+			var items = tabhis[index-1];
+			if (items) {
+				hiki_for_items(items, keywords.length > 0);
+			}
+		}
 
-		var toolbar = this.addToolbar(aTab || gBrowser.mCurrentTab);
-		words.sort(function(a, b) b.length - a.length).forEach(function(str) toolbar.addWord(str, false));
-		toolbar.goHighlight();
+//		debug([doc.URL + '\n'
+//		,'loadType:' + loadType,'newtabflag:' + newtabflag
+//		,'keywords:[' + keywords + ']'
+//		,'hikitugi:[' + hikitugi.map(function(o) o.word) + ']'
+//		].join(', '));
+
+		if (keywords.length || hikitugi.length) {
+			this._launch(doc, tab);
+			doc.wht.addWord(keywords.concat(hikitugi));
+		}
+	},
+	launchFrame: function(doc) {
+
+	},
+	updateToolbar: function(toolbar) {
+		if (this.updateTimer) clearTimeout(this.updateTimer);
+		this.updateTimer = setTimeout(function() {
+			var toolbar = toolbar || wmap.get(content.document);
+			if (toolbar && toolbar.parentNode) {
+				return;
+			}
+			var range = document.createRange();
+			range.selectNodeContents(this.container);
+			if (toolbar) {
+				range.collapse(true);
+				range.insertNode(toolbar);
+				range.selectNodeContents(this.container);
+				range.setStartAfter(toolbar);
+			}
+			range.deleteContents();
+		}.bind(this), 150);
+	},
+	updateToolbar_: function(toolbar) {
+		if (toolbar && toolbar.parentNode) {
+			return;
+		}
+		var range = document.createRange();
+		range.selectNodeContents(this.container);
+		range.deleteContents();
+		if (toolbar)
+			range.insertNode(toolbar);
+	},
+	addToolbar: function() {
+		var toolbar = document.createElement("hbox");
+		toolbar.setAttribute("class", PREFIX + "toolbar");
+		toolbar.setAttribute("flex", "1");
+
+		var box = toolbar.appendChild(document.createElement("arrowscrollbox"));
+		box.setAttribute("class", PREFIX + "arrowscrollbox");
+		box.setAttribute("flex", "1");
+		box.setAttribute("orient", "horizontal");
+		box.setAttribute("ordinal", "5");
+
+		var closebutton = toolbar.appendChild(document.createElement("toolbarbutton"));
+		closebutton.setAttribute("class", PREFIX + "closebutton tabs-closebutton");
+		closebutton.setAttribute("oncommand", "gWHT.destroyToolbar();");
+		closebutton.setAttribute("ordinal", "1");
+
+		var reloadbutton = toolbar.appendChild(document.createElement("toolbarbutton"));
+		reloadbutton.setAttribute("class", PREFIX + "reloadbutton");
+		reloadbutton.setAttribute("tooltiptext", "Markierte Wörter nachladen");
+		reloadbutton.setAttribute("ordinal", "10");
+		reloadbutton.setAttribute("oncommand", "gWHT.recoveryToolbar();");
+
+		var addbutton = toolbar.appendChild(document.createElement("toolbarbutton"));
+		addbutton.setAttribute("class", PREFIX + "addbutton");
+		addbutton.setAttribute("tooltiptext", "Wort hinzufügen");
+		addbutton.setAttribute("ordinal", "10");
+		addbutton.setAttribute("oncommand", "gWHT.addWord();");
+		return toolbar;
+	},
+	destroyToolbar: function() {
+		var win = getFocusedWindow();
+		var doc = win.document;
+		if (doc.wht) {
+			doc.wht.lowlightAll();
+		}
+		this.updateToolbar();
+	},
+	recoveryToolbar: function() {
+		var win = getFocusedWindow();
+		var doc = win.document;
+		if (doc.wht) {
+			doc.wht.highlightAll();
+			// マッチしなかったワードを削除
+			Object.keys(doc.wht.items).forEach(function(key){
+				var item = doc.wht.items[key];
+				if (item.length === 0)
+					doc.wht.removeWord(item.word);
+			}, this);
+		}
+	},
+	addButton: function(toolbar, aItem, aButton) {
+		var button = aButton;
+		if (!button) {
+			button = document.createElement('toolbarbutton');
+			button.style.setProperty('-moz-appearance', 'none', 'important');
+			button.setAttribute('oncommand', 'gWHT.find(this.getAttribute("word"), event.shiftKey);');
+			button.setAttribute('onDOMMouseScroll', 'event.stopPropagation(); gWHT.find(this.getAttribute("word"), event.detail < 0);');
+			button.setAttribute('onclick', 'if (event.button != 1) return; this.hidden = true; gWHT.removeWord(this.getAttribute("word"));');
+			button.setAttribute('class', CLASS_ITEM);
+			button.setAttribute('tooltiptext', [
+				'Mausrad runter, oder Linksklick zum Weitersuchen',
+				'Shift + Linksklick, oder Mausrad zum vorherigen Wort',
+				'Mittelklick auf Mausrad zum Löschen'].join('\n'));
+			toolbar.getElementsByTagName('arrowscrollbox')[0].appendChild(button);
+		}
+		button.style.setProperty('color', aItem.fgcolor, 'important');
+		button.style.setProperty('background-color', aItem.bgcolor, 'important');
+		button.setAttribute('word', aItem.word);
+		button.setAttribute('index', aItem.index);
+		button.setAttribute('bgcolor', aItem.bgcolor);
+		button.setAttribute('fgcolor', aItem.fgcolor);
+		button.setAttribute('length', aItem.length);
+		button.setAttribute('label', aItem.word + '(' + aItem.length + ')');
+		button.setAttribute('hidden', 'false');
+		if (aItem.bold) {
+			button.setAttribute('bold', aItem.bold);
+			button.style.setProperty('font-weight', 'bold', 'important');
+		} else {
+			button.style.removeProperty('font-weight');
+		}
+		return button;
+	},
+	highlightWord: function() {
+		var keywords = getRangeAll().map(function(r) r.toString());
+		if (keywords.length)
+			this.addWord(keywords, true);
+	},
+	highlightWordAuto: function() {
+		var keywords = getRangeAll().join(' ').match(this.tangoReg) || [];
+		if (keywords.length)
+			this.addWord(keywords, true);
+	},
+	addWord: function(aWord, aBold, aRange) {
+		if (!aWord) {
+			aWord = prompt('Bitte geben Sie den gewünschten Text zum Hervorheben', getBrowserSelection());
+			aBold = true;
+		}
+		if (!aWord) return;
+
+		var keywords = Array.isArray(aWord) ? aWord : [aWord];
+		var doc, win;
+		if (aRange) {
+			doc = aRange.startContainer.ownerDocument;
+			win = doc.defaultView;
+		} else {
+			win = getFocusedWindow();
+			doc = win.document;
+		}
+		if (!doc.wht) {
+			win.getSelection().removeAllRanges();
+			this._launch(doc);
+		}
+		doc.wht.addWord(keywords, aBold, aRange);
+	},
+	removeWord: function(aWord) {
+		if (!aWord) return;
+		var doc = getFocusedWindow().document;
+		if (!doc.wht) return;
+		doc.wht.removeWord(aWord);
+	},
+	getLength: function(aWord, aWin) {
+		var w = aWord.toLowerCase();
+		var len = 0;
+		getWins(aWin).forEach(function(win) {
+			var doc = win.document;
+			if (!doc.wht) return;
+			var item = doc.wht.items[w];
+			if (item)
+				len += item.length;
+		}, this);
+		return len;
 	},
 	get tangoReg() {
 		if (this._tangoReg) return this._tangoReg;
@@ -392,467 +598,404 @@ window.gWHT = {
 		str = str.replace(/\b(?:AND|OR)\b|\s\-\S+/g, " ")
 		str = str.replace(/(?:all)?(?:intitle|intext):/g, " ");
 		//str = (' ' + str + ' ').replace(/\s\-\S+|(?:(?:all)?(?:inurl|intitle|intext|inanchor)|link|cache|related|info|site|filetype|daterange|movie|weather|blogurl)\:\S*|\s(?:AND|OR)\s/g, ' ');
-		var tango = str.match(/[^\x20-\x29\x3A-\x3F\x5B-\x5E\x60\x7B-\x7E\s]{2,}/g);
+		// \x20-\x29  !"#$%&'()*+,-./    \x3A-\x40 :;<=>?@    \x5B-\x60 [\]^_`    x7B-\x7E {|}~
+		var tango = str.match(/[^\x20-\x29\x3B-\x3F\x5B-\x5E\x60\x7B-\x7E\s]{2,}/g);
 		if (tango) {
-			[].push.apply(res, tango.sort(function(a,b) b.length - a.length));
+			[].push.apply(res, tango/*.sort(function(a,b) b.length - a.length)*/);
 		}
 		return res.filter(function(e,i,a) e && a.indexOf(e) === i);
 	},
-	recoveryItems: function() {
-		// 戻る進むでツールバーと実際のハイライトの整合性が取れない時用
-		var hoge = {};
-		var wins = this.getWins(content);
-		var toolbar = this.addToolbar(gBrowser.mCurrentTab);
-		wins.forEach(function(win){
-			Array.slice(win.document.getElementsByClassName('wordhighliht-toolbar-span')).forEach(function(elem){
-				var res = /wordhighliht-toolbar(\d+)/.exec(elem.className);
-				if (!res || res[1] in hoge) return;
-				hoge[ res[1] ] = elem.textContent.toLowerCase();
-			});
-		});
-		Object.keys(hoge).forEach(function(key){
-			var o = toolbar.items.filter(function(o) o.word.toLowerCase() == hoge[key])[0];
-			if (o) {
-				if (o.index != key) {
-					toolbar.addWord(hoge[key], true);
-				}
-			} else {
-				wins.forEach(function(win){
-					Array.slice(win.document.getElementsByClassName('wordhighliht-toolbar' + key)).forEach(function(elem){
-						var range = win.document.createRange();
-						range.selectNodeContents(elem);
-						var df = range.extractContents();
-						elem.parentNode.replaceChild(df, elem);
-						range.detach();
-					});
-				});
-				toolbar.addWord(hoge[key], true);
-			}
-		});
-		toolbar.goHighlight(true);
-	},
-};
-
-window.gWHT.ToolbarClass = function() { this.init.apply(this, arguments) };
-window.gWHT.ToolbarClass.prototype = {
-	items: [],
-	styles: [
-		 'background-color: hsl( 60, 100%, 75%); color: #000;'
-		,'background-color: hsl(120, 100%, 75%); color: #000;'
-		,'background-color: hsl(180, 100%, 75%); color: #000;'
-		//,'background-color: hsl(240, 100%, 75%); color: #000;'
-		,'background-color: hsl(300, 100%, 75%); color: #000;'
-		,'background-color: hsl(360, 100%, 75%); color: #000;'
-		,'background-color: hsl( 30, 100%, 75%); color: #000;'
-		,'background-color: hsl( 90, 100%, 75%); color: #000;'
-		,'background-color: hsl(150, 100%, 75%); color: #000;'
-		,'background-color: hsl(210, 100%, 75%); color: #000;'
-		,'background-color: hsl(270, 100%, 75%); color: #000;'
-		,'background-color: hsl(330, 100%, 75%); color: #000;'
-	],
-	init: function(aTab) {
-		this.tab = aTab;
-		this.browser = this.tab.linkedBrowser;
-		this.linkedPanel = this.tab.linkedPanel;
-		this.items = [];
-
-		this.toolbar = document.createElement("hbox");
-		this.toolbar.setAttribute("linkedPanel", this.linkedPanel);
-		this.toolbar.setAttribute("class", "wordhighliht-toolbar-toolbar");
-		this.toolbar.setAttribute("flex", "1");
-		this.toolbar.setAttribute("hidden", "true");
-
-		this.box = this.toolbar.appendChild(document.createElement("arrowscrollbox"));
-		this.box.setAttribute("class", "wordhighliht-toolbar-arrowscrollbox");
-		this.box.setAttribute("flex", "1");
-
-		this.reloadbutton = this.toolbar.appendChild(document.createElement("toolbarbutton"));
-		this.reloadbutton.setAttribute("class", "wordhighliht-toolbar-reloadbutton");
-		this.reloadbutton.setAttribute("tooltiptext", "Markierte Wörter nachladen");
-		this.reloadbutton.addEventListener("command", this, false);
-
-		this.addbutton = this.toolbar.appendChild(document.createElement("toolbarbutton"));
-		this.addbutton.setAttribute("class", "wordhighliht-toolbar-addbutton");
-		this.addbutton.setAttribute("tooltiptext", "Wort hinzufügen");
-		this.addbutton.addEventListener("command", this, false);
-
-		this.closebutton = this.toolbar.appendChild(document.createElement("toolbarbutton"));
-		this.closebutton.setAttribute("class", "tabs-closebutton");
-		this.closebutton.addEventListener("command", this, false);
-
-		var box = document.getElementById("wordhighliht-toolbar-box");
-		box.appendChild(this.toolbar);
-
-		this.browser.addEventListener("GM_AutoPagerizeNextPageLoaded", this, true, true);
-		this.browser.addEventListener("keypress", this, true);
-	},
-	destroy: function() {
-		this.addbutton.removeEventListener("command", this, false);
-		this.reloadbutton.removeEventListener("command", this, false);
-		this.closebutton.removeEventListener("command", this, false);
-		this.browser.removeEventListener("GM_AutoPagerizeNextPageLoaded", this, true);
-		this.browser.removeEventListener("keypress", this, true);
-		this.items.slice().forEach(function(o) o.destroy());
-		this.toolbar.parentNode.removeChild(this.toolbar);
-		delete gWHT.toolbars[this.linkedPanel];
-	},
-	handleEvent: function(event) {
-		switch(event.type){
-			case "GM_AutoPagerizeNextPageLoaded":
-				if (!this.items.length) return;
-				var doc = event.target;
-				var win = doc.defaultView;
-				// AutoPagerizeの最後の区切り以降のRangeを取得
-				var sep = doc.querySelectorAll('.autopagerize_page_separator, .autopagerize_page_info');
-				sep = sep[sep.length-1];
-				if (!sep) return;
-				var range = doc.createRange();
-				range.setStartAfter(sep);
-				range.setEndAfter(sep.parentNode.lastChild);
-
-				var temp = this.items.slice();
-				var gh = function () {
-					temp.shift().highlight(win, range);
-					if (temp.length)
-						win.setTimeout(gh, 10);
-				}
-				win.setTimeout(gh, 10);
-				break;
-			case "command":
-				if (event.currentTarget === this.closebutton)
-					return this.destroy();
-				if (event.currentTarget == this.addbutton) {
-					var word = prompt("Bitte geben Sie den gewünschten Text zum Hervorheben", gWHT.getBrowserSelection());
-					if (!word || !/\S/.test(word)) return;
-					var o = this.addWord(word, false);
-					if (o) o.highlightAll();
-					return;
-				}
-				if (event.currentTarget === this.reloadbutton) {
-					gWHT.recoveryItems();
-					return;
-				}
-				break;
-			case "keypress":
-				if (event.target instanceof HTMLTextAreaElement || 
-						event.target instanceof HTMLSelectElement || 
-						event.target instanceof HTMLInputElement && (event.target.mozIsTextField(false)))
-					return;
-				var {keyCode, charCode, ctrlKey, shiftKey, altKey} = event;
-				if (charCode === 78 && !ctrlKey && !altKey) {
-					this.findSpan(shiftKey, event.view);
-					event.preventDefault();
-					event.stopPropagation();
-				} else if (charCode === 110 && !ctrlKey && !altKey) {
-					this.findSpan(shiftKey, event.view);
-					event.preventDefault();
-					event.stopPropagation();
-				}
-				return;
-		}
-	},
-	indexOf: function(aWord) {
-		// aWord が既にあるかを確認する
-		var low = aWord.toLowerCase();
-		for (let i = 0, len = this.items.length; i < len; i++) {
-			if (low === this.items[i].word.toLowerCase()) return i;
-		};
-		return -1
-	},
-	newIndexOf: function() {
-		// index プロパティの欠番を探す
-		var arr = [];
-		this.items.forEach(function(o) arr[o.index] = true);
-		for (var i = 0, len = arr.length; i < len; i++) {
-			if (!arr[i]) return i;
-		};
-		return this.items.length;
-	},
-	addWord: function(aWord, isAuto) {
-		if (!aWord || !/\S/.test(aWord)) return;
-		if (this.indexOf(aWord) >= 0) return;
-
-		var index = this.newIndexOf();
-		var o = new gWHT.ItemClass(aWord, this, index, this.styles[index%this.styles.length], isAuto);
-		this.items.push(o);
-		this.toolbar.hidden = gBrowser.mCurrentTab != this.tab;
-		return o;
-	},
-	goHighlight: function(isAll) {
-		var temp = this.items.filter(function(o) (isAll || o.length === 0));
-		if (!temp.length) return;
-
-		// タイマーを掛けないと取りこぼす
-		var win = this.browser.contentWindow;
-		var gh = function() {
-			temp.shift().highlightAll();
-			if (temp.length)
-				win.setTimeout(gh, 0);
-		};
-		win.setTimeout(gh, 0);
-		this.toolbar.hidden = gBrowser.mCurrentTab != this.tab;
-	},
-	destroyAutoWord: function(keywords) {
-		this.items.slice().forEach(function(obj) {
-			if (!obj.isAuto) return;
-			if (keywords && keywords.indexOf(obj.word) >= 0) return;
-			obj.destroy();
-		}, this);
-	},
-	findSpan: function(isPrev, aWin) {
-		var win = aWin || gWHT.getFocusedWindow();
-		var doc = win.document;
-		var tw = win.whtw || (win.whtw = this.createTreeWalker(doc));
-		var sel = win.getSelection();
-		// ツリーの現在地を最後にクリックした位置に合わせる
-		if (sel.focusNode)
-			tw.currentNode = isPrev ? sel.anchorNode : sel.focusNode;
-		sel.removeAllRanges();
-
-		var node;
-		if (isPrev) {
-			node = tw.previousNode();
-			if (!node) {
-				tw.currentNode = doc.body.lastChild;
-				node = tw.previousNode();
-			}
-		} else {
-			node = tw.nextNode();
-			if (!node) {
-				tw.currentNode = doc.body;
-				node = tw.nextNode();
-			}
-		}
-		if (!node) return;
-
-		var range = doc.createRange();
-		range.selectNode(node);
-		sel.addRange(range);
-		sel.QueryInterface(Ci.nsISelectionPrivate)
-			.scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
-		range.detach();
-
-		var anchor = doc.evaluate('descendant-or-self::a[@href]|ancestor-or-self::a[@href]',
-			node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-		if (anchor && !/^mailto/.test(anchor.href)) {
-			anchor.focus();
-		}
-		node.style.setProperty('outline', '3px solid #36F', 'important');
-		win.setTimeout(function() {
-			node.style.removeProperty('outline');
-		}, 400);
-		sel.collapse(node, 0);
-	},
-	createTreeWalker: function(doc) {
-		return doc.createTreeWalker(
-			doc.body, NodeFilter.SHOW_ELEMENT, this.twFilter.bind(this), false);
-	},
-	twFilter: function(node) {
-		if (node.mozMatchesSelector('.wordhighliht-toolbar-span') && node.offsetHeight) {
-			return NodeFilter.FILTER_ACCEPT;
-		}
-		return NodeFilter.FILTER_SKIP;
-	},
-};
-
-window.gWHT.ItemClass = function() { this.init.apply(this, arguments); }
-window.gWHT.ItemClass.prototype = {
-	FIND_FOUND   : 0,
-	FIND_NOTFOUND: 1,
-	FIND_WRAPPED : 2,
-	TYPE: Ci.nsISelectionController.SELECTION_ACCESSIBILITY,
-	finder: Cc["@mozilla.org/embedcomp/rangefind;1"].createInstance().QueryInterface(Ci.nsIFind),
-	sound: Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound),
-	css: ['font: inherit !important;'
-		,'margin: 0px !important;'
-		,'padding: 0px !important;'
-		,'border: none !important;'
-	].join(' '),
-	_length: 0,
-	get length() this._length,
-	set length(val) {
-		this.button.setAttribute("length", +val);
-		return this._length = (+val);
-	},
-	getWins: function() gWHT.getWins(this.browser.contentWindow),
-	init: function(aWord, aToolbar, aIndex, aColor, isAuto) {
-		this.word = aWord;
-		this.tb = aToolbar;
-		this.index = aIndex;
-		this.color = aColor;
-		this.isAuto = isAuto;
-		this.browser = this.tb.browser;
-		this.finder.findBackwards = true; /* 後ろから前に向かって検索するか */
-		this.finder.caseSensitive = false;/* 大文字小文字を区別するか */
-		this.fastFind = this.browser.fastFind;
-
-		this.button = document.createElement("toolbarbutton");
-		this.button.setAttribute("label", this.word);
-		this.button.setAttribute("style", this.color);
-		this.button.setAttribute("length", "0");
-		this.button.setAttribute("class", [
-			"wordhighliht-toolbar-item",
-			"wordhighliht-toolbar" + this.index,
-			(this.isAuto ? "auto" : "user")].join(' ')
-		);
-		this.button.setAttribute("tooltiptext", [
-			'Mausrad runter, oder Linksklick zum Weitersuchen',
-			'Shift + Linksklick, oder Mausrad zum vorherigen Wort',
-			'Mittelklick auf Mausrad zum Löschen'].join('\n')
-		);
-		this.tb.box.appendChild(this.button);
-		this.button.addEventListener("command", this, false);
-		this.button.addEventListener("DOMMouseScroll", this, false);
-		this.button.addEventListener("click", this, false);
-	},
-	destroy: function() {
-		this.button.removeEventListener("DOMMouseScroll", this, false);
-		this.button.removeEventListener("click", this, false);
-		this.button.removeEventListener("command", this, false);
-		this.lowlightAll();
-
-		var index = this.tb.items.indexOf(this);
-		if (index >= 0)
-			this.tb.items.splice(index, 1);
-
-		this.button.parentNode.removeChild(this.button);
-	},
-	handleEvent: function(event) {
-		switch(event.type){
-			case "DOMMouseScroll":
-				this.find(event.detail < 0);
-				event.preventDefault();
-				event.stopPropagation();
-				break;
-			case "command":
-				this.find(event.shiftKey);
-				break;
-			case "click":
-				if (event.button != 1) return;
-				event.preventDefault();
-				event.stopPropagation();
-				this.destroy();
-				break;
-		}
-	},
-	find: function(isBack) {
+	find: function(aWord, isBack) {
 		var res;
-		if (this.fastFind.searchString != this.word) {
-			res = this.fastFind.find(this.word, false);
+		var fastFind = gBrowser.fastFind;
+		if (fastFind.searchString != aWord) {
+			res = fastFind.find(aWord, false);
 			if (isBack) {
-				res = this.fastFind.findAgain(isBack, false);
+				res = fastFind.findAgain(isBack, false);
 			}
 		} else {
-			res = this.fastFind.findAgain(isBack, false);
+			res = fastFind.findAgain(isBack, false);
 		}
 		if (res === this.FIND_NOTFOUND)
 			return this.sound.beep();
 		if (res === this.FIND_WRAPPED)
 			this.sound.beep();
-		var win = this.fastFind.currentWindow;
+		var win = fastFind.currentWindow;
 		if (!win) return;
 		var sel = win.getSelection();
 		var node = sel.getRangeAt(0).startContainer;
 		var span = node.parentNode;
-		if (!span.classList.contains('wordhighliht-toolbar-span')) return;
+		if (!span.classList.contains(CLASS_SPAN)) return;
 		sel.collapse(node, 1);
 		span.style.setProperty('outline', '4px solid #36F', 'important');
 		win.setTimeout(function () {
 			span.style.removeProperty('outline');
 		}, 400);
 	},
-	throughSelector: ['script','style','textarea','input','select','.wordhighliht-toolbar-span'].map(function(w) w+', '+w+' *').join(','),
-	highlight: function(aWindow, aRange) {
-		var win = aWindow;
-		var doc = win.document;
-		var controller = this._getSelectionController(win);
-		if (!controller) return;
-		var sel = controller.getSelection(this.TYPE);
-		var finder = this.finder;
-
-		var range = aRange;
-		if (!range) {
-			range = doc.createRange();
-			range.selectNodeContents(doc.body);
-		}
-		var sRange = range.cloneRange();
-		sRange.collapse(false);
-		var eRange = range.cloneRange();
-		eRange.collapse(true);
-
-		var cls = "wordhighliht-toolbar" + this.index ;
-		var cls2 = "wordhighliht-toolbar-span " + (this.isAuto ? "auto" : "user");
-		var len = 0;
-		for (var retRange = null; 
-		     retRange = finder.Find(this.word, range, sRange, eRange); 
-		     sRange = retRange.cloneRange(), sRange.collapse(true)) {
-			var pare = retRange.startContainer.parentNode;
-			if (pare.mozMatchesSelector(this.throughSelector)) {
-				if (pare.classList.contains(cls))
-					++len;
-				continue;
-			}
-			var pare = retRange.endContainer.parentNode;
-			if (pare.mozMatchesSelector(this.throughSelector)) {
-				if (pare.classList.contains(cls))
-					++len;
-				continue;
-			}
-			let span = doc.createElementNS("http://www.w3.org/1999/xhtml", "font");
-			span.setAttribute("style", this.css + this.color);
-			span.setAttribute("class", cls2 + " " + cls);
-			try {
-				retRange.surroundContents(span);
-				++len;
-				continue;
-			} catch (e) {}
-			try {
-				// 範囲内の要素を細切れにしてでも強調する。行儀が悪い
-				span.appendChild(retRange.extractContents());
-				retRange.insertNode(span);
-				++len;
-				continue;
-			} catch (e) {}
-		}
-		this.length += len;
-	},
-	highlightAll: function() {
-		this.length = 0;
-		this.getWins().forEach(function(w) this.highlight(w), this);
-		this.tb.toolbar.hidden != this.tab == gBrowser.mCurrentTab;
-	},
-	lowlightAll: function() {
-		var rm = function(elem){
-			var range = document.createRange();
-			range.selectNodeContents(elem);
-			var df = range.extractContents();
-			elem.parentNode.replaceChild(df, elem);
-			range.detach();
-		};
-		this.getWins().forEach(function(w){
-			Array.slice(w.document.getElementsByClassName("wordhighliht-toolbar" + this.index)).forEach(rm, this);
-			w.document.body.normalize();
-		}, this);
-	},
-	_getSelectionController : function _getSelectionController(aWindow) {
-		if (!aWindow.innerWidth || !aWindow.innerHeight) {
-			return null;
-		}
-		var docShell = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation).QueryInterface(Ci.nsIDocShell);
-		var controller = docShell.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsISelectionDisplay).QueryInterface(Ci.nsISelectionController);
-		return controller;
-	},
 };
 
 
+window.gWHT.ContentClass = function(){ this.init.apply(this, arguments) };
+window.gWHT.ContentClass.prototype = {
+	finder: Cc["@mozilla.org/embedcomp/rangefind;1"].createInstance().QueryInterface(Ci.nsIFind),
+	styles: [
+		 ['hsl( 60, 100%, 80%)','#000'] // bgcolor, textcolor
+		,['hsl(120, 100%, 80%)','#000']
+		,['hsl(180, 100%, 80%)','#000']
+		,['hsl(240, 100%, 80%)','#000']
+		,['hsl(300, 100%, 80%)','#000']
+		,['hsl(360, 100%, 80%)','#000']
+		,['hsl( 30, 100%, 80%)','#000']
+		,['hsl( 90, 100%, 80%)','#000']
+		,['hsl(150, 100%, 80%)','#000']
+		,['hsl(210, 100%, 80%)','#000']
+		,['hsl(270, 100%, 80%)','#000']
+		,['hsl(330, 100%, 80%)','#000']
+	],
+	css: [
+		'font: inherit !important;'
+		,'margin: 0px !important;'
+		,'padding: 0px !important;'
+		,'border: none !important;'
+		,'text-shadow: none !important;'
+	].join(' '),
+	throughSelector: ['textarea', 'input', '.' + CLASS_SPAN].map(function(w) w+', '+w+' *').join(','),
 
-window.gWHT.init();
+	init: function(doc, keywords) {
+		this.doc = doc;
+		this.win = doc.defaultView;
+		this.body = doc.body,
+		this.items = {};
+		this.finder.findBackwards = false; /* 後ろから前に向かって検索するか */
+		this.finder.caseSensitive = false; /* 大文字小文字を区別するか */
 
+		if (keywords) {
+			this.initItems(keywords);
+		}
+		this.doc.addEventListener("keypress", this, false);
+		this.doc.addEventListener("GM_AutoPagerizeNextPageLoaded", this, false);
+		this.fireEvent('initialized', this.doc);
+	},
+	handleEvent: function(event) {
+		switch (event.type) {
+			case "keypress":
+				if (event.target instanceof HTMLTextAreaElement ||
+				    event.target instanceof HTMLSelectElement ||
+				    event.target instanceof HTMLInputElement && (event.target.mozIsTextField(false)))
+					return;
+				var {charCode, ctrlKey, shiftKey, altKey} = event;
+				if ((charCode === 78 || charCode === 110) && !ctrlKey && !altKey) {
+					this.find(shiftKey);
+					event.preventDefault();
+					event.stopPropagation();
+				}
+				break;
+			case "GM_AutoPagerizeNextPageLoaded":
+				// AutoPagerizeの最後の区切り以降のRangeを取得
+				var sep = this.doc.querySelectorAll('.autopagerize_page_separator, .autopagerize_page_info');
+				sep = sep[sep.length-1];
+				if (!sep) return;
+				var range = this.doc.createRange();
+				if (sep.parentNode.localName == 'td') {
+					range.setStartAfter(sep.parentNode.parentNode);
+					range.setEndAfter(sep.parentNode.parentNode.parentNode);
+				} else {
+					range.setStartAfter(sep);
+					range.setEndAfter(sep.parentNode.lastChild);
+				}
+				this.highlightAll(range);
+				break;
+		}
+	},
+	initItem: function(aWord, aBold, aBG, aFG, aIndex) {
+		if (!aWord) return null;
+		if (typeof aWord === 'object') {
+			aBold = aWord.bold;
+			aBG = aWord.bgcolor;
+			aFG = aWord.fgcolor;
+			aIndex = aWord.index;
+			aWord = aWord.word;
+			if (!aWord) return null;
+		}
+		var w = aWord.toLowerCase();
+		if (this.items[w]) return null;
+
+		var index = typeof aIndex == 'number' && aIndex != NaN ? aIndex : this.newIndexOf();
+		var [bg, fg] = this.styles[index % this.styles.length];
+		if (aBG) {
+			bg = aBG;
+			fg = aFG || rgb2bw(aBG);
+		}
+		var obj = this.items[w] = {
+			word: aWord,
+			index: index,
+			bgcolor: bg,
+			fgcolor: fg,
+			bold: !!aBold,
+			length: 0,
+		};
+		Object.defineProperty(obj, 'toString', {
+			enumerable: false,
+			value: function() {
+				return '[' + this.index + ':' + this.length + ':' + this.word + ']';
+			}
+		});
+		return obj;
+	},
+	initItems: function(array, aBold) {
+		return array.map(function(aWord, index) {
+			return this.initItem(aWord, aBold);
+		}, this);
+	},
+	_highlight: function(aItem, aRange) {
+		this.finder.findBackwards = false; /* 後ろから前に向かって検索するか */
+		var doc = this.doc;
+		var range = aRange;
+		if (!range) {
+			range = doc.createRange();
+			range.selectNodeContents(this.body);
+		}
+		var sRange = range.cloneRange();
+		sRange.collapse(true);
+		var eRange = range.cloneRange();
+		eRange.collapse(false);
+
+		// タイマーを使わなくて良いおまじない
+		// http://piro.sakura.ne.jp/latest/blosxom/mozilla/xul/2010-07-06_dynamic.htm
+		doc.documentElement.clientHeight;
+
+		var rangeArr = [];
+		var len = 0;
+		for (var retRange = null;
+		     retRange = this.finder.Find(aItem.word, range, sRange, eRange);
+		     sRange = retRange.cloneRange(), sRange.collapse(false)) {
+			rangeArr[++len] = retRange;
+		}
+
+		if (len > 0) {
+			var temp = doc.createElementNS("http://www.w3.org/1999/xhtml", "font");
+			temp.setAttribute("style", this.css +
+				'background-color: ' + aItem.bgcolor + ' !important;' +
+				'color: ' + aItem.fgcolor + ' !important;');
+			temp.setAttribute("class", CLASS_SPAN + ' ' + CLASS_INDEX + aItem.index);
+
+			len = 0;
+			rangeArr.forEach(function(range){
+				var node = range.startContainer;
+				if (node.nodeType != 1)
+					node = node.parentNode;
+				if (node.mozMatchesSelector(this.throughSelector)) {
+					if (node.classList.contains( CLASS_INDEX + aItem.index ))
+						++len;
+					return;
+				}
+
+				node = range.endContainer;
+				if (node.nodeType != 1)
+					node = node.parentNode;
+				if (node.mozMatchesSelector(this.throughSelector)) {
+					if (node.classList.contains( CLASS_INDEX + aItem.index ))
+						++len;
+					return;
+				}
+
+				var span = temp.cloneNode(false);
+				try {
+					range.surroundContents(span);
+					++len;
+					return;
+				} catch (e) {}
+				try {// 範囲内の要素を細切れにしてでも強調する。行儀が悪い
+					span.appendChild(range.extractContents());
+					range.insertNode(span);
+					++len;
+					return;
+				} catch (e) {}
+			}, this);
+		}
+		if (aRange)
+			aItem.length += len;
+		else
+			aItem.length = len;
+	},
+	_lowlight: function(aItem) {
+		var doc = this.doc;
+		$A(doc.getElementsByClassName(CLASS_INDEX + aItem.index)).forEach(function(elem){
+			var range = doc.createRange();
+			range.selectNodeContents(elem);
+			var df = range.extractContents();
+			range.setStartBefore(elem);
+			range.insertNode(df);
+			range.selectNode(elem);
+			range.deleteContents();
+		}, this);
+		aItem.length = 0;
+	},
+	highlightAll: function(aRange) {
+		Object.keys(this.items).forEach(function(key){
+			this._highlight(this.items[key], aRange);
+		}, this);
+		this.fireEvent('highlightAll', this.doc);
+	},
+	lowlightAll: function() {
+		var doc = this.doc;
+		$A(doc.getElementsByClassName(CLASS_SPAN)).forEach(function(elem){
+			var range = doc.createRange();
+			range.selectNodeContents(elem);
+			var df = range.extractContents();
+			range.setStartBefore(elem);
+			range.insertNode(df);
+			range.selectNode(elem);
+			range.deleteContents();
+		}, this);
+		Object.keys(this.items).forEach(function(key){
+			delete this.items[key];
+		}, this);
+		this.fireEvent('lowlightAll', this.doc);
+	},
+	addWord: function(aWord, aBold, aRange) {
+		var itemArr = Array.isArray(aWord) ? this.initItems(aWord, aBold) : [this.initItem(aWord, aBold)];
+		itemArr = itemArr.filter(function(item) {
+			if (item) {
+				this._highlight(item, aRange);
+				return true;
+			}
+		}, this);
+		if (itemArr.length) {
+			var args = ['highlight', this.doc].concat(itemArr);
+			this.fireEvent.apply(this, args);
+		}
+	},
+	removeWord: function(aWord) {
+		var w = aWord.toLowerCase();
+		var obj = this.items[w];
+		if (obj) {
+			this._lowlight(obj);
+			this.fireEvent('lowlight', this.doc, obj);
+		}
+		delete this.items[w];
+	},
+	newIndexOf: function() {
+		// index プロパティの欠番を探す
+		var arr = [];
+		Object.keys(this.items).forEach(function(key) arr[this.items[key].index] = true, this);
+
+		for (var i = 0, len = arr.length; i < len; i++) {
+			if (!arr[i]) return i;
+		};
+		return arr.length;
+	},
+	find: function(isPrev) {
+		var sel = this.win.getSelection();
+		var range = this.doc.createRange();
+		range.selectNodeContents(this.doc.body);
+		var node = isPrev ? sel.anchorNode : sel.focusNode;
+		if (node) {
+			var elem = node.nodeType === Node.ELEMENT_NODE ? node : node.parentNode;
+			if (elem.classList.contains(CLASS_SPAN)) {
+				isPrev ? range.setEndBefore(elem) : range.setStartAfter(elem);
+			} else {
+				isPrev ? range.setEnd(sel.anchorNode, sel.anchorOffset) : range.setStart(sel.focusNode, sel.focusOffset);
+			}
+		}
+		var sRange = range.cloneRange();
+		sRange.collapse(!isPrev);
+		var eRange = range.cloneRange();
+		eRange.collapse(isPrev);
+		this.finder.findBackwards = isPrev; /* 後ろから前に向かって検索するか */
+
+		// 各ワードを１回ずつ検索して一番近い物を探す
+		var node = null, elem = null, w, o = 0;
+		Object.keys(this.items).forEach(function(key){
+			var item = this.items[key];
+			var r = this.finder.Find(item.word, range, sRange, eRange);
+			if (!r) return
+			var tn = r.startContainer;
+			if (!tn) return;
+			if (!node) {
+				node = tn;
+				o = r.startOffset;
+				w = item.word;
+				return;
+			}
+
+			var res = node.compareDocumentPosition(tn);
+			if (isPrev && res & Node.DOCUMENT_POSITION_FOLLOWING ||
+			   !isPrev && res & Node.DOCUMENT_POSITION_PRECEDING)
+			{
+				node = tn;
+				w = item.word;
+				return;
+			}
+		}, this);
+		if (w) {
+			gWHT.find(w, isPrev);
+			return;
+		}
+		var els = this.doc.getElementsByClassName(CLASS_SPAN);
+		var span = isPrev ? els[els.length-1] : els[0];
+		if (!span || !span.classList.contains(CLASS_SPAN)) return;
+
+		gWHT.sound.beep();
+		sel.selectAllChildren(span.firstChild);
+		sel.collapse(span.firstChild, 1);
+		sel.QueryInterface(Ci.nsISelectionPrivate)
+			.scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
+		span.style.setProperty('outline', '4px solid #36F', 'important');
+		this.win.setTimeout(function () {
+			span.style.removeProperty('outline');
+		}, 400);
+	},
+	fireEvent: function (aName, aTarget) {
+		var evt = new CustomEvent(EVENT_RESPONSE, { bubbles: true, cancelable: true, detail: {
+			name: aName,
+			args: $A(arguments).slice(2),
+		} });
+		aTarget.dispatchEvent(evt);
+	},
+};
+
+function rgb2bw(code) {
+	if (!code) return "#000";
+	var m = code.match(/^#?([0-9a-f]{1,2})([0-9a-f]{1,2})([0-9a-f]{1,2})$/i);
+	if (!m || !m[1]) return "#000";
+	m = m.slice(1, 4).map(function(c){
+		return parseInt(!c[1] ? c[0] + c[0] : c, 16);
+	});
+	return (m[0] + m[1] + m[2]) > 128*3 ? "#000" : "#fff";
+}
+
+function getWins(win) {
+	var wins = win.frames.length ? [win].concat(Array.slice(win.frames)) : [win];
+	return wins.filter(function(win) checkDoc(win.document));
+}
+function checkDoc(doc) {
+	if (!(doc instanceof HTMLDocument)) return false;
+	if (!window.mimeTypeIsTextBased(doc.contentType)) return false;
+	if (!doc.body || !doc.body.hasChildNodes()) return false;
+	if (doc.body instanceof HTMLFrameSetElement) return false;
+	return true;
+}
+function getFocusedWindow() {
+	var win = document.commandDispatcher.focusedWindow;
+	return (!win || win == window) ? content : win;
+}
+function getRangeAll(win) {
+	var sel = (win || getFocusedWindow()).getSelection();
+	var res = [];
+	if (sel.isCollapsed) return res;
+
+	for(var i = 0, l = sel.rangeCount; i < l; i++) {
+		res.push(sel.getRangeAt(i));
+	}
+	return res;
+}
 
 function $(id) { return document.getElementById(id); }
 function $$(exp, doc) { return Array.prototype.slice.call((doc || document).querySelectorAll(exp)); }
 function $A(args) { return Array.prototype.slice.call(args); }
-function log() { Application.console.log($A(arguments).join(', ')); }
+function log() { Services.console.logStringMessage($A(arguments).join(', ')); }
+function debug() { if (gWHT.DEBUG) log("wht debug: " + $A(arguments).join(', ')); }
 function addStyle(css) {
 	var pi = document.createProcessingInstruction(
 		'xml-stylesheet',
@@ -861,78 +1004,42 @@ function addStyle(css) {
 	return document.insertBefore(pi, document.documentElement);
 }
 
+window.gWHT.init();
+
 })('\
-.wordhighliht-toolbar-icon {\
+.wordhighlight-toolbar-icon {\
   list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANUlEQVQ4jWNgGBTg6dOi/6RgrAb8/19PFB7EBlAUBoMDFD0t+k8qxjCgngQ4SA2gKAwGDAAAM3SE/usVkKQAAAAASUVORK5CYII=");\
 }\
+.wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-up,\
+.wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down {\
+  list-style-image: url("chrome://browser/skin/tabbrowser/tab-arrow-left.png");\
+}\
+.wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down {\
+  transform: scaleX(-1);\
+}\
+.wordhighlight-toolbar-item {\
+  text-shadow: none;\
+}\
+.wordhighlight-toolbar-item > .toolbarbutton-icon { visibility: collapse; }\
 \
-.wordhighliht-toolbar-arrowscrollbox > .autorepeatbutton-up,\
-.wordhighliht-toolbar-arrowscrollbox > .autorepeatbutton-down{\
-  min-width: 16px;\
-}\
-\
-.wordhighliht-toolbar-arrowscrollbox > .autorepeatbutton-up > .autorepeatbutton-icon,\
-.wordhighliht-toolbar-arrowscrollbox > .autorepeatbutton-down > .autorepeatbutton-icon {\
-  -moz-transform: rotate(-90deg);\
-}\
-\
-.wordhighliht-toolbar-toolbar .tabs-closebutton {\
-  padding: 0px 3px !important;\
-}\
-.wordhighliht-toolbar-toolbar .tabs-closebutton > .toolbarbutton-icon {\
-  -moz-padding-end: 0px !important;\
-  -moz-padding-start: 0px !important;\
-}\
-.wordhighliht-toolbar-item.user {\
-  font-weight: bold !important;\
-}\
-.wordhighliht-toolbar-item {\
-  -moz-appearance: none !important;\
-  -moz-box-align: center !important;\
-  padding: 2px 3px !important;\
-  margin: 0px 0px 0px 3px !important;\
-  border: 1px solid rgba(0,0,0,.2) !important;\
-  border-radius: 0 10px 0 10px / 0 10px 0 10px  !important;\
-}\
-.wordhighliht-toolbar-item:hover {\
-  border: 1px outset rgba(0,0,0,.6) !important;\
-}\
-.wordhighliht-toolbar-item:hover:active {\
-  border: 1px inset rgba(0,0,0,.4) !important;\
-}\
-.wordhighliht-toolbar-item[length]:after {\
-  content: "(" attr(length) ")" !important;\
-}\
-.wordhighliht-toolbar-item > .toolbarbutton-icon {\
-  margin: 0px !important;\
-}\
-\
-.wordhighliht-toolbar-reloadbutton,\
-.wordhighliht-toolbar-addbutton {\
-  -moz-appearance: none !important;\
-  padding: 0px 3px !important;\
-  border: none !important;\
+.wordhighlight-toolbar-reloadbutton,\
+.wordhighlight-toolbar-addbutton {\
   list-style-image: url("chrome://browser/skin/Toolbar.png");\
 }\
-.wordhighliht-toolbar-reloadbutton {\
-  -moz-image-region: rect(0pt, 72px, 18px, 54px);\
-}\
-.wordhighliht-toolbar-addbutton {\
-  -moz-image-region: rect(0pt, 306px, 18px, 288px);\
-}\
-.wordhighliht-toolbar-reloadbutton:hover,\
-.wordhighliht-toolbar-addbutton:hover {\
-  background-image: -moz-linear-gradient(bottom, transparent, rgba(0,0,0,.15)),\
-                    -moz-linear-gradient(bottom, transparent, rgba(0,0,0,.15) 30%),\
-                    -moz-linear-gradient(bottom, transparent, rgba(0,0,0,.15) 30%);\
-  background-position: left, left, right;\
-  background-size: auto, 1px 100%, 1px 100%;\
-  background-repeat: no-repeat;\
-}\
+.wordhighlight-toolbar-reloadbutton { -moz-image-region: rect(0pt, 72px, 18px, 54px); }\
+.wordhighlight-toolbar-addbutton    { -moz-image-region: rect(0pt, 306px, 18px, 288px); }\
 \
-.wordhighliht-toolbar-arrowscrollbox[hidden="true"] ~ *,\
-.wordhighliht-toolbar-arrowscrollbox:empty,\
-.wordhighliht-toolbar-arrowscrollbox:empty ~ * {\
-  visibility: collapse;\
+.wordhighlight-toolbar-arrowscrollbox:empty,\
+.wordhighlight-toolbar-arrowscrollbox:empty ~ * { visibility: collapse; }\
+\
+\
+/*.wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-up:-moz-lwtheme-brighttext,\
+.wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down:-moz-lwtheme-brighttext {\
+  list-style-image: url("chrome://browser/skin/tabbrowser/tab-arrow-left-inverted.png");\
 }\
+.wordhighlight-toolbar-reloadbutton:-moz-lwtheme-brighttext,\
+.wordhighlight-toolbar-addbutton:-moz-lwtheme-brighttext {\
+  list-style-image: url("chrome://browser/skin/Toolbar-inverted.png");\
+}*/\
+\
 ');
