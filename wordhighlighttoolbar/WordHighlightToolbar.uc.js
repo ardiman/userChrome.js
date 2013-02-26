@@ -7,7 +7,9 @@
 // @compatibility  Firefox 17
 // @charset        UTF-8
 // @include        main
-// @version        0.0.5
+// @version        0.0.6
+// @note           0.0.6 アイコンを作って検索時の強調を ON/OFF できるようにした
+// @note           0.0.6 背面のタブを複数開いた際の引き継ぎを修正
 // @note           0.0.5 大幅に変更（変更し過ぎてどこを変更したのかすら忘れた）
 // @note           0.0.5 外部からイベントでハイライトできるようにした
 // @note           0.0.5 "戻る"動作にツールバーが連動するようにした
@@ -33,11 +35,11 @@ const CLASS_SPAN  = PREFIX + 'span';
 const CLASS_INDEX = PREFIX + 'index';
 const EVENT_RESPONSE = 'RESPONSE_' + UID;
 
+var GET_KEYWORD = true;
 var wmap = new WeakMap();
 
 window.gWHT = {
 	DEBUG: false,
-	GET_KEYWORD: true, // キーワードを自動取得する [default:true]
 	SITEINFO: [
 		/**
 			url     URL。正規表現。keyword, input が無い場合は $1 がキーワードになる。
@@ -76,9 +78,30 @@ window.gWHT = {
 	getRangeAll: getRangeAll,
 	wmap:wmap,
 	tabhistory: {},
+	get prefs() {
+		delete this.prefs;
+		return this.prefs = Services.prefs.getBranch("WordHighlightToolbar.");
+	},
+	get GET_KEYWORD() GET_KEYWORD,
+	set GET_KEYWORD(bool) {
+		bool = !!bool;
+		var icon = $(PREFIX + "icon");
+		if (icon) {
+			icon.setAttribute("state", bool ? "Aktiviert" : "Deaktiviert");
+			icon.setAttribute("tooltiptext", bool ? "Aktiviert" : "Deaktiviert");
+		}
+		return GET_KEYWORD = bool;
+	},
 
 	init: function() {
 		this.xulstyle = addStyle(CSS);
+
+		var icon = $("urlbar-icons").appendChild(document.createElement("image"));
+		icon.setAttribute("id", PREFIX + "icon");
+		icon.setAttribute("class", PREFIX + "icon");
+		icon.setAttribute("onclick", "gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD");
+		icon.setAttribute("context", "");
+		icon.setAttribute("style", "padding: 0px 2px;");
 
 		var bb = document.getElementById("appcontent");
 		var container = bb.appendChild(document.createElement("hbox"));
@@ -120,6 +143,12 @@ window.gWHT = {
 			}.bind(this), 10);\
 		");
 
+		try {
+			this.GET_KEYWORD = this.prefs.getBoolPref("GET_KEYWORD");
+		} catch (e) {
+			this.GET_KEYWORD = GET_KEYWORD;
+		}
+
 		gBrowser.mPanelContainer.addEventListener("DOMContentLoaded", this, false);
 		// gBrowser.mPanelContainer.addEventListener("click", this, false);
 		// gBrowser.mPanelContainer.addEventListener("dragend", this, false);
@@ -146,9 +175,10 @@ window.gWHT = {
 		gBrowser.mTabContainer.removeEventListener("TabClose", this, false);
 		document.getElementById("contentAreaContextMenu").removeEventListener("popupshowing", this, false);
 		window.removeEventListener("unload", this, false);
+		this.prefs.setBoolPref("GET_KEYWORD", this.GET_KEYWORD);
 	},
 	destroy: function() {
-		[PREFIX + "box", PREFIX + "highlight"].forEach(function(id){
+		[PREFIX + "icon", PREFIX + "box", PREFIX + "highlight"].forEach(function(id){
 			var elem = $(id);
 			if (elem) elem.parentNode.removeChild(elem);
 		}, this);
@@ -170,20 +200,14 @@ window.gWHT = {
 				this.lastClickedTime = new Date().getTime();
 				break;
 			case "DOMContentLoaded":
+				if (!this.GET_KEYWORD) return;
 				var doc = event.target;
 				var win = doc.defaultView;
-				// iframe では動作しない
-				if (win.frameElement instanceof HTMLIFrameElement) return;
-				// frame 内の動作は考え中
-				if (win != win.parent) {
-					//this.launchFrame(doc);
-					return;
-				}
-				// フレームや HTMLDocument じゃない場合
-				if (!checkDoc(doc)) {
-					// this.updateToolbar();
-					return;
-				}
+				// frame 内では動作しない
+				if (win != win.parent) return;
+				// HTMLDocument じゃない場合
+				if (!checkDoc(doc)) return;
+
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
 				this.launch(doc, keywords);
 				break;
@@ -193,10 +217,7 @@ window.gWHT = {
 				if (win != win.parent) return;
 				if (event.persisted) {// bfcache から
 					this.updateToolbar( wmap.get(doc) );
-				} else {
-					this.updateToolbar( wmap.get(doc) );
 				}
-				if (!event.persisted) return;
 				break;
 			case EVENT_RESPONSE:
 				event.stopPropagation();
@@ -228,8 +249,9 @@ window.gWHT = {
 				this.updateToolbar(toolbar);
 				break;
 			case "TabOpen":
-				this.lastOpenedTab = event.target;
-				this.lastOpenedTime = new Date().getTime();
+				var tab = event.target;
+				tab.whtOwner = gBrowser.mCurrentTab;
+				tab.whtTime = new Date().getTime();
 				break;
 			case "TabClose":
 				delete this.tabhistory[event.target.linkedPanel];
@@ -291,7 +313,6 @@ window.gWHT = {
 			//delete this.tabhistory[linkedPanel][index];
 			return;
 		}
-
 	},
 	_launch: function(doc, tab) {
 		if (!tab) {
@@ -317,9 +338,8 @@ window.gWHT = {
 		var { loadType, sessionHistory: { count, index } } = tab.linkedBrowser.docShell;
 		var tabhis = this.tabhistory[linkedPanel] || (this.tabhistory[linkedPanel] = []);
 
-		var owntab = tab.owner;
-		var newtabflag = this.lastOpenedTime - this.lastClickedTime < 250; // newtab from user.
-		this.lastOpenedTime = Infinity;
+		var newtabflag = (tab.whtTime || Infinity) - this.lastClickedTime < 250; // newtab from user.
+		tab.whtTime = Infinity;
 		keywords || (keywords = []);
 
 		let hikitugi = [];
@@ -337,32 +357,33 @@ window.gWHT = {
 			})
 		}
 		if (newtabflag) { // newtab from user.
-			if (owntab) {
-				let ownhis = this.tabhistory[owntab.linkedPanel];
+			if (tab.whtOwner) {
+				let ownhis = this.tabhistory[tab.whtOwner.linkedPanel];
 				if (ownhis) {
-					let items = ownhis[owntab.linkedBrowser.docShell.sessionHistory.index];
+					let items = ownhis[tab.whtOwner.linkedBrowser.docShell.sessionHistory.index];
 					if (items) {
 						hiki_for_items(items, keywords.length > 0);
 					}
 				}
 			}
+			tab.whtOwner = null;
 		} else if (loadType === 2) { // reload
 			var items = tabhis[index];
 			if (items) {
 				hiki_for_items(items, keywords.length > 0);
 			}
 		} else if (loadType > 1) { // currenttab for user
-			var items = tabhis[index-1];
+			var items = tabhis[index-1] || tabhis[index];
 			if (items) {
 				hiki_for_items(items, keywords.length > 0);
 			}
 		}
 
-//		debug([doc.URL + '\n'
-//		,'loadType:' + loadType,'newtabflag:' + newtabflag
-//		,'keywords:[' + keywords + ']'
-//		,'hikitugi:[' + hikitugi.map(function(o) o.word) + ']'
-//		].join(', '));
+		// debug([doc.URL + '\n'
+		// ,'loadType:' + loadType,'newtabflag:' + newtabflag
+		// ,'keywords:[' + keywords + ']'
+		// ,'hikitugi:[' + hikitugi.map(function(o) o.word) + ']'
+		// ].join(', '));
 
 		if (keywords.length || hikitugi.length) {
 			this._launch(doc, tab);
@@ -1009,6 +1030,9 @@ window.gWHT.init();
 })('\
 .wordhighlight-toolbar-icon {\
   list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANUlEQVQ4jWNgGBTg6dOi/6RgrAb8/19PFB7EBlAUBoMDFD0t+k8qxjCgngQ4SA2gKAwGDAAAM3SE/usVkKQAAAAASUVORK5CYII=");\
+}\
+.wordhighlight-toolbar-icon[state="Deaktiviert"] {\
+  filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");\
 }\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-up,\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down {\
