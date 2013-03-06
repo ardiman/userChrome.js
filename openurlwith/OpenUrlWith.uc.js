@@ -153,7 +153,7 @@ function openApplication(aEvent) {
 function setMenuDisplay() {
     var menuItems = document.getElementById("ucjs_openurlwith-popup").childNodes;
     for (var i = 0, menu; menu = mMenus[i]; i++)
-        menuItems[i].hidden = "shouldDisplay" in menu && !menu.shouldDisplay;
+        menuItems[i].hidden = "shouldDisplay" in menu && !menu.shouldDisplay || menu.application=='';
 }
 
 })();
