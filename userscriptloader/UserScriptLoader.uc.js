@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 5.0
 // @license        MIT License
+// @version        0.1.8.1a Scriptpatch-Einbau (Code von chinesischen Fuchs-Schraubern) aufgrund von vielen inkompatiblen User Scripten
 // @version        0.1.8.1
 // @note           0.1.8.1 Save Script が機能していないのを修正
 // @note           0.1.8.0 Remove E4X
@@ -1091,6 +1092,7 @@ USL.getContents = function(aURL, aCallback){
 	aFile.appendRelativePath(encodeURIComponent(aURL));
 
 	var wbp = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+	wbp.persistFlags &= ~Components.interfaces.nsIWebBrowserPersist.PERSIST_FLAGS_NO_CONVERSION;
 	if (aCallback) {
 		wbp.progressListener = {
 			onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
@@ -1108,7 +1110,7 @@ USL.getContents = function(aURL, aCallback){
 			onLinkIconAvailable: function(aIconURL) {},
 		}
 	}
-	wbp.saveURI(uri, null, null, null, null, aFile);
+	wbp.saveURI(uri, null, null, null, null, aFile, null);
 	USL.debug("getContents: " + aURL);
 };
 
