@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<overlay id="rebuildAppmenu"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<!--
+// ==UserScript==
+// @name           rebuildAppmenu
+// @namespace     rebuildAppmenu.uc.xul@gmail.com
+// @description    借宝地发一个自用橙色菜单加强
+// @version        1.0.1.1
+// @Author               defpt
+// @updateURL     https://j.mozest.com/ucscript/script/98.meta.js
+// @screenshot    http://j.mozest.com/images/uploads/previews/000/00/00/ee1c4238-457f-b52f-a81a-8010c77804ac.jpg http://j.mozest.com/images/uploads/previews/000/00/00/thumb-ee1c4238-457f-b52f-a81a-8010c77804ac.jpg
+// ==/UserScript==
+-->
+    <vbox id="appmenuPrimaryPane">
+        <menuitem id="appmenu-restart" 
+        label="Neustart" 
+        class="menuitem-iconic"
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKlSURBVDhPdZNLTBNhFIVngTuVmAgbF67cqLsmmPhqYkTRGImhhQCKtBKr8rJgabXSDoW2zLRT2tLH0DLAQLEQglJJfCQYYqIEiQutcUECCAt3rgppeCi/c8osLMGbnOTmnvPNvTNNqb1KcVGdW3ijSnW98m4ThB4z2f5/nS1S5ZVqGsMPjPaNViZEaA+f6vAJf1rZMMGsTPuQR0aOZ9flkqoTumZ6xRkQCReJk65I/Ovs5y8XHD5hiQ3FNrt6Rwk8ZJCVsZ1SXis/fN9gW3H3PCNeYZQwwb6Z7e3tfHjpdPro8vLPMwMjCYEJDa4jg2zWJbdrTSIbGiJeaQs24WS1psGvUCj2FVfci11RVVdMT0/nTLx5p5GuWEcWTAbGdqPdu+WJxsm/orkeUqN/+qGVDf5+7PCTUm3DuFJpzfFGY11uPkbAgKW09aZbDn8f4aTTdgub3Pxwpre6eKKurtdOTc0cobnoJhiwlO4RbZbejXR2iylPREw6A0LaJW3YLTY8ROpM7c9xtZnp/gEGLFXbYjMzQZE8cfgXUqlUHu0KTrGSuZeMNu4VHmC0cgtgwFLNls47dp9AWmyejYKiyoMWxt9s9/VJv4SYJczgKZXq/ciCAUsND08eM3cGttqkj1Zeozckk8lDTl90tsPbS5zd/RllemkGr7ym0UC7eQIGLC6iOjx8AqE6ky1dWHLz1Orqar44OsF4ePETNDDygsXskqqqABlk27nwywyMGp98e9LCBH7ZpCt0Tda1q2qN/rh0KiEkF0KPmU5vWUMGWTAyvlNjidfFMNo4nhja3KS61rRepqn/BqHHDB4yyMpYdn2cmzvtDgrvzU7/ltUVIlZWltRjBg8ZOb53Sf+BA/OLi+f64+PtkcGxQQj99/ml8/DkmFwU9RcBXOUTTWNTuwAAAABJRU5ErkJggg==" 
+        insertbefore="appmenu_privateBrowsing"
+        oncommand="Services.appinfo.invalidateCachesOnRestart() || Application.restart();" />
+        <menuitem id="appmenu_privateBrowsing" 
+        label="Privater Modus"
+        startlabel="Privaten Modus starten"
+        stoplabel="Privaten Modus beenden"
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADlSURBVDhP1ZE9CsJAEEb3Ah7AC3gEr+DFLIyJhYVRQS1iUGubIATcTVbCshapFBS08wBeYPRbVhF/QLEQPxiymXlvCRP2VTw/PNrjRzFeszcmKeXB9t4KeHis0R2R64dG1lqXeZpRrRWQ1wmvhXf0MQcHHh67hT6tH8t1P6D+ZEqXrDY7qjYHBsBzvd3bCRkOvJG5EOS2n9/8qsDDw9oLPEnPtw2fgvcFDjw8bJ5pIYqJXJBjP+dVYQ4OvBEvyXNVEjIj5+4fX8VzH3NwVnnMUqlKFHOaCWUWFM0zimJB6Fvkv8PYCZ7tkRugt4mtAAAAAElFTkSuQmCC"  />
+        <menuitem id="appmenu-option" 
+        label="Einstellungen" 
+        insertbefore="appmenu_find"
+        class="menuitem-iconic" 
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAI/SURBVDhPhVDda1JxGP7BuokYXXTZVXfd1u5GEEVQrBQWySKpLVltMafN1LJyfiybHj1D5/Fsx50znelxs5BidNFV3fgfRN3sSgTrSkYSw8i385wdMWjVCw8+7/Nxfi+yf83ImG0CMNb/z9AFy9HRmzOiaWzyCnbPQvInAA4NHjLYDxy7N3Q5yGfpvp/7enXinimynCMAHFowIZHjUXjEiPdneNg8ePaS5Uy9Xj8cy+Q/JySVEF5a29QBDo0T85+QQRYdo86Ydcolufwc2RyPa0+j4l5S3qKDAA8ZZK3TbsmoMyYoxbmooOxyKy+Iz6raq2XtxRItCvk9ABwaPGSQFRR1zqgzVqlUBkRFnYllCsRrp8ZXipRcK71ut9unWq3WaXBo8JBJy+osOnrZZJ0etzmfkCsQp5hYoPhqkQK82G40Gsf0gDbg0OAhgyw66LIH/qg9xEv0fHld+5MKOnzh1HeLxbL/gjbg0Ho+suigy7rd7mCn0xnKlaqeSErRTtzQzCxdu+3gtS4+MgAODR4yivrKiw66+gsXR2+Z77rmv8BcTOd0+CIpGp/1fgPAezoyU1oWHb2MsT8MFwOcqJ0m74T41R84EUAY6O37nryDLDpGnbH3tdrJcvWtUzvpuC+S/PgsKdPCUpbw+zuHh0y5uu1Ex6j3x3zjzjlPMEH+qLCrvtwOzccyBIBDg2e6PnneiP85W2/eneDS8ofMetGN3R2IdwFwaPCQwf7XaTabR4joELi0sSkA4NDggfeHsV+P37vG6ED+0QAAAABJRU5ErkJggg==" 
+        oncommand="openPreferences();" />
+        <menuitem id="appmenu-Addon" 
+        label="Add-ons" 
+        insertbefore="appmenu_find"
+        class="menuitem-iconic" 
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJ0SURBVDhPjVFLbBJRFB23ummauHBhYjTRtRKNmpoajS2aRtpC1NCWWoKgdLDUUhlKy8Aw/JlCKZ+ZQikw1Eqpn5LoxpV7E+PCuNGVMSZuaGLS4obre5NpICSanuRkXs5958657xKduNin6R64Z5i8dUdv7u1VdcnywTHxeO49E8sB5n3S8VKWDw53NPNxKV+F+OomMFF+S5YPjlR+425UWIdQWoRcsXJJlv8NpXrsrHrMLAyPkxGNjmQfzno+Rfl1iPBlMM24v2jGSQ7VgmodKSjV+j7Z1oJphjZ74znwL69JxMbF7IZEfA7IOhPLwhOXf0S2tWC2e+cjmTJwwrP/0reUBzsduSbbWrDM+R3hjCj9LZQuwf65k75EHiYslPXGoO4mGuuNatRUUAwMHCYyWfGqh+N/LvKlD5uv31IJQawFkwUI42ZtDKWKQLFxmPVwwKKRF0Ip0BqsRgIADjWbzVM7OzvdOJEnkjrvjgqSoZPSeyTWIJgsSl+zzUMRV/qHjg2Omt6ptCbxcv/tM9oH0w4PJ0iX2+lbWoWYUCqUK9usl0t/Zzj+W2HzlYIYNdlsLhQHRyIpFmZcYfBy/A86kvmFo/rR7JiucBroYLwHJ0Y8sbu7e1x6RLRGF4tW5EOXMV3B5Oe9vb2TjUbjNB1Kfd3Xnf4EkE/pC5KpHY9stI1BkXETTKvT/7tHqTnaPzRybno+9Gdfnw8sg9FCKWVbCxY7o6dRPO/iCuBGlDcGxinHsNHqmHQGEpKGawvBJBim5nSyrYV0tqDIFCq1nFitrZSqpXK1ZkNbOVKv17vK1W17trRVyYkvUK3yPJrMXZdtMgjiL/o0qQAqtCMRAAAAAElFTkSuQmCC" 
+        oncommand="BrowserOpenAddonsMgr();" />
+        <menuitem id="appmenu-Bookmark" 
+        label="Lesezeichen-Manager" 
+        insertbefore="appmenu_find"
+        class="menuitem-iconic" 
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHoSURBVDhPY8AHnAMiLZ0C4sygXNKAh4cHe25l69PsipbHWlqhbFBh4kF0emlWx9RF/0E4Or0kHSpMHDA2NmYtqOl8OGHuyv8gXFDded/e3p4FKk0YRKWXpLZNmv9/whygAUDcCmRHphUnQqVRgZWVH697UHxCYFxmT3hKwfa43PIHFa0T//fOWva/b/ZyMAaxy1sm/E/IrrwfnpK/HaTWFahHyz6UhyE6raiosnXS/9aJ8/53TFn4v3v6kv+9M5dhxSA5kBqQWpCe6PSifIZTpy7Ltk+ed61r+uL/3TOWEIVBatsnzr1y/vx5abA3jp89q9k2ac6dzqkL/3dNW4QXg9S0TZxz6+SFC2pgzTBw+PAJ/Za+2Q9BTgQpwoZBci39sx4cPXVBB6oNFTT3Tk1u7p/9v33yfKwYJNfWNyMeqhwTpBZUlzT3zfrfNmkeVgySS82rLIQqxwRpRbUzWoC2tE6YA8YtUAznA+XSimomQ5VjguyypiMgRc39s/7Xdk392zN13rGeafNP1HZO+QcSA8kB1RyAKscEeZWtT+o6pwKjaNbFjdv3JPz//58fiAU2bNud1Dph1qW6rqn/cyuaH0KVY4Jp85a1rNy4NefTp0+iUCE4+Pfvn+iq9dtyZ8xb1ggVAgIGBgDd8HTEqKvnWQAAAABJRU5ErkJggg==" 
+        oncommand="PlacesCommandHook.showPlacesOrganizer('AllBookmarks');" />
+        <menuitem id="appmenu-config" 
+        label="about:config" 
+        insertbefore="appmenu_print"
+        class="menuitem-iconic" 
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGwSURBVDhPjZK/S8NAFMcjiOIigl0ErYM4OTooDm4uTk4urv4JglvdrElr2pomubY2ufyy9kdaiCUiinXWRaQ4iIM4iQhuilUb79KrbTXQfuDBvXvv+73H46h2RMmYZkVtlU0aa5H0wVw2mx0ipd7gpMzGThx+o3BoXnpjgZ42LMtHyt2RS6WRXaCWsUEzGAE+AM0cIy3dcRynL5YyAkFOrjdNWKAdkfJ/KpVKPzl2EOLV+9Ykcl0zj72niCQ00bbtQZK6KDnLj0RfLQPoRIC+SMqdoGINvXalF8qTOMdmYVE9aRfjEOTDeVfwF4ZXnnEDWtZLWFC3GEG5+SvGAWBunUg6iSZ14CXwCrTMiyTMzxBpg4SS8zM8vPYSeAUdlz8jST2q2fYwsaAow7B8yL2At91qhB9sQj9rF7v3vOJ+NPTokwBzs8SigWaa49GUscxJ2SX8qfBdbF/f/DUQlMdi8XQ0oRZWcI4+3aUr7AZqdE1CgnJXrVYHpEx+AefBOHwlLd0R5Pw2FtFodHpPecfnMFDPSbk3uHQmgHZTc8WidgtgcYqUegdvn5cyE42Mon4AKKVSBCWmd9wAAAAASUVORK5CYII=" 
+        oncommand="gBrowser.selectedTab = gBrowser.addTab('about:config');" />
+        <menuitem id="appmenu-chromefolder" 
+        label="Chrome Ordner" 
+        class="menuitem-iconic" 
+        insertbefore="appmenu_print"
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACYSURBVDhPYxg8IDc3l71jyvy8numLyiB4SUJ9fT0bVBo/ACnsmLLgKhD/65y68D8Id01b9Kdt8oISqBLcoL5rvgRQwzSYRmQMNORf97TFS/pmLZuKjHtmLu1v75+vADagecoc+fbJ8/ZhMwAf7pi6cBlFBrRNmbd41IBBY0D9lPkS7ZPnr2ifsuAhKbh18ryJYAMGGDAwAABwCaOsaCZu9QAAAABJRU5ErkJggg==" 
+        oncommand="Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties).get('UChrm', Components.interfaces.nsILocalFile).launch();" />
+        <menuitem id="appmenu-userchromecss" 
+        label="userChrome.css" 
+        class="menuitem-iconic" 
+        insertbefore="appmenu_print"
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKjSURBVDhPjVJLaxNRFB4QV90KLly46MKFC7dKLUGlSFEXUopShagIKkJBpBRKrdamryRN2jzbvGaSSZNMk3TymiSTNpmaaVPbxr4LahcRBLPwJ2RxnHOdIkWRfnCY4d7zffec7xzqf1g5+HG+UNnVpIprXfLml0vq8b9R2frWIso72mBcfBniC2k7w0kjRvvG+JSrNmx2/kwUKmk19W846EiH3uI97B0YhSGDDfp1RtAZ7WCwecFBc+CLpCFRWOVz8tZFlXIcT1+8ksYmXSphDmguA3OZJRCkKhRWdqH48QAW1vZreXmHVSnHcbfzoWRy0A2Lm23giygQThaBFyuQXfpEhPC7uLoPuVL1pkr7g7b2O5LSq0KONGzeMLiDPASiWZjlCxDiFyCek0ExEjLSBiTFFUkUt5tU6m+0XmuThicchGByMGD1hMDJRMEbSgIbzxMRvIsKHyCWLUMsv3xPpVJUtVo9fflKq/RubArm88vENKPNB5MzLPl3sXHwzCbAF04RkeC8CEFerC/vfW0mAjjfq63X997oJiCSKpIkg9UDE3YaTE4/EbK4gmD3RYgQVoUtKrmK3XCKypY3NTfab9Ve971XnJeIcUgcNc+QwOnoLW4S5ukAEUNR8wxb93C5CxSXKmlud9yvPX7WDQwnkD6x78HxKcC2MN6OmEng2ZGwYjowUYGmQskFbeeDJ7XOrkekRJw/GoVJuFgYfYPjMDBsgiG9lbQ27Y8pniRkP5fVUEJpvfS8u6eBAlgmly4RM3GM+Dq2gKU7aa6h+PM9XVx3E/OOIFU/n5l0s1qlvEMsE43EUHYf/HOCslCL9ahQpmNCuYUJZ5u3t+vHd+AIhkCgqadf18tEM4dsLC8brD6tO5Q8q16fHOnFyjkynhOBon4BGyz36HJLvuYAAAAASUVORK5CYII=" 
+        oncommand="edituserChromecss()" />
+        <menuitem id="appmenu_webDeveloper" 
+        class="menu-iconic" 
+        image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIsSURBVDhPjVLbThpRFOUH+tgHH3zlE/gFv6H/QPrQ1z40QUptNSDQgsqtIwUFGtR2NAWmmOEaOhWwpVgriYKIyHTsJA0JNZTVcwYGQyJJV7JzbnvtvdfeR6Oi1+tpa/UWDBYXwmwSxfKRnd5v7SXtotzFlSTNKY7T4ApEdZ4QC4d/C8uujfl+v//wA1/A6UUHg8FgOrlQrmoTmc9YeOkj9hqbO3EEt2OIpQRUjmsPRm6TaLbacipVvM9lBJjsPjx/xeCFY11Zn1q9yJeqaHekMVn8JTckSZpVDotOPxxMRHGmtkDMshZE+D0HJszCuOxBhOzrzUtSTQwr/ijMK/4ZhUyzqKYG2OUy4PMHMFo947dnRMoGkdL/C6p/SM5+KsPJvFVIi851sFwaWeFQKVkNSNd5UoEk/6ZErUJUIQjCzH7uAFbPplKuweLGXjKLZFZQylYDWL1hPHq8NHvWaDdYUp1GFMV7J6fnMK8GxmVTM5LMH0kTY3weJhtt5KS8eKoAzbs4D7s3hC9HNaQLJUWnmolmzQhlUB86Cfp2PSx9qLl1JeLPzU2L7nOlio7O2mS71Uu1CodVRFgOFncIS2vMpGYV3W5X9+PsgjTrtstqgGLlO0rfTrCbSN1NtrkCusB2Al+JhPr5JVbfRMlvY8iYfKDflM+VdCPXSdAR1Fsd0uU81RSkdwaz+0mzI9Pz3d9zGn5ey/pKrUlnrx9d/T924ry+fFwHlxamkDWaf2++5+O8Xec2AAAAAElFTkSuQmCC"  />
+    </vbox>
+    <script type="application/x-javascript">
+<![CDATA[
+function edituserChromecss() {
+    var file = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties).get("UChrm", Components.interfaces.nsILocalFile);
+    file.append("userChrome.css");file.launch();
+}
+]]>
+    </script>
+</overlay>
