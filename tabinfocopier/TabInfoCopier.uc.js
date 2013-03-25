@@ -79,7 +79,7 @@
 
             switch(mode) {
                 case "bbcode":
-                    info = '[url="' + url + '"]' + tab.label + '[/url]';
+                    info = '[url=' + url + ']' + tab.label + '[/url]';
                     break;
                 case "html":
                     info = '<a href="' + url + '">' + tab.label + '</a>';
