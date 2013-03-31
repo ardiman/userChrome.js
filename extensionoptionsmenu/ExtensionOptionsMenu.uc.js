@@ -1,22 +1,19 @@
 // ==UserScript==
 // @name				Extension Options Menu.uc.js
 // @description		拡張の設定ダイアログを開くボタンを追加
-// @description		メニュー内の拡張を右クリックで有効/無効をトグル
-// @description		メニュー内の拡張をctrl+右クリックでアンインストール
-// @description		メニュー内の拡張をctrl+左クリックでアドオンのxpiを選択した状態でアドオンフォルダを開く
-// @description		メニュー内の拡張を中クリックでアドオンのホームページを開く
-// @description		アイコンを右クリックでアドオンマネージャを開く
 // @note			作成にあたりExtension Options Menu (https://addons.mozilla.org/ja/firefox/addon/extension-options-menu)とucjs_optionsmenu_0.8.uc.jsを参考にさせてもらいました
-// @include			chrome://browser/content/browser.xul
+// @include				chrome://browser/content/browser.xul
 // @author			hiyoko
-// @version			ver2.9    config追加とbug修正
+// @version			2.9.2  ALT + 右クリックで拡張のIDなどをコピーできるようにした(コピー対象はhttps://developer.mozilla.org/en-US/docs/Addons/Add-on_Manager/Addonの"Optional properties"の項を参考に自分で弄ってください)
+//				ツールチップのアップデート日時表示をやめた
+//				微修正
 // ==/UserScript==
 var EOM = {
 // -----config-----
 	TOOLBAR:			"toolbar-menubar",	// Toolbar, auf der der Button erscheinen soll
 	TARGET_BUTTON:		"null",			// ID eines Elementes, neben dem der Button erscheinen soll, "null" bedeutet die letzte Toolbar-Position
 	SHOW_VERSION:		true,			// true = Versionsnummer,  false = Aus
-	SHOW_ALL:			true,			// true = Alle Addons anzeigen,  false = Keine Addons ohne Einstellungen	
+	SHOW_ALL:			true,			// true = Alle Addons anzeigen,  false = Nur die mit Einstellungen	
 	SHOW_userDisabled:	true,			// true = Deaktivierte Addons anzeigen,  false = Aus
 	SHOW_appDisabled:	false,		    // true = Inkompatible Addons anzeigen,  false = Aus
 	SHOW_RESTART:		true,			// true = Menüpunkt "Neustart" anzeigen,  false = Aus
@@ -26,14 +23,14 @@ var EOM = {
 				//"chrome://mozapps/skin/extensions/extensionGeneric.png",
 				//"chrome://mozapps/skin/extensions/extensionGeneric-16.png",
 // -----config-----
-	
+
 	init: function() {
 		if (location != "chrome://browser/content/browser.xul") return;
 
 			var btn = document.createElement("toolbarbutton");
 			btn.setAttribute("id", "eom-button");
 			btn.setAttribute("type", "menu");
-			btn.setAttribute("onclick", "if (event.button === 2) {event.preventDefault(); BrowserOpenAddonsMgr('addons://list/extension')};");
+			btn.setAttribute("onclick", "if (event.button === 2) {event.preventDefault(); BrowserOpenAddonsMgr('addons://list/extension');}");
 			btn.setAttribute("class", "toolbarbutton-1 eom-toolbarbutton-1");
 			btn.style.listStyleImage = "url("+this.ICON_URL+")";
 			var ToolBar = document.getElementById(this.TOOLBAR);
@@ -46,50 +43,53 @@ var EOM = {
 			cPopup.id = "eom-button-popup";
 			cPopup.setAttribute("onpopupshowing", "return EOM.populateMenu(event);");
 			cPopup.setAttribute("onclick", "event.preventDefault(); event.stopPropagation();");
-		},
+	},
 
-	populateMenu:function(e) {
+	populateMenu: function(e) {
 		var menu = e.target;
-		var Addons, eAddons, Item, name, version, date, date2, MenuIconURL, dir, fileOrDir, nsLocalFile, addonDir, uri, protSvc;
+		var i, j, eAddons, Item, name, version, date, date2, btncode, MenuIconURL, dir, fileOrDir, nsLocalFile, addonDir, uri, protSvc, added, MenuItems;
 		var that = this;
 
 		while (menu.childNodes.length)
 			menu.removeChild(menu.firstChild);
 
-		Components.utils.import("resource://gre/modules/AddonManager.jsm");
+		var Addons;
 		AddonManager.getAddonsByTypes(["extension"], function(addonlist) {
 			Addons = addonlist;
 		});
 
-		var thread = Components.classes['@mozilla.org/thread-manager;1'].getService().mainThread;
+		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
 			while (Addons == void(0)) {
 				thread.processNextEvent(true);
 			}
 
-		for (var j = 0; j < Addons.length; j++) {
-			eAddons = Addons[j];
+		for (i = 0; i < Addons.length; i++) {
+			eAddons = Addons[i];
+			name = eAddons.name;
+			version = eAddons.version;
 
-			if (eAddons.type == "extension" && (!eAddons.appDisabled || (eAddons.appDisabled && that.SHOW_appDisabled)) && ((eAddons.isActive && eAddons.optionsURL) || ((eAddons.userDisabled && that.SHOW_userDisabled) || (!eAddons.userDisabled && that.SHOW_ALL) || (eAddons.appDisabled && that.SHOW_appDisabled)))) {
+			if ((!eAddons.appDisabled || (eAddons.appDisabled && that.SHOW_appDisabled)) && ((eAddons.isActive && eAddons.optionsURL) || ((eAddons.userDisabled && that.SHOW_userDisabled) || (!eAddons.userDisabled && that.SHOW_ALL) || (eAddons.appDisabled && that.SHOW_appDisabled)))) {
 				Item = document.createElement("menuitem");
-				name = eAddons.name;
-				version = eAddons.version;
 				Item.setAttribute("label", that.SHOW_VERSION ? name+"  "+"["+version+"]" : name);
 				date = new Date(eAddons.updateDate);
-				date2 = ("0"+date.getDate()).substr(-2)+"."+("0"+(date.getMonth()+1)).substr(-2)+"."+date.getFullYear();
+				date2 = ("0"+date.getDate()).substr(-2)+"."+("0"+(date.getMonth()+1)).substr(-2)+"."+date.getFullYear();				
 				Item.setAttribute("tooltiptext", "ID:                  "+eAddons.id+"\n"+"Größe:             "+Math.floor(eAddons.size/1024)+"KB"+"\n"+"Update:           "+date2+"\n"+"Beschreibung:  "+eAddons.description);
 				Item.setAttribute("class", "menuitem-iconic");
 				MenuIconURL = eAddons.iconURL || that.ICON_URL;
 				Item.setAttribute("style", "list-style-image: url("+MenuIconURL+")");
-				//if (eAddons.userDisabled || !eAddons.optionsURL) Item.setAttribute("disabled", true);
-				(function (eAddons) { Item.addEventListener("click", function(event) {
-					switch (event.button) {
-					case 0: // 左クリック
+				(function(eAddons) {Item.addEventListener("click", function(event) {
+					btncode = event.button;
+					switch (btncode) {
+					case 0:
+						// 拡張の設定画面を開く
 						if (!event.ctrlKey && eAddons.optionsURL) {
 							eAddons.optionsType == 2 ? window.BrowserOpenAddonsMgr('addons://detail/'+encodeURIComponent(eAddons.id)+('/preferences')) : openDialog(eAddons.optionsURL, eAddons.name, 'chrome,titlebar,toolbar,resizable,scrollbars,centerscreen,dialog=no,modal=no');
-						} else if (event.ctrlKey && that.OPEN_FOLDER) {
+						}
+						// 拡張のフォルダを開く
+						else if (event.ctrlKey && that.OPEN_FOLDER) {
 							dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-								dir.append("extensions");
-								dir.append(eAddons.id);
+							dir.append("extensions");
+							dir.append(eAddons.id);
 							fileOrDir = dir.path + (dir.exists() ? "" : ".xpi");
 							nsLocalFile = Components.Constructor("@mozilla.org/file/local;1","nsILocalFile","initWithPath");
 							try {
@@ -108,59 +108,67 @@ var EOM = {
 							}
 						}
 					break;
-					case 1: // ミドルクリック
+					case 1:
+						// 拡張のウェブページを開く
 						if (eAddons.homepageURL) {
 							try {
 								gBrowser.addTab(eAddons.homepageURL);
 							} catch(e) {
-								Components.classes["@mozilla.org/messenger;1"].createInstance(Components.interfaces.nsIMessenger).launchExternalURL(eAddons.homepageURL);
+								Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger).launchExternalURL(eAddons.homepageURL);
 							}
 						}
 					break;
-					case 2: // 右クリック
-						if (!event.ctrlKey) {
+					case 2:
+						// 拡張の有効/無効を切り替え
+						if (!event.ctrlKey && !event.altKey) {
 							AddonManager.getAddonByID(eAddons.id, function(addon) {
 								addon.userDisabled = !addon.userDisabled;
 								if (addon.operationsRequiringRestart && that.AUTO_RESTART)
 									Application.restart();
 							});
-						} else if (event.ctrlKey) {
+						}
+						// 拡張のアンインストール
+						else if (event.ctrlKey && !event.altKey) {
 							AddonManager.getAddonByID(eAddons.id, function(addon) {
 								addon.uninstall();
 							});
 						}
+						// いろいろコピー
+						else if(!event.ctrlKey && event.altKey){
+							clipboard = Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper);
+								clipboard.copyString("id:  "+eAddons.id +"\n"+ "iconURL:  "+eAddons.iconURL);
+						}
 					break;
 					}
 				}, false)})(eAddons);
+
 						if (!eAddons.optionsURL)
 							Item.setAttribute("disabled", true);
 						if (!eAddons.isActive)
 							Item.setAttribute("EOMisDisabled", true);
-						/*if (eAddons.pendingOperations == 1)
-							Item.setAttribute("EOMtoBeToggled", true);
-						if (eAddons.pendingOperations == 2)
-							Item.setAttribute("EOMtoBeToggled", false);*/
-				var added=false;
-				var numMenuItems = menu.childNodes.length;
-				for(var i=0; i<numMenuItems; i++) {
-					if(name.toLowerCase() < menu.childNodes.item(i).getAttribute("label").toLowerCase()) {
-						menu.insertBefore(Item, menu.childNodes.item(i));
+
+				added = false;
+				MenuItems = menu.childNodes.length;
+				for (j = 0; j < MenuItems; j++) {
+					if (name.toLowerCase() < menu.childNodes.item(j).getAttribute("label").toLowerCase()) {
+						menu.insertBefore(Item, menu.childNodes.item(j));
 						added=true;
 						break;
 					}
 				}
-				if (!added) menu.appendChild(Item);
+					if (!added) menu.appendChild(Item);
 			}
 		}
-						if (this.SHOW_RESTART) {
-							menu.appendChild(document.createElement("menuseparator"));
-							Item = document.createElement("menuitem");
-							Item.setAttribute("label", "Neustart");
-							Item.addEventListener("command", function() { Application.restart() }, false);
-							Item.setAttribute("class", "menuitem-iconic");
-							Item.setAttribute("style", "list-style-image: url(chrome://browser/skin/Toolbar-inverted.png); -moz-image-region: rect(0px, 324px, 18px, 306px)");
-							menu.appendChild(Item);
-						}
+
+		if (that.SHOW_RESTART) {
+			menu.appendChild(document.createElement("menuseparator"));
+			Item = document.createElement("menuitem");
+			Item.setAttribute("label", "Neustart");
+			Item.setAttribute("class", "menuitem-iconic");
+			Item.addEventListener("command", function() { Application.restart() }, false); // userChromejs.restartApp()
+			Item.setAttribute("style", "list-style-image: url(chrome://browser/skin/Toolbar.png); -moz-image-region: rect(0px, 324px, 18px, 306px)");
+			menu.appendChild(Item);
+		}
 	},
 };
 EOM.init();
