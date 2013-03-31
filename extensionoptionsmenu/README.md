@@ -7,6 +7,7 @@ Rechtsklick auf den Button selbst öffnet den Add-Ons-Manager.
 - Mittelklick öffnet die Homepage des Add-Ons
 - Rechtsklick aktiviert/deaktiviert die Erweiterung
 - Strg+Linksklick öffnet den Installationsordner der Extension
+- Shift+Alt+Rechtsklick kopiert ID des Add-Ons und die Icon-Adresse (sofern vorhanden) in die Zwischenablage
 
 Das **Ergebnis des Skripts**:
 
