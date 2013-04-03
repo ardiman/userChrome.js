@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name           spambyipsearcher.uc.js
 // @namespace      https://github.com/ardiman/userChrome.js/tree/master/spambyipsearcher
-// @compatibility  Firefox 10.*
+// @compatibility  Firefox 10.*, Firefox 20.*
 // @include        main
-// @version        1.0.20120305
+// @version        1.0.20130403
 // ==/UserScript==
 
 var ucjs_SpamByIpSearcher = {
@@ -47,11 +47,11 @@ var ucjs_SpamByIpSearcher = {
   // Ende der Konfiguration
 
   init: function () {
-    var css = <![CDATA[
-      .ucjs_sbis_type2 {
-        list-style-image: url("chrome://mozapps/skin/extensions/rating-not-won.png") !important;
-      }
-    ]]>.toString();
+    if (location != "chrome://browser/content/browser.xul") return;
+    var css = " \
+      .ucjs_sbis_type2 { \
+        list-style-image: url('chrome://mozapps/skin/extensions/rating-not-won.png') !important; \
+      }";
     var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
     var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
     sss.loadAndRegisterSheet(uri,sss.AGENT_SHEET);
