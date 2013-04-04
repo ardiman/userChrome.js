@@ -4,9 +4,9 @@
 // @description  Adds vertical toolbar to browser window.
 // @include      main
 // @author       Gomita
-// @version      1.0.20080201
+// @version      1.0.20130404
 // @homepage     http://www.xuldev.org/misc/ucjs.php
-// @Note		アドオンを開くボタンを追加
+// @Note		Fügen Sie eine Schaltfläche, die das Add-on öffnet
 // @Note		SidebarButton が別途必要
 // @Note		SidebarButton でアドオンの disp が trueである事が必要(default)
 // @Note		アドオンを開くボタンの挿入位置はコメントアウトを入れ替える
@@ -54,18 +54,17 @@
 	if (currentSet.indexOf("spacer") < 0 && currentSet.indexOf("separator") < 0)
 		return;
 	// Thanks - http://nanto.asablo.jp/blog/2007/04/22/1459018
-	var style = <![CDATA[
-		toolbar[orient="vertical"] > toolbarspacer { height: 15px; }
-		toolbar[orient="vertical"] > toolbarseparator {
-			-moz-appearance: none !important;
-			margin: 0.2em 2px;
-			border-bottom: 1px solid ThreeDHighlight;
-			border-top: 1px solid ThreeDShadow;
-			height: 2px;
-			border-left: none;
-			border-right: none;
-		}
-	]]>.toString();
+	var style = '\
+		toolbar[orient="vertical"] > toolbarspacer { height: 15px; }\
+		toolbar[orient="vertical"] > toolbarseparator {\
+			-moz-appearance: none !important;\
+			margin: 0.2em 2px;\
+			border-bottom: 1px solid ThreeDHighlight;\
+			border-top: 1px solid ThreeDShadow;\
+			height: 2px;\
+			border-left: none;\
+			border-right: none;\
+		}';
 	var sspi = document.createProcessingInstruction(
 		'xml-stylesheet',
 		'type="text/css" href="data:text/css,' + encodeURI(style) + '"'
