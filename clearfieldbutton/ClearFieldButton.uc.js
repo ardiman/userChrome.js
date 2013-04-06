@@ -5,9 +5,10 @@
 // @include               main
 // @compatibility     Firefox 4.0+
 // @author                iwo
-// @homepage        http://http://g.mozest.com/viewthread.php?tid=42587
-// @version              0.1.0.2
-// @note                   2012.10.26 initiate release
+// @homepage        http://g.mozest.com/viewthread.php?tid=42587
+// @version              0.1.1.3
+// @note                   2013.01.27 compatible with addHistoryFindbarFx3.0.uc.js
+// @note                   2012.10.26 initiate release version 0.0.1
 // @note                   Special thanks to Alice0775 & Joji Ikeda for creative splendid ideas
 // @note                   build graggable Fx button reference thread: http://blog.bitcp.com/archives/452
 // @updateURL     https://j.mozest.com/ucscript/script/84.meta.js
@@ -88,20 +89,29 @@
 			clearFindbarTweak = {
 				onCommand: function(event) {
 					var findBar = document.getElementById('FindToolbar');
-					var findField = document.getElementById('FindToolbar').getElement('findbar-textbox');
-					var highlightBtn = findBar.getElement("highlight");
+					var findField = document.getElementById('FindToolbar').getElement('findbar-textbox');//
+					var highlightBtn = findBar.getElement('highlight');				
+					
+					var historyfindBar = document.getElementById('historyfindbar');
+					var historyfindField = document.getElementById('find-field2');
+					//var findField2 = historyfindBar.getElementByClassName('textbox-input-box');
 					
 					if (findBar.hidden == false) {
 						findField.focus();
 						findField.select();
 						//NG unfortunately
 						//goDoCommand('cmd_delete');
-						findField.value = "";
+						findField.value = "";						
 						//uncomment below to reuse the code for disable Highlight simultaneously
 						//if (findBar.toggleHighlight) {
 						//	findBar.toggleHighlight(false);
 						//	highlightBtn.removeAttribute("checked");
 						//}
+					}
+					if (historyfindBar.hidden == false && historyfindField != null) {
+						historyfindField.focus();
+						historyfindField.select();
+						historyfindField.value = "";
 					}
 					else return;
 				}

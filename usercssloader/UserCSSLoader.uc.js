@@ -7,13 +7,15 @@
 // @license        MIT License
 // @compatibility  Firefox 4
 // @charset        UTF-8
-// @version        0.0.4b
+// @version        0.0.4c
 // @note           0.0.4 Remove E4X
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
 // @note           ファイルが削除された場合 rebuild 時に CSS を解除しメニューを消すようにした
 // @note           uc で読み込まれた .uc.css の再読み込みに仮対応
-// @note           Version 0.0.4.b ermoeglicht "Styles importieren" per Mittelklick und anderen Dateimanager (s. vFileManager in Zeile 52)
+// @note           Version 0.0.4.b ermoeglicht "Styles importieren" per Mittelklick und anderen Dateimanager (s. vFileManager in Zeile 54)
+// @note           Version 0.0.4.c ermoeglicht Darstellung als Button und Einstellung der Zielleiste (s. showAs und showWhere in Zeile 56 bzw. 57)
+//                 sowie Uebernahme des CSS-Pfades in die Zwischenablage per Strg+Rechtsklick
 // ==/UserScript==
 
 /****** 使い方 ******
@@ -50,6 +52,9 @@ if (window.UCL) {
 window.UCL = {
 	// vFileManager: 'C:\\Programme\\totalcmd\\TOTALCMD.EXE',
 	vFileManager: '',
+	//etwas anderes als 'button' zeigt den Loader als Menue:
+	showAs: 'menu',
+	showWhere: 'main-menubar',
 	USE_UC: "UC" in window,
 	AGENT_SHEET: Ci.nsIStyleSheetService.AGENT_SHEET,
 	USER_SHEET : Ci.nsIStyleSheetService.USER_SHEET,
@@ -93,8 +98,14 @@ window.UCL = {
 		return win;
 	},
 	init: function() {
-		var xml = '\
-			<menu id="usercssloader-menu" label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">\
+		var xmlStart = '<menu id="usercssloader-menu"';
+		var xmlEnd = '</menu>';
+		if (UCL.showAs === 'button') {
+			xmlStart = '<toolbarbutton type="menu" id="usercssloader-menu" class="chromeclass-toolbar-additional"';
+			xmlEnd = '</toolbarbutton>';
+		}
+		var xml = xmlStart + ' \
+			label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">\
 				<menupopup id="usercssloader-menupopup">\
 					<menu label="Style Loader Menü"\
 					      accesskey="M">\
@@ -139,11 +150,11 @@ window.UCL = {
 					</menu>\
 					<menuseparator id="ucl-sepalator"/>\
 				</menupopup>\
-			</menu>\
 		';
+		xml = xml + xmlEnd;
 
 		var range = document.createRange();
-		range.selectNodeContents($('main-menubar'));
+		range.selectNodeContents($(UCL.showWhere));
 		range.collapse(false);
 		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
 		range.detach();
@@ -255,7 +266,12 @@ window.UCL = {
 		if (event.button == 1) {
 			this.toggle(label);
 		}
-		else if (event.button == 2) {
+		// Kopieren des Pfades einer CSS-Datei in die Zwischenablage mit Strg + rechte Maustaste
+		else if (event.ctrlKey && event.button == 2) {
+			var clipboard = Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper);
+			clipboard.copyString(this.getFileFromLeafName(label).path);
+		}
+		else if (!event.ctrlKey && event.button == 2) {
 			closeMenus(event.target);
 			this.edit(this.getFileFromLeafName(label));
 		}
@@ -276,7 +292,8 @@ window.UCL = {
 	searchStyle: function() {
 		let win = this.getFocusedWindow();
 		let word = win.location.host || win.location.href;
-		openLinkIn("http://userstyles.org/styles/browse/site/" + word, "tab", {});
+		// openLinkIn("http://userstyles.org/styles/browse/site/" + word, "tab", {});
+		openLinkIn("http://userstyles.org/styles/browse_r?search_terms=" + word, "tab", {});
 	},
 	openFolder: function() {
 		if (this.vFileManager.length != 0) {
@@ -382,8 +399,8 @@ function CSSEntry(aFile) {
 	this.path = aFile.path;
 	this.leafName = aFile.leafName;
 	this.lastModifiedTime = 1;
-	this.SHEET = /^xul-|\.as\.css$/i.test(this.leafName) ? 
-		Ci.nsIStyleSheetService.AGENT_SHEET: 
+	this.SHEET = /^xul-|\.as\.css$/i.test(this.leafName) ?
+		Ci.nsIStyleSheetService.AGENT_SHEET:
 		Ci.nsIStyleSheetService.USER_SHEET;
 }
 CSSEntry.prototype = {
@@ -395,7 +412,7 @@ CSSEntry.prototype = {
 	set enabled(isEnable) {
 		var aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile)
 		aFile.initWithPath(this.path);
-	
+
 		var isExists = aFile.exists(); // ファイルが存在したら true
 		var lastModifiedTime = isExists ? aFile.lastModifiedTime : 0;
 		var isForced = this.lastModifiedTime != lastModifiedTime; // ファイルに変更があれば true
