@@ -7,7 +7,7 @@
 // @license        MIT License
 // @compatibility  Firefox 4
 // @charset        UTF-8
-// @version        0.0.4c
+// @version        0.0.4d
 // @note           0.0.4 Remove E4X
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
@@ -496,10 +496,10 @@ CSSTester.prototype = {
 							<td colspan="4"><textarea id="textarea"></textarea></td>\
 						</tr>\
 						<tr height="40">\
-							<td><input type="button" value="Vorschau" /></td>\
-							<td><input type="button" value="Speichern" /></td>\
+							<td><input type="button" value="Vorschau" id="Vorschau"/></td>\
+							<td><input type="button" value="Speichern" id="Speichern"/></td>\
 							<td width="80%"><span class="log"></span></td>\
-							<td><input type="button" value="Schließen" /></td>\
+							<td><input type="button" value="Schließen" id="Schliessen"/></td>\
 						</tr>\
 					</table>\
 				';
@@ -541,7 +541,7 @@ CSSTester.prototype = {
 		var uri = Services.io.newURI(code, null, null);
 		this.sss.loadAndRegisterSheet(uri, Ci.nsIStyleSheetService.AGENT_SHEET);
 		this.preview_code = code;
-		this.log("Preview");
+		this.log("Vorschau");
 	},
 	preview_end: function() {
 		if (this.preview_code) {
