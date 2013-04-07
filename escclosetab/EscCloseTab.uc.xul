@@ -37,8 +37,8 @@ window.addEventListener("load", function () { EscCloseTab.onFirefoxLoad(); }, fa
 	
 ]]></script> 
 
-  <keyset id="mainKeyset">
-    <key id="key_stop" oncommand="BrowserCloseTabOrWindow()"/>
+  <keyset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="mainKeyset">
+  <key id="key_stop"  keycode="VK_ESCAPE" command="cmd_close"/>
   </keyset>
 
 
