@@ -3,9 +3,16 @@
 
             var toolsPopup = $('menu_ToolsPopup');
 
-            var menu = $E(<menu id="moreTools-menu" label={U('Tools')} accesskey=""/>);
-
-            var popup = $E(<menupopup id="menu_MoreToolsPopup"/>);
+            var menu, popup;
+            
+            menu = document.createElement("menu");
+            menu.setAttribute("id", "moreTools-menu");
+            menu.setAttribute("label", "Tools");
+            menu.setAttribute("accesskey", "T");
+            
+            popup = document.createElement("menupopup");
+            popup.setAttribute("id", "menu_MoreToolsPopup");
+            
             $A(toolsPopup.childNodes).forEach(absorb);
 
             $W('popupshowing popupshown popuphiding popuphidden').forEach(function(type) {
@@ -25,20 +32,6 @@
             function $A(arr) Array.slice(arr);
             function $W(str) str.split(' ');
             function $(id) document.getElementById(id);
-            function $E(xml, doc) {
-                    doc = doc || document;
-                    xml = <root xmlns={doc.documentElement.namespaceURI}>{xml}</root>;
-                    var pp = XML.prettyPrinting;
-                    XML.prettyPrinting = false;
-                    var root = new DOMParser().parseFromString(xml.toXMLString(), 'application/xml').documentElement;
-                    XML.prettyPrinting = pp;
-                    doc.adoptNode(root);
-                    var range = doc.createRange();
-                    range.selectNodeContents(root);
-                    var frag = range.extractContents();
-                    range.detach();
-                    return frag.childNodes.length < 2 ? frag.firstChild : frag;
-            }
             function isMoreTools(item) {
                     switch (item.getAttribute('id')) {
                     case 'menu_search':

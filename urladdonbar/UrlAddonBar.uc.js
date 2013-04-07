@@ -24,95 +24,97 @@ if (location == "chrome://browser/content/browser.xul") {
         function $(id) {
             return document.getElementById(id);
         }
-        var cssStr = (<><![CDATA[
-@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+        var cssStr = " \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker { \
+    border-style: none !important; \
+    box-shadow: none !important; \
+    padding: 0 0 0 1px !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menu-dropmarker { \
+  display: none !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-icon, \
+#urlbar-icons > #addon-bar .toolbarbutton-menubutton-dropmarker > .dropmarker-icon { \
+  padding: 0 !important; \
+  background: none !important; \
+  border-color: transparent !important; \
+  box-shadow: none !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-menubutton-dropmarker::before { \
+  content: ''; \
+  display: -moz-box; \
+  width: 0px !important; \
+  -moz-margin-end: -1px; \
+} \
+#urlbar-icons > * { \
+    padding: 0 3px !important; \
+} \
+#urlbar-icons > #addon-bar, \
+#urlbar-icons > #addon-bar > #status-bar { \
+    -moz-appearance: none !important; \
+    height: 18px !important; \
+    min-height: 18px !important; \
+    border-style: none !important; \
+    background: transparent !important; \
+    -moz-box-align: center !important; \
+    padding: 0 !important; \
+    margin: 0 !important; \
+    box-shadow: none !important; \
+} \
+#urlbar-icons > #addon-bar > toolbaritem { \
+    -moz-box-align: center !important; \
+    -moz-box-pack: center !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-1, \
+#urlbar-icons > #addon-bar statusbarpanel, \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button { \
+    -moz-appearance: none !important; \
+    border-style: none !important; \
+    border-radius: 0 !important; \
+    padding: 0 3px !important; \
+    margin: 0 !important; \
+    background: transparent !important; \
+    box-shadow: none !important; \
+    -moz-box-align: center !important; \
+    -moz-box-pack: center !important; \
+} \
+#urlbar-icons > #addon-bar > .toolbarbutton-1, \
+#urlbar-icons > #addon-bar > #status-bar > statusbarpanel { \
+    min-width: 18px !important; \
+    min-height: 18px !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-icon, \
+#urlbar-icons > #addon-bar > #status-bar > statusbarpanel > .statusbarpanel-icon { \
+    max-width: 18px !important; \
+    padding: 0 !important; \
+    margin: 0 !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button, \
+#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button > .toolbarbutton-icon { \
+    padding: 0 !important; \
+    margin: 0 !important; \
+} \
+#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled='true']):hover, \
+#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled='true'])[type='menu-button']:hover, \
+#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled='true'])[open='true'], \
+#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled='true'])[type='menu-button'][open='true'], \
+#urlbar-icons > #addon-bar > #status-bar statusbarpanel:not([disabled='true']):hover, \
+#urlbar-icons > #addon-bar > #status-bar statusbarpanel:not([disabled='true'])[open='true'] { \
+    background-image: -moz-linear-gradient(rgba(242, 245, 249, 0.95), rgba(220, 223, 225, 0.67) 49%, rgba(198, 204, 208, 0.65) 51%, rgba(194, 197, 201, 0.3)) !important; \
+} \
+#urlbar-icons > #addon-bar #addonbar-closebutton, \
+#urlbar-icons > #addon-bar toolbarspring, \
+#urlbar-icons > #addon-bar toolbarspacer, \
+#urlbar-icons > #addon-bar toolbarseparator, \
+#urlbar-icons > #addon-bar > #status-bar > .statusbar-resizerpanel { \
+    display: none !important; \
+} \
+}";
 
-@-moz-document url("chrome://browser/content/browser.xul") {
 
-#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    border-style: none !important;
-    box-shadow: none !important;
-    padding: 0 0 0 1px !important;
-}
-
-#urlbar-icons > * {
-    padding: 0 3px !important;
-}
-
-#urlbar-icons > #addon-bar,
-#urlbar-icons > #addon-bar > #status-bar {
-    -moz-appearance: none !important;
-    height: 18px !important;
-    min-height: 18px !important;
-    border-style: none !important;
-    background: transparent !important;
-    -moz-box-align: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-}
-
-#urlbar-icons > #addon-bar > toolbaritem {
-    -moz-box-align: center !important;
-    -moz-box-pack: center !important;
-}
-
-#urlbar-icons > #addon-bar .toolbarbutton-1,
-#urlbar-icons > #addon-bar statusbarpanel,
-#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button {
-    -moz-appearance: none !important;
-    border-style: none !important;
-    border-radius: 0 !important;
-    padding: 0 3px !important;
-    margin: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    -moz-box-align: center !important;
-    -moz-box-pack: center !important;
-}
-
-#urlbar-icons > #addon-bar > .toolbarbutton-1,
-#urlbar-icons > #addon-bar > #status-bar > statusbarpanel {
-    min-width: 18px !important;
-    min-height: 18px !important;
-}
-
-#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-icon,
-#urlbar-icons > #addon-bar > #status-bar > statusbarpanel > .statusbarpanel-icon {
-    max-width: 18px !important;
-    /* max-height: 18px !important; */
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button,
-#urlbar-icons > #addon-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button > .toolbarbutton-icon {
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled="true"]):hover,
-#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled="true"])[type="menu-button"]:hover,
-#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled="true"])[open="true"],
-#urlbar-icons > #addon-bar .toolbarbutton-1:not([disabled="true"])[type="menu-button"][open="true"],
-#urlbar-icons > #addon-bar > #status-bar statusbarpanel:not([disabled="true"]):hover,
-#urlbar-icons > #addon-bar > #status-bar statusbarpanel:not([disabled="true"])[open="true"] {
-    background-image: -moz-linear-gradient(rgba(242, 245, 249, 0.95), rgba(220, 223, 225, 0.67) 49%, rgba(198, 204, 208, 0.65) 51%, rgba(194, 197, 201, 0.3)) !important;
-}
-
-#urlbar-icons > #addon-bar #addonbar-closebutton,
-#urlbar-icons > #addon-bar toolbarspring,
-#urlbar-icons > #addon-bar toolbarspacer,
-#urlbar-icons > #addon-bar toolbarseparator,
-#urlbar-icons > #addon-bar > #status-bar > .statusbar-resizerpanel {
-    display: none !important;
-}
-
-}
-        ]]></>).toString();
-        var style = document.createProcessingInstruction("xml-stylesheet", "title=\"url-addon-bar\" type=\"text/css\"" + " href=\"data:text/css;base64," + btoa(cssStr) + "\"");
-        var main = $("main-window");
-        document.insertBefore(style, main);
+        var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+        var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(cssStr));
+        sss.loadAndRegisterSheet(uri,sss.AGENT_SHEET);
         var urlbarIcons = $("urlbar-icons");
         var addonBar = $("addon-bar");
         var browserBottombox = $("browser-bottombox");
