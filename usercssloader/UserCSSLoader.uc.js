@@ -7,7 +7,7 @@
 // @license        MIT License
 // @compatibility  Firefox 4
 // @charset        UTF-8
-// @version        0.0.4d
+// @version        0.0.4e
 // @note           0.0.4 Remove E4X
 // @note           CSSEntry クラスを作った
 // @note           スタイルのテスト機能を作り直した
@@ -15,7 +15,7 @@
 // @note           uc で読み込まれた .uc.css の再読み込みに仮対応
 // @note           Version 0.0.4.b ermoeglicht "Styles importieren" per Mittelklick und anderen Dateimanager (s. vFileManager in Zeile 54)
 // @note           Version 0.0.4.c ermoeglicht Darstellung als Button und Einstellung der Zielleiste (s. showAs und showWhere in Zeile 56 bzw. 57)
-//                 sowie Uebernahme des CSS-Pfades in die Zwischenablage per Strg+Rechtsklick
+//                 sowie Uebernahme des CSS-Pfades in die Zwischenablage per Strg+Rechtsklick, Version 0.0.4.e: Alt+Rechtsklick verschiebt css-Datei in den TEMP-Ordner
 // ==/UserScript==
 
 /****** 使い方 ******
@@ -55,6 +55,8 @@ window.UCL = {
 	//etwas anderes als 'button' zeigt den Loader als Menue:
 	showAs: 'menu',
 	showWhere: 'main-menubar',
+	//Automatische Aktualisierung der Menüliste nach Verschieben einer CSS Datei in den TEMP Ordner mit "rechte Maustatste + Alt"
+	AUTO_REBUILD:  true,
 	USE_UC: "UC" in window,
 	AGENT_SHEET: Ci.nsIStyleSheetService.AGENT_SHEET,
 	USER_SHEET : Ci.nsIStyleSheetService.USER_SHEET,
@@ -101,7 +103,7 @@ window.UCL = {
 		var xmlStart = '<menu id="usercssloader-menu"';
 		var xmlEnd = '</menu>';
 		if (UCL.showAs === 'button') {
-			xmlStart = '<toolbarbutton type="menu" id="usercssloader-menu" class="chromeclass-toolbar-additional"';
+			xmlStart = '<toolbarbutton type="menu" id="usercssloader-menu" class="toolbarbutton-1"';
 			xmlEnd = '</toolbarbutton>';
 		}
 		var xml = xmlStart + ' \
@@ -271,7 +273,12 @@ window.UCL = {
 			var clipboard = Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper);
 			clipboard.copyString(this.getFileFromLeafName(label).path);
 		}
-		else if (!event.ctrlKey && event.button == 2) {
+		// Automatische Aktualisierung der Menüliste nach Verschieben einer CSS Datei in den TEMP Ordner mit "rechte Maustatste + Alt"
+		else if (event.altKey && event.button == 2){
+			this.moveFile(this.getFileFromLeafName(label).path);
+			if (this.AUTO_REBUILD) this.rebuild();
+		}
+		else if (!event.ctrlKey && !event.altKey && event.button == 2){
 			closeMenus(event.target);
 			this.edit(this.getFileFromLeafName(label));
 		}
@@ -308,6 +315,13 @@ window.UCL = {
 			// Verzeichnis mit Dateimanager des Systems oeffnen
 			this.FOLDER.launch();
 		}
+	},
+	// Verschieben einer CSS Datei in den TEMP Ordner
+	moveFile: function(aFile){
+		var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+		var destDir = Services.dirsvc.get("Trsh", Ci.nsILocalFile);
+			file.initWithPath(aFile);
+			file.moveTo(destDir, "");
 	},
 	editUserCSS: function(aLeafName) {
 		let file = Services.dirsvc.get("UChrm", Ci.nsILocalFile);
