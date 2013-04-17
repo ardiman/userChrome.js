@@ -5,6 +5,10 @@
 // @include        main
 // @compatibility  Firefox 4.0 5.0 6.0 7.0 8 9 10.0a1
 // @author         Alice0775
+// @version        2013/04/14 23:40 remove all temp file on exit browser
+// @version        2013/04/14 23:00 text open with externalEditor, char code
+// @version        2013/04/14 22:00 text open with externalEditor (sloppy)
+// @version        2013/04/14 21:00 checking element using Ci.nsIImageLoadingContent instead of HTMLImageElement
 // @version        2013/03/05 00:00 input type=file change event が発火しないのを修正 Fx7+
 // @version        2013/01/29 00:00 draggable="true"もう一度有効
 // @version        2013/01/08 02:00 Bug 827546
@@ -601,6 +605,85 @@ var DragNGo = {
                  aSkipPrompt, aReferrer, aSourceDocument)
   },
 
+  editText: function editText(editor, text) {
+    // Get filename.
+    var file = Components.classes["@mozilla.org/file/directory_service;1"]
+                         .getService(Components.interfaces.nsIProperties)
+                         .get("TmpD", Components.interfaces.nsIFile);
+    file.append("DnD.tmp");
+    file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0664);
+
+    // Write the data to the file.
+    var ostr = Components.classes['@mozilla.org/network/file-output-stream;1'].
+          createInstance(Components.interfaces.nsIFileOutputStream);
+    ostr.init(file, 2, 0x200, false);
+
+    if(navigator.platform == "Win32") {
+      // Convert Unix newlines to standard network newlines.
+      text = text.replace(/\n/g, "\r\n");
+    }
+    var conv = Components.classes['@mozilla.org/intl/saveascharset;1'].
+          createInstance(Components.interfaces.nsISaveAsCharset);
+    try{
+      conv.Init('UTF-8', 0, 0);
+      text = conv.Convert(text);
+    }catch(e){
+    }
+
+    ostr.write(text, text.length);
+
+    ostr.flush();
+    ostr.close();
+
+    // Edit the file.
+    editfile(editor, file.path);
+
+
+    // the external view source editor or null
+    function getExternalViewSourceEditorPath() {
+      try {
+        return Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefBranch)
+                      .getComplexValue("view_source.editor.path",
+                                       Components.interfaces.nsIFile).path;
+      }
+      catch (ex) {
+        Components.utils.reportError(ex);
+      }
+
+      return null;
+    }
+
+    function editfile(editor, filename) {
+      // Figure out what editor to use.
+      editor = editor || getExternalViewSourceEditorPath();
+      if (!editor) {
+        alert("Error_No_Editor");
+        return false;
+      }
+
+      var file = Components.classes["@mozilla.org/file/local;1"].
+          createInstance(Components.interfaces.nsILocalFile);
+      file.initWithPath(editor);
+      if(!file.exists()){
+        alert("Error_invalid_Editor_file");
+        return false;
+      }
+      if(!file.isExecutable()){
+        alert("Error_Editor_not_executable");
+        return false;
+      }
+
+      // Run the editor.
+      var process = Components.classes["@mozilla.org/process/util;1"].
+          createInstance(Components.interfaces.nsIProcess);
+      process.init(file);
+      var args = [filename];
+      process.run(false, args, args.length);  // don't block
+      return true;
+    }
+  },
+
   //aURLのcontentTypeをキャッシュから得る
   getContentType: function(aURL){
     var contentType = null;
@@ -1130,7 +1213,7 @@ var DragNGo = {
     this.directionChain = "";
 
     // 転送データをセットする
-    if (event.originalTarget instanceof HTMLImageElement) {
+    if (event.originalTarget instanceof Ci.nsIImageLoadingContent) {
       if (!event.dataTransfer.mozGetDataAt("application/x-moz-node" ,0))
         event.dataTransfer.mozSetDataAt("application/x-moz-node", event.originalTarget , 0);
       if (!event.dataTransfer.mozGetDataAt("text/x-moz-url" ,0))
@@ -1378,7 +1461,7 @@ var DragNGo = {
       }
     }; // GESTURES
     if (!dragSession.canDrop) {
-      self.setStatusMessage('未定義', 0, false);
+      self.setStatusMessage('Undefiniert', 0, false);
     }
   },
 
@@ -1463,9 +1546,8 @@ var DragNGo = {
           data = self.getElementsByXPath('descendant-or-self::img', sourceNode);
           if (data.length < 1)
             break;
-
           var node = data[data.length - 1];  //
-          if (node instanceof HTMLImageElement) {
+          if (node instanceof Ci.nsIImageLoadingContent) {
             var url = node.getAttribute('src');
             var baseURI = self.ioService.newURI(node.ownerDocument.documentURI, null, null);
             url = self.ioService.newURI(url, null, baseURI).spec;
@@ -1649,6 +1731,7 @@ var DragNGo = {
   },
 
   init: function() {
+    window.addEventListener('unload', this, false);
     gBrowser.addEventListener('pagehide', this, false);
     gBrowser.addEventListener('dragend', this, false);
     gBrowser.addEventListener('drop', this, false);
@@ -1686,12 +1769,35 @@ var DragNGo = {
   },
 
   uninit: function() {
+    window.removeEventListener('unload', this, false);
     gBrowser.removeEventListener('pagehide', this, false);
     gBrowser.removeEventListener('dragend', this, false);
     gBrowser.removeEventListener('drop', this, false);
     gBrowser.removeEventListener('dragover', this, false);
     gBrowser.removeEventListener('dragenter', this, false);
     gBrowser.removeEventListener('dragstart', this, false);
+
+    // remove all temporaly file
+    var windowType = "navigator:browser";
+    var windowManager = Components.classes['@mozilla.org/appshell/window-mediator;1'].getService();
+    var windowManagerInterface = windowManager.QueryInterface(Components.interfaces.nsIWindowMediator);
+    var enumerator = windowManagerInterface.getEnumerator(windowType);
+    if (enumerator.hasMoreElements()) {
+      return;
+    }
+    var file = Components.classes["@mozilla.org/file/directory_service;1"]
+                     .getService(Components.interfaces.nsIProperties)
+                     .get("TmpD", Components.interfaces.nsIFile);
+    var entries = file.directoryEntries;
+    while (entries.hasMoreElements()){
+      var entry = entries.getNext().QueryInterface(Components.interfaces.nsIFile);
+      if (/DnD(-\d+)?\.tmp$/.test(entry.leafName)){
+        try{
+          entry.remove(false);
+        }catch(e){}
+      }
+    }
+
   },
 
   debug: function(aMsg){
