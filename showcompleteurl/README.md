@@ -1,5 +1,5 @@
 # Show Complete URL
-Anzeigen der kompletten Url im Download-Dialog.
+Anzeigen der kompletten Url im Download-Dialog. Mit Doppelklick auf die Adresse wird diese in die Zwischenablage übernommen.
 
 Das **Ergebnis des Skripts**:
 
