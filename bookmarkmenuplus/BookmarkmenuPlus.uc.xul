@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding='UTF-8'?>
+<!--
+// ==UserScript==
+// @name           Bookmarkmenuplus.uc.xul
+// @description    add bookmark inport and export menu
+// @include        main
+// @version        0.2
+// ==/UserScript==
+ -->
+
+<!DOCTYPE window [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd" >
+%browserDTD;
+<!ENTITY % placesDTD SYSTEM "chrome://browser/locale/places/places.dtd">
+%placesDTD;
+]>
+
+<overlay id="Bookmarkmenuplus" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
+(function() {
+function $(id){return document.getElementById(id);}
+var _bundles = Cc["@mozilla.org/intl/stringbundle;1"].
+        getService(Ci.nsIStringBundleService).
+        createBundle("chrome://cmimprove/locale/browser.properties");
+function getString(key){
+  return _bundles.GetStringFromName(key);
+}
+
+var cmImprove_BM = {
+  get bookmarksPopup() {
+    delete this.bookmarksPopup;
+    return this.bookmarksPopup = $("BMB_bookmarksPopup");
+  },
+  bookmarksPopup_popupshowing : function() {
+    var item_t = $("BMB_viewBookmarksToolbar");
+    item_t && item_t.setAttribute("label",getString("menu.bookmarksToolbar"));
+    var item_s = $("cm_menu_bookmarksSidebar");
+    item_s && item_s.setAttribute("label",getString("menu.bookmarksSidebar"));
+  },
+  showBookmarkToolbar : function() {
+    if (window.setToolbarVisibility && $("PersonalToolbar")) {
+               setToolbarVisibility($("PersonalToolbar"), true);
+    }
+  },
+  init : function(){
+
+    cmImprove_BM.bookmarksPopup && cmImprove_BM.bookmarksPopup.addEventListener("popupshowing",cmImprove_BM.bookmarksPopup_popupshowing,false);
+
+    cmImprove_BM.showBookmarkToolbar();
+  },
+  uninit : function(){
+    cmImprove_BM.bookmarksPopup && cmImprove_BM.bookmarksPopup.removeEventListener("popupshowing",cmImprove_BM.bookmarksPopup_popupshowing,false);
+  },
+}
+
+window.addEventListener('load'  , cmImprove_BM.init, false)
+window.addEventListener('unload', cmImprove_BM.uninit, false)
+})();
+  ]]></script>
+
+  <script type="application/javascript" src="chrome://browser/content/places/places.js"/>
+
+  <commandset id="mainCommandSet">
+    <command id="OrganizerCommand_export"
+             oncommand="PlacesOrganizer.exportBookmarks();"/>
+    <command id="OrganizerCommand_import"
+             oncommand="PlacesOrganizer.importFromFile();"/>
+    <command id="OrganizerCommand_browserImport"
+             oncommand="PlacesOrganizer.importFromBrowser();"/>
+  </commandset>
+
+  <menupopup id="BMB_bookmarksPopup">
+    <menu accesskey="&maintenance.accesskey;"
+          class="menu-iconic"
+          id="cm-menu-maintenance"
+          insertafter="BMB_bookmarksShowAll"
+          label="Importieren und Exportieren"
+          tooltiptext="&maintenance.tooltip;">
+      <menupopup id="maintenanceButtonPopup">
+
+        <menuitem id="fileImport"
+                  command="OrganizerCommand_import"
+                  label="&importBookmarksFromHTML.label;"
+                  accesskey="&importBookmarksFromHTML.accesskey;"/>
+        <menuitem id="fileExport"
+                  command="OrganizerCommand_export"
+                  label="&exportBookmarksToHTML.label;"
+                  accesskey="&exportBookmarksToHTML.accesskey;"/>
+            <menuseparator/>
+            <menuitem id="browserImport"
+                      command="OrganizerCommand_browserImport"
+                      label="&importOtherBrowser.label;"
+                      accesskey="&importOtherBrowser.accesskey;"/>
+      </menupopup>
+    </menu>
+
+  </menupopup>
+
+
+</overlay>
