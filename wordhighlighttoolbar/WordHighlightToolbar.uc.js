@@ -7,7 +7,8 @@
 // @compatibility  Firefox 17
 // @charset        UTF-8
 // @include        main
-// @version        0.0.6
+// @version        0.0.7
+// @note           0.0.7 ツールバーが自動で消えないことがあったのを修正
 // @note           0.0.6 アイコンを作って検索時の強調を ON/OFF できるようにした
 // @note           0.0.6 背面のタブを複数開いた際の引き継ぎを修正
 // @note           0.0.5 大幅に変更（変更し過ぎてどこを変更したのかすら忘れた）
@@ -106,7 +107,7 @@ window.gWHT = {
 		var bb = document.getElementById("appcontent");
 		var container = bb.appendChild(document.createElement("hbox"));
 		container.setAttribute("id", PREFIX + "box");
-		container.setAttribute("style", "max-height: 0px;");
+		container.setAttribute("style", "max-height: 23px;");
 		//container.setAttribute("ordinal", "0");
 		this.container = container;
 
@@ -215,9 +216,7 @@ window.gWHT = {
 				var doc = event.target;
 				var win = doc.defaultView;
 				if (win != win.parent) return;
-				if (event.persisted) {// bfcache から
-					this.updateToolbar( wmap.get(doc) );
-				}
+				this.updateToolbar( wmap.get(doc) );
 				break;
 			case EVENT_RESPONSE:
 				event.stopPropagation();
@@ -533,6 +532,9 @@ window.gWHT = {
 			win.getSelection().removeAllRanges();
 			this._launch(doc);
 		}
+		keywords = keywords.map(function(str){
+			return typeof str === "string" ? str.trim() : str;
+		});
 		doc.wht.addWord(keywords, aBold, aRange);
 	},
 	removeWord: function(aWord) {
@@ -689,6 +691,7 @@ window.gWHT.ContentClass.prototype = {
 		this.items = {};
 		this.finder.findBackwards = false; /* 後ろから前に向かって検索するか */
 		this.finder.caseSensitive = false; /* 大文字小文字を区別するか */
+		this.isEmpty = true; // TreeWalker で無駄に探さない為のフラグ
 
 		if (keywords) {
 			this.initItems(keywords);
@@ -838,6 +841,8 @@ window.gWHT.ContentClass.prototype = {
 			aItem.length += len;
 		else
 			aItem.length = len;
+		if (aItem.length)
+			this.isEmpty = false;
 	},
 	_lowlight: function(aItem) {
 		var doc = this.doc;
@@ -851,6 +856,8 @@ window.gWHT.ContentClass.prototype = {
 			range.deleteContents();
 		}, this);
 		aItem.length = 0;
+		if (Object.keys(this.items).length === 0)
+			this.isEmpty = true;
 	},
 	highlightAll: function(aRange) {
 		Object.keys(this.items).forEach(function(key){
@@ -872,6 +879,7 @@ window.gWHT.ContentClass.prototype = {
 		Object.keys(this.items).forEach(function(key){
 			delete this.items[key];
 		}, this);
+		this.isEmpty = true;
 		this.fireEvent('lowlightAll', this.doc);
 	},
 	addWord: function(aWord, aBold, aRange) {
@@ -907,64 +915,70 @@ window.gWHT.ContentClass.prototype = {
 		return arr.length;
 	},
 	find: function(isPrev) {
-		var sel = this.win.getSelection();
-		var range = this.doc.createRange();
-		range.selectNodeContents(this.doc.body);
-		var node = isPrev ? sel.anchorNode : sel.focusNode;
-		if (node) {
-			var elem = node.nodeType === Node.ELEMENT_NODE ? node : node.parentNode;
-			if (elem.classList.contains(CLASS_SPAN)) {
-				isPrev ? range.setEndBefore(elem) : range.setStartAfter(elem);
-			} else {
-				isPrev ? range.setEnd(sel.anchorNode, sel.anchorOffset) : range.setStart(sel.focusNode, sel.focusOffset);
-			}
-		}
-		var sRange = range.cloneRange();
-		sRange.collapse(!isPrev);
-		var eRange = range.cloneRange();
-		eRange.collapse(isPrev);
-		this.finder.findBackwards = isPrev; /* 後ろから前に向かって検索するか */
-
-		// 各ワードを１回ずつ検索して一番近い物を探す
-		var node = null, elem = null, w, o = 0;
-		Object.keys(this.items).forEach(function(key){
-			var item = this.items[key];
-			var r = this.finder.Find(item.word, range, sRange, eRange);
-			if (!r) return
-			var tn = r.startContainer;
-			if (!tn) return;
-			if (!node) {
-				node = tn;
-				o = r.startOffset;
-				w = item.word;
-				return;
-			}
-
-			var res = node.compareDocumentPosition(tn);
-			if (isPrev && res & Node.DOCUMENT_POSITION_FOLLOWING ||
-			   !isPrev && res & Node.DOCUMENT_POSITION_PRECEDING)
-			{
-				node = tn;
-				w = item.word;
-				return;
-			}
-		}, this);
-		if (w) {
-			gWHT.find(w, isPrev);
+		if (this.isEmpty) {
+			debug('強調されていないようなので検索しません');
 			return;
 		}
-		var els = this.doc.getElementsByClassName(CLASS_SPAN);
-		var span = isPrev ? els[els.length-1] : els[0];
-		if (!span || !span.classList.contains(CLASS_SPAN)) return;
+		var tw = this.tw;
+		if (!tw) {
+			let fn = function(node) {
+				if (node.classList.contains(CLASS_SPAN)) {
+					return NodeFilter.FILTER_ACCEPT;
+				}
+				return NodeFilter.FILTER_SKIP;
+			}
+			tw = this.tw = this.doc.createTreeWalker(this.doc.body, NodeFilter.SHOW_ELEMENT, fn, false);
+		}
+		// ツリーの現在地を最後にクリックした位置に合わせる
+		var sel = this.win.getSelection();
+		if (sel.focusNode) {
+			var n = isPrev ? sel.anchorNode : sel.focusNode;
+			var o = isPrev ? sel.anchorOffset : sel.focusOffset;
+			tw.currentNode = o ? (n.childNodes[o] || n) : n;
+		}
+		sel.removeAllRanges();
 
-		gWHT.sound.beep();
-		sel.selectAllChildren(span.firstChild);
-		sel.collapse(span.firstChild, 1);
-		sel.QueryInterface(Ci.nsISelectionPrivate)
-			.scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
-		span.style.setProperty('outline', '4px solid #36F', 'important');
-		this.win.setTimeout(function () {
-			span.style.removeProperty('outline');
+		var node;
+		if (isPrev) {
+			node = tw.previousNode();
+			if (!node) {
+				node = Array.pop(this.doc.getElementsByClassName(CLASS_SPAN));
+				tw.currentNode = node || this.doc.body.lastChild;
+				if (node)
+					gWHT.sound.beep();
+			}
+		} else {
+			node = tw.nextNode();
+			if (!node) {
+				node = this.doc.getElementsByClassName(CLASS_SPAN)[0];
+				tw.currentNode = node || this.doc.body;
+				if (node)
+					gWHT.sound.beep();
+			}
+		}
+		if (!node) {
+			gWHT.sound.beep();
+			this.isEmpty = true;
+			return;
+		}
+		this.isEmpty = false;
+
+		sel.selectAllChildren(node);
+		try {
+			sel.QueryInterface(Ci.nsISelectionPrivate)
+				.scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
+		} catch (e) {}
+
+		var anchor = this.doc.evaluate('descendant-or-self::a[@href]|ancestor-or-self::a[@href]',
+			node, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		if (anchor && !/^mailto/.test(anchor.href)) {
+			anchor.focus();
+			sel.selectAllChildren(node);
+		}
+		isPrev ? sel.collapseToStart() : sel.collapseToEnd();
+		node.style.setProperty('outline', '3px solid #36F', 'important');
+		this.win.setTimeout(function() {
+			node.style.removeProperty('outline');
 		}, 400);
 	},
 	fireEvent: function (aName, aTarget) {
@@ -1053,6 +1067,7 @@ window.gWHT.init();
 .wordhighlight-toolbar-reloadbutton { -moz-image-region: rect(0pt, 72px, 18px, 54px); }\
 .wordhighlight-toolbar-addbutton    { -moz-image-region: rect(0pt, 306px, 18px, 288px); }\
 \
+#wordhighlight-toolbar-box:empty,\
 .wordhighlight-toolbar-arrowscrollbox:empty,\
 .wordhighlight-toolbar-arrowscrollbox:empty ~ * { visibility: collapse; }\
 \
