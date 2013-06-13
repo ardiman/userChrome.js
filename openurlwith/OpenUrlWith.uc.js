@@ -3,7 +3,7 @@
 */
 
 (function OpenURLWith() {
-
+    if (location != "chrome://browser/content/browser.xul") return;
     const MENU_LABEL = "Öffnen mit...";
     const MENU_ACCESSKEY = "ö";
 

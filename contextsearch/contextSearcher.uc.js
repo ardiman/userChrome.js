@@ -297,4 +297,4 @@ window.contextSearcher = {
   }
 }
 
-window.contextSearcher.init();
+if (location == "chrome://browser/content/browser.xul") window.contextSearcher.init();

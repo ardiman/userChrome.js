@@ -3,7 +3,7 @@
 // @include        main
 // ==/UserScript==
 (function(){
-
+if (location != "chrome://browser/content/browser.xul") return;
 var shotMenu =document.createElement("menupopup");
 shotMenu.setAttribute("id","leftclickpopup");
 
@@ -122,7 +122,7 @@ var WebScreenShotByClipping = {
                 this.doc = this.win.document;
                 this.body = this.doc.body;
                 if (!this.body instanceof HTMLBodyElement){
-                        alert("Screenshot/Capture nicht möglich.");
+                        alert("Screenshot/Capture nicht moeglich.");
                         return false;
                 }
                 this.flag = null;
@@ -151,4 +151,4 @@ var WebScreenShotByClipping = {
 }
 
 
-WebScreenShot.init();
+if (location == "chrome://browser/content/browser.xul") WebScreenShot.init();

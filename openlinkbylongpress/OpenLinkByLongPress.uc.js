@@ -13,6 +13,7 @@
         if ((node instanceof HTMLAnchorElement || node instanceof HTMLAreaElement) && node.hasAttribute('href')) return node;
         return false;
     }
+    if (location != "chrome://browser/content/browser.xul") return;
     gBrowser.mPanelContainer.addEventListener('mousedown', function(e) {
         if (e.button != 0) return;
         var node = isLink(e.target) || isLink(e.target.parentNode);
