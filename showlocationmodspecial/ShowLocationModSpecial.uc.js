@@ -9,7 +9,7 @@
 
 (function(){
 //改这里选择是否加载本地国旗图标库，不存在或路径错误自动切换从网络中读国旗图标
-var localFlagPath = "lib\\countryflags.js";  // 注意是相对路径： profile\chrome\lib\countryflags.js
+var localFlagPath = "countryflags.js";  // Die countryflags.js Datei neben dem Script im chrome-Ordner ablegen
 
 //下面的不知道不要动
 var IsUserLocalFlag = false;

@@ -5,5 +5,6 @@ der Urlbar links anstelle des Favicons. In der Skriptzeile 14 kann man bei Bedar
 ![Screenshot Show Location Mod](https://github.com/ardiman/userChrome.js/raw/master/showlocationmod/scr_showlocationmod.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils. Wird auch die countryflags.js in den Profilordner kopiert, so werden 
+die Flaggensymbole daraus entnommen.
 

@@ -5,5 +5,7 @@ Favicons angezeigt.
 ![Screenshot Show Location Mod Special](https://github.com/ardiman/userChrome.js/raw/master/showlocationmodspecial/scr_showlocationmodspecial.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils. Wird auch die countryflags.js vom Skript "Show Location Mod" in den 
+Profilordner kopiert, so werden die Flaggensymbole daraus entnommen.
+
 
