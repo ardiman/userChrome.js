@@ -45,7 +45,7 @@ var ucjs_zoom = {
 
 	// ズームモードを表す文字と文字色
 	_ZOOM_MODE: [ { txt: "Zoom Einstellungen", color: "#00000" }, 					// 0) フルズーム、黒
-				  { txt: "\u30c6\u30ad\u30b9\u30c8\u30ba\u30fc\u30e0", color: "#096CE6" } ],	// 1) テキストズーム、青
+				  { txt: "Nur Text zoomen", color: "#FF0000" } ],	// 1) テキストズーム、青
 
 	// toolkit.zoomManager.zoomValues とメニューを(true: 同期させる、false: 同期させない)
 	_SYNC_ZOOMVALUES: true,

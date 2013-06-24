@@ -27,7 +27,7 @@
 			var BrowserManipulateBtn = document.createElement("toolbarbutton");
 			BrowserManipulateBtn.id = "minMaxClose-button";/* 你的扩展 ID */
 			BrowserManipulateBtn.setAttribute("type", "button");
-			BrowserManipulateBtn.setAttribute("onclick", "BrowserManipulate.onClick(event);");//MinToTray扩展gMinTrayR.minimize();
+			BrowserManipulateBtn.setAttribute("onclick", "BrowserManipulateCombine.onClick(event);");//MinToTray扩展gMinTrayR.minimize();
 			BrowserManipulateBtn.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
 			BrowserManipulateBtn.setAttribute("removable", "true");
 			BrowserManipulateBtn.setAttribute("oncontextmenu","return false");//remove original button context menu
@@ -46,7 +46,7 @@
 		
 		}
 		
-		BrowserManipulate = {
+		BrowserManipulateCombine = {
 			onClick: function(event) {
 				switch(event.button) {
 					case 0:

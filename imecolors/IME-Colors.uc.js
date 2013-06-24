@@ -3,7 +3,8 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
 // @license        MIT License
-// @version        0.0.8
+// @version        0.0.9
+// @note           0.0.9 変換中に IME を OFF にすると色が変わらないのを修正
 // @note           0.0.7 CSS のリセットの処理を修正
 // @note           0.0.6 IME_DISABLE_STYLE を空にすれば IME が OFF の時は色を変えないようにできるようにした
 // @note           0.0.5 Firefox 5.0 で動くように微修正。 3.6 とかもう(ﾟ⊿ﾟ)ｼﾗﾈ
@@ -70,6 +71,7 @@ IMEColorsClass.prototype = {
 			this.win.addEventListener('pagehide', this, false);
 		this.elem.addEventListener('blur', this, false);
 		this.elem.addEventListener('keyup', this, false);
+		this.elem.addEventListener('compositionend', this, false);
 	},
 	setColor: function() {
 		var ime = this.inputFieldStyle.imeMode == 'disabled'? false : this.utils.IMEIsOpen;
@@ -102,12 +104,16 @@ IMEColorsClass.prototype = {
 				}, 50);
 			}
 			break;
+		case 'compositionend':
+			this.setColor();
+			break;
 		case 'blur':
 		case 'pagehide':
 			this.timer = null;
 			this.win.removeEventListener('pagehide', this, false);
 			this.elem.removeEventListener('blur', this, false);
 			this.elem.removeEventListener('keyup', this, false);
+			this.elem.removeEventListener('compositionend', this, false);
 			this.resetColor();
 			break;
 		}

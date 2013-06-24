@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 17
 // @author         Alice0775
+// @version        2013/05/30 01:00 text drag fails on http://blog.livedoor.jp/doku1108/archives/52130085.html
 // @version        2013/05/02 01:00 Bug 789546
 // @version        2013/04/22 14:00 typo, "use strict" mode
 // @version        2013/04/19 20:00 treat HTMLCanvasElement as image
@@ -103,7 +104,7 @@ var DragNGo = {
     {dir:'U', modifier:'',name:'xpi/jar Installation',obj:'xpi,jar',cmd:function(self,event,info){self.installXpi(info.urls);}},
     {dir:'U', modifier:'',name:'Link in neuem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
     //{dir:'D', modifier:'',name:'リンクを新しいタブ後面に開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
-    {dir:'D', modifier:'',name:'Link in neuem Tab aguse.jp Suche',obj:'link, textlink',cmd:function(self,event,info){self.searchWithEngine(info.urls, ['aguse.jp'], 'tab');}},
+    {dir:'D', modifier:'',name:'Link in neuem Tab Google Suche',obj:'link, textlink',cmd:function(self,event,info){self.searchWithEngine(info.urls, ['Google'], 'tab');}},
     {dir:'L', modifier:'',name:'Link in aktuellem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
 
   /*=== Bild ===*/
@@ -161,7 +162,7 @@ var DragNGo = {
     {dir:'RLU', modifier:'',name:'Textauswahl-Suche unter der Domain',obj:'link, text',
       cmd:function(self,event,info){
         var _document=document.commandDispatcher.focusedWindow.document;
-        var p = prompt('Input word to search under the domain('+_document.location.hostname+'):', info.texts[0]);
+        var p = prompt('Textauswahl-Suche unter der Domain('+_document.location.hostname+'):', info.texts[0]);
         if(p)
           _document.location.href = 'http://www.google.com/search?as_qdr=y15&q=site:' +
                                     _document.location.href.split('/')[2] + 
@@ -1526,6 +1527,12 @@ var DragNGo = {
           data = self.getElementsByXPath('descendant-or-self::img', sourceNode);
           if (data.length < 1)
             break;
+
+          if (event.dataTransfer.types.contains(["text/plain"])) {
+            if(!!self.selection && event.dataTransfer.getData(["text/plain"]) == self.selection)
+            break;
+          }
+
           var node = data[data.length - 1];  //
           if (node instanceof Ci.nsIImageLoadingContent ||
               node instanceof HTMLCanvasElement) {
