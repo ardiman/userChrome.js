@@ -1,59 +1,82 @@
 // ==UserScript==
 // @name           About:config Multiple Selection
-// @version        0.2
-// @description    About:config多选操作
+// @version        0.3
+// @description    Allow multiple selection on about:config and more
+// @namespace      https://github.com/nightson/
 // @author         NightsoN
 // @include        chrome://browser/content/browser.xul
+// @note           0.3 add "Copy as Function" to the contextmenu. Now you can copy config entries in user_pref(xxx, xxx); format to be used in user.js
 // ==/UserScript==
-window.addEventListener("DOMContentLoaded", function (event) {
-    var doc = event.target;
-    if (!doc || doc.location.href !== "about:config") return;
-    content.document.getElementById("configTree").setAttribute("seltype", "multiple");
+window.addEventListener('DOMContentLoaded', function (event) {
+    var doc = event.target,
+        win;
+    if (!doc || !doc.location.href.startsWith('about:config')) return;
+    doc.getElementById('configTree').setAttribute('seltype', 'multiple');
+    win = doc.defaultView;
 
-    content.window.getSelected = function () {
+    var contextMenu = doc.getElementById('configContext'),
+        menuitem = contextMenu.insertBefore(doc.createElement('menuitem'), doc.getElementById('copyValue').nextSibling);
+    menuitem.id = 'copyAsFunction';
+    menuitem.setAttribute('label', 'Kopieren für user.js');
+    menuitem.setAttribute('accesskey', 'K');
+    menuitem.setAttribute('oncommand', 'copyAsFunction();');
+
+    win.getSelected = function () {
         var arr = [],
             i = 0,
             k = 0,
-            j = content.view.selection.getRangeCount(),
+            j = win.view.selection.getRangeCount(),
             start = {},
             end = {};
-        for (; i < j; i++) {
-            content.view.selection.getRangeAt(i, start, end);
+        for (i; i < j; i++) {
+            win.view.selection.getRangeAt(i, start, end);
             for (k = start.value; k <= end.value; k++) {
-                arr.push(content.gPrefView[k]);
+                arr.push(win.gPrefView[k]);
             }
         }
         return arr;
     }
 
-    content.window.ResetSelected = function () {
-        content.getSelected().forEach(function (i) {
-            content.gPrefBranch.clearUserPref(i.prefCol);
+    win.ResetSelected = function () {
+        win.getSelected().forEach(function (i) {
+            win.gPrefBranch.clearUserPref(i.prefCol);
         })
     }
 
-    content.window.copyPref = function () {
+    win.copyPref = function () {
         var arr = [];
-        content.getSelected().forEach(function (i) {
+        win.getSelected().forEach(function (i) {
             arr.push(i.prefCol + ';' + i.valueCol);
         });
-        content.gClipboardHelper.copyString(arr.join('\n'), document);
+        win.gClipboardHelper.copyString(arr.join('\n'), document);
     }
 
-    content.window.copyName = function () {
+    win.copyName = function () {
         var arr = [];
-        content.getSelected().forEach(function (i) {
+        win.getSelected().forEach(function (i) {
             arr.push(i.prefCol);
         });
-        content.gClipboardHelper.copyString(arr.join('\n'), document);
+        win.gClipboardHelper.copyString(arr.join('\n'), document);
     }
 
-    content.window.copyValue = function () {
+   win.copyValue = function () {
         var arr = [];
-        content.getSelected().forEach(function (i) {
+        win.getSelected().forEach(function (i) {
             arr.push(i.valueCol);
         });
-        content.gClipboardHelper.copyString(arr.join('\n'), document);
+        win.gClipboardHelper.copyString(arr.join('\n'), document);
+    }
+
+    win.copyAsFunction = function () {
+        var arr = [];
+        win.getSelected().forEach(function (i) {
+            if (i.typeCol === 32) {
+                arr.push('user_pref("' + i.prefCol + '", "' + i.valueCol + '");');
+            } else {
+                arr.push('user_pref("' + i.prefCol + '", ' + i.valueCol + ');');
+            }
+        });
+        win.gClipboardHelper.copyString(arr.join('\n'), document);
     }
 
 }, true);
