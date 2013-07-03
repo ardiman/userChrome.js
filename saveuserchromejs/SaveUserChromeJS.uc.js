@@ -77,7 +77,7 @@ var ns = window.saveUserChromeJS = {
 			case "popupshowing":
 				if (event.target != event.currentTarget) return;
 				if(gContextMenu.onLink){
-					this._menuitem.hidden = !RE_USERCHROME_JS.test(gContextMenu.linkURL);
+					this._menuitem.hidden = !RE_USERCHROME_JS.test(gContextMenu.linkURL) || !/\/raw\//.test(gContextMenu.linkURL);
 				}else{
 					this._menuitem.hidden = true;
 				}
@@ -191,7 +191,8 @@ var ns = window.saveUserChromeJS = {
 		// https://developer.mozilla.org/ja/XUL_Tutorial/Open_and_Save_Dialogs
 		var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 		fp.init(window, "", Ci.nsIFilePicker.modeSave);
-		fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
+		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, deshalb deaktiviert
+		//fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
 		fp.appendFilters(Ci.nsIFilePicker.filterAll);
 		fp.displayDirectory = ns.SCRIPTS_FOLDER; // nsILocalFile
 		fp.defaultExtension = fileExt;
