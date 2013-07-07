@@ -8,6 +8,12 @@
 
 (function() {
 
+// 保存完毕是否启用通知？
+var notificationsAfterInstall = true;
+
+// 保存完毕是否加载脚本（无需启动）？仅支持 .uc.js，一些脚本有问题。
+var runWithoutRestart = true;
+
 
 let { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
 if (!window.Services) Cu.import("resource://gre/modules/Services.jsm");
@@ -29,51 +35,26 @@ var ns = window.saveUserChromeJS = {
 
 	init: function() {
 		Services.obs.addObserver(this, "content-document-global-created", false);
-		Services.obs.addObserver(this, "install-userChromeJS", false);
 
-		gBrowser.mPanelContainer.addEventListener('DOMContentLoaded', this, true);
-
-		this.createMenuitem();
-
-		var contextMenu = $("contentAreaContextMenu");
-		contextMenu.insertBefore(this._menuitem, contextMenu.firstChild);
+        // add contentAreaContextMenu
+        var contextMenu = $("contentAreaContextMenu");
+        var menuitem = this.createMenuitem();
+		contextMenu.insertBefore(menuitem, contextMenu.firstChild);
 		contextMenu.addEventListener("popupshowing", this, false);
+
+        this._menuitem = menuitem;
 	},
 	uninit: function(){
 		Services.obs.removeObserver(this, "content-document-global-created");
-		Services.obs.removeObserver(this, "install-userChromeJS");
 
-		gBrowser.mPanelContainer.removeEventListener('DOMContentLoaded', this, true);
+        if(this._menuitem){
+            this._menuitem.parentNode.removeChild(this._menuitem);
+        }
+
+        $("contentAreaContextMenu").removeEventListener("popupshowing", this, false);
 	},
 	handleEvent: function(event){
 		switch(event.type){
-			case "DOMContentLoaded":
-				var doc = event.target;
-				var win = doc.defaultView;
-				if(win != win.parent) return;
-				if(!checkDoc(doc)) return;
-
-				if(win.location.hostname == 'github.com'){
-					this.addButton_github(doc);
-
-					// github 用了 history.pushstate, 需要加载页面后重新添加按钮
-					var script = '\
-                        (function(){\
-                            var $ = unsafeWindow.jQuery;\
-                            if(!$) return;\
-                            $(document).on("pjax:success", function(){\
-                                addButton_github(document);\
-                            });\
-                        })();\
-                    ';
-					let sandbox = new Cu.Sandbox(win, {sandboxPrototype: win});
-					sandbox.unsafeWindow = win.wrappedJSObject;
-					sandbox.document     = win.document;
-					sandbox.window       = win;
-					sandbox.addButton_github = ns.addButton_github;
-					Cu.evalInSandbox(script, sandbox);
-				}
-				break;
 			case "popupshowing":
 				if (event.target != event.currentTarget) return;
 				if(gContextMenu.onLink){
@@ -100,16 +81,20 @@ var ns = window.saveUserChromeJS = {
 				// Show the scriptish install banner if the user is navigating to a .user.js
 				// file in a top-level tab.
 				if (safeWin === safeWin.top && RE_USERCHROME_JS.test(lhref) && !RE_CONTENTTYPE.test(safeWin.document.contentType)) {
-                    safeWin.setTimeout(function(self){
-						self.showInstallBanner(
-							gBrowser.getBrowserForDocument(safeWin.document));
-					}, 500, this);
+                    safeWin.setTimeout(function(){
+						ns.showInstallBanner(gBrowser.getBrowserForDocument(safeWin.document));
+					}, 500);
 				}
 
-				break;
-			case "install-userChromeJS":
-				let win = this.getMostRecentWindow("navigator:browser");
-				if (win) this.saveScript();
+                if(safeWin.location.hostname == 'github.com'){
+                    safeWin.addEventListener("DOMContentLoaded", function(){
+                        ns.github_addButton(safeWin.document);
+
+                        // github 用了 history.pushstate, 需要加载页面后重新添加按钮
+                        ns.github_addListener(safeWin);
+                    }, false);
+                }
+
 				break;
 		}
 	},
@@ -121,7 +106,7 @@ var ns = window.saveUserChromeJS = {
 			oncommand: "saveUserChromeJS.saveScript(gContextMenu.linkURL)"
 		});
 
-		return this._menuitem = menuitem;
+		return menuitem;
 	},
 	showInstallBanner: function(browser) {
 		var notificationBox = gBrowser.getNotificationBox(browser);
@@ -147,7 +132,7 @@ var ns = window.saveUserChromeJS = {
 			}
 		]);
 	},
-	addButton_github: function(doc){
+	github_addButton: function(doc){
 		if(doc.getElementById("uc-install-button")) return;
 
 		var rawBtn = doc.getElementById("raw-url");
@@ -159,7 +144,7 @@ var ns = window.saveUserChromeJS = {
 		var installBtn = doc.createElement("a");
 		installBtn.setAttribute("id", "uc-install-button");
 		installBtn.setAttribute("class", "minibutton");
-		installBtn.setAttribute("href", "#");
+		installBtn.setAttribute("href", downURL);
 		installBtn.innerHTML = "Installieren";
 		installBtn.addEventListener("click", function(event){
 			event.preventDefault();
@@ -168,22 +153,43 @@ var ns = window.saveUserChromeJS = {
 
 		rawBtn.parentNode.insertBefore(installBtn, rawBtn);
 	},
+    github_addListener: function(win){
+        var script = '\
+            (function(){\
+                var $ = unsafeWindow.jQuery;\
+                if(!$) return;\
+                $(document).on("pjax:success", function(){\
+                    github_addButton(document);\
+                });\
+            })();\
+        ';
+        let sandbox = new Cu.Sandbox(win, {sandboxPrototype: win});
+        sandbox.unsafeWindow = win.wrappedJSObject;
+        sandbox.document     = win.document;
+        sandbox.window       = win;
+        sandbox.github_addButton = ns.github_addButton;
+        Cu.evalInSandbox(script, sandbox);
+    },
 	saveCurrentScript: function(event){
 		ns.saveScript();
 	},
 	saveScript: function(url) {
-		var win = ns.getFocusedWindow();
+        var win = ns.getFocusedWindow();
 
 		var doc, name, fileName, fileExt, charset;
 		if(!url){
 			url = win.location.href;
 			doc = win.document;
-			name = /\/\/\s*@name\s+(.*)/i.exec(doc.body.textContent);
-			charset = /\/\/\s*@charset\s+(.*)/i.exec(doc.body.textContent);
-		}
+			name = doc.body.textContent.match(/\/\/\s*@name\s+(.*)/i);
+			charset = doc.body.textContent.match(/\/\/\s*@charset\s+(.*)/i);
+		}else{
+            if(url.match(/^https?:\/\/github\.com\/\w+\/\w+\/blob\//)){
+                url = url.replace("/blob/", "/raw/");
+            }
+        }
 
 		name = name && name[1] ? name[1] : decodeURIComponent(url.split("/").pop());
-        fileName = name.replace(/\.uc\.(js|xul)$|$/i, ".uc.$1").replace(/\s/g, '_').toLowerCase();
+        fileName = name.replace(/\.uc\.(js|xul)$|$/i, ".uc.$1").replace(/\s/g, '_');
 		fileExt = name.match(/\.uc\.(js|xul)$/i);
         fileExt = fileExt && fileExt[1] ? fileExt[1] : "js";
         charset = charset && charset[1] ? charset[1] : "UTF-8";
@@ -201,40 +207,111 @@ var ns = window.saveUserChromeJS = {
 			done: function(res) {
 				if (res != fp.returnOK && res != fp.returnReplace) return;
 
-				var wbp = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
-				wbp.persistFlags = wbp.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
+                var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+                persist.persistFlags = persist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
-                var uri;
+                var obj_URI;
                 if(doc && fileExt != 'xul'){
-                    uri = doc.documentURIObject;
+                    obj_URI = doc.documentURIObject;
                 }else{
-                    uri = Services.io.newURI(url, null, null);
+                    obj_URI = Services.io.newURI(url, null, null);
                 }
 
-				var loadContext = win.QueryInterface(Ci.nsIInterfaceRequestor)
-					.getInterface(Ci.nsIWebNavigation)
-					.QueryInterface(Ci.nsILoadContext);
-				wbp.saveURI(uri, null, uri, null, null, fp.file, loadContext);
+                if(notificationsAfterInstall){
+                    persist.progressListener = {
+                        onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
+                            if(aCurSelfProgress == aMaxSelfProgress){
+                                setTimeout(function(){
+                                    ns.showInstallMessage({
+                                        fileExt: fileExt,
+                                        fileName: fileName,
+                                        file: fp.file,
+                                        charset: charset
+                                    });
+                                }, 100);
+                            }
+                        },
+                        onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) { }
+                    };
+                }
 
-                // // TODO： 需要保存完毕后调用。
-                // if(fileExt == 'js'){
-                //     setTimeout(function(){
-                //         ns.handleSavedScript(fp.file, charset);
-                //     }, 500);
-                // }
+                persist.saveURI(obj_URI, null, null, null, "", fp.file, null);
 			}
 		};
 		fp.open(callbackObj);
 	},
-    handleSavedScript: function(file, charset){
+    showInstallMessage: function(info){
+        var isRun = (info.fileExt == "js");
+
+        var mainAction, secondActions;
+        if(runWithoutRestart && isRun){
+            mainAction = {
+                label: "Sofort ausführen (mit Neustart)",
+                accessKey: "a",
+                callback: function(){
+                    ns.runScript(info.file, info.charset);
+                }
+            };
+            secondActions = [{
+                label: "Jetzt neu starten",
+                accessKey: "s",
+                callback: ns.restartApp
+            }];
+        }else{
+            mainAction = {
+                label: "Jetzt neu starten",
+                accessKey: "s",
+                callback: ns.restartApp
+            };
+            secondActions = null;
+        }
+
+        var showedMsg = ns.popupNotification({
+            id: "userchromejs-install-popup-notification",
+            message: "'" + info.fileName + "' Die Installation ist abgeschlossen.",
+            mainAction: mainAction,
+            secondActions: secondActions,
+            options: {
+                removeOnDismissal: true,
+                persistWhileVisible: true
+            }
+        });
+    },
+    popupNotification: function(details){
+        var win = ns.getMostRecentWindow();
+        if (win && win.PopupNotifications) {
+            win.PopupNotifications.show(
+                win.gBrowser.selectedBrowser,
+                details.id,
+                details.message,
+                "",
+                details.mainAction,
+                details.secondActions,
+                details.options);
+            return true;
+        }
+
+        return false;
+    },
+    // 只支持 us.js
+    runScript: function(file, charset){
         window.userChrome_js.getScripts();
+        if(window.userChromeManager){
+            window.userChromeManager.rebuildScripts();
+        }
 
         var dir = file.parent.leafName;
         if(dir.toLowerCase() == 'chrome' || (dir in window.userChrome_js.arrSubdir)){
+
             let context = {};
             Services.scriptloader.loadSubScript( "file:" + file.path, context, charset || "UTF-8");
-            alert("Script laden");
         }
+    },
+    flushCache: function (file) {
+        if (file)
+             Services.obs.notifyObservers(file, "flush-cache-entry", "");
+        else
+             Services.obs.notifyObservers(null, "startupcache-invalidate", "");
     },
 	getFocusedWindow: function() {
 		var win = document.commandDispatcher.focusedWindow;
@@ -252,7 +329,33 @@ var ns = window.saveUserChromeJS = {
 	      .QueryInterface(Ci.nsIInterfaceRequestor)
 	      .getInterface(Ci.nsIDOMWindow)
 	      .QueryInterface(Ci.nsIDOMChromeWindow);
-	}
+	},
+    restartApp: function() {
+        const appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup);
+
+        // Notify all windows that an application quit has been requested.
+        var os = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+        var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"].createInstance(Components.interfaces.nsISupportsPRBool);
+        os.notifyObservers(cancelQuit, "quit-application-requested", null);
+
+        // Something aborted the quit process.
+        if (cancelQuit.data) return;
+
+        // Notify all windows that an application quit has been granted.
+        os.notifyObservers(null, "quit-application-granted", null);
+
+        // Enumerate all windows and call shutdown handlers
+        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+        var windows = wm.getEnumerator(null);
+        var win;
+        while (windows.hasMoreElements()) {
+            win = windows.getNext();
+            if (("tryToClose" in win) && !win.tryToClose()) return;
+        }
+        let XRE = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
+        if (typeof XRE.invalidateCachesOnRestart == "function") XRE.invalidateCachesOnRestart();
+        appStartup.quit(appStartup.eRestart | appStartup.eAttemptQuit);
+    }
 };
 
 
