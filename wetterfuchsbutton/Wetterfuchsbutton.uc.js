@@ -9,7 +9,7 @@ var wetterfuchs = {
   urlobj: {
     MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:390},
     MO_Rechtsklick: {url:"http://www.wetterkontor.net/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
-    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:678,height:477},
+    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
     DED_WetterAktuell: {url:"http://www.wetterkontor.net/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
     DED_Vorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
     DED_PollenbelastungAktuell: {url:"http://www.wetterkontor.net/de/bio/pollenflug_aktuell.asp?p=1",width:478,height:590},

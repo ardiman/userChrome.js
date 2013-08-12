@@ -31,41 +31,17 @@
 }
 
 @-moz-document domain(www.daswetter.com) {
-	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),.top,#izquierda > UL:last-child > LI:last-child > DIV:last-child > UL,#izquierda > UL:last-child > LI:last-child > DIV:last-child > A > IMG {
+	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),.top,#izquierda > UL:last-child > LI:last-child > DIV:last-child > UL,#izquierda > UL:last-child > LI:last-child > DIV:last-child > A > IMG,#p-sup,.nav-sup,.tiempo.l-de,.gota.breadcrumb,.der,.chart,.social,#p2-pred,.mapMet,.f-text,FOOTER,NOSCRIPT,H2,.alerts.av-1,.f-city {
 		display: none !important;
 	}
+	.pred{
+		  margin-bottom: 5px !important;
+	}
 	#cookies {
-		margin-left: -325px !important;
+		  margin-right: 20px !important;
 	}
-	#cuerpo {
-		margin-top: -140px !important;
-		max-width: 653px !important;
-	}
-	#buscador {
-		max-width: 150px !important;
-		margin-left: -205px !important;
-	}
-	.sprite.nuevobuscador.img_buscador,#superior {
-		max-width: 655px !important;
-	}
-	#superior {
-		height: 60px !important;
-	}
-	.tabla_prediccion {
-		margin-bottom: 10px !important;
-	}
-	#izquierda {
-		margin-left: 17px !important;
-	}
-	#izquierda > UL:last-child > LI:last-child > DIV:first-child > UL {
-		max-width: 1180px !important;
-	}
-	.sprite.nuevobuscador.img_buscador {
-		background-image: none! important;
-		background-color: #BFEFFF! important;
-	}
-	#principal {
-		width: 660px !important;
+		.ctemp,.loc.c1,.loc.c2,.loc.c3,.loc.c4 {
+		  margin-right: 45px !important;
 	}
 	body {
 		overflow: hidden !important;
