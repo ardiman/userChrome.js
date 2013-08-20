@@ -7,5 +7,6 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Web Developer Toolbar Button](https://github.com/ardiman/userChrome.js/raw/master/webdevelopertoolbarbutton/scr_webdevelopertoolbarbutton.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere für den Button die "WebDeveloperToolbarButton.uc.xul"-Datei in den Chromeordner des Profils. Falls der Eintrag im 
+Kontextmenü erwünscht ist, verwende "WebDeveloperkontextmenu.uc.xul".
 
