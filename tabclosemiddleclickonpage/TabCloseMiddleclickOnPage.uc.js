@@ -1,5 +1,5 @@
 //	TabCloseMiddleclickOnPage.us.js
-//	v. 0.1
+//	v. 0.2
 
 function closeThisTab (event) {
 
@@ -26,3 +26,5 @@ function closeThisTab (event) {
 };
 
 gBrowser.addEventListener ("click", closeThisTab);
+if (Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefBranch).getBoolPref("general.autoScroll"))
+   alert("Das Skript TabCloseMiddleclickOnPage ist funktionslos, weil der automatische Bildlauf aktiviert ist.");
