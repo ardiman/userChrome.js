@@ -1,12 +1,25 @@
 // ==UserScript==
 // @name            Add Bookmark Here
-// @namespace       http://script.bitcp.com/addbookmarkhere
+// @namespace       about:userchromejs/addbookmarkhere
 // @description     add "Add Bookmark Here" contextmenu in places menu
+// @include         chrome://browser/content/browser.xul
+// @include         chrome://browser/content/bookmarks/bookmarksPanel.xul
 // @author          zbinlin
-// @homepage        http://bitcp.com
-// @version         0.0.1
-// @note            Wenn es "Strg + linke Maustaste" den Menuepunkt, dann das Lesezeichen an der Spitze, wenn es "Shift + linke Maustaste", dann das Lesezeichen in den Ordner, in der Spitze.
+// @homepage        http://mozcp.com
+// @version         0.0.2
 // ==/UserScript==
+
+/**
+ * ******************************** Changelog ********************************
+ * version: 0.0.2
+ *  * 兼容 Firefox 21+
+ *
+ * version: 0.0.1
+ *  * 初始化
+ * ***************************************************************************
+ */
+
+"use strict";
 
 (function () {
     if (window.AddBookmarkHere) return;
@@ -15,8 +28,8 @@
             var placesContext = document.getElementById("placesContext");
             if (!placesContext) return;
             var self = this;
-            window.addEventListener("unload", function (e) {
-                window.removeEventListener("unload", arguments.callee, false);
+            window.addEventListener("unload", function _(e) {
+                window.removeEventListener("unload", _, false);
                 self.uninit();
             }, false);
             this.addContextMenu(placesContext, document.getElementById("placesContext_new:bookmark"));
@@ -32,13 +45,13 @@
         addContextMenu: function (parentNode, afterNode) {
             var menuitem = document.createElement("menuitem");
             menuitem.id = "placesContext_add:bookmark";
-            menuitem.setAttribute("label", "Lesezeichen hier hinzuf\u00FCgen");
+            menuitem.setAttribute("label", "Lesezeichen hier hinzufügen");
             menuitem.setAttribute("accesskey", "h");
             menuitem.setAttribute("selection", "any");
-            menuitem.addEventListener("command", this.addBookmark, false);
+            menuitem.addEventListener("command", this, false);
             parentNode.insertBefore(menuitem, afterNode);
         },
-        addBookmark: function (e) {
+        handleEvent: function (e) {
             var popupNode = e.currentTarget.parentNode.triggerNode;
             if (!popupNode) return;
             var view = PlacesUIUtils.getViewForNode(popupNode);
@@ -47,7 +60,7 @@
             var selectedNode = view.selectedNode;
             var iid, aid;
             if (selectedNode) {
-                if (PlacesUtils.nodeIsFolder(selectedNode) && !PlacesUtils.nodeIsLivemarkContainer(selectedNode) && !PlacesUtils.isReadonlyFolder(selectedNode)) {
+                if (PlacesUtils.nodeIsFolder(selectedNode) /* Firefox 21+ 不兼容 && !PlacesUtils.nodeIsLivemarkContainer(selectedNode) */ && !PlacesUtils.isReadonlyFolder(selectedNode)) {
                     iid = selectedNode.itemId;
                     aid = e.shiftKey ? 0 : bookmarks.DEFAULT_INDEX;
                 } else {
@@ -65,15 +78,14 @@
             bookmarks.insertBookmark(iid, uri, aid, title);
         },
         uninit: function () {
+            var self = this;
             try {
                 var menuitem = document.getElementById("placesContext_add:bookmark");
-                menuitem.removeEventListener("command", this.addBookmark, false);
+                menuitem.removeEventListener("command", self, false);
             } catch (ex) {
             }
         }
     };
-    if (location == "chrome://browser/content/browser.xul") {
-        AddBookmarkHere.init();
-        window.AddBookmarkHere = AddBookmarkHere;
-    }
+    AddBookmarkHere.init();
+    window.AddBookmarkHere = AddBookmarkHere;
 })();
