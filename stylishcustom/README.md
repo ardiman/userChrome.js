@@ -5,7 +5,7 @@ als Kommentar markieren, die Vorschau mit einem Klick wieder zurücksetzen und d
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot1 Stylish Custom](https://github.com/ardiman/userChrome.js/raw/master/stylishcustom_1/scr_stylishcustom_1.png)
+![Screenshot1 Stylish Custom](https://github.com/ardiman/userChrome.js/raw/master/stylishcustom/scr_stylishcustom_1.png)
 
 ![Screenshot2 Stylish Custom](https://github.com/ardiman/userChrome.js/raw/master/stylishcustom/scr_stylishcustom_2.png)
 
