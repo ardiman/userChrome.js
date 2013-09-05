@@ -1,8 +1,8 @@
 # Microsoft Translator Tooltip
 Abwandlung des Skriptes "Bing Translator". Nachdem Text markiert wurde, erscheint das Bing Symbol, auf das man noch einmal klicken 
 muss, um die Übersetzung zu starten.
-Markierter Text in einer fast beliebigen Sprache wird mittels Mittelklick und dem Bing-Übersetzungsdienst automatisch übersetzt. 
-Falls der Text als deutsch erkannt wird, erhält man als Ergebnis die englische Übersetzung.
+Markierter Text in einer fast beliebigen Sprache wird mittels Bing-Übersetzungsdienst automatisch übersetzt. Falls der Text als 
+deutsch erkannt wird, erhält man als Ergebnis die englische Übersetzung.
 
 Das **Ergebnis des Skripts**:
 
