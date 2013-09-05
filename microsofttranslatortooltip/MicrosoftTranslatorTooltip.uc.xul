@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<overlay id="sokuyaku" xmlns:html="http://www.w3.org/1999/xhtml" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<script type="application/x-javascript"><![CDATA[
+
+(function () {
+    var quellLang, targetLang, panel, panelLabel, lookupIcon, sel;
+
+    var app_id = '366EA718B7846D2CBD6E0129E55F518D31E741BE';
+    var uri = 'http://api.microsofttranslator.com/V2/Ajax.svc/Translate';
+    var uridetect = 'http://api.microsofttranslator.com/V2/Ajax.svc/Detect?appId=' + app_id;
+
+    function detectLang (s) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "" + uridetect + '&text=' + s, false);
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+                panelLabel.setAttribute("class", xmlhttp.responseText.replace(/"/g, ""));
+            }
+        }
+        xmlhttp.send();
+        return panelLabel.getAttribute("class");
+    }
+
+    function beautify(s) {
+        var ret = s.replace(/^"+/, '').replace(/"$/, '');
+        ret = ret.replace(/&amp;/g, '&').replace(/\\"/g, '"').replace(/\\\//g, '/').replace(/\\\\/g, String.fromCharCode(92));
+        return ret;
+    }
+
+    function getSelection() {
+        var win = document.commandDispatcher.focusedWindow;
+        return win.getSelection();
+    }
+
+    function lookup(e) {
+        if (location != "chrome://browser/content/browser.xul") return;
+
+        var selText, with_param, req;
+
+        selText = sel.toString();
+        if (!selText.length) return;
+
+        targetLang = "de";
+        quellLang = "";
+        selText = selText.replace(/^"/g, "").replace(/^ "/, "");
+        panel = document.getElementById("lookup-box");
+        panelLabel = document.getElementById("lookup-label");
+        quellLang = detectLang(selText);
+        if (quellLang.length == 0) quellLang = "en";
+        if (quellLang == "de") targetLang = "en";
+
+        with_param = (function () {
+            var k, v;
+            var data = {
+                appId: app_id,
+                text:  selText.replace(/#/g, "%23").replace(/&/, "%26"),
+                from:  quellLang,
+                to:    targetLang
+            };
+            return ((function () {
+                var _results = [];
+                for (k in data) {
+                    v = data[k];
+                    _results.push("" + k + "=" + v);
+                }
+                return _results;
+            })()).join('&');
+        })();
+        req = new XMLHttpRequest();
+        req.open("GET", "" + uri + "?" + with_param, true);
+        req.onreadystatechange = function () {
+            var jajp, node, _ref;
+            if (req.readyState !== 4) return;
+            if ((_ref = req.status) !== 200 && _ref !== 201) return;
+            jajp = beautify(req.responseText);
+            panelLabel.style.fontSize = "12px";
+            panelLabel.textContent = jajp;
+            panel.openPopupAtScreen(e.screenX, e.screenY + 10, false);
+            return sel.removeAllRanges(); // 翻訳後に文字列選択状態を維持したいならコメントアウトする
+        };
+        return req.send();
+    }
+
+    function showLookupIcon(e) {
+        sel = getSelection();
+        if (!sel || sel == "") return;
+        lookupIcon = document.getElementById("lookup-icon");
+        lookupIcon.openPopupAtScreen(e.screenX, e.screenY + 10, false);
+        lookupIcon.addEventListener('click',
+            function (e) {
+                lookup(e);
+                if (lookupIcon) lookupIcon.hidePopup();
+        }, false);
+    }
+
+window.addEventListener('mouseup', showLookupIcon, false);
+window.addEventListener('dblclick', function () {lookupIcon.hidePopup()}, false);
+
+}).call(this);
+
+]]></script>
+  <popupset id="mainPopupSet">
+    <panel id="lookup-box" style="background-color:InfoBackground; color:InfoText; border:1px solid InfoText; width:400px;">
+      <label id="lookup-label">Übersetzung</label>
+    </panel>
+  </popupset>
+  <popupset id="mainPopupSet">
+    <panel id="lookup-icon" style="background-color:transparent;border:none;">
+      <image src="data:unknown-type;base64,AAABAAEAEBAAAAEAGABoAwAAFgAAACgAAAAQAAAAIAAAAAEAGAAAAAAAAAAAABMLAAATCwAAAAAAAAAAAAAVpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8ysf97zf+24//F6f/F6f/F6f+K0/9QvP8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8krP+Z2P/////////w+f/F6f/F6f/i9P/////////T7v9Bt/8Vpv8Vpv8Vpv8Vpv/T7v/////w+f97zf8Vpv8Vpv8Vpv8Vpv9QvP/T7v/////w+f9Bt/8Vpv8Vpv97zf////////9QvP8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8krP/i9P/////i9P8Vpv8Vpv+24//////i9P8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv+K0/////////8Vpv8Vpv/F6f////////8krP8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv+n3v/////w+f8Vpv8Vpv/F6f////////+n3v8krP8Vpv8Vpv8Vpv8Vpv8Vpv9tx/////////+Z2P8Vpv8Vpv/F6f/////////////i9P+K0/9QvP9QvP9tx//F6f////////+n3v8Vpv8Vpv8Vpv/F6f/////T7v+Z2P/i9P////////////////////+24/9QvP8Vpv8Vpv8Vpv8Vpv/F6f/////F6f8Vpv8Vpv8krP9QvP9QvP9Bt/8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv/F6f/////F6f8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv9Bt/9QvP9Bt/8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8Vpv8AAHBsAABhdAAAbiAAAHJ0AABsaQAAdGkAACBDAABlbgAAUEEAAEVYAAAuQwAAOy4AAEU7AABBVAAAQ00AAC5W"/>
+    </panel>
+  </popupset>
+
+</overlay>
