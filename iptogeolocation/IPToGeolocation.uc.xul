@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<overlay id="dip-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	<script type="application/x-javascript"><![CDATA[
+	
+var cursorX = 0;
+var cursorY = 0;
+
+window.oncontextmenu = function (e)
+{
+    cursorX = e.pageX;
+    cursorY = e.pageY+15;
+}
+
+req = function () {
+	var sel = window.content.document.getSelection();
+	str = String(sel);
+	try {var url = gContextMenu.linkURL}
+	catch(e) {
+	   try {var url = gContextMenu.linkURL()}
+	   catch(e) {var url = String(gContextMenu.link)}
+	}
+	if(!str) {
+		if(url != null) {
+			var	a = content.document.createElement('a');
+			a.href = url;
+			str = a.hostname;
+		} else {
+			str = window.content.document.location.host;
+		}
+	} else {
+		range = sel.getRangeAt(0);
+		var rect = range.getClientRects()[0];
+		if((str.indexOf("http://") !== -1) || (str.indexOf("https://") !== -1)) {
+			var	a = content.document.createElement('a');
+			a.href = str;
+			str = a.hostname;
+		}
+	}
+	leftW = cursorX;
+	topW = cursorY;
+	if((leftW + 450) - content.scrollX > content.innerWidth) {
+		leftW = (content.innerWidth - 470) + content.scrollX;
+	}
+	if((topW + 380) - content.scrollY > content.innerHeight) {
+		topW = (content.innerHeight - 400) + content.scrollY;
+	}
+	tt = content.document.createElement("div");
+	tt.id = "sel_"+new Date().getTime() + "_"+Math.random().toString().substr(2);
+	tt.style.left = leftW + "px";
+	tt.style.top = topW + "px";
+	tt.className = "ipgeoclass";
+	var close = "<a href='#' onclick='javascript:content.document.getElementById(\""+tt.id+"\").style.display=\"none\";return false;'>Schließen</a>";
+	var style = content.document.createElement("style");
+	style.id = "ipgeostyle";
+	style.textContent = ".ipgeoclass{font:normal normal 400 13px/20px \"Consolas\";font-family:\"Consolas\",\"sans-serif\";z-index:99999999;background-color:rgba(255,255,255,0.95);background-image:none;border-top-color:#000;border-left-color:#000;border-right-color:#000;border-bottom-color:#000;border-top-width:0;border-left-width:0;border-right-width:0;border-bottom-width:0;border-top-style:solid;border-left-style:solid;border-right-style:solid;border-bottom-style:solid;border-top-left-radius:4px;border-top-right-radius:4px;border-bottom-right-radius:4px;border-bottom-left-radius:4px;color:#000;font-size:11px;box-shadow:0 0 2px #000;text-shadow:0 0 0 #fff;margin:0;display:inline;position:absolute;padding:5px 15px 5px 15px}.ipgeoclass .ipgeofooter{text-align:center;margin:10px 0 0 0}.ipgeoclass .ipgeofooter a{font-size:14px;color:#4d4d4d;text-decoration:none}.ipgeotable tr{background:none;border:0;background-image:none;line-height:20px;margin:0;padding:0;height:20px;}.ipgeotable th{background:none;border:0;background-image:none;vertical-align:baseline;height:20px;line-height:20px;margin:0;text-align:right;font:normal normal 400 13px/20px \"Consolas\";font-family:\"Consolas\",\"sans-serif\";color:#777;white-space:nowrap;width:131px}.ipgeotable td{background:none;border:0;background-image:none;text-align:left;vertical-align:baseline;height:20px;line-height:20px;margin:0;padding:0 0 0 5px;font:normal normal 600 13px/20px \"Consolas\";font-family:\"Consolas\",\"sans-serif\";color:#737373}";
+	tt.innerHTML = "<span>Laden...</span><div class='ipgeofooter'>"+close+"</div>";
+	content.document.body.appendChild(tt);
+	content.document.head.appendChild(style);
+	var xhr = new window.XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState === 4 && xhr.status === 200) {
+			var json = xhr.response;
+			r = JSON.parse(json);
+			if(r.status == "fail") {
+				tt.innerHTML = "<span>Fehler: <b>"+(r.message == 'invalid query' ? 'invalid domain / IP Adresse' : r.message)+"</b></span><div class='ipgeofooter'>"+close+"</div>";
+				return false;
+			}
+			for (var k in r) {
+				if(r[k] == null) {
+					r[k] = "";
+				}
+			}
+			var quer = "";
+			if (str != r.query) {
+				quer = "<tr><th>Abfrage:</th><td>"+str+"</td></tr>";
+			}
+			tt.innerHTML = "<table class='ipgeotable' style='border-spacing:0;border-collapse:collapse;border:0;'>"+quer+"<tr><th>IP:</th><td>"+r.query+"</td></tr><tr><th>Staat:</th><td>"+r.country+"</td></tr><tr><th>Staat Code:</th><td>"+r.countryCode+"</td></tr><tr><th>Region:</th><td>"+r.regionName+"</td></tr><tr><th>Region Code:</th><td>"+r.region+"</td></tr><tr><th>Stadt:</th><td>"+r.city+"</td></tr><tr><th>PLZ:</th><td>"+r.zip+"</td></tr><tr><th>Breitengrad:</th><td>"+r.lat+"</td></tr><tr><th>Längengrad:</th><td>"+r.lon+"</td></tr><tr><th>Zeitzone:</th><td>"+r.timezone+"</td></tr><tr><th>ISP:</th><td>"+r.isp+"</td></tr><tr><th>Organisation:</th><td>"+r.org+"</td></tr><tr><th>AS Nummer/Name:</th><td>"+r.as+"</td></tr><tr><th>Rückwärts DNS:</th><td>"+r.reverse+"</td></tr></table><div class='ipgeofooter'><a href='http://ip-api.com/"+str+"' target='_blank'>Link</a> - "+close+"</div>";
+		}
+	}
+	xhr.open("GET", "http://ip-api.com/json/"+str+"?fields=65535&cex=1.5", true);
+	xhr.send(null);
+};
+
+]]></script>	
+	<popup id="contentAreaContextMenu">
+		<menuitem id="req-context" label="IP lokalisieren" oncommand="req();"/>
+	</popup>
+</overlay>
