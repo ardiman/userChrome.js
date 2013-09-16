@@ -4,7 +4,7 @@
 // @author       ywzhaiqi
 // @include      main
 // @charset      utf-8
-// @version      0.4
+// @version      0.8
 // @downloadURL  https://raw.github.com/ywzhaiqi/userChromeJS/master/AddonsPage/AddonsPage.uc.js
 // @homepageURL  https://github.com/ywzhaiqi/userChromeJS/tree/master/AddonsPage
 // @reviewURL    http://bbs.kafan.cn/thread-1617407-1-1.html
@@ -13,545 +13,576 @@
 // @note         - 附件组件详细信息页面新增GM脚本、扩展、主题安装地址和插件路径，右键即复制
 // @note         - 新增 uc脚本管理页面
 // @note         - 右键菜单 "查看附加组件" 需要 DOM Inspector
-// @note         其它信息请查看主页
+// @note         uc脚本管理界面
+// @note         - 启用禁用需要 rebuild_userChrome.uc.xul
+// @note         - 编辑命令需要首先设置 view_source.editor.path 的路径
+// @note         - 图标请自行添加样式，详细信息见主页
+// @note         其它信息见主页
 // ==/UserScript==
 
 location == "chrome://browser/content/browser.xul" && (function(){
 
-	if(window.AM_Helper){
-		AM_Helper.uninit();
-		delete AM_Helper;
-	}
-	if(window.userChromeJSAddon){
-		userChromeJSAddon.uninit();
-		delete userChromeJSAddon;
-	}
+     var iconURL = "";  // uc 列表的图标，没法用 base64，类似下面的路径
+    //var iconURL = "chrome://scriptish/skin/third-party/uso_medium.png";
 
-	var { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
-	var { Services } = Cu.import("resource://gre/modules/Services.jsm");
-	var { AddonManager } = Cu.import("resource://gre/modules/AddonManager.jsm");
-	var { XPIProvider } = Cu.import("resource://gre/modules/XPIProvider.jsm");
+    if(window.AM_Helper){
+        window.AM_Helper.uninit();
+        delete window.AM_Helper;
+    }
+    if(window.userChromeJSAddon){
+        window.userChromeJSAddon.uninit();
+        delete window.userChromeJSAddon;
+    }
 
-	var debug = content.console.log;
+    let { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
+    Cu.import("resource://gre/modules/Services.jsm");
+    Cu.import("resource://gre/modules/AddonManager.jsm");
+    Cu.import("resource://gre/modules/XPIProvider.jsm");
 
-	window.AM_Helper = {
-		menuitem: {},
+    var debug = content.console.log;
+    var isCN = Services.prefs.getCharPref("general.useragent.locale").indexOf("zh") != -1;
 
-		init: function(){
-			document.addEventListener("DOMContentLoaded", this, false);
-		},
-		uninit: function(){
-			document.removeEventListener("DOMContentLoaded", this, false);
-		},
-		handleEvent: function(event){
-			switch(event.type){
-				case "DOMContentLoaded":
-					var doc = event.target;
-					var win = doc.defaultView;
+    window.AM_Helper = {
+        menuitem: {},
 
-					if (["about:addons","chrome://mozapps/content/extensions/extensions.xul"].indexOf(doc.URL) == -1)
-						return;
+        init: function(){
+            document.addEventListener("DOMContentLoaded", this, false);
+        },
+        uninit: function(){
+            document.removeEventListener("DOMContentLoaded", this, false);
+        },
+        handleEvent: function(event){
+            switch(event.type){
+                case "DOMContentLoaded":
+                    var doc = event.target;
+                    var win = doc.defaultView;
 
-					this.addPopupMenu(doc);
+                    if (["about:addons","chrome://mozapps/content/extensions/extensions.xul"].indexOf(doc.URL) == -1)
+                        return;
 
-					// 给菜单调用
-					win.AM_Helper = AM_Helper;
+                    this.addPopupMenu(doc);
 
-					var self = this;
-					var observer = new MutationObserver(function(e) {
-						e = e[e.length-1];
-						if(e.attributeName == "loading") {
-							var doc = e.target.ownerDocument;
-							self.setUrlOrPath(doc);
-						}
-					});
-					observer.observe(doc.getElementById("detail-view"), {attributes: true});
-					break;
-				case "popupshowing":
-					this.getAddon(content.document.popupNode.value,
-					              this.setItemsAttributes,
-					              event);
-					break;
-			}
-		},
-		addPopupMenu: function(doc){
-			var ins = doc.getElementById("menuitem_uninstallItem");
-			if(!ins) return;
+                    // 给菜单调用
+                    win.AM_Helper = AM_Helper;
+                    this.win = win;
 
-			ins = ins.nextSibling;
-			var popup = ins.parentNode;
+                    var self = this;
+                    var observer = new MutationObserver(function(e) {
+                        e = e[e.length-1];
+                        if(e.attributeName == "loading") {
+                            var doc = e.target.ownerDocument;
+                            self.setUrlOrPath(doc);
+                        }
+                    });
+                    observer.observe(doc.getElementById("detail-view"), {attributes: true});
+                    break;
+                case "popupshowing":
+                    this.getAddon(this.win.document.popupNode.value,
+                                  this.setItemsAttributes,
+                                  event);
+                    break;
+            }
+        },
+        addPopupMenu: function(doc){
+            var ins = doc.getElementById("menuitem_uninstallItem");
+            if(!ins) return;
 
-			var menuitem = $C("menuseparator", {
-				id: "AM-separator-1"
-			});
-			this.menuitem.separator_1 = popup.insertBefore(menuitem, ins);
+            ins = ins.nextSibling;
+            var popup = ins.parentNode;
 
-			menuitem = $C("menuitem", {
-				id: "AM-inspect-addon",
-				label: "Objektdaten inspizieren",
-				accesskey: "i",
-				tooltipText: "Objektdaten des Addons im DOM Inspector-Ansicht öffnen",
-				oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.inspectAddon);"
-			});
-			this.menuitem.inspectItem = popup.insertBefore(menuitem, ins);
+            var menuitem = $C("menuseparator", {
+                id: "AM-separator-1"
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-edit-script",
-				label: "Script bearbeiten",
-				accesskey: "b",
-				hidden: true,
-				oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.editScript);"
-			});
-			this.menuitem.editScript = popup.insertBefore(menuitem, ins);
+            menuitem = $C("menuitem", {
+                id: "AM-edit-script",
+                label: "Script bearbeiten",
+                accesskey: "b",
+                hidden: true,
+                oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.editScript);"
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-browse-dir",
-				label: "Installations-Verzeichnis",
-				accesskey: "v",
-				oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.browseDir);"
-			});
-			this.menuitem.browseDir = popup.insertBefore(menuitem, ins);
+            menuitem = $C("menuitem", {
+                id: "AM-inspect-addon",
+                label: "Objektdaten inspizieren",
+                accesskey: "i",
+                tooltipText: "Objektdaten des Addons im DOM Inspector-Ansicht öffnen",
+                oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.inspectAddon);"
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-open-url",
-				label: "Installationsseite öffnen",
-				accesskey: "ö",
-				tooltipText: null,
-				oncommand: "openURL(this.tooltipText)",
-			});
-			this.menuitem.openURLOrPath = popup.insertBefore(menuitem, ins);
+            menuitem = $C("menuitem", {
+                id: "AM-browse-dir",
+                label: "Installations-Verzeichnis",
+                accesskey: "v",
+                oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.browseDir);"
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-copy-name",
-				label: "Namen kopieren",
-				accesskey: "k",
-				oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.copyName);"
-			});
-			this.menuitem.copyName = popup.insertBefore(menuitem, ins);
+            menuitem = $C("menuitem", {
+                id: "AM-open-url",
+                label: "Installationsseite öffnen",
+                accesskey: "ö",
+                tooltipText: null,
+                oncommand: "openURL(this.tooltipText)",
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-go-uso",
-				class: "greasemonkey",
-				hidden: true,
-				label: "Script auf Userscripts.org anzeigen",
-				oncommand: "openURL(this.tooltipText);"
-			});
-			this.menuitem.goUSO = popup.appendChild(menuitem);
+            menuitem = $C("menuitem", {
+                id: "AM-copy-name",
+                label: "Namen kopieren",
+                accesskey: "k",
+                oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.copyName);"
+            });
+            popup.insertBefore(menuitem, ins);
 
-			menuitem = $C("menuitem", {
-				id: "AM-find-uso",
-				class: "greasemonkey",
-				hidden: true,
-				label: "Script auf Userscripts.org finden",
-				oncommand: "openURL(this.getAttribute('find-on-uso'));"
-			});
-			this.menuitem.findUSO = popup.appendChild(menuitem);
+            menuitem = $C("menuitem", {
+                id: "AM-go-uso",
+                class: "greasemonkey",
+                hidden: true,
+                label: "Script auf Userscripts.org anzeigen",
+                oncommand: "openURL(this.tooltipText);"
+            });
+            popup.appendChild(menuitem);
 
-			popup.addEventListener("popupshowing", this, true);
-		},
-		setItemsAttributes: function(aAddon, event){
-			var popup = event.target;
-			var doc = popup.ownerDocument;
+            menuitem = $C("menuitem", {
+                id: "AM-find-uso",
+                class: "greasemonkey",
+                hidden: true,
+                label: "Script auf Userscripts.org finden",
+                oncommand: "openURL(this.getAttribute('find-on-uso'));"
+            });
+            popup.appendChild(menuitem);
 
-			var isExtension = (aAddon.type == "extension");
-			var isTheme = (aAddon.type == "theme");
-			var isPlugin = (aAddon.type == "plugin");
-			var isUserStyle = (aAddon.type == "userstyle");
-			var isScriptish = (aAddon.type == "userscript");
-			var isUserScript = (aAddon.type == "user-script") || // Greasemonkey
-			                   (aAddon.type == "userscript") ||  // Scriptish
-			                   (aAddon.type == "greasemonkey-user-script"); // Greasemonkey 1.7+
-			var isUserChromeJS = (aAddon.type == "userchromejs");
+            popup.addEventListener("popupshowing", this, true);
+        },
+        setItemsAttributes: function(aAddon, event){
+            var popup = event.target;
+            var doc = popup.ownerDocument;
 
-			this.menuitem.browseDir.hidden = isUserStyle || isUserScript;
+            function $(id) doc.getElementById(id)
 
-			this.menuitem.editScript.hidden = !isUserChromeJS;
+            var isExtension = (aAddon.type == "extension");
+            var isTheme = (aAddon.type == "theme");
+            var isPlugin = (aAddon.type == "plugin");
+            var isUserStyle = (aAddon.type == "userstyle");
+            var isScriptish = (aAddon.type == "userscript");
+            var isUserScript = (aAddon.type == "user-script") || // Greasemonkey
+                               (aAddon.type == "userscript") ||  // Scriptish
+                               (aAddon.type == "greasemonkey-user-script"); // Greasemonkey 1.7+
+            var isUserChromeJS = (aAddon.type == "userchromejs");
 
-			// install url
-			var openInstallURLItem = this.menuitem.openURLOrPath;
-			var installURL = this.getInstallURL(aAddon) || null;
-			openInstallURLItem.tooltipText = installURL;
-			openInstallURLItem.hidden = !installURL;
+            $("AM-browse-dir").hidden = isUserStyle || isUserScript;
 
-			var inspectItem = this.menuitem.inspectItem;
-			inspectItem.disabled = !("inspectObject" in window);
-			inspectItem.className = isUserScript
-			                        ? isScriptish
-			                          ? ""
-			                          : "greasemonkey"
-			                        : "";
+            $("AM-edit-script").hidden = !isUserChromeJS;
 
-			var copyNameItem = this.menuitem.copyName;
-			copyNameItem.tooltipText = aAddon.name;
-			// copyNameItem.disabled = isUserStyle;
+            // install url
+            var openInstallURLItem = $("AM-open-url");
+            var installURL = this.getInstallURL(aAddon) || null;
+            openInstallURLItem.tooltipText = installURL;
+            openInstallURLItem.hidden = !installURL;
 
-			if(isUserScript && !isScriptish){
-				var usoRegx = /^https?:\/\/userscripts.org\/scripts\/source\/\d+.\w+.js$/;
-				var usoURL = "";
-				if (aAddon._script) {
-					var usDownloadURL = aAddon._script._downloadURL;
-					var usUpdateURL = aAddon._script._updateURL;
-					if (usoRegx.test(usDownloadURL)) {
-						usoURL = usDownloadURL;
-					} else if (usoRegx.test(usUpdateURL)) {
-						usoURL = usUpdateURL;
-					}
-				}
+            var inspectItem = $("AM-inspect-addon");
+            inspectItem.disabled = !("inspectObject" in window);
+            inspectItem.className = isUserScript
+                                    ? isScriptish
+                                      ? ""
+                                      : "greasemonkey"
+                                    : "";
 
-				var usoItem = this.menuitem.goUSO;
-				usoItem.disabled = !usoRegx.test(usoURL);
-				usoItem.className = isUserScript ? usoItem.disabled ? "" : "greasemonkey" : "";
-				usoItem.tooltipText = usoURL.replace(/source/, "show")
-					.replace(/.\w+.js$/, "");
+            var copyNameItem = $("AM-copy-name");
+            copyNameItem.tooltipText = aAddon.name;
 
-				var fusoItem = this.menuitem.findUSO;
-				fusoItem.disabled = usoRegx.test(usoURL);
-				fusoItem.className = isUserScript ? fusoItem.disabled ? "" : "greasemonkey" : "";
-				fusoItem.setAttribute("find-on-uso",
-					"http://userscripts.org/scripts/search?q=" +
-					encodeURIComponent(aAddon.name));
-			}
-		},
+            if(isUserScript && !isScriptish){
+                var usoRegx = /^https?:\/\/userscripts.org\/scripts\/source\/\d+.\w+.js$/;
+                var usoURL = "";
+                if (aAddon._script) {
+                    var usDownloadURL = aAddon._script._downloadURL;
+                    var usUpdateURL = aAddon._script._updateURL;
+                    if (usoRegx.test(usDownloadURL)) {
+                        usoURL = usDownloadURL;
+                    } else if (usoRegx.test(usUpdateURL)) {
+                        usoURL = usUpdateURL;
+                    }
+                }
 
-		getPopupNode: function (aNode) {
-			var doc = aNode.ownerDocument;
-			return "triggerNode" in aNode.parentNode ? aNode.parentNode.triggerNode : doc.popupNode;
-		},
-		getAddon: function (aId, aCallback, aEvent) {
-			var self = this;
+                var usoItem = $("AM-go-uso");
+                usoItem.disabled = !usoRegx.test(usoURL);
+                usoItem.className = isUserScript ? usoItem.disabled ? "" : "greasemonkey" : "";
+                usoItem.tooltipText = usoURL.replace(/source/, "show")
+                    .replace(/.\w+.js$/, "");
 
-			if (content.gDetailView._addon) {
-				aCallback.apply(self, [content.gDetailView._addon, aEvent]);
-				return;
-			}
+                var fusoItem = $("AM-find-uso");
+                fusoItem.disabled = usoRegx.test(usoURL);
+                fusoItem.className = isUserScript ? fusoItem.disabled ? "" : "greasemonkey" : "";
+                fusoItem.setAttribute("find-on-uso",
+                    "http://userscripts.org/scripts/search?q=" + encodeURIComponent(aAddon.name));
+            }
+        },
 
-			AddonManager.getAllAddons(function(aAddons) {
-				for (var i = 0; i < aAddons.length; i++) {
-					if (aAddons[i].id == aId) {
-						aCallback.apply(self, [aAddons[i], aEvent]);
-						return;
-					}
-				}
-			});
-		},
+        getPopupNode: function (aNode) {
+            var doc = aNode.ownerDocument;
+            return "triggerNode" in aNode.parentNode ? aNode.parentNode.triggerNode : doc.popupNode;
+        },
+        getAddon: function (aId, aCallback, aEvent) {
+            var self = this;
 
-		inspectAddon: function (aAddon) {
-		 	inspectObject(aAddon);
-		},
-		inspectUserscript: function (aAddon) {
-		 	inspectObject(aAddon._script);
-		},
-		browseDir: function (aAddon) {
-			switch(aAddon.type){
-				case "plugin":
-					var pathes = aAddon.pluginFullpath;
-					for (var i = 0; i < pathes.length; i++) {
-						this.revealPath(pathes[i]);
-					}
-					return;
-				case "userchromejs":
-					var file = aAddon._script.file;
-					if(file.exists())
-						file.reveal();
-					return;
-			}
+            if (this.win.gDetailView._addon) {
+                aCallback.apply(this, [this.win.gDetailView._addon, aEvent]);
+                return;
+            }
 
-			// addon
-			var gecko = parseInt(Services.appinfo.platformVersion);
-			var nsLocalFile = Components.Constructor("@mozilla.org/file/local;1", (gecko >= 14) ? "nsIFile" : "nsILocalFile",
-				"initWithPath");
+            AddonManager.getAllAddons(function(aAddons) {
+                for (var i = 0; i < aAddons.length; i++) {
+                    if (aAddons[i].id == aId) {
+                        aCallback.apply(self, [aAddons[i], aEvent]);
+                        return;
+                    }
+                }
+            });
+        },
 
-			var dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-			dir.append("extensions");
-			dir.append(aAddon.id);
-			var fileOrDir = dir.path + (dir.exists() ? "" : ".xpi");
-			//Application.console.log(fileOrDir);
-			try {
-				(new nsLocalFile(fileOrDir)).reveal();
-			} catch (ex) {
-				var addonDir = /.xpi$/.test(fileOrDir) ? dir.parent : dir;
-				try {
-					if (addonDir.exists()) {
-						addonDir.launch();
-					}
-				} catch (ex) {
-					var uri = Services.io.newFileURI(addonDir);
-					var protSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"].
-					getService(Ci.nsIExternalProtocolService);
-					protSvc.loadUrl(uri);
-				}
-			}
-		},
-		editScript: function(aAddon) {
-			if(aAddon.type == "userchromejs"){
-				var path = aAddon._script.file.path;
-				this.launchEditor(path);
-			}
-		},
-		launchEditor: function(path){
-			var editor = Services.prefs.getCharPref("view_source.editor.path");
-			var UI = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
+        inspectAddon: function (aAddon) {
+            inspectObject(aAddon);
+        },
+        inspectUserscript: function (aAddon) {
+            inspectObject(aAddon._script);
+        },
+        browseDir: function (aAddon) {
+            switch(aAddon.type){
+                case "plugin":
+                    var pathes = aAddon.pluginFullpath;
+                    for (var i = 0; i < pathes.length; i++) {
+                        this.revealPath(pathes[i]);
+                    }
+                    return;
+                case "userchromejs":
+                    var file = aAddon._script.file;
+                    if(file.exists())
+                        file.reveal();
+                    return;
+            }
 
-			var platform = window.navigator.platform.toLowerCase();
-			if (platform.indexOf('win') > -1) {
-			    UI.charset = 'GB2312'; // Shift_JIS
-			} else {
-			    UI.charset = 'UTF-8';
-			}
+            // addon
+            var gecko = parseInt(Services.appinfo.platformVersion);
+            var nsLocalFile = Components.Constructor("@mozilla.org/file/local;1", (gecko >= 14) ? "nsIFile" : "nsILocalFile",
+                "initWithPath");
 
-			path = UI.ConvertFromUnicode(path);
+            var dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
+            dir.append("extensions");
+            dir.append(aAddon.id);
+            var fileOrDir = dir.path + (dir.exists() ? "" : ".xpi");
+            //Application.console.log(fileOrDir);
+            try {
+                (new nsLocalFile(fileOrDir)).reveal();
+            } catch (ex) {
+                var addonDir = /.xpi$/.test(fileOrDir) ? dir.parent : dir;
+                try {
+                    if (addonDir.exists()) {
+                        addonDir.launch();
+                    }
+                } catch (ex) {
+                    var uri = Services.io.newFileURI(addonDir);
+                    var protSvc = Cc["@mozilla.org/uriloader/external-protocol-service;1"].
+                    getService(Ci.nsIExternalProtocolService);
+                    protSvc.loadUrl(uri);
+                }
+            }
+        },
+        editScript: function(aAddon) {
+            if(aAddon.type == "userchromejs"){
+                var path = aAddon._script.file.path;
+                this.launchEditor(path);
+            }
+        },
+        launchEditor: function(path){
+            var editor = Services.prefs.getCharPref("view_source.editor.path");
+            var UI = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
 
-			var appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
-			appfile.initWithPath(editor);
-			var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
-			process.init(appfile);
-			process.run(false, [path], 1, {});
-		},
-		copyName: function (aAddon) {
-		 	this.copyToClipboard(aAddon.name);
-		},
-		getInstallURL: function(aAddon){
-			aAddon = aAddon || content.gViewController.viewObjects.detail._addon;
-			if(!aAddon) return null;
+            var platform = window.navigator.platform.toLowerCase();
+            if (platform.indexOf('win') > -1) {
+                UI.charset = 'GB2312'; // Shift_JIS
+            } else {
+                UI.charset = 'UTF-8';
+            }
 
-			var url = null;
-			switch(aAddon.type){
-				case "extension":
-				case "theme":
-					url = (aAddon.contributionURL || aAddon.reviewURL) || null;
-					return url && url.replace(/\/developers|\/reviews/g,"");
-				case "greasemonkey-user-script":
-					return aAddon._script && aAddon._script.downloadURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2");
-				case "userscript":
-					url = aAddon.homepageURL;
-					if(!url && aAddon._updateURL){
-						url = aAddon._updateURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2");
-					}
-					return url;
-				case "userchromejs":
-					return aAddon.homepageURL || aAddon.reviewURL;
-				default:
-					return aAddon.homepageURL;
-			}
-		},
+            path = UI.ConvertFromUnicode(path);
 
-		get getPath(){
-			var url = content.gViewController.viewObjects.detail._addon;
-			if(!url) return false;
-			return url.pluginFullpath || false;
-		},
-		setUrlOrPath :function(doc){
-			var installURL = this.getInstallURL();
-			if (!installURL && !this.getPath) return;
+            var appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+            appfile.initWithPath(editor);
+            var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
+            process.init(appfile);
+            process.run(false, [path], 1, {});
+        },
+        copyName: function (aAddon) {
+            this.copyToClipboard(aAddon.name);
+        },
+        getInstallURL: function(aAddon){
+            aAddon = aAddon || this.win.gViewController.viewObjects.detail._addon;
+            if(!aAddon) return null;
 
-			if(!doc.getElementById("detail-InstallURL-row")){
-				var value = "",label = "";
-				if(content.gViewController.currentViewId.indexOf("detail")!= -1){
-					switch (content.gViewController.viewObjects.detail._addon.type){
-						case "extension":
-						case "theme":
-						case "greasemonkey-user-script":
-							value = installURL;
-							label = "%Installpage%";
-							break;
-						case "plugin":
-							value = this.getPath;
-							label = "%Pfad%";
-							break;
-					}
-				}
-				if(!!value && !!label){
-					var xul = "";
-					if(typeof(value) != "string"){
-						xul = "<vbox>";
-						for(var i=0;i< value.length;i++){
-							xul += ('<label class="detail-row-value text-link" crop="end" onclick="\
-								if(event.button == 0) { \
-									AM_Helper.revealPath(this.value); \
-								} else if (event.button == 2){ \
-									AM_Helper.copyToClipboard(this.value); \
-								} \
-								return false;" \
-								value="' + value[i] +'" href="'+ value[i] +'"/>');
-						}
-						xul += "</vbox>";
-					}else{
-						xul = '<label class="detail-row-value text-link" crop="end" onclick="\
-							if(event.button == 2){\
-								AM_Helper.copyToClipboard(this.value); \
-								return false;\
-							}" value="'+ value +'" href="'+ value +'"/>';
-					}
-					xul = '<row class="detail-row-complex" id="detail-InstallURL-row" label="'+ label +'">'+
-								'<label class="detail-row-label" value="'+ label +'"/>'+ xul +'</row>';
-					if(Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch).getCharPref("general.useragent.locale").indexOf("zh")!=-1){
-						xul = xul.replace(/\%Installpage\%/g, "安装页面").replace(/\%Path\%/g,"Pfad");
-					}else{
-						xul = xul.replace(/\%/g,"");
-					}
-					doc.getElementById("detail-rows").innerHTML += xul;
-				}
-			}
-		},
-		revealPath: function(path){
-			var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
-			file.initWithPath(path);
-			if(file.exists())
-				file.reveal();
-		},
-		copyToClipboard: function (aString) {
-			Cc["@mozilla.org/widget/clipboardhelper;1"].
-				getService(Ci.nsIClipboardHelper).copyString(aString);
-		}
-	};
+            var url = null;
+            switch(aAddon.type){
+                case "extension":
+                case "theme":
+                    url = (aAddon.contributionURL || aAddon.reviewURL) || null;
+                    return url && url.replace(/\/developers|\/reviews/g,"");
+                case "greasemonkey-user-script":
+                    return aAddon._script && aAddon._script.downloadURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2");
+                case "userscript":
+                    if(aAddon._updateURL){
+                        url = aAddon._updateURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2");
+                    }else{
+                        url = "http://userscripts.org/scripts/search?q=" + encodeURIComponent(aAddon.name);
+                    }
+                    return url;
+                case "userchromejs":
+                    return aAddon.homepageURL || aAddon.reviewURL;
+                default:
+                    return aAddon.homepageURL;
+            }
+        },
 
-	var SCRIPT_ID_SUFFIX = '@userchromejs';
+        get getPath(){
+            var url = this.win.gViewController.viewObjects.detail._addon;
+            if(!url) return false;
+            return url.pluginFullpath || false;
+        },
+        setUrlOrPath :function(doc){
+            var installURL = this.getInstallURL();
+            if (!installURL && !this.getPath) return;
 
-	window.userChromeJSAddon = {
-		scripts:[],
+            if(!doc.getElementById("detail-InstallURL-row")){
+                var value = "",label = "";
+                if(this.win.gViewController.currentViewId.indexOf("detail")!= -1){
+                    switch (this.win.gViewController.viewObjects.detail._addon.type){
+                        case "extension":
+                        case "theme":
+                        case "greasemonkey-user-script":
+                            value = installURL;
+                            label = "%Installations-Seite%";
+                            break;
+                        case "plugin":
+                            value = this.getPath;
+                            label = "%Pfad%";
+                            break;
+                    }
+                }
+                if(!!value && !!label){
+                    var xul = "";
+                    if(typeof(value) != "string"){
+                        xul = "<vbox>";
+                        for(var i=0;i< value.length;i++){
+                            xul += ('<label class="detail-row-value text-link" crop="end" onclick="\
+                                if(event.button == 0) { \
+                                    AM_Helper.revealPath(this.value); \
+                                } else if (event.button == 2){ \
+                                    AM_Helper.copyToClipboard(this.value); \
+                                } \
+                                return false;" \
+                                value="' + value[i] +'" href="'+ value[i] +'"/>');
+                        }
+                        xul += "</vbox>";
+                    }else{
+                        xul = '<label class="detail-row-value text-link" crop="end" onclick="\
+                            if(event.button == 2){\
+                                AM_Helper.copyToClipboard(this.value); \
+                                return false;\
+                            }" value="'+ value +'" href="'+ value +'"/>';
+                    }
+                    xul = '<row class="detail-row-complex" id="detail-InstallURL-row" label="'+ label +'">'+
+                                '<label class="detail-row-label" value="'+ label +'"/>'+ xul +'</row>';
+                    if(isCN){
+                        xul = xul.replace(/\%Installpage\%/g, "Installations-Seite").replace(/\%Path\%/g, "Pfad");
+                    }else{
+                        xul = xul.replace(/\%/g,"");
+                    }
+                    doc.getElementById("detail-rows").innerHTML += xul;
+                }
+            }
+        },
+        revealPath: function(path){
+            var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+            file.initWithPath(path);
+            if(file.exists())
+                file.reveal();
+        },
+        copyToClipboard: function (aString) {
+            Cc["@mozilla.org/widget/clipboardhelper;1"].
+                getService(Ci.nsIClipboardHelper).copyString(aString);
+        }
+    };
 
-	    init: function(){
-	        this.initScripts();
-	        this.registerProvider();
-	    },
-	    uninit: function(){
-	    	this.unregisterProvider();
-	    },
-	    initScripts: function(){
-	        var scripts = window.userChrome_js.scripts.concat(window.userChrome_js.overlays);
+    window.userChromeJSAddon = {
+        scripts:[],
+        unloads: [],
 
-	        var self = this;
-	        scripts.forEach(function(script, i){
-	        	self.scripts[i] = new ScriptAddon(script);
-	        });
-	    },
-	    getScriptById: function(aId){
-	    	for (var i = 0; i < this.scripts.length; i++) {
-	    		if(this.scripts[i].id == aId)
-	    			return this.scripts[i];
-	    	}
-	    	return null;
-	    },
-	    registerProvider: function(){
-			var types = null;
-			if (AddonManagerPrivate.AddonType) {
-				types = [new AddonManagerPrivate.AddonType(
-					"userchromejs",
-					"",
-					"uc Script",
-					AddonManager.VIEW_TYPE_LIST,
-					9000)];
-			}
+        init: function(){
+            if("userchromejs" in AddonManager.addonTypes) return;
 
-			this.provider = {
-				getAddonByID: function(aId, aCallback) {
-					let script = userChromeJSAddon.getScriptById(aId);
-					aCallback(script);
-				},
+            this.initScripts();
+            this.registerProvider();
+            this.addStyle();
+        },
+        uninit: function(){
+            this.unloads.forEach(function(func){ func(); });
+        },
+        initScripts: function(){
+            var scripts = window.userChrome_js.scripts.concat(window.userChrome_js.overlays);
 
-				getAddonsByTypes: function(aTypes, aCallback) {
-					if (aTypes && aTypes.indexOf("userchromejs") < 0) {
-						aCallback([]);
-					} else {
-						aCallback(userChromeJSAddon.scripts);
-					}
-				}
-			};
+            var self = this;
+            scripts.forEach(function(script, i){
+                self.scripts[i] = new ScriptAddon(script);
+            });
+        },
+        getScriptById: function(aId){
+            for (var i = 0; i < this.scripts.length; i++) {
+                if(this.scripts[i].id == aId)
+                    return this.scripts[i];
+            }
+            return null;
+        },
+        registerProvider: function(){
+            var types = null;
+            if (AddonManagerPrivate.AddonType) {
+                types = [new AddonManagerPrivate.AddonType(
+                    "userchromejs",
+                    "",
+                    "userChrome JS",
+                    AddonManager.VIEW_TYPE_LIST,
+                    9000)];
+            }
 
-			AddonManagerPrivate.registerProvider(this.provider, types);
-	    },
-	    unregisterProvider: function(){
-	    	AddonManagerPrivate.unregisterProvider(this.provider);
-	    }
-	};
+            let provider = {
+                getAddonByID: function(aId, aCallback) {
+                    let script = userChromeJSAddon.getScriptById(aId);
+                    aCallback(script);
+                },
 
-	function ScriptAddon(aScript){
-		this._script = aScript;
+                getAddonsByTypes: function(aTypes, aCallback) {
+                    if (aTypes && aTypes.indexOf("userchromejs") < 0) {
+                        aCallback([]);
+                    } else {
+                        aCallback(userChromeJSAddon.scripts);
+                    }
+                }
+            };
 
-		this.id = this._script.filename + SCRIPT_ID_SUFFIX;
-		this.name = this._script.filename;
-		this.description = this._script.description;
-		this.enabled = !userChrome_js.scriptDisable[this.name]
+            AddonManagerPrivate.registerProvider(provider, types);
 
-		// 我修改过的 userChrome.js 新增的
-		this.version = this._script.version || null;
-		this.author = this._script.author || null;
-		this.homepageURL = this._script.homepageURL || null;
-		this.reviewURL = this._script.reviewURL || null;
-		this.reviewCount = 0;
-		this.fullDescription = this._script.fullDescription || null;
-		this.downloadURL = this._script.downloadURL || null;
-	}
+            this.unloads.push(function(){
+                AddonManagerPrivate.unregisterProvider(provider);
+            });
+        },
+        addStyle: function(){
+            let data = '@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
+                \
+                @-moz-document url("about:addons"), url("chrome://mozapps/content/extensions/extensions.xul") {\
+                    #category-userchromejs > .category-icon {\
+                        list-style-image: url(data:image/png;base64,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);\
+                    }\
+                }';
+            let styleService = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+            let styleURI = Services.io.newURI("data:text/css," + encodeURIComponent(data), null, null);
+            styleService.loadAndRegisterSheet(styleURI, Ci.nsIStyleSheetService.USER_SHEET);
 
-	ScriptAddon.prototype = {
-		version: null,
-		type: "userchromejs",
-		isCompatible: true,
-		blocklistState: 0,
-		appDisabled: false,
-		scope: AddonManager.SCOPE_PROFILE,
-		name: null,
-		creator: null,
-		pendingOperations: AddonManager.PENDING_NONE,  // 必须，否则所有都显示 restart
-		operationsRequiringRestart: 6,
-		// operationsRequiringRestart: AddonManager.OP_NEEDS_RESTART_DISABLE,
+            this.unloads.push(function(){
+                styleService.unregisterSheet(styleURI, Ci.nsIStyleSheetService.USER_SHEET);
+            });
+        },
+    };
 
-		get optionsURL(){
-			if (this.isActive && this._script.optionsURL)
-				return this._script.optionsURL;
-		},
+    function ScriptAddon(aScript){
+        this._script = aScript;
 
-		get isActive() !this.userDisabled,
-		get userDisabled() !this.enabled,
-		set userDisabled(val) {
-			if (val == this.userDisabled) {
-				return val;
-			}
+        this.id = this._script.url;
+        this.name = this._script.filename;
+        this.description = this._script.description;
+        this.enabled = !userChrome_js.scriptDisable[this.name];
 
-			AddonManagerPrivate.callAddonListeners(val ? 'onEnabling' : 'onDisabling', this, false);
+        // 我修改过的 userChrome.js 新增的
+        this.version = this._script.version || null;
+        this.author = this._script.author || null;
+        this.homepageURL = this._script.homepageURL || null;
+        this.reviewURL = this._script.reviewURL || null;
+        this.reviewCount = 0;
+        this.fullDescription = this._script.fullDescription || null;
+        this.downloadURL = this._script.downloadURL || null;
 
-			if(this.pendingOperations == AddonManager.PENDING_NONE){
-				this.pendingOperations = val ? AddonManager.PENDING_DISABLE : AddonManager.PENDING_ENABLE;
-			}else{
-				this.pendingOperations = AddonManager.PENDING_NONE;
-			}
+        this.iconURL = iconURL;
+    }
 
-			this.enabled = !val;
-			if(window.userChromejs){
-				userChromejs.chgScriptStat(this.name);
-			}
+    ScriptAddon.prototype = {
+        version: null,
+        type: "userchromejs",
+        isCompatible: true,
+        blocklistState: 0,
+        appDisabled: false,
+        scope: AddonManager.SCOPE_PROFILE,
+        name: null,
+        creator: null,
+        pendingOperations: AddonManager.PENDING_NONE,  // 必须，否则所有都显示 restart
+        operationsRequiringRestart: 6,
+        // operationsRequiringRestart: AddonManager.OP_NEEDS_RESTART_DISABLE,
 
-			AddonManagerPrivate.callAddonListeners(val ? 'onEnabled' : 'onDisabled', this);
-		},
-		get permissions() {
-			// var perms = AddonManager.PERM_CAN_UNINSTALL;
-			// perms |= this.userDisabled ? AddonManager.PERM_CAN_ENABLE : AddonManager.PERM_CAN_DISABLE;
-			var perms = this.userDisabled ? AddonManager.PERM_CAN_ENABLE : AddonManager.PERM_CAN_DISABLE;
-			// if (this.updateURL) perms |= AddonManager.PERM_CAN_UPGRADE;
-			return perms;
-		},
+        get optionsURL(){
+            if (this.isActive && this._script.optionsURL)
+                return this._script.optionsURL;
+        },
 
-		uninstall: function() {
-			AddonManagerPrivate.callAddonListeners("onUninstalling", this, false);
-			this.needsUninstall = true;
-			this.pendingOperations |= AddonManager.PENDING_UNINSTALL;
-			AddonManagerPrivate.callAddonListeners("onUninstalled", this);
-		},
-		cancelUninstall: function() {
-			this.needsUninstall = false;
-			this.pendingOperations ^= AddonManager.PENDING_UNINSTALL;
-			AddonManagerPrivate.callAddonListeners("onOperationCancelled", this);
-		},
-	};
+        get isActive() !this.userDisabled,
+        get userDisabled() !this.enabled,
+        set userDisabled(val) {
+            if (val == this.userDisabled) {
+                return val;
+            }
+
+            AddonManagerPrivate.callAddonListeners(val ? 'onEnabling' : 'onDisabling', this, false);
+
+            if(this.pendingOperations == AddonManager.PENDING_NONE){
+                this.pendingOperations = val ? AddonManager.PENDING_DISABLE : AddonManager.PENDING_ENABLE;
+            }else{
+                this.pendingOperations = AddonManager.PENDING_NONE;
+            }
+
+            this.enabled = !val;
+            if(window.userChromejs){
+                userChromejs.chgScriptStat(this.name);
+            }
+
+            AddonManagerPrivate.callAddonListeners(val ? 'onEnabled' : 'onDisabled', this);
+        },
+        get permissions() {
+            // var perms = AddonManager.PERM_CAN_UNINSTALL;
+            // perms |= this.userDisabled ? AddonManager.PERM_CAN_ENABLE : AddonManager.PERM_CAN_DISABLE;
+            var perms = this.userDisabled ? AddonManager.PERM_CAN_ENABLE : AddonManager.PERM_CAN_DISABLE;
+            // if (this.updateURL) perms |= AddonManager.PERM_CAN_UPGRADE;
+            return perms;
+        },
+
+        uninstall: function() {
+            AddonManagerPrivate.callAddonListeners("onUninstalling", this, false);
+            this.needsUninstall = true;
+            this.pendingOperations |= AddonManager.PENDING_UNINSTALL;
+            AddonManagerPrivate.callAddonListeners("onUninstalled", this);
+        },
+        cancelUninstall: function() {
+            this.needsUninstall = false;
+            this.pendingOperations ^= AddonManager.PENDING_UNINSTALL;
+            AddonManagerPrivate.callAddonListeners("onOperationCancelled", this);
+        },
+    };
 
 
-	AM_Helper.init();
+    AM_Helper.init();
 
-	userChromeJSAddon.init();
+    userChromeJSAddon.init();
 
-	function $C(name, attr) {
-	    var el = document.createElement(name);
-	    if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
-	    return el;
-	}
+    function $C(name, attr) {
+        var el = document.createElement(name);
+        if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+        return el;
+    }
 })();

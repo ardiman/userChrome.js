@@ -9,6 +9,7 @@
 // @include        main
 // @compatibility  Firefox 3.0 3.5, 3.6
 // @author         Alice0775
+// @version        2013/09/13 20:00 Bug 738818
 // @version        2013/01/19 20:00 Bug 831008 Disable Mutation Events in chrome/XUL
 // @version        2011/11/10 12:30 defolt change R: shift, M:Tab Clipboard
 // @version        2011/03/11 10:30 Bug641090
@@ -19,13 +20,13 @@
 // @version        2009/04/14 12:00 showInContext=trueの時使い分けできず修正
 // @version        2009/04/14 clearSearchBox.uc.js, SearchClipboard.uc.jsを統合 (従いそれらのスクリプトは不要)
 // ==/UserScript==
-// @Note           about:config: userChrome.conqueryModoki.showInContext true(Im Kontextmenü einzeln anzeigen)
-// @Note           userChrome.conqueryModoki.promptNotSelected false(Ausblenden, wenn Text ausgewählt)
+// @Note           userChrome.conqueryModoki.showInContext をtrueでコンテキストメニュー直下に検索エンジンを表示
+// @Note           ただし, userChrome.conqueryModoki.promptNotSelected が falseなら 選択文字列がない場合は隠す
  -->
   <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
 
   var conqueryModoki = {
-    // -- config -- //
+    // -- config -- //大文字小文字留意すること
     //button + key :               //L M R = Links, Mitte, Rechts, S C A = shift,ctrl,alt(SCA = Angabe in der Reihenfolge)
     // 'Current', 'Tab', 'Shift'   //Current = aktueller Tab, Tab = browser.tabs.loadInBackground, Shift = Umgekehrt
     // 'Prompt', 'Clipboard'       //Prompt = Zeigt Suchbegriff im Eingabefenster, Clipboard = Suche und gleichzeitig in die Zwischenablage
@@ -71,7 +72,7 @@
     // 検索バーの検索エンジンボタン上で クリック したときの動作 (左クリック変更不可)
     funcButton        : {
                          'M' : 'Tab Clipboard',
-                         'R' : 'Clear',
+                         'R' : 'Löschen',
                          'RS': 'Context',  //Context=コンテキストメニュ表示 変更不可
                         },
     //button + key :
@@ -79,11 +80,11 @@
     // Revert', 'Clear',
     // 検索バーの検索エンジンボタン上で 左ダブルクリック したときの動作
     funcButtonDblClick: {
-                         'L'  : 'Revert',  //Revert=デフォルトエンジンに戻す 変更不可
-                         'LS' : 'And',
-                         'LSC': 'Site',
-                         'LA' : 'Not',
-                         'LC' : 'Or',
+                         'L'  : 'Zurücksetzen',  //Revert=デフォルトエンジンに戻す 変更不可
+                         'LS' : 'Und',
+                         'LSC': 'Seite',
+                         'LA' : 'Nicht',
+                         'LC' : 'Oder',
                         },
     // -- config --
 
@@ -166,7 +167,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
+        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -261,7 +262,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('串刺し検索: ' + aMenu.getAttribute('label') ,word);
+        word = window.prompt('Föderierte Suche: ' + aMenu.getAttribute('label') ,word);
         if (!word)
           return;
       }
@@ -570,7 +571,7 @@
 
       for (var a in this.funcButton)
         this.tooltipSB  += a + ' : ' + this.funcButton[a] + '\n';
-      this.tooltipSB  += '---double click---\n';
+      this.tooltipSB  += '---Doppelklick---\n';
       for (var a in this.funcButtonDblClick)
         this.tooltipSB  += a + ' : ' + this.funcButtonDblClick[a] + '\n';
 
@@ -765,7 +766,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
+        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -786,9 +787,14 @@
     },
 
     engineRevert: function(aEvent){
-      const nsIBSS = Components.interfaces.nsIBrowserSearchService;
-      const searchService =Components.classes["@mozilla.org/browser/search-service;1"].getService(nsIBSS);
-      searchService.currentEngine = searchService.defaultEngine;
+      let defaultPrefB = Services.prefs.getDefaultBranch("browser.search.");
+      let nsIPLS = Components.interfaces.nsIPrefLocalizedString;
+      let defaultEngine =Services.search.defaultEngine;
+      try {
+        defaultEngineName = defaultPrefB.getComplexValue("defaultenginename", nsIPLS).data;
+        defaultEngine = Services.search.getEngineByName(defaultEngineName);
+      } catch (ex) {}
+      setTimeout(function(){Services.search.currentEngine = defaultEngine;},100);
       return false;
     }
   };
@@ -815,9 +821,9 @@ conqueryModoki.init();
   ]]></script>
   <popup id="contentAreaContextMenu">
     <menu id="context-conqueryModoki"
-          label="Websuche mit…"
-          tooltiptext="Doppelklick: Suche"
-          accesskey="W"
+          label="Web-Suche nach…"
+          tooltiptext="Doppelklick: Suche..."
+          accesskey="s"
           insertbefore="context-searchselect"
           ondblclick="conqueryModoki.hideAllPopup();conqueryModoki.searchWord(event, null);"
           onclick="if(event.button == 2 || event.button == 1) {conqueryModoki.kusizasi(event);}"
