@@ -13,16 +13,16 @@
 <overlay id="webdevelopermenu-button-overlay"  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <menupopup id="contentAreaContextMenu">
-      <menu id="webdevelopermenu-button" label="Web-Entwickler" insertbefore="context-viewsource">
+		<menu id="webdevelopermenu-button" label="Web-Entwickler" insertbefore="context-viewsource">
 
       <menupopup id="webdevelopertoolbarbutton-menu">
-        <menuitem id="webdevtools_menu_webDeveloper_firebug"
+	  <menuitem id="webdevelopertoolbarbutton_menu_webDeveloper_firebug"
                   class="menuitem-iconic fbInternational"
                   accesskey="F"
                   label="Firebug"
                   tooltiptext="Firebug"
                   oncommand="Firebug.toggleBar();" />
-        <menuitem id="webdevelopertoolbarbutton_menu_menu_devToolbox"
+	  <menuitem id="webdevelopertoolbarbutton_menu_menu_devToolbox"
                   class="menuitem-iconic"
                   accesskey="W"
                   label="Werkzeuge ein-/ausblenden"
@@ -40,38 +40,44 @@
                   label="Inspektor"
                   tooltiptext="Inspektor"
                   oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, 'inspector');" />
-        <menuitem id="webdevelopertoolbarbutton_debugger"
+		<menuitem id="webdevelopertoolbarbutton_debugger"
                   class="menuitem-iconic"
                   accesskey="D"
                   label="Debugger"
                   tooltiptext="Debugger"
                   oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;jsdebugger&quot;);" />
-        <menuitem id="webdevelopertoolbarbutton_menu_styleeditor"
+		<menuitem id="webdevelopertoolbarbutton_menu_styleeditor"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Stilbearbeitung"
                   tooltiptext="Stilbearbeitung"
                   oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;styleeditor&quot;);" />
-        <menuitem id="webdevelopertoolbarbutton_menu_menuitem_jsprofiler"
+		<menuitem id="webdevelopertoolbarbutton_menu_menuitem_jsprofiler"
                   class="menuitem-iconic"
                   accesskey="Shift+F5"
                   label="Laufzeitanalyse"
                   tooltiptext="Laufzeitanalyse"
                   oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;jsprofiler&quot;);" />
-        <menuitem id="webdevelopertoolbarbutton_menu_menuitem_netmonitor"
+		<menuitem id="webdevelopertoolbarbutton_menu_menuitem_netmonitor"
                   class="menuitem-iconic"
                   accesskey="N"
                   label="Netzwerkanalyse"
                   tooltiptext="Netzwerkanalyse"
-                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, 'netmonitor');" />
-        <menuseparator/>
-        <menuitem id="webdevelopertoolbarbutton_menu_devToolbar"
+                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;netmonitor&quot;);" />
+		<menuseparator/>
+		<menuitem id="webdevelopertoolbarbutton_menu_devToolbar"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Entwickler-Symbolleiste"
                   tooltiptext="Entwickler-Symbolleiste"
                   oncommand="DeveloperToolbar.toggle();" />
-        <menuitem id="webdevelopertoolbarbutton_screentest"
+		<menuitem id="webdevelopertoolbarbutton_menu_menu_browserConsole"
+                  class="menuitem-iconic"
+                  accesskey="E"
+                  label="Browser-Konsole"
+                  tooltiptext="Browser-Konsole"
+                  oncommand="HUDConsoleUI.toggleBrowserConsole();" />
+		<menuitem id="webdevelopertoolbarbutton_screentest"
                   class="menuitem-iconic"
                   accesskey="g"
                   label="Bildschirmgrößen testen"
@@ -109,8 +115,8 @@
                   tooltiptext="Weitere Tools laden"
                   oncommand="openUILinkIn('https://addons.mozilla.org/firefox/collections/mozilla/webdeveloper/', 'tab');" />
       </menupopup>
-      </menu>
-  </menupopup>
+	</menu>
+	</menupopup>
 
 <script type="application/javascript"><![CDATA[
 (function() {
