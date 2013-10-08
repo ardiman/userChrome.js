@@ -9,6 +9,7 @@
 // @include        main
 // @compatibility  Firefox 3.0 3.5, 3.6
 // @author         Alice0775
+// @version        2013/09/13 21:00 Bug 856437 Remove Components.lookupMethod
 // @version        2013/09/13 20:00 Bug 738818
 // @version        2013/01/19 20:00 Bug 831008 Disable Mutation Events in chrome/XUL
 // @version        2011/11/10 12:30 defolt change R: shift, M:Tab Clipboard
@@ -72,7 +73,7 @@
     // 検索バーの検索エンジンボタン上で クリック したときの動作 (左クリック変更不可)
     funcButton        : {
                          'M' : 'Tab Clipboard',
-                         'R' : 'Löschen',
+                         'R' : 'Clear',
                          'RS': 'Context',  //Context=コンテキストメニュ表示 変更不可
                         },
     //button + key :
@@ -167,7 +168,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
+        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -262,7 +263,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Föderierte Suche: ' + aMenu.getAttribute('label') ,word);
+        word = window.prompt('串刺し検索: ' + aMenu.getAttribute('label') ,word);
         if (!word)
           return;
       }
@@ -313,7 +314,7 @@
 
     _getselection: function() {  //選択されている文字列を得る
         var targetWindow = this._getFocusedWindow();
-        var sel = Components.lookupMethod(targetWindow, 'getSelection').call(targetWindow);
+        var sel = targetWindow.getSelection();
         // for textfields
         if (sel && !sel.toString()) {
           var node = document.commandDispatcher.focusedElement;
@@ -766,7 +767,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
+        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
         if (!word)
           return;
       }
