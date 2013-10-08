@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE overlay [
+<!ENTITY % browserDTD SYSTEM "chrome://browser/locale/browser.dtd">
+%browserDTD;
+]>
+<overlay id="ccptabs_browserOverlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <script type="application/x-javascript"><![CDATA[
+
+const LINE_SEPARATOR = Services.appinfo.OS === "WINNT" ? "\r\n" : "\n";
+
+var CutCopyPasteTabs = {
+
+    onCut: function () {
+        this.onCopy();
+
+        var tabs = this._getTabs();
+        for (var i = 0; i < tabs.length; i++) {
+            gBrowser.removeTab(tabs[i], {animate: true});
+        }
+    },
+
+    onCopy: function () {
+        var tabs = this._getTabs();
+        var uris = Array.map(tabs, function(tab) gBrowser.getBrowserForTab(tab).currentURI.spec);
+        var str = uris.join(LINE_SEPARATOR);
+        var transferable = this._getTransferable(TabContextMenu.contextTab);
+
+        transferable.addDataFlavor("text/unicode");
+        transferable.setTransferData("text/unicode", this._getSupportsString(str), str.length * 2);
+        Services.clipboard.setData(transferable, null, Services.clipboard.kGlobalClipboard);
+    },
+
+    onPaste: function () {
+        var uri = {};
+        var uriLength = {};
+        var transferable = this._getTransferable();
+
+        transferable.addDataFlavor("text/unicode");
+        Services.clipboard.getData(transferable, Services.clipboard.kGlobalClipboard);
+        try {
+            transferable.getTransferData("text/unicode", uri, uriLength);
+        } catch(error) {
+            Services.console.logStringMessage("[Cut, copy and paste Tabs] " +
+                error.name + ": " + error.message);
+            Services.console.logStringMessage("[Cut, copy and paste Tabs] " +
+                "Probably there isn't any text in your clipboard.");
+            return;
+        }
+
+        uri = uri.value.QueryInterface(Ci.nsISupportsString).toString();
+
+        var urlRegex = /\w[\w\d\+\-\.]+:\/\/(?:[\w\d\-\._~%!\$&'\(\)\*\+,;=:]*@)?(?:\[[\d\.A-Fa-f:]+\]|[\w\d\-\._~%!\$&'\(\)\*\+,;=]+)(?::\d+)?(?:\/[\w\d\-\._~%!\$&'\(\)\*\+,;=:@]*)*(?:\?[\w\d\-\._~%!\$&'\(\)\*\+,;=:@\/\?]*)?(?:#[\w\d\-\._~%!\$&'\(\)\*\+,;=:@\/\?]*)?/g;
+        var matches = uri.match(urlRegex);
+        if (matches) {
+            for (var i = 0; i < matches.length; i++) {
+                var tab = gBrowser.addTab(matches[i]);
+                gBrowser.moveTabTo(tab, TabContextMenu.contextTab._tPos+1+i);
+            }
+        }
+    },
+
+    handleEvent: function (event) {
+        switch (event.type) {
+            case 'popupshowing':
+                if (this._getTabs().length > 1) {
+                    var menuitems = this._getMenuitems();
+                    for (var i = 0; i < menuitems.length; i++) {
+                        menuitems[i].setAttribute("style", "font-weight: bold;");
+                    }
+                }
+                break;
+            case 'popuphiding':
+                var menuitems = this._getMenuitems();
+                for (var i = 0; i < menuitems.length; i++) {
+                    menuitems[i].setAttribute("style", "font-weight: normal;");
+                }
+                break;
+        }
+    },
+
+    _getTabs: function () {
+        var tabs = TabContextMenu.contextTab.multiselected ? gBrowser.selectedTabs : [TabContextMenu.contextTab];
+        return tabs;
+    },
+
+    _getMenuitems: function () {
+        var ccptabsItems = [];
+        var menuitems = document.getElementById("tabContextMenu").childNodes;
+        for (var i = 0; i < menuitems.length; i++) {
+            var item = menuitems[i];
+            if (/^ccptabs_menu_/.test(item.id))
+                ccptabsItems.push(item);
+        }
+        return ccptabsItems;
+    },
+
+    _getSupportsString: function (string) {
+        var supportsString = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
+        supportsString.data = string;
+        return supportsString;
+    },
+
+    _getTransferable: function (sourceTab) {
+        var transferable = Cc["@mozilla.org/widget/transferable;1"].createInstance(Ci.nsITransferable);
+        if (sourceTab) {
+            var window = gBrowser.getBrowserForTab(sourceTab).contentDocument.defaultView;
+            var loadContext = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIWebNavigation)
+                .QueryInterface(Ci.nsILoadContext);
+            transferable.init(loadContext);
+        } else {
+            transferable.init(null);
+        }
+        return transferable;
+    }
+}
+
+window.addEventListener(
+    "load",
+    function(event) {
+        var tabContextMenu = document.getElementById("tabContextMenu");
+        tabContextMenu.addEventListener("popupshowing", CutCopyPasteTabs, false);
+        tabContextMenu.addEventListener("popuphiding", CutCopyPasteTabs, false);
+    },
+    false
+);
+	
+]]></script>
+    <window id="main-window">
+        <commandset id="ccptabsCommandSet">
+            <command id="ccptabs_cmd_cut"   oncommand="CutCopyPasteTabs.onCut();"/>
+            <command id="ccptabs_cmd_copy"  oncommand="CutCopyPasteTabs.onCopy();"/>
+            <command id="ccptabs_cmd_paste" oncommand="CutCopyPasteTabs.onPaste();"/>
+        </commandset>
+    </window>
+
+    <menupopup id="tabContextMenu">
+        <menuitem id="ccptabs_menu_cut" position="8"
+                  label="&cutCmd.label;"
+                  accesskey="&cutCmd.accesskey;"
+                  command="ccptabs_cmd_cut"/>
+        <menuitem id="ccptabs_menu_copy" position="9"
+                  label="&copyCmd.label;"
+                  accesskey="&copyCmd.accesskey;"
+                  command="ccptabs_cmd_copy"/>
+        <menuitem id="ccptabs_menu_paste" position="10"
+                  label="&pasteCmd.label;"
+                  accesskey="&pasteCmd.accesskey;"
+                  command="ccptabs_cmd_paste"/>
+        <menuseparator position="11"/>
+    </menupopup>
+</overlay>
