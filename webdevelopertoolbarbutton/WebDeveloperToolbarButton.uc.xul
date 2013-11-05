@@ -24,18 +24,12 @@
                    orient="horizontal">
 
       <menupopup id="webdevelopertoolbarbutton-menu">
-	  <menuitem id="webdevelopertoolbarbutton_menu_webDeveloper_firebug"
-                  class="menuitem-iconic fbInternational"
-                  accesskey="F"
-                  label="Firebug"
-                  tooltiptext="Firebug"
-                  oncommand="Firebug.toggleBar();" />
 	  <menuitem id="webdevelopertoolbarbutton_menu_menu_devToolbox"
                   class="menuitem-iconic"
                   accesskey="W"
                   label="Werkzeuge ein-/ausblenden"
                   tooltiptext="Werkzeuge ein-/ausblenden"
-                  oncommand="gDevToolsBrowser.toggleToolboxCommand(gBrowser);"/>
+                  oncommand="gDevToolsBrowser.toggleToolboxCommand(gBrowser);"/>	  
         <menuitem id="webdevelopertoolbarbutton_webConsole"
                   class="menuitem-iconic"
                   accesskey="W"
@@ -65,26 +59,26 @@
                   accesskey="Shift+F5"
                   label="Laufzeitanalyse"
                   tooltiptext="Laufzeitanalyse"
-                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;jsprofiler&quot;);" />
+                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;jsprofiler&quot;);" />		
 		<menuitem id="webdevelopertoolbarbutton_menu_menuitem_netmonitor"
                   class="menuitem-iconic"
                   accesskey="N"
                   label="Netzwerkanalyse"
                   tooltiptext="Netzwerkanalyse"
-                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;netmonitor&quot;);" />
-		<menuseparator/>
+                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;netmonitor&quot;);" />		
+		<menuseparator/>				  
 		<menuitem id="webdevelopertoolbarbutton_menu_devToolbar"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Entwickler-Symbolleiste"
                   tooltiptext="Entwickler-Symbolleiste"
-                  oncommand="DeveloperToolbar.toggle();" />
+                  oncommand="DeveloperToolbar.toggle();" />	  
 		<menuitem id="webdevelopertoolbarbutton_menu_menu_browserConsole"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Browser-Konsole"
                   tooltiptext="Browser-Konsole"
-                  oncommand="HUDConsoleUI.toggleBrowserConsole();" />
+                  oncommand="HUDService.toggleBrowserConsole();" />	
 		<menuitem id="webdevelopertoolbarbutton_screentest"
                   class="menuitem-iconic"
                   accesskey="g"
