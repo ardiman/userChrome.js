@@ -5,8 +5,9 @@
 // @include        main
 // @include        chrome://global/content/viewSource.xul
 // @include        chrome://global/content/viewPartialSource.xul
-// @compatibility  Firefox 17+
+// @compatibility  Firefox 23.0a1+
 // @author         Alice0775
+// @version        2013/05/11 12:00 Bug537013, Bug 893349
 // @version        2013/03/28 11:00 Improved to work properly without addHistoryFindbarFx3.0.uc.js
 // @version        2012/08/12 22:30 Bug 761723 implement toString of function objects by saving source
 // ==/UserScript==
@@ -15,35 +16,38 @@
 // @note           Migemoの場合accessibility.typeaheadfind.enablesound;falseとした方がいいような
 var findWrapPlayBeep = {
   init: function() {
-    try {
-      gFindBar;
-    } catch(e) {}
-    if (typeof gFindBar == 'undefined') {
-      window.gFindBar = document.getElementById("FindToolbar");
-      gFindBar._findField = document.getAnonymousElementByAttribute(gFindBar, "anonid", "findbar-textbox");
+    //fx25 for existing findbar
+    let findBars = document.querySelectorAll("findbar");
+    if (findBars.length > 0) {
+      for (var aFindBar of findBars) {
+        findWrapPlayBeep.patch(aFindBar);
+      };
+    } else if ("gBrowser" in window && "getFindBar" in gBrowser) {
+      if (gBrowser.selectedTab._findBar)
+        findWrapPlayBeep.patch(gBrowser.selectedTab._findBar);
     }
-    if (!('_updateStatusUI' in gFindBar))
-      return;
-    var timer, count = 0;
-    timer = setInterval(function(self){
-      if(++count > 10000 || /playBeep/.test(gFindBar._updateStatusUI.toString())){
-        clearInterval(timer);
-      } else {
-        self.patch();
-      }
-    }, 250, this);
+    //fx25 for newly created findbar
+    if ("gBrowser" in window && "getFindBar" in gBrowser) {
+      gBrowser.tabContainer.addEventListener("TabFindInitialized", function(event){
+        findWrapPlayBeep.patch(event.target._findBar);
+      });
+    }
+
+    findWrapPlayBeep.patch2();
   },
 
-  patch: function() {
-    var func = gFindBar._updateStatusUI.toString();
+  patch: function(aFindBar) {
+    var func = aFindBar._updateStatusUI.toString();
     func = func.replace(/(?:case this.nsITypeAheadFind.FIND_WRAPPED:)/, '$& findWrapPlayBeep.playBeep();');
     try{
-      gFindBar._updateStatusUI = new Function(
+      aFindBar._updateStatusUI = new Function(
          func.match(/\(([^)]*)/)[1],
          func.replace(/[^{]*/, '').replace(/^{/, '').replace(/}$/, '')
       );
     } catch(ex){}
+  },
 
+  patch2: function() {
     // XUL/Migemo
     if (!('XMigemoUI' in window))
       return;

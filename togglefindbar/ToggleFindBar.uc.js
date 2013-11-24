@@ -5,8 +5,9 @@
 // @include        main
 // @include        chrome://global/content/viewSource.xul
 // @include        chrome://global/content/viewPartialSource.xul
-// @compatibility  Firefox 4.0b7pre
+// @compatibility  Firefox 25
 // @author         Alice0775
+// @version        2013/05/11 12:00 Bug537013, Bug 893349
 // @version        2013/01/16 12:00 Bug 831008 Disable Mutation Events in chrome/XUL
 // @version        2011/06/09 00:00 search-go-label due to Bug 592909 - Streamline the visual appearance of the search field
 // @version        2010/02/01 00:00 toggleで語句を削除しない
@@ -71,16 +72,12 @@ var ucjs_toggleFindBar = {
     }
 
     if ('BrowserSearch' in window)
-      try{
-        this.searchBar = BrowserSearch.getSearchBar();
-      }catch(e){
-        this.searchBar = BrowserSearch.searchBar;  //fx3
-      }
+      this.searchBar = BrowserSearch.searchBar;  //fx3
 
     if (!this.isInit && this.searchBar){
       this.isInit = true;
       var func = this.searchBar.handleSearchCommand.toString();
-      if('gFindBar' in window && 'onFindAgainCommand' in gFindBar ){ // Fx3
+      if('gFindBar' in window && 'onFindAgainCommand' in gFindBar ) { // Fx3
         if( /\(aEvent\)/.test(func)){
           eval('this.searchBar.handleSearchCommand = ' + func.replace(
             '{',
@@ -150,6 +147,9 @@ var ucjs_toggleFindBar = {
             this.statusbarDisplayClick(event);
             break;
         }
+        if (elem.className =="statusbarpanel-text") {
+          this.statusbarDisplayClick(event);
+        }
         if (elem.localName =="toolbarspring") {
           while(elem) {
             if (elem == this.addonbar) {
@@ -188,24 +188,14 @@ var ucjs_toggleFindBar = {
   },
 
   statusbarDragOver: function(event){
-    if (this.getVer() >=3.1){
-      if (event.dataTransfer.types.contains("text/plain")){
+    if (event.dataTransfer.types.contains("text/plain")){
       var data = event.dataTransfer.getData("text/plain");
       if (!data)
       return;
-      }
     }
     if ('gFindBar' in window && 'onFindAgainCommand' in gFindBar ){ // Fx3
       if(gFindBar.hidden){
         gFindBar.onFindCommand();
-      }
-    } else if(typeof gFindBar == "object") { //Bon Echo 2.0a3
-      if(findToolbar.hidden){
-        gFindBar.onFindCmd();
-      }
-    } else {
-      if (findToolbar.hidden){
-        onFindCmd();
       }
     }
   },
@@ -221,29 +211,9 @@ var ucjs_toggleFindBar = {
         document.getElementById("cmd_find").doCommand();
         if (gFindBar._findField.value)
           gFindBar._enableFindButtons(true);
-        //gFindBar.onFindCommand();
-        //gFindBar._findField.value = aValue;
-        //var evt = document.createEvent("UIEvents");
-        //evt.initUIEvent("input", true, false, window, 0);
-        //gFindBar._findField.dispatchEvent(evt);
       } else
         gFindBar.close();
-    } else if (typeof gFindBar == "object") { //Bon Echo 2.0a3
-      textbox = document.getElementById("find-field");
-      if(findToolbar.hidden){
-        gFindBar.onFindCmd();
-        if(aValue)
-          textbox.value = aValue;
-        var evt = document.createEvent("UIEvents");
-        evt.initUIEvent("input", true, false, window, 0);
-        textbox.dispatchEvent(evt);
-      }
-      else gFindBar.closeFindBar();
-    } else {
-      if (findToolbar.hidden) onFindCmd();
-      else closeFindBar();
     }
-    return;
   },
 
   _getFocusedWindow: function(){

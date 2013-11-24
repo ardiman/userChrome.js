@@ -7,7 +7,8 @@
 // @compatibility  Firefox 17
 // @charset        UTF-8
 // @include        main
-// @version        0.0.7
+// @version        0.0.8
+// @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
 // @note           0.0.7 ツールバーが自動で消えないことがあったのを修正
 // @note           0.0.6 アイコンを作って検索時の強調を ON/OFF できるようにした
 // @note           0.0.6 背面のタブを複数開いた際の引き継ぎを修正
@@ -47,6 +48,10 @@ window.gWHT = {
 			keyword キーワード。スペース区切り。省略可。
 			input   検索ボックスの CSS Selector。
 		**/
+		{
+			url: '.*\\btbm=isch\\b.*',
+			keyword: ' '
+		},
 		{
 			url: '^https?://\\w+\\.google\\.[a-z.]+/search',
 			input: 'input[name="q"]'
@@ -630,7 +635,7 @@ window.gWHT = {
 	},
 	find: function(aWord, isBack) {
 		var res;
-		var fastFind = gBrowser.fastFind;
+		var fastFind = gBrowser.mCurrentBrowser.fastFind;
 		if (fastFind.searchString != aWord) {
 			res = fastFind.find(aWord, false);
 			if (isBack) {
@@ -649,7 +654,8 @@ window.gWHT = {
 		var node = sel.getRangeAt(0).startContainer;
 		var span = node.parentNode;
 		if (!span.classList.contains(CLASS_SPAN)) return;
-		sel.collapse(node, 1);
+		isBack ? sel.collapseToStart() : sel.collapseToEnd();
+//		sel.collapse(node, 1);
 		span.style.setProperty('outline', '4px solid #36F', 'important');
 		win.setTimeout(function () {
 			span.style.removeProperty('outline');
@@ -698,7 +704,9 @@ window.gWHT.ContentClass.prototype = {
 		}
 		this.doc.addEventListener("keypress", this, false);
 		this.doc.addEventListener("GM_AutoPagerizeNextPageLoaded", this, false);
-		this.fireEvent('initialized', this.doc);
+		this.win.setTimeout(function() {
+			this.fireEvent('initialized', this.doc);
+		}.bind(this), 100);
 	},
 	handleEvent: function(event) {
 		switch (event.type) {

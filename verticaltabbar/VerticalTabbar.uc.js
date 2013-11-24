@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name           zzzz-VerticalTabbarforFx8.0b4.uc.js
+// @name           zzzz-VerticalTabbarforFx17-28.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    CSS入れ替えまくりバージョン
 // @include        main
-// @compatibility  Firefox 8.0b4-16.0, 17.0-20.0a1(Firefox17以上はzzzz-removeTabMoveAnimation.uc.js併用)
+// @compatibility  Firefox 17-28.0a1(UX)
 // @author         Alice0775
-// @note           デフォルトテーマ Firefox17以上はzzzz-removeTabMoveAnimation.uc.js併用
+// @note           デフォルトテーマ, zzzz-removeTabMoveAnimation.uc.js が必要
+// @version        2013/11/19 12:30 Australis 
 // @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
 // ==/UserScript==
 // @version        2012/07/24 14:30 Bug 761723 implement toString of function objects by saving source
@@ -221,6 +222,11 @@ function zzzz_VerticalTabbar(){
           -moz-margin-end: 3px; \
         } \
  \
+        .tabbrowser-tab[selected="true"] \
+        { \
+        background-color: rgb(245,245,250); \
+        } \
+ \
         .tabbrowser-tab:not([selected="true"]):hover \
         { \
         background-color: ThreeDHighlight; \
@@ -253,6 +259,69 @@ function zzzz_VerticalTabbar(){
           } \
        ';
       }
+
+      /* Remove exstra padding with vertical tabs */
+      style += ' \
+\
+        .tab-background, \
+        .tabs-newtab-button { \
+          /* overlap the tab curves */ \
+          -moz-margin-end: 0px; \
+          -moz-margin-start: 0px; \
+        } \
+ \
+        .tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox { \
+          -moz-padding-end: 0px; \
+          -moz-padding-start: 0px; \
+        } \
+ \
+        .tab-background-start[selected=true]::after, \
+        .tab-background-start[selected=true]::before, \
+        .tab-background-start, \
+        .tab-background-end, \
+        .tab-background-end[selected=true]::after, \
+        .tab-background-end[selected=true]::before { \
+          min-height: 0px; \
+          width: 0px; \
+        } \
+ \
+        .tab-background-middle { \
+          border-left: 0px solid transparent; \
+          border-right: 0px solid transparent; \
+          margin: 0 0px; \
+        } \
+ \
+        .tab-background-middle[selected=true] { \
+          background-image :none; \
+          background-color: transparent; \
+        } \
+       ';
+
+      /* Don't show the tab curve with vertical tabs */
+      style += ' \
+ \
+        .tabbrowser-tabs .tab-background-end[selected=true]::after, \
+        .tabbrowser-tabs .tab-background-end[selected=true]::before, \
+        .tabbrowser-tabs .tab-background-start[selected=true]::after, \
+        .tabbrowser-tabs .tab-background-start[selected=true]::before { \
+          content: none; \
+        } \
+ \
+        .tabbrowser-tabs .tabbrowser-tab:hover > .tab-stack > .tab-background:not([selected=true]) { \
+          background-image: none; \
+        } \
+ \
+        .tabbrowser-tabs .tabbrowser-tab { \
+          pointer-events: auto; \
+        } \
+ \
+        .tabbrowser-tabs .tab-background-middle { \
+          -moz-border-start: none; \
+          -moz-border-end: none; \
+        } \
+       ';
+
+
       style = style.replace(/\s+/g, " ")
       .replace("{TABBARWIDTH+TABBARLEFTMERGINE}", TABBARWIDTH + TABBARLEFTMERGINE)
       .replace(/\{TABBARWIDTH\}/g, TABBARWIDTH);
@@ -416,6 +485,18 @@ function zzzz_VerticalTabbar(){
       gBrowser.tabContainer.addEventListener("dragover", gBrowser.tabContainer._onDragOver, true);
 
       gBrowser.tabContainer._getDragTargetTab = function(event) {
+        let tab = event.target.localName == "tab" ? event.target : null;
+        if (tab &&
+            (event.type == "drop" || event.type == "dragover") &&
+            event.dataTransfer.dropEffect == "link") {
+          let boxObject = tab.boxObject;
+          if (event.screenY < boxObject.screenY + boxObject.height * .25 ||
+              event.screenY > boxObject.screenY + boxObject.height * .75)
+            return null;
+        }
+        return tab;
+
+        
         var tab = document.evaluate(
                     'ancestor-or-self::*[local-name()="tab"]',
                     event.originalTarget,
