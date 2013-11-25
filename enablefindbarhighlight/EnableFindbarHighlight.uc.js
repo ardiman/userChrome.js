@@ -10,14 +10,18 @@
 
 (function () {
     "use strict"
-    let gFindBar = window.gFindBar || document.getElementById("FindToolbar");
-    if (!gFindBar) return;
-    gFindBar.watch("hidden", function (prop, oldV, newV) {
-        if (!newV) {
-            highlighting();
-        }
-        return newV;
-    });
+    if ("gBrowser" in window && "getFindBar" in gBrowser) {
+      gBrowser.tabContainer.addEventListener("TabFindInitialized", function(event){
+        let gFindBar = event.target._findBar;
+        if (!gFindBar) return;
+        gFindBar.watch("hidden", function (prop, oldV, newV) {
+            if (!newV) {
+                highlighting();
+            }
+            return newV;
+         });
+      });
+    }
 
     function highlighting() {
         let highlightBtn = gFindBar.getElement('highlight');
