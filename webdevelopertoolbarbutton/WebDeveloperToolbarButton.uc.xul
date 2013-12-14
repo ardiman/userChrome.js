@@ -65,20 +65,26 @@
                   accesskey="N"
                   label="Netzwerkanalyse"
                   tooltiptext="Netzwerkanalyse"
-                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, &quot;netmonitor&quot;);" />		
+                  oncommand="gDevToolsBrowser.selectToolCommand(gBrowser, 'netmonitor');" />		
 		<menuseparator/>				  
 		<menuitem id="webdevelopertoolbarbutton_menu_devToolbar"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Entwickler-Symbolleiste"
                   tooltiptext="Entwickler-Symbolleiste"
-                  oncommand="DeveloperToolbar.toggle();" />	  
+                  oncommand="DeveloperToolbar.toggle();" />	 
+		<menuitem id="webdevelopertoolbarbutton_menu_devAppMgr"
+                  class="menuitem-iconic"
+                  accesskey="E"
+                  label="Apps Verwalten"
+                  tooltiptext="Apps Verwalten"
+                  oncommand="gDevToolsBrowser.openAppManager(gBrowser);" />	 	
 		<menuitem id="webdevelopertoolbarbutton_menu_menu_browserConsole"
                   class="menuitem-iconic"
                   accesskey="E"
                   label="Browser-Konsole"
                   tooltiptext="Browser-Konsole"
-                  oncommand="HUDService.toggleBrowserConsole();" />	
+                  oncommand="HUDService.toggleBrowserConsole();" />					  
 		<menuitem id="webdevelopertoolbarbutton_screentest"
                   class="menuitem-iconic"
                   accesskey="g"
@@ -109,7 +115,7 @@
                   label="Fehlerkonsole"
                   tooltiptext="Fehlerkonsole"
                   oncommand="toJavaScriptConsole();" />
-        <menuseparator />
+        <menuseparator/>
         <menuitem id="webdevelopertoolbarbutton_getMoreDevtools"
                   class="menuitem-iconic"
                   accesskey="W"

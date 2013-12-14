@@ -7,10 +7,11 @@
 // @note  http://loda.jp/script/?id=584
 // @note  Version auf https://github.com/ardiman/userChrome.js um _autoRestart und Fehlerumgehung bei gfx-surface-image ergaenzt
 // ==/UserScript==
+const version = Services.prefs.getCharPref("extensions.lastPlatformVersion").split(".",1);
 var ucjs_MemoryMonitor = {
   // ---------------------------------setting data-----------------------------
   // Update-Intervall[ms]
-  _interval: 2000,
+  _interval: 5000,
   // Neustart bei maximaler Speichernutzung (Achtung! Anpassen an die darunter gewaehlte Speichereinheit)
   _maxMemory: 1500,
   // Speicher-Einheit: B, KB, KiB, MB, MiB, GB, GiB
@@ -25,7 +26,7 @@ var ucjs_MemoryMonitor = {
     var memoryPanel = document.createElement("statusbarpanel");
     memoryPanel.id = "MemoryDisplay";
     memoryPanel.setAttribute("label", this.setPrefix(this._dPrefix));
-    document.getElementById("status-bar").insertBefore(memoryPanel, null);
+    document.getElementById("addon-bar").insertBefore(memoryPanel, null);
     this.start();
     this.interval = setInterval(this.start, this._interval);
   },
@@ -78,10 +79,26 @@ var ucjs_MemoryMonitor = {
       var mgr = Cc["@mozilla.org/memory-reporter-manager;1"].getService(Ci.nsIMemoryReporterManager);
       var e = mgr.enumerateReporters();
       var gMemReporters = {};
-      while (e.hasMoreElements()) {
-        var mr = e.getNext().QueryInterface(Ci.nsIMemoryReporter);
-        gMemReporters[mr.path] = mr;
+	  if(version<=25){
+		while (e.hasMoreElements()) {
+			var mr = e.getNext().QueryInterface(Ci.nsIMemoryReporter);
+			gMemReporters[mr.path] = mr;}
       }
+	  if(version>25){
+		var handleReport = function(Process, Path, Kind, Units, Amount, Description) {
+			gMemReporters[Path] = {};
+			gMemReporters[Path].amount = Amount;
+		}
+		var MEM_HISTOGRAMS = {};
+		while (e.hasMoreElements()) {
+			let mr = e.getNext().QueryInterface(Ci.nsIMemoryReporter);
+			MEM_HISTOGRAMS[mr.name] = mr.name;
+			if(!MEM_HISTOGRAMS[mr.name] || ["resident","private","gfx-surface-image"].indexOf(mr.name)==-1) continue;
+		try{
+			mr.collectReports(handleReport, null);
+			}catch(ex){}
+		}
+	  }
       var workingSet = gMemReporters["resident"].amount;
 	  var commitmentSize=(typeof(gMemReporters["private"])!="undefined" ? gMemReporters["private"].amount : 0);
       var gfxImage=(typeof(gMemReporters["gfx-surface-image"])!="undefined" ? gMemReporters["gfx-surface-image"].amount : 0);
