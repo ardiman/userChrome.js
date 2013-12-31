@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           textLink.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    TextLinkもどき
+// @description    TextLink 双击打开
 // @include        main
 // @include        chrome://messenger/content/messenger.xul
 // @include        chrome://messenger/content/messageWindow.xul
@@ -600,7 +600,7 @@ debug(url);
 
  //debug("loop 1");
       // selRange 始点が foundRange の始点よりも前
-      if (selRange.compareBoundaryPoints(Range.START_TO_START, foundRange) == -1) 
+      if (selRange.compareBoundaryPoints(Range.START_TO_START, foundRange) == -1)
         continue;
       // selRangeの終点がfoundRangeの終点より後ろにある場合
       //if (foundRange.compareBoundaryPoints(Range.END_TO_END, selRange) == -1)

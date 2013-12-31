@@ -4,10 +4,7 @@
 // @description          简单的历史按钮、左键点击打开菜单，右键点击恢复最后关闭的标签
 // @author               defpt
 // @charset              UTF-8
-// @version              2013.5.30.1
-// @updateURL     https://j.mozest.com/ucscript/script/106.meta.js
-// @icon          http://j.mozest.com/images/uploads/icons/000/00/01/57c8fb4f-12f3-c3ab-f1ba-6c7f731f390e.jpg
-// @screenshot    http://j.mozest.com/images/uploads/previews/000/00/01/c110c7d1-0321-232f-4adf-1b699d9958cd.jpg http://j.mozest.com/images/uploads/previews/000/00/01/thumb-c110c7d1-0321-232f-4adf-1b699d9958cd.jpg
+// @version              v2013.5.30
 // ==/UserScript==
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 location == "chrome://browser/content/browser.xul" && (function() {
@@ -30,10 +27,10 @@ location == "chrome://browser/content/browser.xul" && (function() {
             }
         },
         false);
-        Historymenu.style.listStyleImage = "url(data:image/jpeg;base64,%2F9j%2F4AAQSkZJRgABAgAAZABkAAD%2F7AARRHVja3kAAQAEAAAAPAAA%2F%2B4ADkFkb2JlAGTAAAAAAf%2FbAIQABgQEBAUEBgUFBgkGBQYJCwgGBggLDAoKCwoKDBAMDAwMDAwQDA4PEA8ODBMTFBQTExwbGxscHx8fHx8fHx8fHwEHBwcNDA0YEBAYGhURFRofHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8f%2F8AAEQgAEAAQAwERAAIRAQMRAf%2FEAGcAAQEBAAAAAAAAAAAAAAAAAAUCBwEBAQEBAAAAAAAAAAAAAAAAAQIGBxAAAgIBBQADAAAAAAAAAAAAAQIDBBEAIRIFBjFBFBEAAgICAgIDAAAAAAAAAAAAAQIRAwBRYRIhcTFBBP%2FaAAwDAQACEQMRAD8A1CKvbtV%2B7sJYsGajJH%2BeKJzxIkmKMCoydl%2BMa5wtb2LewZ%2B1ZEAHbR8es2pdENSkLDgySNLOF%2Bsr26vkI7L2LAmuwXFsRSOeIEY4rhTg7ht86l63rSliz9rGaQToj6xV0d7FAWEAggbByq%2FtOnoxd3FB2KJZuyJ%2BaeGZAAElLMeQcEZU%2FWqT9D1C4KHDOR1K8NJ88jWD0pYaixXqgMg8jWH%2Bq9h1vZ%2BXhqNfFi9WhtiWSSVHLmbBQKeTMdhjRb%2Biy5KVYOXRj2LckR59DGulK2sKlQrAQBwDn%2F%2FZ)";
-        navigator.palette.appendChild(Historymenu);//用于可移动按钮
-        //document.getElementById("urlbar-icons").appendChild(Historymenu);//用于固定按钮位置
-		//可选固定位置 status-bar  urlbar-icons addon-bar alltabs-button TabsToolbar
+        Historymenu.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAL9SURBVDhPdZJfSFNxFMcVSauHoPAhLfujmDozzS1zm9O5uV33361tun/OP3MztZYWrSSUQHNIuGKwxEoktRIUxAchqKeKHuwPiX8oMwoGK+YwTH1Q8nR+61oUeeB77/2d8znfc8/lRvwbALBzY2MjfgvF0Nj/g0CtbV3ZKcz8/oQ07tekTC4QHWZw/AwW39c/NJqCTByN/wmcGkmauZS6PvE4f+kEXwE8iR74ciPKALxiHWQXyCA5kxMQqw0mwtKtv4IkWHxpyzEuBTypHgzVjeO+uwPnvwSDyvfzn055untd6vK653kSHaSfLAKRwljx24Ts7HC6+Ok8yZpQZYamKx0eLOYEl5ZSMziC2ax82RM8H0Gxbc7mQYHKBAwO9c3b3ZuBvdvC03MKVQPCEgtorA1P8XwUC1HDw2OpLFyFyZd+JwyBV1ZWmAqjfYasxRFp3JiPCxuwRapAsa4abvfdN+N5FzEYHR9nCFUW4Kksy4Sh3za25ZrHRWmrgU1pXobz09PTB/lKMxTrrOsIJNJg2ECkqQCxsmrVHwolkDdARfc9HM4nw9hU6WLY4NnERBKlrYIitfUHDUYSEywmSHX2KTHWckUl1wmMinHf9OVKSmugQGEOhQ3wsl9usAXkBgeYbI1qNNhNG+wJLi4KyutdIwyebK2ivkmEtVh5WfVZwqpM9rebBvFljsaREusZyBVrX5AzKvzH4X0HNjF7B4caCpVGt98fSuCKSyeVlgaodF72Ym0v2Xf72KPHEmm5Y5XC3VgCpY+AZBoqmpjh/dC7+fmcHJF6SFJWA1KrfWFyZo6N+SgyiJgcaOn0tmsqz5FvARl51BtKY7F0enqyLra6c4tKjDUsnvxDsd4GamvduvfOoBON94WbNwMTae03etrUVQ3LMmMtcCWlkE3+g0Il8GQGkJtOg87WtHCr78EFZJPptr+DmLyemtU6mzvumWovTZIGvc0ZMNe6XrmudnXPffys3LJ5MxAgHy4LlYfPQpQAxUWlYy6axuiIiPgJAMruhpF4ADUAAAAASUVORK5CYII=)";
+        navigator.palette.appendChild(Historymenu);
+        //status-bar  urlbar-icons addon-bar alltabs-button TabsToolbar go-button
+        //document.getElementById("urlbar-icons").appendChild(Historymenu);
         //历史菜单
         var popup = document.createElementNS(XULNS, 'menupopup');
         popup.setAttribute('placespopup', 'true');
@@ -71,7 +68,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
         Historymenu.appendChild(popup); //显示历史记录
         document.insertBefore(document.createProcessingInstruction('xml-stylesheet', 'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent('\
 #Historymenu menuitem {\
-		max-width: 200px !important;\
+		max-width: 300px !important;\
 	}\
 ') + '"'), document.documentElement);
     }

@@ -1,25 +1,51 @@
+// ==UserScript==
+// @include       chrome://mozapps/content/downloads/unknownContentType.xul
+// @charset       UTF-8
+// ==/UserScript==
+
 if (location == "chrome://mozapps/content/downloads/unknownContentType.xul") {
+(function () {
+
+	function getQuery(str) {
+		return document.querySelector(str);
+	}
+
+	function getPrefDirPath(str) {
+		Components.utils.import("resource://gre/modules/Services.jsm");
+		var prefDir = Services.dirsvc.get(str, Ci.nsILocalFile).path;
+		return prefDir;
+	}
 
 	var dir = [
-		["E:\\", "E:\\Downloads"],
-		["F:\\", "F"],
-		["G:\\", "G"],
-		["C:\\Dokumente und Einstellungen\\Benutzername\\Desktop", "Desktop"]
-		];
-	var saveTo = document.getAnonymousElementByAttribute(document.querySelector("*"), "dlgtype", "cancel").parentNode.insertBefore(document.createElement("button"), document.getAnonymousElementByAttribute(document.querySelector("*"), "dlgtype", "cancel"));
+		["C:\\Dokumente und Einstellungen\\Benutzername\\Desktop", "Desktop"],
+		["D:\\", "D:"],
+		["" + getPrefDirPath('UChrm') + "", "chrome"],
+		["" + getPrefDirPath('UChrm') + "\\" + 'SubScript' + "", "SubScript"],
+		["E:\\", "E:"],
+		["F:\\", "F:"],
+		["G:\\", "G:"],
+		["H:\\", "H:"],
+		["I:\\", "I:"],
+		["S:\\", "S:"]
+	];
+
+	var button = document.documentElement.getButton("cancel");
+	var saveTo =  button.parentNode.insertBefore(document.createElement("button"), button);
 	var saveToMenu = saveTo.appendChild(document.createElement("menupopup"));
-	saveTo.classList.toggle("dialog-button");
+	saveTo.className = "dialog-button";
 	saveTo.label = "Speichern auf";
 	saveTo.type = "menu";
 	dir.map(function (dir) {
-		var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-		converter.charset = "GBK";
-		var name= converter.ConvertToUnicode(dir[1]);
+		var converter = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
+		converter.charset = "UTF-8";
+		var name = converter.ConvertToUnicode(dir[1]);
 		dir = converter.ConvertToUnicode(dir[0]);
 		var item = saveToMenu.appendChild(document.createElement("menuitem"));
 		item.setAttribute("label", (name||(dir.match(/[^\\/]+$/) || [dir])[0]));
 		item.setAttribute("image", "moz-icon:file:///" + dir + "\\");
 		item.setAttribute("class", "menuitem-iconic");
-		item.setAttribute("oncommand", 'var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);file.initWithPath("' + dir.replace(/\\/g, "\\\\") + "\\\\" + (document.querySelector("#locationtext") ? document.querySelector("#locationtext").value : document.querySelector("#location").value) + '");dialog.mLauncher.saveToDisk(file,1);dialog.onCancel=null;close()');
-	})
+		item.setAttribute("oncommand", 'var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile); file.initWithPath("' + dir.replace(/\\/g, "\\\\") + "\\\\" + (getQuery("#locationtext") ? getQuery("#locationtext").value : getQuery("#location").value) + '"); dialog.mLauncher.saveToDisk(file,1); dialog.onCancel = function() {}; close();');
+	});
+
+})();
 }
