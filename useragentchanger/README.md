@@ -1,6 +1,6 @@
 # User Agent Changer
 Eine ausgedehnte Alternative zum Skript "User Agent Switcher Lite". Hierzu gibt es allerdings eine Konfigurationsdatei 
-(_userAgentChange.js), die man bei Bedarf selbst bearbeiten kann. Diese muss in einem eigenen Ordner Namens "lib" im Chromeordner 
+(_userAgentChange.js), die man bei Bedarf selbst bearbeiten kann. Diese muss in einem eigenen Ordner namens "lib" im Chromeordner 
 abgelegt werden.
 
 Das **Ergebnis des Skripts**:
