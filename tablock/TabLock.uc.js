@@ -4,6 +4,7 @@
 // @description    tabLock
 // @include        *
 // @compatibility  17-25
+// @version        2013/12/21 23:00 exclude "prevent" word
 // @version        2013/11/06 10:20 Bug 846635 - Use asynchronous getCharsetForURI in getShortcutOrURI in Firefox25 and later
 // @version        2013/04/06 09:00 Bug 748740
 // @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
@@ -15,15 +16,15 @@
 // @version        2011/03/30 22:00  undefined error
 // @version        2011/02/15 22:00  xxx paste and go 
 // @version        2011/02/11 11:00  xxx Bug 633260 bookmark menu does not open (involves app tabs and feeds) 
-// @Note           about:configの設定
-//  userChrome.tabLock.ignoreNextPrevLink タブをロックしている状態で, 次のページ, 前のページ などは ロックを無視するかどうか [true]/false
-//  userChrome.tabLock.ignoreHashLink タブをロックしている状態で, href ="#xxx" の場合ロックを無視するかどうか[true]/false
-//  userChrome.tabLock.ignoreBrowserBack_Forward タブをロックしている状態で, BrowserBack/Forwardを [0]:通常動作, 1:新規タブに開く, 2:機能しなくする
+// @Note           about:config Einstellungen:
+// userChrome.tabLock.ignoreNextPrevLink - Wenn Tab gesperrt ist, die Sperre auf der nächsten, vorherige Seite, etc. ignorieren [true]/false
+// userChrome.tabLock.ignoreHashLink - Wenn Tab gesperrt ist, href ="#xxx" Sperre ignorieren [true]/false
+// userChrome.tabLock.ignoreBrowserBack_Forward - Wenn Tab gesperrt ist, BrowserBack/Forward [0]:Normalbetrieb, 1:Neuen Tab öffnen, 2:Keine Funktion
 
-//  browser.tabs.loadInBackground           リンクを背面で開くかどうか [true]/false
-//  browser.tabs.loadBookmarksInBackground  ブックマークを背面で開くかどうか true/[false]
-//  browser.tabs.loadUrlInBackground        ロケーションバーを背面で開くかどうか true/[false]
-//  未実装browser.tabs.loadSearchInBackground     検索バーを背面で開くかどうか [true]/false
+// browser.tabs.loadInBackground - Tab im Hintergrund öffnen [true]/false
+// browser.tabs.loadBookmarksInBackground - Lesezeichen im Hintergrund öffnen true/[false]
+// browser.tabs.loadUrlInBackground - Adressleiste im Hintergrund öffnen true/[false]
+// [Noch nicht implementiert] browser.tabs.loadSearchInBackground - Suchleiste im Hintergrund öffnen [true]/false
 
 patch: {
   if (location.href == "chrome://updatescan/content/updatescan.xul") {
@@ -840,6 +841,9 @@ patch: {
        || link.match(/^[<\s\(]?prev(ious)?(\s|(\s?\d+\s?))(search)?\s?(pages?|results?)?/i) )
 
       {
+        if (/Prevent/i.test(link)) {
+          return false;
+        }
         return true;
       }
     }
@@ -856,6 +860,9 @@ patch: {
     if (x.snapshotLength){
       next = x.snapshotItem(x.snapshotLength-1);
       //this._openURL(next.href,win,-1);
+      if (/prevent/i.test(next.textContent)) {
+        return false;
+      }
       if (aNode.href == next.href)
         return true;;
     }
