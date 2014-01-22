@@ -2,91 +2,80 @@
 // @name                newTabByLongPress.uc.js
 // @description         リンクやブックマークを左ボタン長押しで新しいタブに開く
 // @include             main
-// @version             0.7 エラーが出ることがあったので例外処理を追加
+// @version             0.8  コードを書き直し 不要になったリスナーを破棄するように改善
 // ==/UserScript==
-(function func() {
+(function func(win) {
 
-    const wait = 500; // Zeit für die Dauer des Tastendruck
-    const background = true;    // "false" für das Öffnen im Vordergrund
-    const nextToCurrent = true;  // Direkt neben dem aktuellen Tab öffnen
+	const WAIT = 500; // Zeit für die Dauer des Tastendruck
+	const IN_BACKGROUND = true; // "false" für das Öffnen im Vordergrund
+	const RELATED_TO_CURRENT = true; // Direkt neben dem aktuellen Tab öffnen
 
-    var opened = false;
+	var longPress = null;
 
-    function isLink(node) {
-        while (node) {
-            if ((node instanceof HTMLAnchorElement || node instanceof HTMLAreaElement) && node.href) {
-//                if (/^\s*javascript:/.test(node.getAttribute('href')))
-//                    return false;
-                return node.href;
-            }
-            node = node.parentNode;
-        }
-        return null;
-    }
+	win.addEventListener('mousedown', {
+		handleEvent: function (e) {
+			if (e.button !== 0 && longPress) return;
 
-    function isPlaces(e, node) {
-        if (!node || !node.localName)
-            return null;
-        var ln = node.localName.toLowerCase();
-        if (
-            !('type' in node && node.type == 'menu') && (node._placesNode && PlacesUtils.nodeIsURI(node._placesNode))
-            || ln == 'treechildren' && (node.parentNode.id == 'bookmarks-view' || node.parentNode.id == 'historyTree')
-           )
-        var uri = (ln == 'treechildren') ? getTreeInfo(node, e, 'uri') : node._placesNode.uri;
-        return uri;
-    }
+			clearTimeout(func.timer);
 
-    function getTreeInfo(treechildren, e, prop) {
-        var tree = treechildren.parentNode;
-        var row = {}, column = {}, part = {};
-        var tbo = tree.treeBoxObject;
-        tbo.getCellAt(e.clientX, e.clientY, row, column, part);
-        if (row.value == -1)
-            return;
-        var node = tree.view.nodeForTreeIndex(row.value);
-        if (!PlacesUtils.nodeIsURI(node))
-            return;
-        return node[prop];
-    }
+			var target = e.target || e.originalTarget;
+			if (!target) return;
 
-    function cancel(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
+			var [href,] = hrefAndLinkNodeForClickEvent(e);
+			var url = href || this.getPlacesURI(e, target);
+			if (!url) return;
 
-    function handleLongPress(e) {
-        setTimeout(function() {
-            if (func.removeListener)
-                func.removeListener();
-        }, 0);
+			if (e.type === 'mousedown' && (!e.altKey && !e.ctrlKey && !e.shiftKey)) {
+				func.timer = setTimeout(function () {
+					win.addEventListener('click', function c(e) {
+						this.removeEventListener(e.type, c, true);
+						e.preventDefault();
+						e.stopPropagation();
+					}, true);
+					gBrowser.loadOneTab(url, {
+						relatedToCurrent: RELATED_TO_CURRENT,
+						inBackground: IN_BACKGROUND,
+						referrerURI: makeURI(gBrowser.currentURI.spec)
+					});
+					longPress = true;
+				}, WAIT);
+				win.addEventListener('mouseup', this, true);
+				win.addEventListener('dragstart', this, true);
+			} else {
+				win.removeEventListener('mouseup', this, true);
+				win.removeEventListener('dragstart', this, true);
+				clearTimeout(func.timer);
+				if (longPress && (target._placesNode && PlacesUtils.nodeIsURI(target._placesNode))) {
+					e.preventDefault();
+				}
+				longPress = false;
+			}
+		},
 
-        var node = e.target || e.originalTarget;
-        if (!node) return;
-        var url = isLink(node) || isPlaces(e, node);
-        if (e.button != 0 || !url) return;
+		getPlacesURI: function (e, target) {
+			if (!target || !target.localName)
+				return null;
+			var ln = target.localName.toLowerCase();
+			if ((target._placesNode && PlacesUtils.nodeIsURI(target._placesNode)) || (ln === 'treechildren' && (target.parentNode.id === 'bookmarks-view' || target.parentNode.id === 'historyTree'))) {
+				var nodeURI = (ln === 'treechildren') ? this.getTreeInfo(target, e, 'uri') : target._placesNode.uri;
+			}
+			return nodeURI;
+		},
 
-        if ((e.type == 'mousedown' && !opened) && (!e.altKey && !e.ctrlKey && !e.shiftKey)) {
-            func.timer = setTimeout(function() {
-                addEventListener('click', cancel, true);
-                func.removeListener = function() {
-                    removeEventListener('click', cancel, true);
-                };
-                gBrowser.loadOneTab(url, {
-                    relatedToCurrent: nextToCurrent,
-                    inBackground: background,
-                    referrerURI: makeURI(content.location.href)
-                });
-                opened = true;
-            }, wait);
-        } else {
-            clearTimeout(func.timer);
-            if (opened && node._placesNode) {
-                e.preventDefault();
-            }
-            opened = false;
-        }
-    }
+		getTreeInfo: function (treechildren, e, prop) {
+			if (!('PlacesUtils' in window))
+				return '';
+			var tree = treechildren.parentNode;
+			var row = {}, col = {}, obj = {};
+			var tbo = tree.treeBoxObject;
+			tbo.getCellAt(e.clientX, e.clientY, row, col, obj);
+			if (row.value === -1)
+				return '';
+			var node = tree.view.nodeForTreeIndex(row.value);
+			if (!PlacesUtils.nodeIsURI(node))
+				return '';
+			return node[prop];
+		}
+	}, true);
 
-    ['mousedown', 'mouseup', 'dragstart'].forEach(function(type) { addEventListener(type, handleLongPress, true, gBrowser) });
-
-})();
+}(window));
