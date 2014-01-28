@@ -100,7 +100,7 @@
   
   init: {
     var menuPopup = document.getElementById("menu_ToolsPopup");
-    var separator = document.getElementById("sanitizeSeparator");
+    var separator = document.getElementById("prefSep");
     
     var menu = document.createElement("menu");
     menu.id = "ua-switcher-lite";
