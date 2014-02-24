@@ -8,32 +8,32 @@
 var wetterfuchs = {
   urlobj: {
     MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:390},
-    MO_Rechtsklick: {url:"http://www.wetterkontor.net/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
+    MO_Rechtsklick: {url:"http://www.wetterkontor.de/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
     MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
-    DED_WetterAktuell: {url:"http://www.wetterkontor.net/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
-    DED_Vorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
-    DED_PollenbelastungAktuell: {url:"http://www.wetterkontor.net/de/bio/pollenflug_aktuell.asp?p=1",width:478,height:590},
-    DED_PollenbelastungVorhersage: {url:"http://www.wetterkontor.net/de/bio/pollenflug_vorhersage.asp?p=1",width:478,height:590},
-    DED_UVIndexVorhersage: {url:"http://www.wetterkontor.net/de/bio/uv_aktuell.asp?p=1",width:478,height:590},
+    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
+    DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
+    DED_PollenbelastungAktuell: {url:"http://www.wetterkontor.de/de/bio/pollenflug_aktuell.asp?p=1",width:478,height:590},
+    DED_PollenbelastungVorhersage: {url:"http://www.wetterkontor.de/de/bio/pollenflug_vorhersage.asp?p=1",width:478,height:590},
+    DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv_aktuell.asp?p=1",width:478,height:590},
     DE_WetterAktuell: {url:"http://www.dwd.de/wundk/wetter/de/Deutschland.jpg",width:558,height:518},
     DE_Vorhersage: {url:"http://www.dwd.de/wundk/wetter/de/Deutschland_morgen_spaet.jpg",width:558,height:518},
     DE_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/deutschland_index.png",width:572,height:572},
     DE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx",width:568,height:530},
     DE_RegenradarPrognose: {url:"http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
-    EU_AktuellVorhersage: {url:"http://www.wetterkontor.net/de/wetter/welt/europa-0.html",width:478,height:460},
+    EU_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/welt/europa-0.html",width:478,height:460},
     EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:570,height:570},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     WE_WetterAktuell: {url:"http://www.meteocentrale.ch/de/wetter/weltwetter.html#sytl",width:575,height:360},
     // WE_Vorhersage: {url:"http://wetter.faz.net/wetter/wettervorhersage/wetter_welt/?offset=1",width:575,height:380},
-    RE_AktuellVorhersage: {url:"http://www.wetterkontor.net/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
-    RE_Unwetterwarnung: {url:"http://www.wetterkontor.net/warnungen/land.asp?c=BB",width:700,height:630},
+    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
+    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BB",width:700,height:630},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"http://www.wetterkontor.net/de/radar/?r=o",width:478,height:478}
+    RE_RegenradarPrognose: {url:"http://www.wetterkontor.de/de/radar/?r=o",width:478,height:478}
   },
   TOOLBAR: "nav-bar",       // nav-bar - Toolbar, auf der der Button landen soll
   TARGET_BUTTON: "search-container",  // search-container - sollte ein Element auf TOOLBAR sein
-  wfthrobber: "http://img.cdn.tl/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
+  wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
   createBtn: function() {
     this.$F(this.TOOLBAR,'\
 	<toolbarbutton id="wetterfuchs-toolbarbutton" class="toolbarbutton-1 chromeclass-toolbar-additional" type="menu" label="Wetterfuchs" tooltiptext="Lokale und globale Wetter Infos" \
