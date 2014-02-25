@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*,25.*,26.*
+// @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*,25.*,26.*,27.*
 // @include        main
-// @version        1.0.20131230
+// @version        1.0.20140225
 // ==/UserScript==
 
 var wetterfuchs = {
   urlobj: {
-    MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:390},
+    MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:445},
     MO_Rechtsklick: {url:"http://www.wetterkontor.de/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
     MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
     DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
