@@ -7,16 +7,21 @@
 // @license        MIT License
 // @compatibility  Firefox 18-21
 // @charset        UTF-8
-// @version        2.1.3.2
-// @note           2.1.3 2013/05/07 Rechtsklick Automatisches ausfüllen in Popups, funktionierte nicht mehr. 
+// @version        2.2.1.5
+// @note           2.2.1 2014/03/15 兼容FF29
+// @note           2.2.0 2014/01/21 修复部分网站右键无法自动填表的BUG
+// @note           2.2.0 2014/01/21 修复忽略空白字符的BUG
+// @note           2.2.0 2014/01/21 增加支持多个INPUT设置, 支持选择ID,NAME,CLASS
+// @note           2.1.4 2013/11/13 火狐橙菜单添加设置入口菜单项
+// @note           2.1.3 2013/05/07 右键自动填表成功不再弹出菜单, 修改失败的bug
 // @note           2.1.2 2013/05/03 add Autofill on popupmenu
 // @note           2.1.1 2013/05/02 FIX tolowcase BUG and add view password
 // @note           2.1.0 2013/04/13 02:00 FIX BUG
 // @note           2.0.0
-// @note           Referenz InfFormEnter Skript，Überschreiben erweiterte Edition，benutzerdefinierte UI
+// @note           参考InfFormEnter脚本，重写的强化版，UI自定义
 // @note           report bug: https://g.mozest.com/thread-43513-4-1
-// @updateURL      https://j.mozest.com/ucscript/script/103.meta.js
-// @screenshot     http://j.mozest.com/images/uploads/previews/000/00/01/86bb70c8-0ab9-c027-daf4-12a2f293d21c.jpg http://j.mozest.com/images/uploads/previews/000/00/01/thumb-86bb70c8-0ab9-c027-daf4-12a2f293d21c.jpg
+// @updateURL     https://j.mozest.com/ucscript/script/103.meta.js
+// @screenshot    http://j.mozest.com/images/uploads/previews/000/00/01/86bb70c8-0ab9-c027-daf4-12a2f293d21c.jpg http://j.mozest.com/images/uploads/previews/000/00/01/thumb-86bb70c8-0ab9-c027-daf4-12a2f293d21c.jpg
 // ==/UserScript==
 //
 //
@@ -35,6 +40,8 @@ window.InformEnterPlus = {
 	InformArr: [],
 	optionwin: false,
 	_crrinput: "",
+	_crrinputname: "",
+	_crrinputclass: "",
 	init: function(){
 		var contextMenu = document.getElementById("contentAreaContextMenu");
 		var separator = document.getElementById("context-sep-undo");
@@ -51,6 +58,13 @@ window.InformEnterPlus = {
 		this.menuset.setAttribute("oncommand","InformEnterPlus.openManager();");
 		this.menusetPop.appendChild(this.menuset);
 		
+		var secpanel = document.getElementById("menu_ToolsPopup");
+		var cmdmenu = document.createElement("menuitem");
+		cmdmenu.setAttribute("id","appmenu-ife-context-set");
+		cmdmenu.setAttribute("label","InFormEnter-Seiteneinstellungen");
+		cmdmenu.setAttribute("oncommand","InformEnterPlus.openManager();");
+		secpanel.appendChild(cmdmenu);
+		 
 		var file = this._getInformEnterFile();
 		if (file.exists()) {
 			    this.importInformEnter(file);
@@ -86,10 +100,18 @@ window.InformEnterPlus = {
                   <hbox><label value="Die Daten werden in einer Konfigurationsdatei im Profil gespeichert! Ändern Schaltfläche gilt nur für Inhalt einfügen!"/><spacer flex="1" /><button label="Speichern" id="InformEntersave" oncommand="InformEnterPlus.saveRule();" />\
                               <button label="Schließen" id="InformEnterPlus-close" oncommand="InformEnterPlus.Ruletree.closesplicer();" /></hbox>\
                   <hbox><label value="Input ID (Web-Seitenadresse) zum Identifizieren des Eingabefeldes. Feld darf nicht leer sein! * = Global auf allen Seiten verwenden! "/></hbox>\
-                  <hbox><label value="Webadresse, Domain -oder Hostname, zB: google.com angeben. * = Global auf allen Seiten verwenden!:"/><textbox id="domainvalue" flex="1" /></hbox>\
-                  <hbox><label value="Menüname (Bezeichnung im Kontextmenü, zB: Google Benutzer). Feld darf nicht leer sein!:"/><textbox id="menuvalue" flex="1" /></hbox>\
-                  <hbox><label value="Input ID (ID, Name, Klasse, die unterstützt werden). * = Global auf allen Seiten verwenden!:"/><textbox id="inputvalue" flex="1" /></hbox>\
-                  <hbox><label value="Inhalt einfügen (Inhalt des Popup wird automatisch in das Eingabefeld kopiert). Feld darf nicht leer sein!:"/><textbox id="pastevalue" type="password" flex="1" oncopy="return false;" oncut="return false;"/>\
+                  <hbox><label value="Webadresse, Domain -oder Hostname (zB: google.com) angeben. * = Global auf allen Seiten verwenden："/><textbox id="domainvalue" flex="1" /></hbox>\
+                  <hbox><label value="Menüname (Bezeichnung im Kontextmenü, zB: Google Benutzer). Feld darf nicht leer sein:"/><textbox id="menuvalue" flex="1" /></hbox>\
+                  <hbox><label value="Input ID (ID, Name, Klasse, die unterstützt werden). * = Global auf allen Seiten verwenden:"/><textbox id="inputvalue"  flex="1" />\
+                  <button label="Input ID hinzufügen" id="InputIDadd" oncommand="InformEnterPlus.Ruletree.addInputID();" />\
+                  <button label="Input ID löschen" id="InputIDdel" oncommand="InformEnterPlus.Ruletree.delInputID();" />\
+                  <textbox id="inputIDvalue" /></hbox>\
+                  <hbox><spacer flex="1" /><radiogroup id="IDTYPE" oncommand="InformEnterPlus.Ruletree.setIDTYPE();">\
+                         <p><radio label="ID" id="TYPEID" value="0" />\
+                         <radio label="NAME" id="TYPENAME" value="1" />\
+                         <radio label="CLASS" id="TYPECLASS" value="2" /></p>\
+                       </radiogroup></hbox>\
+                  <hbox><label value="Inhalt einfügen (Inhalt des Popup wird automatisch in das Eingabefeld kopiert). Feld darf nicht leer sein:"/><textbox id="pastevalue" type="password" flex="1" oncopy="return false;" oncut="return false;"/>\
                   <checkbox id="IMETYPE" checked="false" label="IME-Eingaben" oncommand="InformEnterPlus.setIMEmode(event);"/></hbox>\
                   <hbox>\
 				            <button label="Hinzufügen" id="InformEnteradd" oncommand="InformEnterPlus.Ruletree.addlistRule();" />\
@@ -127,10 +149,21 @@ window.InformEnterPlus = {
             etld = aIP;
           }
       	  document.getElementById("domainvalue").value = etld;
-      	  document.getElementById("inputvalue").value = this._crrinput;
+      	  if (this._crrinput != "")
+      	    document.getElementById("inputIDvalue").value = this._crrinput;
+      	  else {
+      	    if (this._crrinputname != "")
+      	      document.getElementById("inputIDvalue").value = this._crrinputname;
+      	    else {
+      	    	if (this._crrinputclass != "")
+      	    	  document.getElementById("inputIDvalue").value = this._crrinputclass;
+      	    	else
+      	    		document.getElementById("inputIDvalue").value = "";
+      	    }
+      	  }
         } else {
           document.getElementById("domainvalue").value = "";
-          document.getElementById("inputvalue").value = "";
+          document.getElementById("inputIDvalue").value = "";
         }
       	InformEnterPlus.Ruletree.AddRuleTable();
       	InformEnterPlus.Ruletree.selectRule();
@@ -147,10 +180,21 @@ window.InformEnterPlus = {
             etld = aIP;
           }
       	  document.getElementById("domainvalue").value = etld;
-      	  document.getElementById("inputvalue").value = this._crrinput;
+      	  if (this._crrinput != "")
+      	    document.getElementById("inputIDvalue").value = this._crrinput;
+      	  else {
+      	    if (this._crrinputname != "")
+      	      document.getElementById("inputIDvalue").value = this._crrinputname;
+      	    else {
+      	    	if (this._crrinputclass != "")
+      	    	  document.getElementById("inputIDvalue").value = this._crrinputclass;
+      	    	else
+      	    		document.getElementById("inputIDvalue").value = "";
+      	    }
+      	  }
         } else {
           document.getElementById("domainvalue").value = "";
-          document.getElementById("inputvalue").value = "";
+          document.getElementById("inputIDvalue").value = "";
         }
       }
   },
@@ -164,6 +208,9 @@ window.InformEnterPlus = {
 		var i = document.getElementById("ife-context-menu");
 		if (i) i.parentNode.removeChild(i);
 		window.removeEventListener("unload", this, false);
+		
+		var i = document.getElementById("appmenu-ife-context-set");
+		if (i) i.parentNode.removeChild(i);
 	},
 	
 	handleEvent: function( evt ){
@@ -196,23 +243,52 @@ window.InformEnterPlus = {
 		}
 		if (gContextMenu != null && gContextMenu.onTextInput) {
 			if (content.document.activeElement) {
-			  if (content.document.activeElement.id) 
-			    this._crrinput = content.document.activeElement.id;
-			  else if (content.document.activeElement.name) 
-			    this._crrinput = content.document.activeElement.name;
-			  else if (content.document.activeElement.className) 
-			    this._crrinput = content.document.activeElement.className;
-			  else
-			  	this._crrinput = "";
-			} else
+				if (content.document.activeElement.tagName.toLowerCase() != "iframe") {
+  			  if (content.document.activeElement.id) 
+  			    this._crrinput = content.document.activeElement.id;
+  			  else
+  			  	this._crrinput = "";
+  			  if (content.document.activeElement.name) 
+  			    this._crrinputname = content.document.activeElement.name;
+  			  else
+  			  	this._crrinputname = "";
+  			  if (content.document.activeElement.className) 
+  			    this._crrinputclass = content.document.activeElement.className;
+  			  else
+  			  	this._crrinputclass = "";
+			  } else {
+			    let actfritem = content.document.activeElement.contentDocument ? content.document.activeElement.contentDocument : content.document.activeElement.document;
+			    if (actfritem.activeElement.id)
+			      this._crrinput = actfritem.activeElement.id;
+			    else
+  			  	this._crrinput = "";
+			    if (actfritem.activeElement.name)
+			      this._crrinputname = actfritem.activeElement.name;
+			    else
+  			  	this._crrinputname = "";
+			    if (actfritem.activeElement.className)
+			      this._crrinputclass = actfritem.activeElement.className;  
+			    else
+  			  	this._crrinputclass = "";
+	  	  }
+			} else {
 				this._crrinput = "";
+				this._crrinputname = "";
+				this._crrinputclass = "";
+			}
 			document.getElementById("ife-context-menu").hidden = false;
 			var amenu = null;
-			if (this._crrinput != "" && showcut > 0 && crrupop)
+			if ((this._crrinput != "" || this._crrinputname != "" || this._crrinputclass != "") && showcut > 0 && crrupop)
 			for (var j = 0; j < showcut; j++) {
 				amenu = crrupop.childNodes[j];
-			  if (amenu && amenu.culMenu.inputid === this._crrinput) {
-			  	content.document.activeElement.value = amenu.culMenu.text;
+			  if (amenu && ((amenu.culMenu.inputid.indexOf(this._crrinput) != -1 && this._crrinput != "") || (amenu.culMenu.inputid.indexOf(this._crrinputname) != -1 && this._crrinputname != "") || (amenu.culMenu.inputid.indexOf(this._crrinputclass) != -1 && this._crrinputclass != ""))) {
+			  	if (content.document.activeElement.tagName.toLowerCase() != "iframe")
+			  	  content.document.activeElement.value = amenu.culMenu.text;
+			  	else {
+			  		let actfritem = content.document.activeElement.contentDocument ? content.document.activeElement.contentDocument : content.document.activeElement.document;
+			  		actfritem.activeElement.value = amenu.culMenu.text;
+			  	}
+			  	//Application.console.log(amenu.culMenu.text);
 			  	e.preventDefault();
 			  	break;
 			  }
@@ -239,7 +315,7 @@ window.InformEnterPlus = {
 				  menuItem.appendChild(menuPopup);
 				  for(var j=0, menures; menures = menulist[j]; ++j){
 				  	menuItemtemp = document.createElement("menuitem");
-				  	menuItemtemp.setAttribute("id", menures.inputid + "-ID" + j.toString());
+				  	menuItemtemp.setAttribute("id", nm + "-ID" + j.toString());
 				    menuItemtemp.setAttribute("label", menures.label);
 				    menuItemtemp.culMenu = menures;
 				    menuItemtemp.setAttribute("oncommand","InformEnterPlus.pasteText(event);");
@@ -255,7 +331,7 @@ window.InformEnterPlus = {
 			  menuItem.appendChild(menuPopup);
 				for(var q=0, menures; menures = menulist[q]; ++q){
 				  menuItemtemp = document.createElement("menuitem");
-				  menuItemtemp.setAttribute("id", menures.inputid + "-ID" + q.toString());
+				  menuItemtemp.setAttribute("id", "allsit-ID" + q.toString());
 				  menuItemtemp.setAttribute("label", menures.label);
 				  menuItemtemp.culMenu = menures;
 				  menuItemtemp.setAttribute("oncommand","InformEnterPlus.pasteText(event);");
@@ -274,7 +350,7 @@ window.InformEnterPlus = {
   	  	var pmenu = document.getElementById(dmname + "pop");
   	  	var j = pmenu.childNodes.length;
         var menuItemtemp = document.createElement("menuitem");
-        menuItemtemp.setAttribute("id", arec.inputid + "-ID" + j.toString());
+        menuItemtemp.setAttribute("id", dmname + "-ID" + j.toString());
   	    menuItemtemp.setAttribute("label", arec.label);
   	    menuItemtemp.culMenu = arec;
   	    menuItemtemp.setAttribute("oncommand","InformEnterPlus.pasteText(event);");
@@ -293,7 +369,7 @@ window.InformEnterPlus = {
   		  pmenu.setAttribute("id", dmname + "pop");
   		  menuItem.appendChild(pmenu);
   		  var menuItemtemp = document.createElement("menuitem");
-  		  menuItemtemp.setAttribute("id", arec.inputid + "-ID0");
+  		  menuItemtemp.setAttribute("id", dmname + "-ID0");
   	    menuItemtemp.setAttribute("label", arec.label);
   	    menuItemtemp.culMenu = arec;
   	    menuItemtemp.setAttribute("oncommand","InformEnterPlus.pasteText(event);");
@@ -309,11 +385,10 @@ window.InformEnterPlus = {
 	editnewmenu: function(isexited, olddm, oldip, rec) {
 	  try {
 	  	if (isexited > -1 && olddm > -1) {
-  	  	//var itid = rec.inputid + "-ID" + olddm.toString();
-  	  	var itid = oldip + "-ID" + olddm.toString();
+  	  	var itid = oldip.replace('.', '_') + "-ID" + olddm.toString();
   	  	var menuItemtemp = document.getElementById(itid);
   	  	if (itid) {
-  	  		menuItemtemp.setAttribute("id", rec.inputid + "-ID" + olddm.toString());
+  	  		//menuItemtemp.setAttribute("id", rec.inputid + "-ID" + olddm.toString());
   	      menuItemtemp.culMenu = rec;
   	      this.InformArr[isexited].MenusArr[olddm] = rec;
   	      return true;
@@ -351,7 +426,7 @@ window.InformEnterPlus = {
   			var delres = {};
   			delres = delrecnm.MenusArr[0];
   			var dmname = (delrecnm.domainname != "*") ? delrecnm.domainname.replace('.', '_') : "allsite";
-  			var mnrec = document.getElementById(delres.inputid + "-ID" + issame.toString());
+  			var mnrec = document.getElementById(dmname + "-ID" + issame.toString());
   			if (mnrec) {
   				mnrec.parentNode.removeChild(mnrec);
   			  this.InformArr[isexited].MenusArr.splice(issame, 1);
@@ -378,14 +453,14 @@ window.InformEnterPlus = {
 		  {
 			  content.document.activeElement.value = text;
 		  }
-		}	else if (inputtextid !="undefined" && (inputtextid == "*" || content.document.activeElement.id.indexOf(inputtextid) != -1 || content.document.activeElement.name.indexOf(inputtextid) != -1 || content.document.activeElement.className.indexOf(inputtextid) != -1)) {
+		}	else if (inputtextid !="undefined" && (inputtextid == "*" || inputtextid.indexOf(content.document.activeElement.id) != -1 || inputtextid.indexOf(content.document.activeElement.name) != -1 || inputtextid.indexOf(content.document.activeElement.className) != -1)) {
 		  if (text!="undefined")
 		  {
 			  content.document.activeElement.value = text;
 		  }
 	  } else if (content.document.activeElement.tagName.toLowerCase() == "iframe"){
 	  	let actfritem = content.document.activeElement.contentDocument ? content.document.activeElement.contentDocument : content.document.activeElement.document; 
-	  	if (inputtextid !="undefined" && (inputtextid == "*" || actfritem.activeElement.id.indexOf(inputtextid) != -1 || actfritem.activeElement.name.indexOf(inputtextid) != -1 || actfritem.activeElement.className.indexOf(inputtextid) != -1)) {
+	  	if (inputtextid !="undefined" && (inputtextid == "*" || inputtextid.indexOf(actfritem.activeElement.id) != -1 || inputtextid.indexOf(actfritem.activeElement.name) != -1 || inputtextid.indexOf(actfritem.activeElement.className) != -1)) {
 			    actfritem.activeElement.value = text;
 	  	}
 		}
@@ -395,7 +470,7 @@ window.InformEnterPlus = {
 		var file = Components.classes["@mozilla.org/file/directory_service;1"].
 		           getService(Components.interfaces.nsIProperties).
 		           get("UChrm", Components.interfaces.nsIFile);
-		file.append('InformEnter.json');
+		file.append('InformEnter.Ijson');
 		return file;
 	},
 	
@@ -551,8 +626,8 @@ InformEnterPlus.Ruletree = {
     	var menulist = [];
     	var zdxx = document.getElementById('domainvalue').value.replace(/\n|\t|\r|\s/g, '');
     	var yxbtn = document.getElementById('menuvalue').value.replace(/\n|\t|\r|\s/g, '');
-    	var zzbtn = document.getElementById('inputvalue').value.replace(/\n|\t|\r|\s/g, '');
-    	var grupbtn = document.getElementById('pastevalue').value.replace(/\n|\t|\r|\s/g, '');
+    	var zzbtn = document.getElementById('inputvalue').value.trim().replace(/\n|\t|\r/g, '');
+    	var grupbtn = document.getElementById('pastevalue').value.trim().replace(/\n|\t|\r/g, '');
 			if (zdxx == "" || yxbtn == "" || grupbtn == "") {
 				window.alert("Feldinhalt angeben!");
 				return;
@@ -664,8 +739,8 @@ InformEnterPlus.Ruletree = {
     	var menulist = [];
 			var idxitem = selection.currentIndex;
     	if (idxitem >= 0) {
-        	var zzbtn = document.getElementById('inputvalue').value.replace(/\n|\t|\r|\s/g, '');
-        	var grupbtn = document.getElementById('pastevalue').value.replace(/\n|\t|\r|\s/g, '');
+        	var zzbtn = document.getElementById('inputvalue').value.trim().replace(/\n|\t|\r/g, '');
+        	var grupbtn = document.getElementById('pastevalue').value.trim().replace(/\n|\t|\r/g, '');
     			if (zzbtn == "" || grupbtn == "") {
     				window.alert("Feldinhalt angeben!");
     				return;
@@ -706,7 +781,7 @@ InformEnterPlus.Ruletree = {
     			     inputid : zzbtn,
     			     text : grupbtn 
     			  };
-    			  if (InformEnterPlus.editnewmenu(isexited, islbl, oldip, rec)) {
+    			  if (InformEnterPlus.editnewmenu(isexited, islbl, olddm, rec)) {
     			  	selection.selectEventsSuppressed = true;
     	   	    this.visibleData[ett] = [olddm, oldlb, zzbtn, grupbtn];
               selection.selectEventsSuppressed = false;
@@ -740,6 +815,43 @@ InformEnterPlus.Ruletree = {
     	    	  document.getElementById('pastevalue').value = "";
     	}
     },
+    addInputID: function() {
+    	var IDVAL = document.getElementById('inputIDvalue').value.trim();
+    	if (IDVAL == "") return;
+    	var INPUTID = document.getElementById('inputvalue').value.trim();
+      if (INPUTID == "")
+        document.getElementById('inputvalue').value = IDVAL;
+      else {
+      	if (INPUTID.indexOf(IDVAL) == -1)
+      	  document.getElementById('inputvalue').value = INPUTID + "|" + IDVAL;
+      }
+    },
+    delInputID: function() {
+    	var IDVAL = document.getElementById('inputIDvalue').value.trim();
+    	if (IDVAL == "") return;
+    	var INPUTID = document.getElementById('inputvalue').value.trim();
+      if (INPUTID == "")
+        return;
+      else {
+        var IDARR = [];
+        IDARR = INPUTID.split("|");
+        for(var j=0, idres; idres = IDARR[j]; ++j){
+        	if (idres == IDVAL) {
+            IDARR.splice(j, 1);
+            document.getElementById('inputvalue').value = IDARR.join("|");
+            break;
+          }
+        }
+      }
+    },
+    setIDTYPE: function() {
+       if (document.getElementById('IDTYPE').selectedItem == document.getElementById('TYPEID'))
+         document.getElementById('inputIDvalue').value = InformEnterPlus._crrinput;
+       else if (document.getElementById('IDTYPE').selectedItem == document.getElementById('TYPENAME'))
+         document.getElementById('inputIDvalue').value = InformEnterPlus._crrinputname;
+       else if (document.getElementById('IDTYPE').selectedItem == document.getElementById('TYPECLASS'))
+         document.getElementById('inputIDvalue').value = InformEnterPlus._crrinputclass;
+    }
 };
 InformEnterPlus.init();
 window.InformEnterPlus = InformEnterPlus;
