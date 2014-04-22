@@ -1,68 +1,82 @@
+(function() {
 // ==UserScript==
-// @description  Tab Plus 
-// @include      chrome://browser/content/browser.xul
+// @name			TabPlus.uc.js
+// @description	    自用整合版标签增强
+// @namespace       TabPlus@gmail.com
+// @include			chrome://browser/content/browser.xul
+// @include			chrome://browser/content/bookmarks/bookmarksPanel.xul
+// @include			chrome://browser/content/history/history-panel.xul
+// @include			chrome://browser/content/places/places.xul
+// @Note            2014.03.21 最后一次修正整合 by defpt
 // ==/UserScript==
 
-(function() {
-    /*open bookmark/history in new tab */
-    try {
-  	var str = openLinkIn.toString();
-		  str = str.replace('w.gBrowser.selectedTab.pinned',
-	        '(!w.isTabEmpty(w.gBrowser.selectedTab) || $&)');
-		  str = str.replace(/&&\s+w\.gBrowser\.currentURI\.host != uriObj\.host/,'');
-		  eval("openLinkIn = " + str);
+	// Lesezeichen, Chronik und Suchleiste
+	try {
+		eval('openLinkIn=' + openLinkIn.toString().
+		replace('w.gBrowser.selectedTab.pinned', '(!w.isTabEmpty(w.gBrowser.selectedTab) || $&)').
+		replace(/&&\s+w\.gBrowser\.currentURI\.host != uriObj\.host/, ''));
     }catch(e){}
+
+    // Adressleiste
+   try {
+		location=="chrome://browser/content/browser.xul" && 
+		eval("gURLBar.handleCommand="+gURLBar.handleCommand.toString().replace(/^\s*(load.+);/gm,
+		"if(/^javascript:/.test(url)||isTabEmpty(gBrowser.selectedTab)){loadCurrent();}else{this.handleRevert();gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});}"));
+    }catch(e){}
+
+	//Lesezeichenmenü beim Mittelklick nicht schließen
+    try {
+        eval('BookmarksEventHandler.onClick =' + BookmarksEventHandler.onClick.toString().replace('node.hidePopup()', ''));
+        eval('checkForMiddleClick =' + checkForMiddleClick.toString().replace('closeMenus(event.target);', ''));
+    } catch(e) {}
+
+	//Rechtsklick -> Tabschließen, Rechtsklick + STRG-Taste öffnet das Menü
+    gBrowser.mTabContainer.addEventListener("click",
+    function(e) {
+        if (e.target.localName == "tab" && e.button == 2 && !e.ctrlKey) {
+            e.preventDefault();
+            gBrowser.removeTab(e.target);
+			e.stopPropagation();
+        }
+    },
+    false);
 	
-	/*open bookmarklets on the page*/
-eval("openUILinkIn = " + openUILinkIn.toString()
-  .replace(/(?=if \(where == "save"\))/, 'if (url.match(/^javascript:/)) where = "current";')
-);
-
-    /*open url in new tab */
-    try {
-		location=="chrome://browser/content/browser.xul"&&eval("gURLBar.handleCommand="+gURLBar.handleCommand.toString().replace(/^\s*(load.+);/gm,"/^javascript:/.test(url)||content.location=='about:blank'?$1:gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});"))
-    }catch(e){}
-
-    /*open home in new tab  */
-    try {
-        eval("BrowserGoHome = " + BrowserGoHome.toString().replace(
-            /switch \(where\) {/, "where = (gBrowser.currentURI.spec!="
-            +"'about:blank' || gBrowser.webProgress.isLoadingDocument"+
-            ") ? 'tab' : 'current'; $&")); 
-    }catch(e){}
-
-    /*open search in new tab*/
-    try {
-        var searchbar = document.getElementById("searchbar");
-        eval("searchbar.handleSearchCommand="+searchbar.handleSearchCommand.
-            toString().replace(/this.doSearch\(textValue, where\);/,
-            "if (!gBrowser.webProgress.isLoadingDocument && gBrowser.curren"
-            +"tURI.spec=='about:blank') where='current'; else where='tab'; "
-            +"$&"));
-    }catch(e){}
+	//Linksklick + STRG auf Adressleiste kopiert automatisch die Adresse der aktuellen Seite. Standard-Schaltfläche: Linksklick
+	document.getElementById('urlbar').addEventListener('click',
+	   function(e){
+		  if(e.button===0 && !e.ctrlKey)
+			 goDoCommand('cmd_copy');
+	   },
+	   false
+	);
+ 
+	//Tab - Autofokus mit der Maus
+    (document.getElementById("tabbrowser-tabs") || gBrowser.mTabBox).addEventListener('mouseover',
+    function self(e) {
+        if ((self.target = e.target).localName === 'tab') {
+            if (!self.timeoutID) {
+                this.addEventListener('mouseout',
+                function() {
+                    clearTimeout(self.timeoutID);
+                },
+                false);
+            }
+            self.timeoutID = setTimeout(function() {
+                gBrowser.selectedTab = self.target;
+            },
+            250);
+        }
+    },
+    false);
+ 
+	//Auto close Download beim leeren Tab
+	eval("gBrowser.mTabProgressListener = " + gBrowser.mTabProgressListener.toString().replace(/(?=var location)/, '\
+      if (aWebProgress.DOMWindow.document.documentURI == "about:blank"\
+          && aRequest.QueryInterface(nsIChannel).URI.spec != "about:blank") {\
+        aWebProgress.DOMWindow.setTimeout(function() {\
+          !aWebProgress.isLoadingDocument && aWebProgress.DOMWindow.close();\
+        }, 100);\
+      }\
+    '));
 
 })();
- 
- /*open page in the blank */
-function _LoadURL(aTriggeringEvent, aPostData)
-{
-    var where = (gBrowser.currentURI.spec!='about:blank' ||
-        gBrowser.webProgress.isLoadingDocument) ? 'tab' :
-        'current';
-    if (gURLBar.value!='') openUILinkIn(gURLBar.value, where);
-    return true;
-}
-
- /*close tab on double click */ 
-gBrowser.mTabContainer.addEventListener('dblclick', function (event){
-	if (event.target.localName == 'tab' && event.button == 0){
-		document.getElementById('cmd_close').doCommand();
-	}
-}, false);
-
-/* Drag n Go */
-eval("handleDroppedLink = " + handleDroppedLink.toString()
-  .replace('url.indexOf(" ", 0) != -1 ||', "")
-  .replace(/.*loadURI.*/, "try {openNewTabWith(uri, arguments[0].target.ownerDocument, postData.value, null, false);} catch (e) {BrowserSearch.loadSearch(url, true);}")
-);
-gBrowser.mPanelContainer.setAttribute("ondragover", "browserDragAndDrop.dragOver(event);");
