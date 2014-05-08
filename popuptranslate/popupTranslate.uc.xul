@@ -18,11 +18,14 @@ display: none;
 // @note                              基本的にメニューでxxx英日を選んでおくこと
 // @include        main
 // @include        chrome://messenger/content/messageWindow.xul
-// @compatibility  Firefox 10-16a1, Tb10-16a1
+// @compatibility  Firefox 10-32a1, Tb10-32a1
 // @author         Alice0775
+// @version        2014/05/03 00:00 Google翻訳仕様変更のため
+// @version        2013/02/19 09:00 isJapanese簡易判定
 // @version        2012/10/07 09:00 動かないもの削除
-// @version        2012/10/06 07:00 Bug 722872  call .init(null) for nsITransferable instance
+// @version        2012/10/07 07:00 isJapaneseにBing APIを使うように
 // ==/UserScript==
+// @version        2012/10/06 07:00 Bug 722872  call .init(null) for nsITransferable instance
 // @version        2012/06/28 18:00 タイムアウト
 // @version        2012/01/12 23:30 Bing翻訳変更
 // @version        2012/01/09 00:30 "のエスケープ
@@ -92,23 +95,23 @@ display: none;
           end:"xpathを使用しない場合, 翻訳結果の直後にあるHTML文書の文字列(正規表現の\は\\とする)",
         },
         */
-		
+
         {
           Description:"Google Auto DE",
           method:'POST',
-          Referer:'http://translate.google.com/?tab=yT#en',
-          action:"http://translate.google.com/",
-		  post:"client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
+          Referer:'https://translate.google.com/?tab=yT#en',
+          action:"https://translate.google.com/",
+          post:"client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
           code:"UTF-8",
           xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
         },
-		
+
         {
           Description:"Google Auto EN",
           method:'POST',
-          Referer:'http://translate.google.com/?tab=yT#de',
-          action:"http://translate.google.com/",
-		  post:"client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
+          Referer:'https://translate.google.com/?tab=yT#de',
+          action:"https://translate.google.com/",
+          post:"client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
           code:"UTF-8",
           xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
         },
@@ -132,11 +135,12 @@ display: none;
           code:"UTF-8",
           xpath:'.//div[@id="result"]/div'
         },
-		
-		{
+
+        {
           Description:"Bing Auto DE",
           method:'GET',
-          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=&text=%%SEL%%",
+          Referer:"http://www.microsofttranslator.com/",
+          action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=Deutsch&text=%%SEL%%",
           code:"UTF-8",
           start:'^"',
           end:'"$',
@@ -145,7 +149,8 @@ display: none;
         {
           Description:"Bing Auto EN",
           method:'GET',
-          Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=&text=%%SEL%%",
+          Referer:"http://www.microsofttranslator.com/",
+          action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=Deutsch&text=%%SEL%%",
           code:"UTF-8",
           start:'^"',
           end:'"$',
@@ -287,11 +292,41 @@ display: none;
       },
 
       isJapanese: function(str) {
+        var UI = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+          createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
         var s = str.replace(/^\s+/, '')
-        if (/[぀-ㄩ㐀-𪛖、。]/.test(s)) {   //"
-          return true
+        //カタカナ ひらがな
+        if (/[\u3040-\u309F\u30A0-\u30FF]/.test(s))
+          return true;
+        //ハングル
+        if(/[\u1100-\u11FF\uAC00-\uD7A3\u3130-\u318F]/.test(s))
+          return false;
+        //アラビック
+        if(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(s))
+          return false;
+        //漢字
+        if (/(?:[\u2E80-\u2FDF\u3005\u3007\u3021-\u3029\u3038-\u303B\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]|[\uD840-\uD87F][\uDC00-\uDFFF])/.test(s)) {
+          try {
+            UI.charset = "Shift_JIS";
+            // Shift_JISで定義済み
+            if (UI.ConvertToUnicode(UI.ConvertFromUnicode(s)) == s)
+              return true;
+          } catch(ex) {}
+          // bing判定
+          return this.isJapanese_old(str);
         }
         return false;
+      },
+
+      isJapanese_old: function(str) {
+        var url = "http://api.microsofttranslator.com/V2/Ajax.svc/Detect?appId=46846E697D3BC6FA50998483EF31894654002928&text=" + str;
+        var req = new XMLHttpRequest();
+        req.open('GET', url, false);
+        req.send(null);
+        if(req.status == 200)
+          return req.responseText == '"ja"';
+        else
+          return false;
       },
 
       selectEngine: function(flag){
@@ -392,7 +427,7 @@ display: none;
             } catch (e) {}
           },
           onerror:function(e) {
-            self.show("Fehler " + e.status + " beim Empfang des Dokuments.");
+            self.show("Fehler " + e.status + "  beim Empfang des Dokuments.");
           },
           ontimeout:function() {
             self.show("Zeitüberschreitung");
@@ -472,7 +507,7 @@ display: none;
             }
           },
           onerror:function(e) {
-            self.show("Fehler " + e.status + " beim Empfang des Dokuments.");
+            self.show("Fehler " + e.status + " beim Empfang des Dokuments");
           },
           ontimeout:function() {
             self.show("Zeitüberschreitung");

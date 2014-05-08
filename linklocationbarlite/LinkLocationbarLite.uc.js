@@ -16,15 +16,17 @@
 	var additionBar = document.createElement('label');
 	additionBar.setAttribute('id', 'addtion-link');
 	additionBar.setAttribute('value', '');
-	additionBar.setAttribute('crop', 'center');	//Die Mitte einer langen URL wird weggelassen
-	additionBar.setAttribute('flex', '1');
+	additionBar.setAttribute('crop', 'center');	// Die Mitte einer langen URL wird weggelassen
+	//additionBar.setAttribute('flex', '1');
+	//additionBar.setAttribute('style', "-moz-box-ordinal-group: 99 !important;");  ////在urlbar-icons最左边显示?
 	additionBar.style.color = 'brown';
+	additionBar.style.margin = "0px 0px 0px 0px";
 	urlbarIcons.insertBefore(additionBar, urlbarIcons.firstChild);
 
 	function resetmaxWidth() {
-		var p = gURLBar.boxObject.width;
+		//var p = gURLBar.boxObject.width;
 		//Der Abstand (120) in Px zwischen angezeigtem Link und der Adresse in der Urlbar
-		urlbarIcons.style.maxWidth = Math.ceil(p - 120) + 'px';
+		//urlbarIcons.style.maxWidth = Math.ceil(p - 270) + 'px';
 	}
 	resetmaxWidth();
 	window.addEventListener('resize', resetmaxWidth, false);
@@ -36,7 +38,7 @@
 		if (str) {
 			this.setAttribute('label', str);
 			if(this.getAttribute('type') == 'overLink') {	// overLink
-				additionBar.value = '> ' + str;
+				additionBar.value = '➥' + str + ' ';
 			} else {	// その他
 				if (loadingStat == true) {
 					additionBar.value = str;

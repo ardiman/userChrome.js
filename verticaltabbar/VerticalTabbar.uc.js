@@ -1,11 +1,15 @@
 // ==UserScript==
-// @name           zzzz-VerticalTabbarforFx17-28.uc.js
+// @name           zzzz-VerticalTabbarforFx29.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    CSS入れ替えまくりバージョン
 // @include        main
-// @compatibility  Firefox 17-28.0a1(UX)
+// @compatibility  Firefox 29-32
 // @author         Alice0775
-// @note           デフォルトテーマ, zzzz-removeTabMoveAnimation.uc.js が必要
+// @note           デフォルトテーマ , zzzz-removeTabMoveAnimation.uc.js が必要
+// @version        2014/05/05 19:20 Workaround: hidden tabbar when enter csutomize mode
+// @version        2014/05/05 19:15 Workaround: toolbuttun position
+// @version        2014/05/05 19:00 Fix Win7 Aero and tab padding(background color)
+// @version        2014/05/05 09:00 modified padding-bottom for selcted tab
 // @version        2013/11/19 12:30 Australis 
 // @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
 // ==/UserScript==
@@ -73,6 +77,13 @@ function zzzz_VerticalTabbar(){
         visibility:collapse; \
         } \
  \
+        /*workaround: hidden when customize mode*/ \
+        #TabsToolbar[customizing="true"] \
+        { \
+          visibility:collapse !important; \
+        }\
+ \
+        #TabsToolbar:not(:-moz-lwtheme), \
         #TabsToolbar \
         { \
         position:fixed; \
@@ -175,7 +186,7 @@ function zzzz_VerticalTabbar(){
         /* Fx3.7a2*/ \
         toolbarbutton:not([id="back-button"]):not([id="forward-button"]) \
         { \
-        margin-top:0px; //? \
+        /*margin-top:0px; //? */\
         } \
  \
         .tabbrowser-tab, \
@@ -185,7 +196,7 @@ function zzzz_VerticalTabbar(){
         min-height: 24px; \
         max-height: 24px; \
         margin: 0 !important; \
-        padding: 1px 0 2px 0 !important; \
+        padding: 0 0 0 0 !important; \
  \
         border: 1px solid ThreeDShadow; \
         border-bottom: 1px solid transparent; \
@@ -206,7 +217,7 @@ function zzzz_VerticalTabbar(){
  \
         .tabbrowser-tab[selected="true"] \
         { \
-        padding: 1px 0 1px 0 !important; \
+        padding: 0 0 0 0 !important; \
         /*background-image: url("chrome://browser/skin/tabbrowser/tab-active-bkgnd.png");*/ \
         /*background-color: ThreeDHighlight;*/ \
         } \
@@ -239,7 +250,7 @@ function zzzz_VerticalTabbar(){
  \
  \
         /*toolbarbutton*/ \
-        #TabsToolbar > toolbarbutton[collapsed="true"] \
+	      #TabsToolbar > toolbarbutton[collapsed="true"] \
         { \
         display: none; \
         } \
@@ -247,9 +258,30 @@ function zzzz_VerticalTabbar(){
         #TabsToolbar toolbarbutton, \
         #TabsToolbar toolbarbutton:hover \
         { \
-        height: 20px !important; \
+        height: 25px !important; \
+        } \
+ \
+ \
+        /* workaround toolbarbutton */ \
+        .tabs-newtab-button \
+        { \
+          display:none !important; \
+        } \
+        #tabbrowser-tabs:not([overflow="true"]) ~ #alltabs-button, \
+        #tabbrowser-tabs:not([overflow="true"]) + #new-tab-button \
+        { \
+          visibility:visible !important; \
+        } \
+        /* workaround positioning*/ \
+        #TabsToolbar[customizing="true"] > #wrapper-alltabs-button, \
+        #alltabs-button, \
+        #alltabs-button:hover \
+        { \
+        position: relative !important; \
+        bottom: 11px; !important; \
         } \
       ';
+
       if (TOOLBARBUTTON_AS_TAB) {
         style += ' \
           #TabsToolbar > toolbarbutton:not([collapsed="true"]), \
@@ -320,7 +352,6 @@ function zzzz_VerticalTabbar(){
           -moz-border-end: none; \
         } \
        ';
-
 
       style = style.replace(/\s+/g, " ")
       .replace("{TABBARWIDTH+TABBARLEFTMERGINE}", TABBARWIDTH + TABBARLEFTMERGINE)
