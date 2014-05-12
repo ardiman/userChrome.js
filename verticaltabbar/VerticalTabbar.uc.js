@@ -6,6 +6,12 @@
 // @compatibility  Firefox 29-32
 // @author         Alice0775
 // @note           デフォルトテーマ , zzzz-removeTabMoveAnimation.uc.js が必要
+// @version        2014/05/09 15:30 do not collapse tabbar
+// @version        2014/05/09 15:30 make clicable tab at left side of screen when maxmized
+// @version        2014/05/09 14:50 remove debug
+// @version        2014/05/09 14:30 tweeks scrollbar, splitter width
+// @version        2014/05/09 14:20 scroll tabbar by mouse wheel
+// @version        2014/05/09 14:20 fix unexpected scroll to top by mouse move
 // @version        2014/05/05 19:20 Workaround: hidden tabbar when enter csutomize mode
 // @version        2014/05/05 19:15 Workaround: toolbuttun position
 // @version        2014/05/05 19:00 Fix Win7 Aero and tab padding(background color)
@@ -77,6 +83,11 @@ function zzzz_VerticalTabbar(){
         visibility:collapse; \
         } \
  \
+        #verticalTabToolBox \
+        { \
+        border-top-width:0px; \
+        }\
+ \
         /*workaround: hidden when customize mode*/ \
         #TabsToolbar[customizing="true"] \
         { \
@@ -108,6 +119,7 @@ function zzzz_VerticalTabbar(){
 */ \
         #tabbrowser-tabs > hbox \
         { \
+        pointer-events:none; \
         position:fixed; \
         left: 0px; \
         right: 0px; \
@@ -125,6 +137,7 @@ function zzzz_VerticalTabbar(){
         -moz-box-orient: vertical !important; \
         /*should delete orient="horizontal"*/ \
         overflow-x:hidden; \
+        overflow-y:hidden; \
         } \
  \
         #tabbrowser-tabs > arrowscrollbox \
@@ -135,6 +148,7 @@ function zzzz_VerticalTabbar(){
  \
         #tabbrowser-tabs > arrowscrollbox > scrollbox \
         { \
+        overflow-x: hidden; \
         overflow-y: auto; \
         -moz-box-orient: vertical !important; \
         direction: rtl; /*scroll bar position*/ \
@@ -182,6 +196,15 @@ function zzzz_VerticalTabbar(){
         visibility:collapse; \
         } \
  \
+        /* splitter */ \
+        #vtb_splitter { \
+        min-width:4px !important; \
+        } \
+ \
+        #vtb_splitter > grippy { \
+        min-width:2px !important; \
+        } \
+ \
          /*default theme要調整*/ \
         /* Fx3.7a2*/ \
         toolbarbutton:not([id="back-button"]):not([id="forward-button"]) \
@@ -201,10 +224,10 @@ function zzzz_VerticalTabbar(){
         border: 1px solid ThreeDShadow; \
         border-bottom: 1px solid transparent; \
  \
-        -moz-border-radius-topleft : 0 !important; \
-        -moz-border-radius-topright : 0 !important; \
-        -moz-border-radius-bottomleft : 0 !important; \
-        -moz-border-radius-bottomright : 0 !important; \
+        border-radius-topleft : 0 !important; \
+        border-radius-topright : 0 !important; \
+        border-radius-bottomleft : 0 !important; \
+        border-radius-bottomright : 0 !important; \
  \
         /*background-image: url("chrome://browser/skin/tabbrowser/tab-bkgnd.png");*/ \
         } \
@@ -248,6 +271,11 @@ function zzzz_VerticalTabbar(){
         background-color: ThreeDHighlight; \
         } \
  \
+        #TabsToolbar .tab-content:not([pinned]), \
+        #TabsToolbar .tab-content[pinned] { \
+        -moz-padding-end: 3px !important;; \
+        -moz-padding-start: 3px !important;; \
+        } \
  \
         /*toolbarbutton*/ \
 	      #TabsToolbar > toolbarbutton[collapsed="true"] \
@@ -364,6 +392,23 @@ function zzzz_VerticalTabbar(){
       sspi.getAttribute = function(name) {
         return document.documentElement.getAttribute(name);
       };
+
+
+      /* 縦のスクロールバーを細く＆背景着色 */
+      style = ' \
+      @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
+      #tabbrowser-tabs > arrowscrollbox * scrollbar[orient="vertical"], \
+      #tabbrowser-tabs > arrowscrollbox * scrollbar[orient="vertical"] * { \
+      min-width: 12px!important; \
+      max-width: 12px!important; \
+      } \
+      '.replace(/\s+/g, " ");
+      var uri = "data:text/css;charset=utf-8," + encodeURIComponent(style);
+      Cc["@mozilla.org/content/style-sheet-service;1"]
+            .getService(Ci.nsIStyleSheetService)
+            .loadAndRegisterSheet(Services.io.newURI(uri, null, null), Ci.nsIStyleSheetService.AGENT_SHEET);
+
+
       document.getElementById('alltabs-button').removeAttribute('type');
       document.getElementById('alltabs-button').setAttribute('onclick', "this.firstChild.openPopup(document.getElementById('alltabs-button'))");
 
@@ -654,30 +699,22 @@ function zzzz_VerticalTabbar(){
     verticalTabToolBox.style.width = TABBARWIDTH + TABBARLEFTMERGINE + "px";
     window.addEventListener('resize', VerticalTabbarOnresized, false);
 
-    var skipResize = null;
-    var resizeTimer = null;
     function VerticalTabbarOnresized() {
-      if (resizeTimer)
-        clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function() {
-        resized();
-        skipResize = null;
-      }, 250);
-      setTimeout(function() {
-        skipResize = null;
-      }, 100);
-      if (!!skipResize)
-        return;
-
+      if (!window.fullScreen) {
+        tabsToolbar.removeAttribute("moz-collapsed");
+        vtbSplitter.removeAttribute("moz-collapsed");
+        verticalTabToolBox.removeAttribute("moz-collapsed");
+      }
+         
       resized();
       
       function resized() {
-        skipResize = true;
         tabbrowsertabs.setAttribute('overflow', true);
 
         //幅調整
-        tabsToolbar.collapsed = vtbSplitter.getAttribute('state') == 'collapsed';
-        tabsToolbar.style.width = verticalTabToolBox.boxObject.width - TABBARLEFTMERGINE + "px";
+        tabsToolbar.style.width =  vtbSplitter.getAttribute('state') == 'collapsed' 
+                                   ? "0px" 
+                                   : verticalTabToolBox.boxObject.width - TABBARLEFTMERGINE + "px";
         //高さ調整
         var toolbuttonH = 0;
         if (!TOOLBARBUTTON_AS_TAB) {
@@ -734,32 +771,16 @@ function zzzz_VerticalTabbar(){
     }
     gBrowser.tabContainer.mTabstrip.ensureElementIsVisible = ensureVisibleElement;
 
-    //pref読み込み
-    function getPref(aPrefString, aPrefType, aDefault) {
-      var xpPref = Components.classes["@mozilla.org/preferences-service;1"]
-                    .getService(Components.interfaces.nsIPrefService);
-      try{
-        switch (aPrefType){
-          case "str":
-            return xpPref.getCharPref(aPrefString).toString(); break;
-          case "int":
-            return xpPref.getIntPref(aPrefString); break;
-          case "bool":
-          default:
-            return xpPref.getBoolPref(aPrefString); break;
-        }
-      }catch(e){
-      }
-      return aDefault;
-    }
+    // Scroll Tabbar
+    gBrowser.tabContainer.mTabstrip.addEventListener("DOMMouseScroll", function(event){
+      if (event.ctrlKey || event.altKey  || event.shiftKey)
+        return;
+      var arrowscrollbox = gBrowser.tabContainer.mTabstrip;
+      var scrollbox = document.getAnonymousElementByAttribute(arrowscrollbox, "class", "arrowscrollbox-scrollbox");
+      //userChrome_js.debug(scrollbox.scrollTop);
+      scrollbox.scrollTop += (event.detail > 0 ? 1 : -1) * 50;
+    });
 
-    function getVer(){
-      const Cc = Components.classes;
-      const Ci = Components.interfaces;
-      var info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
-      var ver = parseInt(info.version.substr(0,3) * 10,10) / 10;
-      return ver;
-    }
 
     //デバッグ用
     function debug(aMsg){
