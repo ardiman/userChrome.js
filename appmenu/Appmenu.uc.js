@@ -160,10 +160,10 @@ var Appmenu = {
     _externalAppPopup: null,
     _isready: false,
     init: function() {
+		var isUrlbar = 0; // 0：TabsToolbar； 1：Urlbar
         this.handleRelativePath(this.toolbar.apps);
         const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-        var TabsToolbar = document.getElementById("TabsToolbar");
-        if (!TabsToolbar) return;
+
         var ExternalAppBtn = document.createElementNS(XULNS, 'toolbarbutton');
         ExternalAppBtn.id = "AppMenuButton";
         ExternalAppBtn.setAttribute("label", "AppButton");
@@ -172,16 +172,15 @@ var Appmenu = {
         ExternalAppBtn.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
         ExternalAppBtn.setAttribute("type", "menu");
         ExternalAppBtn.setAttribute("removable", "true");
-        ExternalAppBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAAAUCAYAAAAwaEt4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAF3SURBVFhH7ZUxS8RAEIX9M1fb29vb+wP8AdaCYCVY2FmInY1YWmlrp7WtNp6ihyKKCDYrb7kPxsuMJiG5CO6DR5LZmd2Zl9ndhduNUSqssggTsAgTsAgTsAgTsLEw71enyYPGHvZW8vvHzUUlrinvd5e/reX59Mk/K8zn5DrPBTyfPtlamOeTTXe8K4LHg1V3vG92KgwdI2ADT8fr+UmcfNVZ4OVspzIH0Joau9teSq/n+1Nryl1l8yA3/LUdgWLxq8NOthKJ/CQMUCE2YQuJEwkz3lqsbC+AOCoeaB5y1U8hn7qcmzB0hArkr79dHuVvhFLhs3GaU9+Tw7WpJWV/2SQIIA4bIpJbU85tK1Gg6IkLojgKtoV664kWbc+oQYRRpwh0DHZLQJztGM6LOh3T9oYcRBjrZ2F9ADYJGIFcZg9bxPFy/Y2DCCOqxe2tpHd7cwAbp3G6TVDh9mBlPp1h+va6rC4bC/NfWIQJWIQJWIQJWIRxOUpfQ+jqXwPuQ7IAAAAASUVORK5CYII=)";
-        TabsToolbar.insertBefore(ExternalAppBtn,TabsToolbar.firstChild);
-		document.insertBefore(document.createProcessingInstruction('xml-stylesheet', 'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent('\
-#AppMenuButton{\
-	padding:0 !important;\
-	margin:0 0 6px 0!important;\
-	background: #FFF !important;\
-}\
-#AppMenuButton > dropmarker{display:none !important;}\
-') + '"'), document.documentElement);
+		
+		if (isUrlbar) {
+			document.getElementById("urlbar-icons").appendChild(ExternalAppBtn);
+			ExternalAppBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAA6SURBVDhPYxgcIDg+6z8IQ7lwPiEMVT4YDBh4gO4kZGfiw1Dlg8GAgQfoTkJ2Jj4MVT4YDCAfMDAAAFSm42US1bMnAAAAAElFTkSuQmCC)";
+		} else {
+		    ExternalAppBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAAAUCAYAAAAwaEt4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAF3SURBVFhH7ZUxS8RAEIX9M1fb29vb+wP8AdaCYCVY2FmInY1YWmlrp7WtNp6ihyKKCDYrb7kPxsuMJiG5CO6DR5LZmd2Zl9ndhduNUSqssggTsAgTsAgTsAgTsLEw71enyYPGHvZW8vvHzUUlrinvd5e/reX59Mk/K8zn5DrPBTyfPtlamOeTTXe8K4LHg1V3vG92KgwdI2ADT8fr+UmcfNVZ4OVspzIH0Joau9teSq/n+1Nryl1l8yA3/LUdgWLxq8NOthKJ/CQMUCE2YQuJEwkz3lqsbC+AOCoeaB5y1U8hn7qcmzB0hArkr79dHuVvhFLhs3GaU9+Tw7WpJWV/2SQIIA4bIpJbU85tK1Gg6IkLojgKtoV664kWbc+oQYRRpwh0DHZLQJztGM6LOh3T9oYcRBjrZ2F9ADYJGIFcZg9bxPFy/Y2DCCOqxe2tpHd7cwAbp3G6TVDh9mBlPp1h+va6rC4bC/NfWIQJWIQJWIQJWIRxOUpfQ+jqXwPuQ7IAAAAASUVORK5CYII=)";
+			var TabsToolbar = document.getElementById("TabsToolbar");
+			TabsToolbar.insertBefore(ExternalAppBtn,TabsToolbar.firstChild);
+		}
 
         var ExternalAppPopup = document.createElementNS(XULNS, 'menupopup');
         ExternalAppPopup.setAttribute('onpopupshowing', 'event.stopPropagation();Appmenu.onpopupshowing();');
@@ -283,7 +282,7 @@ var Appmenu = {
         var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
         file.initWithPath(path);
         if (!file.exists()) {
-            Cu.reportError('File Not Found: ' + path);
+            Cu.reportError('Datei nicht gefunden: ' + path);
             return;
         }
 
