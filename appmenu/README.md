@@ -1,8 +1,7 @@
 # Appmenu
 Der Appmenü Button für Firefox 29 und aufwärts. Zusammengestellt aus verschiedenen Firefoxeinträgen. Diese können im Skript 
-natürlich selbst erweitert werden. Eingeblendet wird der Button ganz links am Anfang der Tabs Toolbar. In Zeile 165 kann nach 
-Bedarf eine andere Toolbar eingetragen werden. In Zeile 175 sitzt der Button als Base64 Code (falls dieser einem nicht gefällt). 
-Zwischen Zeile 178-183 gibt es noch paar CSS Zeilen (Position, Farbe, Dropmarker) dazu.
+natürlich selbst erweitert werden. Eingeblendet wird der Button ganz links am Anfang der Tabs Toolbar. In Zeile 163 kann nach 
+Bedarf die Urlbar gewählt werden. In Zeile 178 bzw. 180 sitzt der Button als Base64 Code (falls dieser einem nicht gefällt). 
 
 Das **Ergebnis des Skripts**:
 
