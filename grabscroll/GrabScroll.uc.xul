@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="data:text/css,@namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');@namespace%20html%20url('http://www.w3.org/1999/xhtml');
-%23GrabScroll-status {
-  padding-left:0px !important;
-  padding-right:0px !important;
-}
 %23GrabScroll-image {
   list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKTWlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVN3WJP3Fj7f92UPVkLY8LGXbIEAIiOsCMgQWaIQkgBhhBASQMWFiApWFBURnEhVxILVCkidiOKgKLhnQYqIWotVXDjuH9yntX167%2B3t%2B9f7vOec5%2FzOec8PgBESJpHmomoAOVKFPDrYH49PSMTJvYACFUjgBCAQ5svCZwXFAADwA3l4fnSwP%2FwBr28AAgBw1S4kEsfh%2F4O6UCZXACCRAOAiEucLAZBSAMguVMgUAMgYALBTs2QKAJQAAGx5fEIiAKoNAOz0ST4FANipk9wXANiiHKkIAI0BAJkoRyQCQLsAYFWBUiwCwMIAoKxAIi4EwK4BgFm2MkcCgL0FAHaOWJAPQGAAgJlCLMwAIDgCAEMeE80DIEwDoDDSv%2BCpX3CFuEgBAMDLlc2XS9IzFLiV0Bp38vDg4iHiwmyxQmEXKRBmCeQinJebIxNI5wNMzgwAABr50cH%2BOD%2BQ5%2Bbk4eZm52zv9MWi%2FmvwbyI%2BIfHf%2FryMAgQAEE7P79pf5eXWA3DHAbB1v2upWwDaVgBo3%2FldM9sJoFoK0Hr5i3k4%2FEAenqFQyDwdHAoLC%2B0lYqG9MOOLPv8z4W%2Fgi372%2FEAe%2Ftt68ABxmkCZrcCjg%2F1xYW52rlKO58sEQjFu9%2Bcj%2FseFf%2F2OKdHiNLFcLBWK8ViJuFAiTcd5uVKRRCHJleIS6X8y8R%2BW%2FQmTdw0ArIZPwE62B7XLbMB%2B7gECiw5Y0nYAQH7zLYwaC5EAEGc0Mnn3AACTv%2FmPQCsBAM2XpOMAALzoGFyolBdMxggAAESggSqwQQcMwRSswA6cwR28wBcCYQZEQAwkwDwQQgbkgBwKoRiWQRlUwDrYBLWwAxqgEZrhELTBMTgN5%2BASXIHrcBcGYBiewhi8hgkEQcgIE2EhOogRYo7YIs4IF5mOBCJhSDSSgKQg6YgUUSLFyHKkAqlCapFdSCPyLXIUOY1cQPqQ28ggMor8irxHMZSBslED1AJ1QLmoHxqKxqBz0XQ0D12AlqJr0Rq0Hj2AtqKn0UvodXQAfYqOY4DRMQ5mjNlhXIyHRWCJWBomxxZj5Vg1Vo81Yx1YN3YVG8CeYe8IJAKLgBPsCF6EEMJsgpCQR1hMWEOoJewjtBK6CFcJg4Qxwicik6hPtCV6EvnEeGI6sZBYRqwm7iEeIZ4lXicOE1%2BTSCQOyZLkTgohJZAySQtJa0jbSC2kU6Q%2B0hBpnEwm65Btyd7kCLKArCCXkbeQD5BPkvvJw%2BS3FDrFiOJMCaIkUqSUEko1ZT%2FlBKWfMkKZoKpRzame1AiqiDqfWkltoHZQL1OHqRM0dZolzZsWQ8ukLaPV0JppZ2n3aC%2FpdLoJ3YMeRZfQl9Jr6Afp5%2BmD9HcMDYYNg8dIYigZaxl7GacYtxkvmUymBdOXmchUMNcyG5lnmA%2BYb1VYKvYqfBWRyhKVOpVWlX6V56pUVXNVP9V5qgtUq1UPq15WfaZGVbNQ46kJ1Bar1akdVbupNq7OUndSj1DPUV%2Bjvl%2F9gvpjDbKGhUaghkijVGO3xhmNIRbGMmXxWELWclYD6yxrmE1iW7L57Ex2Bfsbdi97TFNDc6pmrGaRZp3mcc0BDsax4PA52ZxKziHODc57LQMtPy2x1mqtZq1%2BrTfaetq%2B2mLtcu0W7eva73VwnUCdLJ31Om0693UJuja6UbqFutt1z%2Bo%2B02PreekJ9cr1Dund0Uf1bfSj9Rfq79bv0R83MDQINpAZbDE4Y%2FDMkGPoa5hpuNHwhOGoEctoupHEaKPRSaMnuCbuh2fjNXgXPmasbxxirDTeZdxrPGFiaTLbpMSkxeS%2BKc2Ua5pmutG003TMzMgs3KzYrMnsjjnVnGueYb7ZvNv8jYWlRZzFSos2i8eW2pZ8ywWWTZb3rJhWPlZ5VvVW16xJ1lzrLOtt1ldsUBtXmwybOpvLtqitm63Edptt3xTiFI8p0in1U27aMez87ArsmuwG7Tn2YfYl9m32zx3MHBId1jt0O3xydHXMdmxwvOuk4TTDqcSpw%2BlXZxtnoXOd8zUXpkuQyxKXdpcXU22niqdun3rLleUa7rrStdP1o5u7m9yt2W3U3cw9xX2r%2B00umxvJXcM970H08PdY4nHM452nm6fC85DnL152Xlle%2B70eT7OcJp7WMG3I28Rb4L3Le2A6Pj1l%2Bs7pAz7GPgKfep%2BHvqa%2BIt89viN%2B1n6Zfgf8nvs7%2Bsv9j%2Fi%2F4XnyFvFOBWABwQHlAb2BGoGzA2sDHwSZBKUHNQWNBbsGLww%2BFUIMCQ1ZH3KTb8AX8hv5YzPcZyya0RXKCJ0VWhv6MMwmTB7WEY6GzwjfEH5vpvlM6cy2CIjgR2yIuB9pGZkX%2BX0UKSoyqi7qUbRTdHF09yzWrORZ%2B2e9jvGPqYy5O9tqtnJ2Z6xqbFJsY%2BybuIC4qriBeIf4RfGXEnQTJAntieTE2MQ9ieNzAudsmjOc5JpUlnRjruXcorkX5unOy553PFk1WZB8OIWYEpeyP%2BWDIEJQLxhP5aduTR0T8oSbhU9FvqKNolGxt7hKPJLmnVaV9jjdO31D%2BmiGT0Z1xjMJT1IreZEZkrkj801WRNberM%2FZcdktOZSclJyjUg1plrQr1zC3KLdPZisrkw3keeZtyhuTh8r35CP5c%2FPbFWyFTNGjtFKuUA4WTC%2BoK3hbGFt4uEi9SFrUM99m%2Fur5IwuCFny9kLBQuLCz2Lh4WfHgIr9FuxYji1MXdy4xXVK6ZHhp8NJ9y2jLspb9UOJYUlXyannc8o5Sg9KlpUMrglc0lamUycturvRauWMVYZVkVe9ql9VbVn8qF5VfrHCsqK74sEa45uJXTl%2FVfPV5bdra3kq3yu3rSOuk626s91m%2Fr0q9akHV0IbwDa0b8Y3lG19tSt50oXpq9Y7NtM3KzQM1YTXtW8y2rNvyoTaj9nqdf13LVv2tq7e%2B2Sba1r%2Fdd3vzDoMdFTve75TsvLUreFdrvUV99W7S7oLdjxpiG7q%2F5n7duEd3T8Wej3ulewf2Re%2FranRvbNyvv7%2ByCW1SNo0eSDpw5ZuAb9qb7Zp3tXBaKg7CQeXBJ9%2BmfHvjUOihzsPcw83fmX%2B39QjrSHkr0jq%2Fdawto22gPaG97%2BiMo50dXh1Hvrf%2Ffu8x42N1xzWPV56gnSg98fnkgpPjp2Snnp1OPz3Umdx590z8mWtdUV29Z0PPnj8XdO5Mt1%2F3yfPe549d8Lxw9CL3Ytslt0utPa49R35w%2FeFIr1tv62X3y%2B1XPK509E3rO9Hv03%2F6asDVc9f41y5dn3m978bsG7duJt0cuCW69fh29u0XdwruTNxdeo94r%2Fy%2B2v3qB%2FoP6n%2B0%2FrFlwG3g%2BGDAYM%2FDWQ%2FvDgmHnv6U%2F9OH4dJHzEfVI0YjjY%2BdHx8bDRq98mTOk%2BGnsqcTz8p%2BVv9563Or59%2F94vtLz1j82PAL%2BYvPv655qfNy76uprzrHI8cfvM55PfGm%2FK3O233vuO%2B638e9H5ko%2FED%2BUPPR%2BmPHp9BP9z7nfP78L%2FeE8%2Fsl0p8zAAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6JQAAgIMAAPn%2FAACA6QAAdTAAAOpgAAA6mAAAF2%2BSX8VGAAADbUlEQVR42jyTS2xUZQCFv%2Fuae2c605m004pObcHSNlQxNVVjolJKExeSqFFTjSbiEiTBlQlERSEu1BAf8YVhRbAhwS5qbBOKwaJFJSpEWqqtUGkHnFennced5339LgCXZ%2FF9yTnJkSbFGQQCA50gDQQwAGmjjf0uOHdfI2ktkfgwRebbjFjNIeFJSAAc5j3UW0EgkJH6VOQOA%2F3l2SvmU8eO%2F0Jjj6h2DsuvrYncC57kTsoonwghLAAkUG1sBAI%2F%2Bu6gG3wrX3Qi0Yhwps%2BtuC8ObVe%2BHPvG9%2Fe%2FiXY12ri%2BeSBxr76OulvyPsUTEAW5So069XYDfe%2FRkd9bXn%2F7O21sfEaJRsP0bmqjko4rW8otwUFza2B5qixLrvWS8NydAhECkH1o%2BNDaV%2BpmIJFzvEOvDnPi60u%2BiVMLimVb1InQf18fXV1hkmcdY%2Fl4qLsSdw54jrMHQDbQCREshHUtK%2FvLTiwaZttDPcxMjeIiISQJG5V0agH7ohLqjQ%2BGFyfzoVq21A8gy8iPB4R%2FrF6TW%2FsfvrN6ZOIndjzxCN29vfg1BSMYQtINEisVhp8d4raOZkrJglpNVUIAqsDZfWZ6ecOfv9kik0%2B5cgl2PTPAsY%2F3EwupHNjzPBtaI1xKV%2BlZ18zE9F%2F4FMWzcrUCgHyFq9GTZ%2F%2Bo73xsUN6xdYs2PjrGzxcu0xltoFhz2RhroebCk4P3s7mnk1RujUCjZrl1dwlAnmH%2BQsNgobzv8xHx4OYu3jz4BsgqcdMlYVosZ8vEc1WSRYuFhEmpVBBGg2whSSkAtVSpfhDqqnZnes%2F37f%2Fi9qZDe4dJ56ospk2EBzXHo2J7uK7EcrJIfnXRa%2FPXK5KmzQHIbtm%2B7NTEO7FtFM5d%2B6F2dHyebBXyVYcV0yZrWuRLNmXbY3b%2BOhUz5blK1VYNLX5jRE8gycoUhnVy%2FfbycyMnRn0l92m5LdaEKwS27eAKiYWFBD%2BePk3LJsdDVc7DjQqy53iAQNX19%2F13WXOhgfnSVyNHnIvzCXJmmTWzTLZY4tfpWRTfP44%2FtraqBvXDXt1dBVBvPglgSdW1XY33FD9yy9KjM%2BnP3JnMmuQ5IKFIXiQkWu%2BwfIFYaFrW1e9vMjcFtySCOTXYsC%2FyQPmVSjJz3a44V3GE4iG0YEduyBc2MJoiB4UQ%2F2P%2FDQC4FLDk%2Fwu18gAAAABJRU5ErkJggg%3D%3D');
 }
@@ -11,7 +7,7 @@
   opacity:1.0;
 }
 %23GrabScroll-image[status='false'] {
-  opacity:0.5;
+  opacity:0.3;
 }
 " type="text/css"?>
 
@@ -19,23 +15,22 @@
      xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <!--
 // ==UserScript==
-// @name           GrabScroll4
+// @name           GrabScroll_Fx29.uc.xul
 // @namespace      http://pc11.2ch.net/test/read.cgi/software/1168635399/
 // @description    This script allow scroll with drag screen. If you want to do select text, press alt Key
 // @include        main
-// @include        chrome://global/content/viewSource.xul
-// @include        chrome://global/content/viewPartialSource.xul
-// @compatibility  Firefox 2.0 3.0 3.5 3.6a2pre 3.7a1pre WinXP
+// @compatibility  Firefox 29+
 // @author         Original DragImage.uc.js
 // @Modifier       Alice0775
 // @Note           文字列を選択したいときは,左click後にTIMER以内に選択開始する,またはaltKeyを押しながら選択
 // @Note           altキーを押しながらドラッグで文字列を選択
 // @Note           clickとmouseupのタイミングはWInXPの時 -mouseup-clickの順, 他のOSは知らん
 // @Note           shiftキーを押しながらドラッグでスクロール
+// @version        2015/05/12 08:30 Working on Firefox29+
+// ==/UserScript==
 // @version        2013/09/13 00:00 Bug 856437 Remove Components.lookupMethod
 // @version        2013/04/14 21:00 checking element using Ci.nsIImageLoadingContent instead of HTMLImageElement
 // @version        2013/01/08 02:00 Bug 827546
-// ==/UserScript==
 // @version        2012/01/30 01:00 pagehide, this.xxx = null;
 // @version        2011/10/30 Bug 684821 - Remove nsIDOMNSHTMLElement 
 // @version        2011/10/18 22:00 オーバーフロウなしのiframeの場合は親ドキュメント
@@ -115,6 +110,33 @@ var GrabScroll = {
   _window: null,
 
   initGrabScroll: function() {
+    Components.utils.import("resource:///modules/CustomizableUI.jsm");
+    CustomizableUI.createWidget({ //must run createWidget before windowListener.register because the register function needs the button added first
+      id: 'GrabScroll-image',
+      type: 'custom',
+      defaultArea: CustomizableUI.AREA_NAVBAR,
+      onBuild: function(aDocument) {
+        var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
+        var props = {
+          id: 'GrabScroll-image',
+          align: 'center',
+          removable: 'true',
+          overflows: true,
+          class: "toolbarbutton-1 chromeclass-toolbar-additional",
+          label: "GrabScroll",
+          status: "false",
+          tooltiptext: "GrabScroll",
+          oncommand: "GrabScroll.toggle();",
+        };
+        for (var p in props) {
+          toolbaritem.setAttribute(p, props[p]);
+        }
+        
+        return toolbaritem;
+      }
+    });
+
+    
     if (GrabScroll.activeBrowser().mPanelContainer) {
       this._window = GrabScroll.activeBrowser().mPanelContainer;
     } else {
@@ -1051,16 +1073,4 @@ window.addEventListener("unload", function(){ GrabScroll.uninitGrabScroll(); }, 
       </menupopup>
     </menu>
   </menupopup>
-
-  <statusbar id="status-bar">
-    <statusbarpanel id="GrabScroll-status">
-      <image
-        id="GrabScroll-image"
-        label=""
-        status="false"
-        tooltiptext="GrabScroll an | aus"
-        onclick="GrabScroll.toggle();" />
-     </statusbarpanel>
-  </statusbar>
-
 </overlay>
