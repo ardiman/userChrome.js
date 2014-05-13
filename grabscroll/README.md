@@ -1,6 +1,6 @@
 # Grab Scroll
-Das Skript bringt ein komplettes Einstellungs-Menü unter "Extras" und einen kleinen Button in der Statusbar zum 
-schnellen Ein-/Ausschalten mit. Damit wird die Scrollfunktion mithilfe einer beliebigen Maustaste gesteuert. 
+Das Skript bringt ein komplettes Einstellungs-Menü unter "Extras" und einen kleinen Button zum Ausschalten, der über das "Anpassen" 
+Fenster frei positioniert werden kann. Damit wird die Scrollfunktion mithilfe einer beliebigen Maustaste gesteuert. 
 Es gibt einige Einstellungen zum Scrollverhalten, Zeit, Geschwindigkeit, Tastenauswahl usw.. 
 Mittels `about:config` kann man bei Bedarf Seiten vom Scrollverhalten ausschliessen (`grabScroll.disable.url`), genau so 
 wie das Markieren vom Text mithilfe der Alt-Taste.
