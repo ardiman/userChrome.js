@@ -7,5 +7,5 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Revert Sidebar Toggle Button](https://github.com/ardiman/userChrome.js/raw/master/revertsidebartogglebutton/scr_revertsidebartogglebutton.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.xul-Datei in den Chromeordner des Profils.
 
