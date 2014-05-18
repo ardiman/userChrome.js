@@ -7,5 +7,5 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Revert Stop Reload Button](https://github.com/ardiman/userChrome.js/raw/master/revertstopreloadbutton/scr_revertstopreloadbutton.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils.
+Kopiere die uc.xul-Datei in den Chromeordner des Profils.
 
