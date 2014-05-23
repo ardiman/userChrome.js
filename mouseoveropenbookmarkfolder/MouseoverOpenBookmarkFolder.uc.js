@@ -8,11 +8,9 @@
 // ==/UserScript==
 
 (function() {
-    var personalBookmark = document.getElementById('personal-bookmarks'),
-        items = [], folders = [], folder, item, i;
+    var items = document.querySelectorAll('#PlacesToolbarItems > .bookmark-item'),
+        folders = [], folder, item, i;
 
-    if (!personalBookmark) return;
-    items = personalBookmark.getElementsByClassName('bookmark-item');
     // ブックマークフォルダだけ配列につっこんでイベント監視
     for (i = 0; i < items.length; i++) {
         item = items[i];
@@ -40,7 +38,7 @@
             item.open = true;
         }
     }
-    function d(s) {
+    /*function d(s) {
         document.getElementById("liberator-message").value = s;
-    }
+    }*/
 })();

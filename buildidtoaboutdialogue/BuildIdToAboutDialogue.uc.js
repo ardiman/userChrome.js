@@ -1,6 +1,20 @@
-/** Build-ID im About-Dialog (Über Firefox) **/
+// ==UserScript==
+// @name           addBuildIdToAboutDialogueBox.uc.js
+// @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
+// @description
+// @include        chrome://browser/content/aboutDialog.xul
+// @compatibility  Firefox 3.0 3.1
+// @author         Alice0775
+// @version        2014/05/22 23:00 size of window
+// @version        2013/02/11 23:00 Bug 755724
+// @version        2008/11/22 12:00
+// @Note           Help > About画面に にBuilsIDを付加するとともにクリップボードにUA+IDをコピー
+// ==/UserScript==
 var addBuildid = {
   buildid: function (){
+    return navigator.buildID;
+    /*
+    // after Fx1.5
     if ("@mozilla.org/xre/app-info;1" in Components.classes &&
         Components.classes["@mozilla.org/xre/app-info;1"]
           .getService(Components.interfaces.nsIXULAppInfo) &&
@@ -9,82 +23,49 @@ var addBuildid = {
      var buildid = Components.classes["@mozilla.org/xre/app-info;1"]
                          .getService(Components.interfaces.nsIXULAppInfo).appBuildID;
     return buildid;
+    */
   },
+
   addBuildid: function () {
+    var ua = this.convUA() + " ID:" + this.buildid();
+
     var userAgentField = document.getElementById("userAgent");
-    if (userAgentField) {
-      var ua = userAgentField.value;
-      var label = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 'description');
-      label.textContent = ua;
-      userAgentField.parentNode.appendChild(label);
-    } else {
-      ua = navigator.userAgent;
+    if (!userAgentField) {
       userAgentField = document.getElementById("rightBox");
       var label = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 'textbox');
       userAgentField = userAgentField.appendChild(label);
       userAgentField.setAttribute("id", "agent");
-      userAgentField.setAttribute("value", ua);
+      userAgentField.setAttribute("value", navigator.userAgent);
       userAgentField.setAttribute("multiline", true);
       userAgentField.setAttribute("rows", "5");
     }
-    var name = Components.classes["@mozilla.org/xre/app-info;1"]
-             .getService(Components.interfaces.nsIXULAppInfo).name +
-             "/" +
-             Components.classes["@mozilla.org/xre/app-info;1"]
-             .getService(Components.interfaces.nsIXULAppInfo).version;
-    ua.match(/(.*Gecko\/\d+\b)/);
-    ua = RegExp.$1 + " " + this.convUA(name) + " ID:" + this.buildid();
     userAgentField.value = this.getBuildSource() + "\n" + ua;
     userAgentField.setAttribute("value", this.getBuildSource() + "\n" + ua);
-    window.resizeBy(0, 120);
   },
-  convUA: function(ua){
-    var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                       .getInterface(Components.interfaces.nsIWebNavigation)
-                       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                       .rootTreeItem
-                       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                       .getInterface(Components.interfaces.nsIDOMWindow);
+
+  convUA: function(){
     var pref = Components.classes['@mozilla.org/preferences-service;1']
                          .getService(Components.interfaces.nsIPrefBranch);
     const kUA = "general.useragent.extra.firefox";
     const kUA2 = "general.useragent.override";
-    var UA = navigator.userAgent;
-    if (pref.prefHasUserValue(kUA) || pref.prefHasUserValue(kUA2)){
-      try {
-        var oldId = pref.getCharPref(kUA);
-        pref.clearUserPref(kUA);
-      } catch (e) {
-        oldId = "";
-      }
-      try {
-        var oldId2 = pref.getCharPref(kUA2);
-        pref.clearUserPref(kUA2);
-      } catch (e) {
-        oldId2 = "";
-      }
-      UA = navigator.userAgent;
-      if (!!oldId)
-        pref.setCharPref(kUA, oldId);
-      if (!!oldId2)
-        pref.setCharPref(kUA2, oldId2);
-    };
-    if (/Firefox/.test(UA))
-      return ua;
-    if (/4\.0[ab]?.?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'Minefield');
-    if (/3\.7[ab]?.?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'Minefield');
-    if (/3\.6[ab]?.?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'Namoroka');
-    if (/3\.5[ab]?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'Shiretoko');
-    if (/3\.1[ab]?.?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'Shiretoko');
-    if (/3\.0\.\d[ab]?.?\d?pre/.test(ua))
-      ua = ua.replace(/Firefox/, 'GranParadiso');
+    var oldId = "";
+    if (pref.prefHasUserValue(kUA)){
+      oldId = pref.getCharPref(kUA);
+      pref.clearUserPref(kUA);
+    }
+    var oldId2 = "";
+    if (pref.prefHasUserValue(kUA2)){
+      oldId2 = pref.getCharPref(kUA2);
+      pref.clearUserPref(kUA2);
+    }
+    ua = navigator.userAgent;
+    if (!!oldId)
+      pref.setCharPref(kUA, oldId);
+    if (!!oldId2)
+      pref.setCharPref(kUA2, oldId2);
     return ua;
   },
+
   copyUA: function (){
     var userAgentField = document.getElementById("userAgent");
     if (!userAgentField)
@@ -92,19 +73,28 @@ var addBuildid = {
     Components.classes["@mozilla.org/widget/clipboardhelper;1"]
       .getService(Components.interfaces.nsIClipboardHelper).copyString(userAgentField.value);
   },
+
   getBuildSource: function (){
     const Cc = Components.classes;
     const Ci = Components.interfaces;
     const ios = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
     const fph = ios.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler);
     const ds = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
+    var file = ds.get("CurWorkD", Ci.nsIFile);
     var file = ds.get("CurProcD", Ci.nsIFile);
+    if (/browser$/.test(file.path)) {
+	    var path = file.path.replace(/browser$/,"");
+			file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+			file.initWithPath(path);
+    }
     file.append("application.ini");
     var text = this.readFile(file);
     var SourceRepository = text.match(/SourceRepository=(.*)/)[1];
     var SourceStamp = text.match(/SourceStamp=(.*)/)[1];
+    //alert(SourceRepository + "/rev/" + SourceStamp);
     return SourceRepository + "/rev/" + SourceStamp;
   },
+
   readFile: function (aFile){
         var stream = Components.classes["@mozilla.org/network/file-input-stream;1"].
                                 createInstance(Components.interfaces.nsIFileInputStream);
@@ -119,7 +109,8 @@ var addBuildid = {
         }
         cvstream.close();
         return content.replace(/\r\n?/g, "\n");
-   }
+      }
 }
+
 addBuildid.addBuildid();
 addBuildid.copyUA();

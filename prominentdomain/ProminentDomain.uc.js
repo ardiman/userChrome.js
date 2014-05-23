@@ -3,9 +3,11 @@
 // @namespace
 // @description    Prominent Domain
 // @include        main
-// @compatibility  Firefox 6.0 7.0
+// @compatibility  Firefox 32.0a1
 // @author
-// @version        2013/07/12 17:00 by Alice0775  reset horizontal scroll
+// @version        2014/02/29 00:00 change workaround
+// @version        2014/02/28 00:00 Workaround Bug 1014246
+// @version        2013/07/12 17:00 by Alice0775  reset horizontal scroll (workaround Bug 893312)
 // @version        2012/12/05 21:00 by Alice0775  fixed getValidTld 
 // ==/UserScript==
 // @version        2012/11/24 23:00 by Alice0775  fixed key navigation
@@ -19,6 +21,7 @@
 var ProminentDomain = {
 
   init0: function() {
+
     var xpPref = Components.classes['@mozilla.org/preferences-service;1']
                   .getService(Components.interfaces.nsIPrefBranch2);
     try{
@@ -56,7 +59,8 @@ var ProminentDomain = {
       icons.insertBefore(this.label, icons.firstChild);
     }
 
-    this.init();
+    // Workaround Bug 1014246
+    setTimeout(function(){this.init();}.bind(this), 0);
 
     var self = this;
     window.addEventListener("unload", this, false);
@@ -115,6 +119,7 @@ var ProminentDomain = {
              addEventListener("overflow", this, false);
     document.getAnonymousElementByAttribute(gURLBar, "anonid", "input").
              addEventListener("underflow", this, false);
+
   },
 
   uninit: function(){
