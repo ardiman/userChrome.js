@@ -1,3 +1,5 @@
+/* AGENT_SHEET */
+
 @namespace url(http://www.w3.org/1999/xhtml);
 
 @-moz-document domain(www.wetterkontor.de) {
@@ -61,3 +63,26 @@
 	}
 }
 
+@-moz-document domain(www.wetter.net) {
+	#menu,.rahmen,.schatten_links,.schatten_rechts,#breadcrumb,#content_home_titel > TBODY > TR > TD > DIV:nth-child(2),#container_ortszeit,#content_links > TABLE:last-child > TBODY > TR > TD > TABLE:nth-child(2),#content_links > TABLE:last-child > TBODY > TR > TD > TABLE:last-child,#rahmen_inhalt > TABLE > TBODY > TR:last-child,#topmenu > TBODY > TR:first-child,#zeitClient_Container,#buehne,#content_links > TABLE:first-child,#rahmen_inhalt > TABLE > TBODY > TR:nth-child(2),#rahmen_inhalt > TABLE > TBODY > TR:first-child,#wetterseite > NOSCRIPT,.tab_infos.inaktiv,#content_links > TABLE:last-child > TBODY > TR > TD > B,#content_links > TABLE:last-child > TBODY > TR > TD > A{
+		display: none !important;
+	}
+	#topmenu {
+		background: none !important;
+		margin-bottom: -60px !important;
+	}
+	#topmenu > TBODY > TR:last-child > TD > FORM > TABLE{
+		margin-top: 50px !important;
+		margin-left: 615px !important;
+	}
+	#content_home_titel{
+		width: 450px !important;
+	}
+	#rahmen_inhalt{
+		width: 820px !important;
+		margin-top: -70px !important;
+	}
+	body {
+		overflow: hidden !important;
+	}
+}
