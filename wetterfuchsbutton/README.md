@@ -14,8 +14,8 @@ Mit einem **Links-Doppelklick** auf den Button öffnet ein Panel, in dem **lokal
 
 ![Screenshot Wetterfuchsbutton Doppel-Linksklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_linksdoppelklick.png)
 
-Über den **Rechtsklick** gibt es Wetter für nur eine vorher selbst **bestimmte Adresse/Ort**. Aktuell mit Details und - sofern man scrollen kann 
-(s. unten) - für zwei Tage mit Details, 5 Tage Vorschau und umfangreiches Biowetter, sowie aktuelle lokale Warnmeldungen:
+Über den **Rechtsklick** gibt es einige Wetterinfos mit der zusätzlichen Möglichkeit über die Suchleiste, temporär auch andere 
+Städte jeweils anzuzeigen.
 
 ![Screenshot Wetterfuchsbutton Rechtsklick](https://github.com/ardiman/userChrome.js/raw/master/wetterfuchsbutton/scr_wfb_panel_rechtsklick.png)
 
@@ -28,15 +28,15 @@ In allen geöffneten Wetterfenstern kann mit den Pfeiltasten der Tastatur gescro
 "Smooth Wheel" oder "Yet Another Smooth Scrolling" klappt das Scrollen auch mit dem Mausrad.
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils und füge den Button zur gewünschten Symbolleiste hinzu, indem du `TOOLBAR` und `TARGET_BUTTON` 
-anpasst. Der Throbber kann durch Änderung von `wfthrobber` eingestellt werden.
+Kopiere die uc.js-Datei in den Chromeordner des Profils und füge den Button zur gewünschten Symbolleiste hinzu, indem du ihn per 
+**Anpassen** an die gewünschte Stelle ziehst. Der Throbber kann durch Änderung von `wfthrobber` eingestellt werden.
 
 Die zu öffnenden Seiten werden im Objekt `urlobj` ab **Zeile 10** angegeben. Neben dem Bezeichner werden die Adresse (url), Breite (width) und 
 Höhe (width) eingetragen. Anhand des Bezeichners ist zu erkennen, welche Aktion bzw. welcher Menüpunkt definiert wird. Es folgt eine Auswahl der 
 Bezeichner, die angepasst werden sollten.
 
-### Für den Rechtsklick (Wetterkontor Lokalwetter)
-Als Erstes geht man auf http://www.wetterkontor.net , sucht über die Wettersuche-Searchbar dort nach einem "Wunschort". Nach deren Auswahl die URL 
+### Für den Rechtsklick (Wetter.net Lokalwetter)
+Als Erstes geht man auf http://www.wetter.net , sucht über die Wettersuche-Searchbar dort nach einem "Wunschort". Nach deren Auswahl die URL 
 kopieren und im Objekt `urlobj` den Bezeichner `MO_Rechtsklick` suchen, anschliessend die Adresse zwischen den `""` hinter `url:` einfügen.
 
 ### Für den Doppel-Linksklick (MSN Lokalwetter)
