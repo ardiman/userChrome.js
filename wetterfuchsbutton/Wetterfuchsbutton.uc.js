@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 8.*,12.*,13.*,14.*,15.*,16.*,17.*,18.*,19.*,20.*,21.*,22.*,23.*,24.*,25.*,26.*,27.*
+// @compatibility  Firefox 29.*
 // @include        main
-// @version        1.0.20140225
+// @version        1.0.20140602
 // ==/UserScript==
 
 var wetterfuchs = {
   urlobj: {
     MO_Doppelklick: {url:"http://wetter.msn.com/local.aspx?wealocations=wc:GMXX0007&q=Berlin%2c+BE",width:615,height:445},
-    MO_Rechtsklick: {url:"http://www.wetterkontor.de/de/wetter/deutschland/vorhersage.asp?w=view&sc=Berlin&lookfor=13407",width:478,height:338},
+    MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:442},
     MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
     DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
     DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
@@ -85,7 +85,18 @@ var wetterfuchs = {
 	</toolbarbutton>'
     );
     var mywfButton = document.getElementById('wetterfuchs-toolbarbutton');
-    document.getElementById(this.TOOLBAR).insertBefore(mywfButton, document.getElementById(this.TARGET_BUTTON));
+    document.getElementById('navigator-toolbox').palette.appendChild(mywfButton);
+    var toolbars = document.getElementsByTagName('toolbar');
+    for (var i=0; i<toolbars.length; i++) {
+      var currentset = toolbars[i].getAttribute('currentset');
+      if (currentset.split(',').indexOf('wetterfuchs-toolbarbutton') >= 0) {
+        var j;
+        if (i == 0) j = 1
+        else j = 0;
+        toolbars[j].currentSet += ',' + 'wetterfuchs-toolbarbutton';
+        toolbars[i].currentSet = currentset;
+      };
+    };
   },
   init: function() {
     this.createBtn();
