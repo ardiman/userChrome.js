@@ -8,7 +8,7 @@ display: none;
 
 <overlay id="popupTranslate"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         xmlns:html="http://www.w3.org/1999/xhtml"
          >
 <!--
 // ==UserScript==
@@ -18,8 +18,10 @@ display: none;
 // @note                              基本的にメニューでxxx英日を選んでおくこと
 // @include        main
 // @include        chrome://messenger/content/messageWindow.xul
-// @compatibility  Firefox 10-32a1, Tb10-32a1
+// @compatibility  Firefox 27+
 // @author         Alice0775
+// @version        2014/06/20 06:00 remove a trailing comma(,)
+// @version        2014/06/09 12:00 時々sendが失敗する
 // @version        2014/05/03 00:00 Google翻訳仕様変更のため
 // @version        2013/02/19 09:00 isJapanese簡易判定
 // @version        2012/10/07 09:00 動かないもの削除
@@ -75,26 +77,13 @@ display: none;
       // 足切り1024文字
       MaximumStringLength : 2024,
       //選択テキストがアルファベットでないなら DefaultJapaneseToOther で翻訳
-      DefaultJapaneseToOther : "Yahoo Translate 日英",
+      DefaultJapaneseToOther : "Google Auto DE",
 
       timer: null,
       kXULNS:"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-      TIMEOUT: 3000,
+      TIMEOUT: 20000,
 
       mMenus: [
-        /*
-        {
-          Description:"メニュー表示名",
-          method:'リクエストの方法POSTまたはGET',
-          Referer:'リファラーのURL',
-          action:"送信先URL(選択テキストは%%SEL%%と置き換わる)",
-          post:"POSTの場合のpostdata(選択テキストは%%SEL%%と置き換わる)",
-          code:"サイトのエンコード方法UTF-8,Shift_JIS,EUC-JPとか",
-          xpath:'翻訳結果の入っているHTML要素のxpath式',
-          start:"xpathを使用しない場合, 翻訳結果の直前にあるHTML文書の文字列(正規表現の\は\\とする)",
-          end:"xpathを使用しない場合, 翻訳結果の直後にあるHTML文書の文字列(正規表現の\は\\とする)",
-        },
-        */
 
         {
           Description:"Google Auto DE",
@@ -116,7 +105,7 @@ display: none;
           xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
         },
 
-        {
+/*        {
           Description:"Babelfish EN-DE",
           method:"POST",
           Referer:"http://babelfish.yahoo.com/translate_txt",
@@ -135,7 +124,7 @@ display: none;
           code:"UTF-8",
           xpath:'.//div[@id="result"]/div'
         },
-
+*/
         {
           Description:"Bing Auto DE",
           method:'GET',
@@ -324,7 +313,7 @@ display: none;
         req.open('GET', url, false);
         req.send(null);
         if(req.status == 200)
-          return req.responseText == '"ja"';
+          return req.responseText == '"de"';
         else
           return false;
       },
@@ -427,7 +416,7 @@ display: none;
             } catch (e) {}
           },
           onerror:function(e) {
-            self.show("Fehler " + e.status + "  beim Empfang des Dokuments.");
+            self.show("Fehler " + e.status + " beim Empfang des Dokuments.");
           },
           ontimeout:function() {
             self.show("Zeitüberschreitung");
@@ -471,7 +460,7 @@ display: none;
                     'Cookie': cookie
                    } :
                    {'Referer': engine.Referer,
-                    'Content-Type':'application/x-www-form-urlencoded',
+                    'Content-Type':'application/x-www-form-urlencoded'
                    },
           onload:function(details) {
             var txt = details.responseText.toString();
@@ -495,11 +484,7 @@ display: none;
                node = hdoc = result = null;
               }
             } catch (e) {self.show("Übersetzung fehlgeschlagen");}
-
-
-            res = res.replace(/<br>/ig,'  ').replace(/<p>/ig,'  ').
-                      replace(/&quot;/g,'"').replace(/&amp;/g,'&').
-                      replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+            res = res.replace(/\n/g,'<html:br />');
             if(res != null && res !=='') {
               self.show(res);
             } else {
@@ -507,7 +492,7 @@ display: none;
             }
           },
           onerror:function(e) {
-            self.show("Fehler " + e.status + " beim Empfang des Dokuments");
+            self.show("Fehler " + e.status + " beim Empfang des Dokuments.");
           },
           ontimeout:function() {
             self.show("Zeitüberschreitung");
@@ -570,10 +555,10 @@ display: none;
         });
 
         if(obj.overrideMimeType) req.overrideMimeType(obj.overrideMimeType);
-        setTimeout(function(){
-        if(typeof obj.data == 'string') req.send(obj.data); //may be for post
-        else req.send(null);                                //may be for gett
-        }, 0);
+        setTimeout(function() {
+            if(typeof obj.data == 'string') req.send(obj.data); //may be for post
+            else req.send(null);                                //may be for gett
+        }, 100);
       },
 
       show: function(res){
@@ -596,10 +581,7 @@ display: none;
 
       setValue: function(val){
         var label = document.getElementById("translationResultPopupLabel");
-        while(label.firstChild){
-          label.removeChild(label.firstChild);
-        }
-        if(val!="") label.appendChild(document.createTextNode(val));
+        label.innerHTML = val;
       },
 
       sizeChange: function(){
@@ -771,7 +753,7 @@ display: none;
     <popup id="translationResult"
            style="-moz-appearance:tooltip;display:-moz-popup;font:message-box;background-color:InfoBackground;color:InfoText;border: 1px solid InfoText;width:650px;font-size:14px;">
       <vbox id="translationResultPopupBox">
-        <label id="translationResultPopupLabel" flex="1" onclick="popupTranslate.copyToClipboard(this.textContent);"/>
+        <html:div id="translationResultPopupLabel" type="content" flex="1" onclick="popupTranslate.copyToClipboard(this.textContent);"/>
       </vbox>
     </popup>
   </popupset>

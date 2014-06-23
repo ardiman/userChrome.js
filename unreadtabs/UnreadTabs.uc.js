@@ -6,6 +6,7 @@
 // @include        main
 // @modified by    Alice0775
 // @compatibility  4.0b8pre - 9
+// @version        2014/06/21 07:00 Fixed due to Bug 996053 
 // @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
 // ==/UserScript==
 // @version        2011/10/16 12:00 エラー
@@ -30,12 +31,12 @@
 var unreadTabs = {
   // -- config --
   CONTENT_LOAD: true, // [true]: Tab wird laden, false: Erst laden, wenn neuer und ungelesener Tab
-  CHECK_MD5: true, // CONTENT_LOAD=true, wenn
+  CHECK_MD5:    true, // CONTENT_LOAD=true, wenn
                           // true: Prüfung des MD5 der ungelesenen Tabs, [false]: Keine Prüfung
                           // (auch frame-Tab wird mit false gleich behandelt)
 
   READ_SCROLLCLICK: false,// true: Scrollen, oder Klicken des Tabs [false]: Tabauswahl und lesen
-  TABCONTEXTMENU: true, // Tab-Kontextmenü-Eintrag:"Markierung für ungelesene Tabs entfernen" [ture]: Einblenden, false: Ausblenden
+  TABCONTEXTMENU:   true, // Tab-Kontextmenü-Eintrag:"Markierung für ungelesene Tabs entfernen" [ture]: Einblenden, false: Ausblenden
   READ_TIMER: 900, // Umschaltzeit während der Tabauswahl READ_TIMER(msec)
 
   UNREAD_COLOR: 'red', // Farbe rot: ungelesen
@@ -194,7 +195,7 @@ var unreadTabs = {
     var menuitem = tabContext.appendChild(
                         document.createElement("menuitem"));
     menuitem.id = "removeunreadalltabs";
-    menuitem.setAttribute("label", "Markierung für ungelesene Tabs entfernen");
+    menuitem.setAttribute("label", "Markierung f\u00FCr ungelesene Tabs entfernen");
     menuitem.setAttribute("accesskey", "M");
     menuitem.setAttribute("oncommand","unreadTabs.removeUnreadForAllTabs();");
   },
@@ -227,24 +228,23 @@ var unreadTabs = {
   // タブの状態をセッションデータに保存
   saveUnreadForTab: function (aTab){
     if (aTab.hasAttribute("unreadTab"))
-      this.ss.setTabValue(aTab, "unreadTab", true);
+      this.ss.setTabValue(aTab, "unreadTab", "true");
     else {
       //try {
         this.checkCachedSessionDataExpiration(aTab);
-        this.ss.setTabValue(aTab, "unreadTab", '');
-        //this.ss.deleteTabValue(aTab, "unreadTab");
+        this.ss.deleteTabValue(aTab, "unreadTab");
       //} catch(e) {}
     }
   },
 
   // タブの状態をセッションデータから復元
   restoreUnreadForTab: function(aTab){
-    var retrievedData = this.ss.getTabValue(aTab, "unreadTab");
+    var retrievedData = this.ss.getTabValue(aTab, "unreadTab") == "true";
 //window.userChrome_js.debug( "restoreUnreadForTab " + !!retrievedData)
-    if(typeof retrievedData != 'undefined' && retrievedData)
-      aTab.setAttribute('unreadTab', true);
-    else
+    if (typeof retrievedData == 'undefined' || !retrievedData)
       aTab.removeAttribute('unreadTab');
+    else
+      aTab.setAttribute('unreadTab', true);
     return retrievedData;
   },
 
@@ -255,11 +255,8 @@ var unreadTabs = {
     if (aTab.hasAttribute('md5'))
       this.ss.setTabValue(aTab, "md5", aTab.getAttribute('md5'));
     else {
-      //try {
-        this.checkCachedSessionDataExpiration(aTab);
-        this.ss.setTabValue(aTab, "md5", '');
-        //this.ss.deleteTabValue(aTab, "md5");
-      //} catch(e) {}
+      this.checkCachedSessionDataExpiration(aTab);
+      this.ss.deleteTabValue(aTab, "md5");
     }
   },
 
@@ -268,10 +265,10 @@ var unreadTabs = {
     if (!this.CHECK_MD5)
       return;
     var retrievedData = this.ss.getTabValue(aTab, "md5");
-    if(typeof retrievedData != 'undefined' && retrievedData)
-      aTab.setAttribute('md5', retrievedData);
-    else
+    if(typeof retrievedData == 'undefined')
       aTab.removeAttribute('md5');
+    else
+      aTab.setAttribute('md5', retrievedData);
     return retrievedData;
   },
 
@@ -349,6 +346,8 @@ var unreadTabs = {
         break;
       case 'SSTabRestoring':
         event.target.setAttribute('unreadTabs-restoring', true)
+        this.restoreUnreadForTab(event.target);
+        this.restoreMD5ForTab(event.target);
         break;
       case 'SSTabRestored':
         this.initTab(event.target);
@@ -412,6 +411,7 @@ unreadTabsEventListener.prototype = {
   contentLoad: function(aEvent){
       var aTab = this.mTab;
 /**/
+
       if (aTab.unreadtimer)
         clearTimeout(aTab.unreadtimer);
       if (aTab.hasAttribute('busy') && unreadTabs.CONTENT_LOAD && unreadTabs.CHECK_MD5) {
@@ -423,8 +423,8 @@ unreadTabsEventListener.prototype = {
       var doc = aTab.linkedBrowser.contentDocument;
       var md5 = null;
       var prevmd5 = null;
-      if (unreadTabs.CHECK_MD5) {
-        md5 = this.calculateHashFromStr(this.getTextContentForDoc(doc));
+      if (unreadTabs.CHECK_MD5 && !aTab.hasAttribute('pending')) {
+        md5 = this.calculateHashFromStr(this.getTextContentForDoc(doc)).toString();
         if (aTab.hasAttribute('md5')) {
           prevmd5 = aTab.getAttribute('md5');
         }
@@ -458,7 +458,7 @@ unreadTabsEventListener.prototype = {
     try {
       if (aDocument.body) {
         var str = aDocument.body.textContent;
-        return str.replace(/\b\d{1,2}\b/g,'').replace(/\b\d{1,16}\b/g,'').replace(/\s/g,'');
+        return str.replace(/\b\d{1,2}\b/g,'').replace(/\b\d{1,16}\b/g,'');
       }
     } catch(e) {
     }

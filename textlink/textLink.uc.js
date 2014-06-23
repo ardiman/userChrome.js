@@ -11,6 +11,10 @@
 // @note           ctrl + Left DblClick : open current tab
 // @note           shift + Left DblClick: save as link
 // @note           全角で書かれたURLを解釈するには,user.jsにおいて,user_pref("network.enableIDN", true);
+// @version        2014/06/18 12:30 remove experiments e10s
+// @version        2014/06/18 07:10 experiments e10s event
+// @version        2014/06/18 07:04 experiments e10s
+// @version        2014/06/18 07:00 experiments e10s
 // @version        2014/03/15 06:00 Fix Issue#21
 // @version        2013/09/13 00:00 Bug 856437 Remove Components.lookupMethod
 // @version        2013/05/15 06:00 should open like http://graphs.mozilla.org/graph.html#tests=[[205,63,8]]&sel=none&displayrange=90&datatype=running
