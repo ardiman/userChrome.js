@@ -21,63 +21,59 @@
 (function minMaxCloseButton() {
 // 添加按钮：
 	
-		function createBtn() {
-	        var navigator = document.getElementById("navigator-toolbox");
-			if (!navigator || navigator.palette.id !== "BrowserToolbarPalette") return;
-			var BrowserManipulateBtn = document.createElement("toolbarbutton");
-			BrowserManipulateBtn.id = "minMaxClose-button";/* 你的扩展 ID */
-			BrowserManipulateBtn.setAttribute("type", "button");
-			BrowserManipulateBtn.setAttribute("onclick", "BrowserManipulateCombine.onClick(event);");//MinToTray扩展gMinTrayR.minimize();
-			BrowserManipulateBtn.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
-			BrowserManipulateBtn.setAttribute("removable", "true");
-			BrowserManipulateBtn.setAttribute("oncontextmenu","return false");//remove original button context menu
-			BrowserManipulateBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAO0lEQVQ4jWNgYGD4jwWTBCg2gBSDSTKcYgNwGUqRzfQzAJcYxQYQBahiAE0SF7pBVEn2VHEJ/VyANQwACylDvQ9eqkEAAAAASUVORK5CYII=)";
-			
-			const localeString = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale");
-			
-			const labelText = localeString.indexOf("zh") == -1?"Browser Manipulator":"\u6D4F\u89C8\u5668\u63A7\u5236\u6309\u94AE";//create variable Label & tooltip in languages
-			
-			const tooltipText = localeString.indexOf("zh") == -1?"Linksklick: Minimieren\nMittelklick: Wiederherstellen\nRechtsklick: Beenden":"\u5DE6\u952E\uFF1A\u6700\u5C0F\u5316\n\u4E2D\u952E\uFF1A\u6062\u590D\n\u53F3\u952E\uFF1A\u5173\u95ED\u6D4F\u89C8\u5668";
-
-			BrowserManipulateBtn.setAttribute("label", labelText);
-			BrowserManipulateBtn.setAttribute("tooltiptext", tooltipText);//提示工具条
-			
-			navigator.palette.appendChild(BrowserManipulateBtn);
+	function createBtn() {
+		var navigator = document.getElementById("navigator-toolbox");
+		if (!navigator || navigator.palette.id !== "BrowserToolbarPalette") return;
+		var BrowserManipulateBtn = document.createElement("toolbarbutton");
+		BrowserManipulateBtn.id = "minMaxClose-button";/* 你的扩展 ID */
+		BrowserManipulateBtn.setAttribute("type", "button");
+		BrowserManipulateBtn.setAttribute("onclick", "BrowserManipulateCombine.onClick(event);");//MinToTray扩展gMinTrayR.minimize();
+		BrowserManipulateBtn.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
+		BrowserManipulateBtn.setAttribute("removable", "true");
+		BrowserManipulateBtn.setAttribute("oncontextmenu","return false");//remove original button context menu
+		BrowserManipulateBtn.style.listStyleImage = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAO0lEQVQ4jWNgYGD4jwWTBCg2gBSDSTKcYgNwGUqRzfQzAJcYxQYQBahiAE0SF7pBVEn2VHEJ/VyANQwACylDvQ9eqkEAAAAASUVORK5CYII=)";					
+		const localeString = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale");			
+		const labelText = localeString.indexOf("zh") == -1?"Browser Manipulator":"\u6D4F\u89C8\u5668\u63A7\u5236\u6309\u94AE";//create variable Label & tooltip in languages			
+//		const tooltipText = localeString.indexOf("zh") == -1?"Linksklick: Minimieren\nMittelklick: Wiederherstellen\nRechtsklick: Beenden":"\u5DE6\u952E\uFF1A\u6700\u5C0F\u5316\n\u4E2D\u952E\uFF1A\u6062\u590D\n\u53F3\u952E\uFF1A\u5173\u95ED\u6D4F\u89C8\u5668";		
+		const tooltipText = localeString.indexOf("zh") == -1?"Linksklick: Minimieren\nMittelklick: Maximieren/Wiederherstellen\nRechtsklick: Beenden":"\u5DE6\u952E\uFF1A\u6700\u5C0F\u5316\n\u4E2D\u952E\uFF1A\u6062\u590D\n\u53F3\u952E\uFF1A\u5173\u95ED\u6D4F\u89C8\u5668";
+		BrowserManipulateBtn.setAttribute("label", labelText);
+		BrowserManipulateBtn.setAttribute("tooltiptext", tooltipText);//提示工具条		
+		navigator.palette.appendChild(BrowserManipulateBtn);
+	};	
 		
-		}
-		
-		BrowserManipulateCombine = {
-			onClick: function(event) {
-				switch(event.button) {
-					case 0:
+	BrowserManipulateCombine = {
+		onClick: function(event) {
+			switch(event.button) {
+				case 0:
 					// Left click
 					window.minimize();
 					break;
-					case 1:
+				case 1:
 					// Middle click
 					onTitlebarMaxClick();
 					break;
-					case 2:
+				case 2:
 					// Right click
 					BrowserTryToCloseWindow();
 					break;
-				}
 			}
 		}
+	}
 	
 // 通过手动更新 toolbar 的 currentSet 特性来添加按钮到 toolbar 里
-		function updateToolbar() {
-		var toolbars = document.querySelectorAll("toolbar");
-		Array.slice(toolbars).forEach(function (toolbar) {
-		        var currentset = toolbar.getAttribute("currentset");
-		        if (currentset.split(",").indexOf("minMaxClose-button"/* 你的扩展 ID */) < 0) return;
-        		toolbar.currentSet = currentset;
-        		try {
-        		    BrowserToolboxCustomizeDone(true);
-        		} catch (ex) {
-        		}
-    		});
-		}
+	function updateToolbar() {
+		var toolbars = Array.slice(document.querySelectorAll('toolbar'));
+		for (var i=0; i<toolbars.length; i++) {         
+			var currentset = toolbars[i].getAttribute('currentset');     
+			if (currentset.split(',').indexOf('minMaxClose-button') >= 0) {     
+				var j;
+				if (i == 0) j = 1
+				else j = 0;         
+				toolbars[j].currentSet += ',' + 'minMaxClose-button';       
+				toolbars[i].currentSet = currentset;     
+			};     
+		};
+	};
 
 // 运行一次以上的功能函数
 	createBtn();
