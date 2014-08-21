@@ -4,7 +4,7 @@
 // @author       ywzhaiqi
 // @include      main
 // @charset      utf-8
-// @version      2014.05.31
+// @version      2014.07.01
 // @downloadURL  https://raw.github.com/ywzhaiqi/userChromeJS/master/AddonsPage/AddonsPage.uc.js
 // @homepageURL  https://github.com/ywzhaiqi/userChromeJS/tree/master/AddonsPage
 // @reviewURL    http://bbs.kafan.cn/thread-1617407-1-1.html
@@ -23,9 +23,10 @@
 location == "chrome://browser/content/browser.xul" && (function(){
 
     var iconURL = "";  // uc 脚本列表的图标
-    
-    var prefs = {
+
+    var Config = {
         debug: 0,  // 1 则uc管理界面右键菜单会有 "重载 uc 脚本" 的菜单
+        detailView: 1,  // 详细信息页面是否添加安装链接
     };
 
     if(window.AM_Helper){  // 修改调试用，重新载入无需重启
@@ -39,18 +40,81 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
     Cu.import("resource://gre/modules/Services.jsm");
     Cu.import("resource://gre/modules/AddonManager.jsm");
-    try {
-	    Cu.import("resource://gre/modules/XPIProvider.jsm");
-    } catch (e) {}
 
     const isCN = Services.prefs.getCharPref("general.useragent.locale").indexOf("zh") != -1;
-    const usoRegx = /^https?:\/\/userscripts.org\/scripts\/source\/\d+.\w+.js$/;
+
+    const ADDONS_SEARCH_URL = 'https://addons.mozilla.org/firefox/search/?q=';
+
+    var ApplyPatchForScript = (function(){
+        const USO_URL_RE = /(^https?:\/\/userscripts.org.*\/scripts\/source\/\d+)\.\w+\.js$/i;
+
+        const GFO_URL_RE_1 = /(^https?:\/\/greasyfork.org\/scripts\/code\/\w+)\.\w+\.js$/i;
+        const GFO_URL_RE_2 = /(^https?:\/\/greasyfork.org\/scripts\/[^\/]+\/)code[\.\/].*\w+\.js$/i;
+
+        // (http://binux.github.io/ThunderLixianExporter/)master/ThunderLixianExporter.user.js
+        const GITHUB_URL_RE_1 = /(^https?:\/\/\w+.github.io\/\w+\/)master\/.*.*\w+\.js$/i;
+        // 从   https://raw.githubusercontent.com/ywzhaiqi/userscript/master/noNoticetitleflashOnBBS.user.js
+        // 转为 https://github.com/ywzhaiqi/userscript/blob/master/noNoticetitleflashOnBBS.user.js
+        const GITHUB_URL_RE_2 = /(^https?:\/\/raw.githubusercontent.com\/.*?\/master\/.*\.user\.js$)/i;
+
+        function getScriptHomeURL(downURL) {
+            var url;
+            if (downURL && downURL.startsWith('http')) {
+                if (USO_URL_RE.test(downURL)) {
+                    url = RegExp.$1.replace(/source/, "show");
+                } else if (GFO_URL_RE_1.test(downURL)) {
+                    url = RegExp.$1;
+                } else if (GFO_URL_RE_2.test(downURL)) {
+                    url = RegExp.$1;
+                } else if (GITHUB_URL_RE_1.test(downURL)) {
+                    url = RegExp.$1;
+                } else if (GITHUB_URL_RE_2.test(downURL)) {
+                    url = RegExp.$1.replace('raw.githubusercontent.com', 'github.com')
+                            .replace('/master/', '/blob/master/');
+                }
+            }
+            return url ? decodeURIComponent(url) : null;
+        }
+
+        function addHomePage(){
+            // 添加 Scriptish 脚本的主页
+            if (window.Scriptish_config) {
+                Scriptish_config.scripts.forEach(function(script){
+                    if(script.homepageURL) return;
+
+                    var url = script.updateURL || script.downloadURL;
+                    script.homepageURL = getScriptHomeURL(url);
+                });
+            }
+
+            // 添加 Greasemonkey 脚本的主页
+            AddonManager.getAddonsByTypes(['greasemonkey-user-script'], function (aAddons) {
+                aAddons.forEach(function (aAddon) {
+                    if (aAddon.homepageURL) return;
+
+                    var url = aAddon._script._downloadURL || aAddon._script._updateURL;
+                    var homepageURL = getScriptHomeURL(url);
+                    if (homepageURL) {
+                        aAddon.homepageURL = homepageURL;
+                    } else {
+                        // console.log(aAddon.name, url);
+                    }
+                });
+            });
+        }
+
+        return {
+            init: addHomePage
+        }
+    })();
+
+    setTimeout(function(){
+        ApplyPatchForScript.init();
+    }, 2000);
 
     window.AM_Helper = {
         init: function(){
             document.addEventListener("DOMContentLoaded", this, false);
-
-            // this.addHomePageForScriptish();
         },
         uninit: function(){
             document.removeEventListener("DOMContentLoaded", this, false);
@@ -70,15 +134,17 @@ location == "chrome://browser/content/browser.xul" && (function(){
                     win.AM_Helper = AM_Helper;
                     this.win = win;
 
-                    var self = this;
-                    var observer = new MutationObserver(function(e) {
-                        e = e[e.length-1];
-                        if(e.attributeName == "loading") {
-                            var doc = e.target.ownerDocument;
-                            self.setUrlOrPath(doc);
-                        }
-                    });
-                    observer.observe(doc.getElementById("detail-view"), {attributes: true});
+                    if (Config.detailView) {
+                        var self = this;
+                        var observer = new MutationObserver(function(e) {
+                            e = e[e.length-1];
+                            if(e.attributeName == "loading") {
+                                var doc = e.target.ownerDocument;
+                                self.setUrlOrPath(doc);
+                            }
+                        });
+                        observer.observe(doc.getElementById("detail-view"), {attributes: true});
+                    }
                     break;
                 case "popupshowing":
                     this.getAddon(this.win.document.popupNode.value,
@@ -86,17 +152,6 @@ location == "chrome://browser/content/browser.xul" && (function(){
                                   event);
                     break;
             }
-        },
-        addHomePageForScriptish: function(){
-            if(!window.Scriptish_config) return;
-
-            Scriptish_config.scripts.forEach(function(script){
-                if(!script.homepageURL && script.updateURL){
-                    if(usoRegx.test(script.updateURL)){
-                        script.homepageURL = script.updateURL.replace(/source/, "show").replace(/.\w+.js$/, "");
-                    }
-                }
-            });
         },
         addPopupMenu: function(doc){
             var ins = doc.getElementById("menuitem_uninstallItem");
@@ -114,7 +169,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 id: "AM-inspect-addon",
                 label: isCN ? "查看附加组件" : "Objektdaten inspizieren",
                 accesskey: "i",
-                tooltipText: isCN ? "调用 DOM Inspector 查看 addon 对象" : "inspect addon use DOM Inspector",
+                tooltipText: isCN ? "调用 DOM Inspector 查看 addon 对象" : "Addon mit Dom Inspector inspizieren",
                 oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.inspectAddon);"
             });
             popup.insertBefore(menuitem, ins);
@@ -133,7 +188,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 hidden: true,
                 label: isCN ? "重载 uc 脚本（慎用）" : "uc Script nachladen",
                 style: "font-weight:bold",
-                tooltiptext: "仅部分脚本支持。如有问题，重启解决。",
+                tooltiptext: "Nur Teilweise Skriptunterstützung. Bei Problemen Firefox Neustarten.",
                 oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.reloadUserChromeJS);"
             });
             popup.insertBefore(menuitem, ins);
@@ -148,8 +203,8 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
             menuitem = $C("menuitem", {
                 id: "AM-open-url",
-                label: isCN ? "打开安装页面" : "Installationsseite \u00F6ffnen",
-                accesskey: "\u00F6",
+                label: isCN ? "打开安装页面" : "Installationsseite öffnen",
+                accesskey: "s",
                 tooltiptext: null,
                 oncommand: "openURL(this.tooltipText)",
             });
@@ -163,23 +218,23 @@ location == "chrome://browser/content/browser.xul" && (function(){
             });
             popup.insertBefore(menuitem, ins);
 
-            menuitem = $C("menuitem", {
-                id: "AM-go-uso",
-                class: "greasemonkey",
-                hidden: true,
-                label: isCN ? "在 Userscripts.org 上查看" : "Script auf Userscripts.org anzeigen",
-                oncommand: "openURL(this.tooltipText);"
-            });
-            popup.appendChild(menuitem);
+            // menuitem = $C("menuitem", {
+            //     id: "AM-go-uso",
+            //     class: "greasemonkey",
+            //     hidden: true,
+            //     label: isCN ? "在 Userscripts.org 上查看" : "Script auf Userscripts.org anzeigen",
+            //     oncommand: "openURL(this.tooltipText);"
+            // });
+            // popup.appendChild(menuitem);
 
-            menuitem = $C("menuitem", {
-                id: "AM-find-uso",
-                class: "greasemonkey",
-                hidden: true,
-                label: isCN ? "在 Userscripts.org 上查找" : "Script auf Userscripts.org finden",
-                oncommand: "openURL(this.getAttribute('find-on-uso'));"
-            });
-            popup.appendChild(menuitem);
+            // menuitem = $C("menuitem", {
+            //     id: "AM-find-uso",
+            //     class: "greasemonkey",
+            //     hidden: true,
+            //     label: isCN ? "在 Userscripts.org 上查找" : "Script auf Userscripts.org finden",
+            //     oncommand: "openURL(this.getAttribute('find-on-uso'));"
+            // });
+            // popup.appendChild(menuitem);
 
             popup.addEventListener("popupshowing", this, true);
         },
@@ -187,68 +242,71 @@ location == "chrome://browser/content/browser.xul" && (function(){
             var popup = event.target;
             var doc = popup.ownerDocument;
 
-            var isExtension = (aAddon.type == "extension");
-            var isTheme = (aAddon.type == "theme");
-            var isPlugin = (aAddon.type == "plugin");
-            var isUserStyle = (aAddon.type == "userstyle");
-            var isScriptish = (aAddon.type == "userscript");
-            var isUserScript = (aAddon.type == "user-script") || // Greasemonkey
-                               (aAddon.type == "userscript") ||  // Scriptish
-                               (aAddon.type == "greasemonkey-user-script"); // Greasemonkey 1.7+
-            var isUserChromeJS = (aAddon.type == "userchromejs");
+            var
+                isExtension = (aAddon.type == "extension"),
+                isTheme = (aAddon.type == "theme"),
+                isPlugin = (aAddon.type == "plugin"),
+                isUserStyle = (aAddon.type == "userstyle"),
+                isScriptish = (aAddon.type == "userscript"),
+                isGreasemonkey = (aAddon.type == "user-script") || // Greasemonkey
+                                (aAddon.type == "greasemonkey-user-script"), // Greasemonkey 1.7+
+                isUserScript = isGreasemonkey || isScriptish,
+                isUserChromeJS = (aAddon.type == "userchromejs"),
+                isService = (aAddon.type == "service"),
+                menuitem
+            ;
 
-            var browseDirItem = doc.getElementById("AM-browse-dir");
-            browseDirItem.hidden = isUserStyle || isUserScript;
+            menuitem = doc.getElementById("AM-browse-dir");
+            menuitem.hidden = isUserStyle || isUserScript || isService;
 
-            // uc 脚本的
-            var editScriptItem = doc.getElementById("AM-edit-script"),
-                reloadUCItem = doc.getElementById("AM-reload-uc");
-            editScriptItem.hidden = !isUserChromeJS;
-            reloadUCItem.hidden = !prefs.debug || !isUserChromeJS;
+            menuitem = doc.getElementById("AM-edit-script");
+            menuitem.hidden = !isUserChromeJS;
+
+            menuitem = doc.getElementById("AM-reload-uc");
+            menuitem.hidden = !Config.debug || !isUserChromeJS;
+
+            var className = isGreasemonkey ? "greasemonkey" : "";
 
             // install url
-            var openInstallURLItem = doc.getElementById("AM-open-url");
-            var installURL = this.getInstallURL(aAddon) || null;
-            openInstallURLItem.tooltipText = installURL;
-            openInstallURLItem.hidden = !installURL;
+            menuitem = doc.getElementById("AM-open-url");
+            var installURL = aAddon.homepageURL || this.getInstallURL(aAddon) || null;
+            menuitem.tooltipText = installURL;
+            menuitem.hidden = !installURL;
+            menuitem.className = installURL ? className : '';
 
-            var inspectItem = doc.getElementById("AM-inspect-addon")
-            inspectItem.disabled = !("inspectObject" in window);
-            inspectItem.className = isUserScript
-                                    ? isScriptish
-                                      ? ""
-                                      : "greasemonkey"
-                                    : "";
+            menuitem = doc.getElementById("AM-inspect-addon");
+            menuitem.disabled = !("inspectObject" in window);
+            menuitem.className = menuitem.disabled ? '' : className;
 
-            var copyNameItem = doc.getElementById("AM-copy-name");
-            copyNameItem.tooltipText = aAddon.name;
-            // copyNameItem.disabled = isUserStyle;
+            menuitem = doc.getElementById("AM-copy-name");
+            menuitem.tooltipText = aAddon.name;
+            menuitem.className = className;
 
-            if(isUserScript && !isScriptish){
-                var usoURL = "";
-                if (aAddon._script) {
-                    var usDownloadURL = aAddon._script._downloadURL;
-                    var usUpdateURL = aAddon._script._updateURL;
-                    if (usoRegx.test(usDownloadURL)) {
-                        usoURL = usDownloadURL;
-                    } else if (usoRegx.test(usUpdateURL)) {
-                        usoURL = usUpdateURL;
-                    }
-                }
+            // if(isUserScript && !isScriptish){
+            //     var usoURL = "";
+            //     if (aAddon._script) {
+            //         var usDownloadURL = aAddon._script._downloadURL;
+            //         var usUpdateURL = aAddon._script._updateURL;
+            //         if (USO_URL_RE.test(usDownloadURL)) {
+            //             usoURL = usDownloadURL;
+            //         } else if (USO_URL_RE.test(usUpdateURL)) {
+            //             usoURL = usUpdateURL;
+            //         }
+            //     }
 
-                var usoItem = doc.getElementById("AM-go-uso");
-                usoItem.disabled = !usoRegx.test(usoURL);
-                usoItem.className = isUserScript ? usoItem.disabled ? "" : "greasemonkey" : "";
-                usoItem.tooltipText = usoURL.replace(/source/, "show")
-                    .replace(/.\w+.js$/, "");
+            //     menuitem = doc.getElementById("AM-go-uso");
+            //     menuitem.disabled = !USO_URL_RE.test(usoURL);
+            //     menuitem.className = isUserScript ? menuitem.disabled ? "" : "greasemonkey" : "";
+            //     menuitem.tooltipText = usoURL.replace(/source/, "show")
+            //         .replace(/.\w+.js$/, "");
 
-                var fusoItem = doc.getElementById("AM-find-uso");
-                fusoItem.disabled = usoRegx.test(usoURL);
-                fusoItem.className = isUserScript ? fusoItem.disabled ? "" : "greasemonkey" : "";
-                fusoItem.setAttribute("find-on-uso",
-                    "http://userscripts.org/scripts/search?q=" +
-                    encodeURIComponent(aAddon.name));
-            }
+            //     menuitem = doc.getElementById("AM-find-uso");
+            //     menuitem.disabled = USO_URL_RE.test(usoURL);
+            //     menuitem.className = isUserScript ? menuitem.disabled ? "" : "greasemonkey" : "";
+            //     menuitem.setAttribute("find-on-uso",
+            //         "https://www.google.com.hk/search?q=site:userscripts.org+inurl:scripts+inurl:show+" +
+            //         encodeURIComponent(aAddon.name));
+            // }
         },
 
         getPopupNode: function (aNode) {
@@ -329,7 +387,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         reloadUserChromeJS: function (aAddon) {
             if(aAddon.type != "userchromejs") return;
 
-            var result = confirm("Wirklich neu laden？\nNur teilweise Skriptunterstützung.\nNeustart bei Problemen.");
+            var result = confirm("Wirklich neu laden？");
             if(!result) return;
 
             var script = aAddon._script;
@@ -368,14 +426,14 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 case "extension":
                 case "theme":
                     url = (aAddon.contributionURL || aAddon.reviewURL) || null;
-                    return url && url.replace(/\/developers|\/reviews/g,"");
+                    return url && url.replace(/\/developers|\/reviews/g, "") || (ADDONS_SEARCH_URL + aAddon.name);
                 case "greasemonkey-user-script":
-                    return aAddon._script && aAddon._script.downloadURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2");
+                    return aAddon._script._downloadURL || aAddon._script._updateURL;
                 case "userscript":
-                    url = aAddon._updateURL ? aAddon._updateURL.replace(/(^.+)source\/(\d+).*$/,"$1show/$2") : null;
+                    url = aAddon._downloadURL || aAddon._updateURL;
                     return url;
                 case "userchromejs":
-                    return aAddon.homepageURL || aAddon.reviewURL;
+                    return aAddon.homepageURL || aAddon.reviewURL || aAddon.downloadURL || aAddon.updateURL;
                 default:
                     return aAddon.homepageURL;
             }
@@ -393,7 +451,8 @@ location == "chrome://browser/content/browser.xul" && (function(){
             if(!doc.getElementById("detail-InstallURL-row")){
                 var value = "",label = "";
                 if(this.win.gViewController.currentViewId.indexOf("detail")!= -1){
-                    switch (this.win.gViewController.viewObjects.detail._addon.type){
+                    var aAddon = this.win.gViewController.viewObjects.detail._addon;
+                    switch (aAddon.type){
                         case "extension":
                         case "theme":
                         case "greasemonkey-user-script":
@@ -458,7 +517,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
         init: function(){
 	        if ('userchromejs' in AddonManager.addonTypes) return;
-	        
+
             this.initScripts();
             this.registerProvider();
             this.addStyle();

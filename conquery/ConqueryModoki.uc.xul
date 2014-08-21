@@ -7,8 +7,10 @@
 // @description    コンテキストメニューにQuery To...とサブメニューに検索エンジンリストを追加, 階層化した場合は串刺し検索
 // @description    選択したエンジンで検索, その後エンジンを元に戻す
 // @include        main
-// @compatibility  Firefox 24-31
+// @compatibility  Firefox 16+
 // @author         Alice0775
+// @version        2014/07/30 23:00 e10s.
+// @version        2014/06/27 08:00 Fixed deprecated search service API.
 // @version        2014/04/18 23:50 Fixed rebuildPopup
 // @version        2014/04/18 23:30 Fixed rebuildPopup
 // @version        2013/09/13 21:00 Bug 856437 Remove Components.lookupMethod
@@ -35,7 +37,7 @@
     // 'Prompt', 'Clipboard'       //Prompt = Zeigt Suchbegriff im Eingabefenster, Clipboard = Suche und gleichzeitig in die Zwischenablage
     // 'Clear'                     //Clear = Nach der Suche wird die Suchleiste geleert
     //  検索バーの検索エンジンプルダウン上の検索エンジンでの動作 (左クリック変更不可)
-    funcSearchbar     : {
+   funcSearchbar     : {
                          'M'  : 'Tab', //'Tab Clipboard',
                          'R'  : 'Current',
                          'RS' : 'Shift',
@@ -92,6 +94,7 @@
     // -- config --
 
     _currentEngine:null,
+    _initialized:false,
 
     searchBar: function(){
       var searchBar = null;
@@ -103,19 +106,21 @@
       return searchBar;
     },
 
+    get browserSearchService() {
+      delete this.browserSearchService;
+      return this.browserSearchService = Components.classes["@mozilla.org/browser/search-service;1"]
+                                        .getService(Components.interfaces.nsIBrowserSearchService);
+    },
+
     getDefaultEngine: function() {
-      const nsIBSS = Components.interfaces.nsIBrowserSearchService;
-      const searchService =Components.classes["@mozilla.org/browser/search-service;1"].getService(nsIBSS);
-      return searchService.defaultEngine;
+      return this.browserSearchService.defaultEngine;
     },
 
     getEngineByIndex: function(iEngine) {
-      const nsIBSS = Components.interfaces.nsIBrowserSearchService;
-      const searchService =Components.classes["@mozilla.org/browser/search-service;1"].getService(nsIBSS);
       if (typeof iEngine == 'undefined'|| iEngine == null) {
-        var aEngine = searchService.defaultEngine;
+        var aEngine = this.browserSearchService.defaultEngine;
       }else{
-        var engines = searchService.getVisibleEngines({ });
+        var engines = this.browserSearchService.getVisibleEngines({ });
         var aEngine = engines[iEngine];
       }
       return aEngine;
@@ -228,8 +233,6 @@
     kusizasi: function conqueryModokikusizasi(aEvent) {
       this.hideAllPopup();
 
-      const nsIBSS = Components.interfaces.nsIBrowserSearchService;
-      const searchService =Components.classes["@mozilla.org/browser/search-service;1"].getService(nsIBSS);
       aEvent.preventDefault();
       aEvent.stopPropagation();
 
@@ -307,31 +310,46 @@
     },
 
     _getFocusedWindow: function(){ //現在のウインドウを得る
-        var focusedWindow = document.commandDispatcher.focusedWindow;
-        if (!focusedWindow || focusedWindow == window)
-            return window._content;
-        else
-            return focusedWindow;
+      let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
+      return focusedWindow;
     },
 
-    _getselection: function() {  //選択されている文字列を得る
-        var targetWindow = this._getFocusedWindow();
-        var sel = targetWindow.getSelection();
-        // for textfields
-        if (sel && !sel.toString()) {
-          var node = document.commandDispatcher.focusedElement;
-          if (node &&
-              ((typeof node.mozIsTextField == 'function' &&  node.mozIsTextField(true)) ||
-               node.type == "search" ||
-               node.type == "text" || node.type == "textarea") &&
-              'selectionStart' in node &&
-              node.selectionStart != node.selectionEnd) {
-              var offsetStart = Math.min(node.selectionStart, node.selectionEnd);
-              var offsetEnd   = Math.max(node.selectionStart, node.selectionEnd);
-              return node.value.substr(offsetStart, offsetEnd-offsetStart);
-          }
+    _getselection: function(aCharLen) {  //選択されている文字列を得る
+       // selections of more than 150 characters aren't useful
+      const kMaxSelectionLen = 150;
+      const charLen = Math.min(aCharLen || kMaxSelectionLen, kMaxSelectionLen);
+
+      let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
+      var selection = focusedWindow.getSelection().toString();
+      // try getting a selected text in text input.
+      if (!selection) {
+        var isOnTextInput = function isOnTextInput(elem) {
+          // we avoid to return a value if a selection is in password field.
+          // ref. bug 565717
+          return elem instanceof HTMLTextAreaElement ||
+                 (elem instanceof HTMLInputElement && elem.mozIsTextField(true));
+        };
+
+        if (isOnTextInput(element)) {
+          selection = element.QueryInterface(Ci.nsIDOMNSEditableElement)
+                             .editor.selection.toString();
         }
-        return sel ? sel.toString().replace(/\s/g,' ').replace(/^[\ ]+|[\ ]+$/g,'').replace(/[\ ]+/g,' ') : "";
+      }
+
+      if (selection) {
+        if (selection.length > charLen) {
+          // only use the first charLen important chars. see bug 221361
+          var pattern = new RegExp("^(?:\\s*.){0," + charLen + "}");
+          pattern.test(selection);
+          selection = RegExp.lastMatch;
+        }
+
+        selection = selection.trim().replace(/\s+/g, " ");
+
+        if (selection.length > charLen)
+          selection = selection.substr(0, charLen);
+      }
+      return selection;
     },
 
     hideAllPopup: function(){
@@ -421,10 +439,8 @@
       // popupにメニューを構築, forSearchBar: trueの時検索バー用, falseの時, コンテキスト用
       const kXULNS =
            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-      const nsIBSS = Components.interfaces.nsIBrowserSearchService;
-      const searchService =Components.classes["@mozilla.org/browser/search-service;1"].getService(nsIBSS);
 
-      var engines = searchService.getVisibleEngines({ });
+      var engines = this.browserSearchService.getVisibleEngines({ });
       var refNode=[];
       var nest = 0;
       refNode[nest] = popup
@@ -484,7 +500,7 @@
           // Since this menu is rebuilt by the observer method whenever a new
           // engine is selected, the "selected" attribute does not need to be
           // explicitly cleared anywhere.
-          if (engines[i] == searchService.currentEngine)
+          if (engines[i] == this.browserSearchService.currentEngine)
             menuitem.setAttribute("selected", "true");
           if (engines[i].iconURI)
             menuitem.setAttribute("src", engines[i].iconURI.spec);
@@ -562,7 +578,18 @@
     tooltipCM: '',
     tooltipSB: '',
 
-    init : function(aEvent){
+    init: function() {
+      this.browserSearchService.init((function browserSearchService_init(aStatus) {
+        if (Components.isSuccessCode(aStatus)) {
+          this._initialized = true;
+          this.observe();
+        } else {
+          Components.utils.reportError("Cannot initialize search service, bailing out: " + aStatus);
+        }
+      }).bind(this));
+    },
+
+    observe : function(){
       for (var a in this.funcSearchbar)
         this.tooltipS += a + ' : ' + this.funcSearchbar[a] + '\n';
       for (var a in this.funcContext)

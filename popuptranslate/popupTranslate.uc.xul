@@ -20,6 +20,10 @@ display: none;
 // @include        chrome://messenger/content/messageWindow.xul
 // @compatibility  Firefox 27+
 // @author         Alice0775
+// @version        2014/07/23 09:30 delete debug print
+// @version        2014/07/23 09:30 Weblio 翻訳
+// @version        2014/07/23 06:30 タイムアウト
+// @version        2014/07/20 23:00 Yahoo!翻訳 死亡, 日英は"Google 日英"に
 // @version        2014/06/20 06:00 remove a trailing comma(,)
 // @version        2014/06/09 12:00 時々sendが失敗する
 // @version        2014/05/03 00:00 Google翻訳仕様変更のため
@@ -81,69 +85,46 @@ display: none;
 
       timer: null,
       kXULNS:"http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-      TIMEOUT: 20000,
+      TIMEOUT: 15000,
 
       mMenus: [
 
-        {
-          Description:"Google Auto DE",
-          method:'POST',
-          Referer:'https://translate.google.com/?tab=yT#en',
-          action:"https://translate.google.com/",
-          post:"client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
-          code:"UTF-8",
-          xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
-        },
+	{
+	  Description:"Google Auto DE",
+	  method:'POST',
+	  Referer:'https://translate.google.com/?tab=yT#en',
+	  action:"https://translate.google.com/",
+	  post:"client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
+	  code:"UTF-8",
+	  xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
+	},
 
-        {
-          Description:"Google Auto EN",
-          method:'POST',
-          Referer:'https://translate.google.com/?tab=yT#de',
-          action:"https://translate.google.com/",
-          post:"client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
-          code:"UTF-8",
-          xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
-        },
+	{
+	  Description:"Google Auto EN",
+	  method:'POST',
+	  Referer:'https://translate.google.com/?tab=yT#de',
+	  action:"https://translate.google.com/",
+	  post:"client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
+	  code:"UTF-8",
+	  xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
+	},
+	{
+	Description:"Bing Auto DE",
+	method:'GET',
+	Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=&text=%%SEL%%",
+	code:"UTF-8",
+	start:'^"',
+	end:'"$',
+	},
 
-/*        {
-          Description:"Babelfish EN-DE",
-          method:"POST",
-          Referer:"http://babelfish.yahoo.com/translate_txt",
-          action:"http://babelfish.yahoo.com/translate_txt",
-          post:"ei=UTF-8&doit=done&fr=bf-home&intl=1&tt=urltext&trtext=%%SEL%%&lp=en_de&btnTrTxt=Translate",
-          code:"UTF-8",
-          xpath:'.//div[@id="result"]/div'
-        },
-
-        {
-          Description:"Babelfish DE-EN",
-          method:"POST",
-          Referer:"http://babelfish.yahoo.com/translate_txt",
-          action:"http://babelfish.yahoo.com/translate_txt",
-          post:"ei=UTF-8&doit=done&fr=bf-home&intl=1&tt=urltext&trtext=%%SEL%%&lp=de_en&btnTrTxt=Translate",
-          code:"UTF-8",
-          xpath:'.//div[@id="result"]/div'
-        },
-*/
-        {
-          Description:"Bing Auto DE",
-          method:'GET',
-          Referer:"http://www.microsofttranslator.com/",
-          action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=Deutsch&text=%%SEL%%",
-          code:"UTF-8",
-          start:'^"',
-          end:'"$',
-        },
-
-        {
-          Description:"Bing Auto EN",
-          method:'GET',
-          Referer:"http://www.microsofttranslator.com/",
-          action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=Deutsch&text=%%SEL%%",
-          code:"UTF-8",
-          start:'^"',
-          end:'"$',
-        }
+	{
+	Description:"Bing Auto EN",
+	method:'GET',
+	Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=&text=%%SEL%%",
+	code:"UTF-8",
+	start:'^"',
+	end:'"$',
+	}
       ],
 
       init: function(){
@@ -198,7 +179,7 @@ display: none;
         }
         if(engine){
           var prefetch = null;
-          if (engine.prefetchURL){
+          if (typeof engine.prefetchURL != "undefined" && engine.prefetchURL !=""){
             this.getPrefetchResult(sel,engine);
           }else{
             this.getTranslateResult(sel,engine,null);
@@ -475,12 +456,12 @@ display: none;
                 res = RegExp.$1;
               } else {
      //self.debug(txt)
-                var hdoc = self.str2dom(txt);
+                var hdoc = self.str2dom(txt); 
                 var result = hdoc.evaluate(xpath, hdoc, null,
-                             XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
+                             XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
      //self.debug(result.snapshotItem(0));
                var node = result.snapshotLength>0 ? result.snapshotItem(0) : null
-               res = node.textContent;
+               res = node.textContent || node.value;
                node = hdoc = result = null;
               }
             } catch (e) {self.show("Übersetzung fehlgeschlagen");}
@@ -555,10 +536,8 @@ display: none;
         });
 
         if(obj.overrideMimeType) req.overrideMimeType(obj.overrideMimeType);
-        setTimeout(function() {
             if(typeof obj.data == 'string') req.send(obj.data); //may be for post
-            else req.send(null);                                //may be for gett
-        }, 100);
+            else req.send(null);                                //may be for get
       },
 
       show: function(res){
@@ -576,7 +555,7 @@ display: none;
         else
           popup.showPopup(node,-1,-1,"popup",null,null);
         setTimeout(function(){popupTranslate.sizeChange();},0);
-        this.timer = setTimeout(function(){popup.hidePopup();},40000);//最大30秒で消す
+        this.timer = setTimeout(function(){popup.hidePopup();},30000);//最大30秒で消す
       },
 
       setValue: function(val){
@@ -587,7 +566,7 @@ display: none;
       sizeChange: function(){
         var popup = document.getElementById("translationResult");
         var box = document.getElementById("translationResultPopupBox");
-        popup.sizeTo(650, Math.max(box.boxObject.height*1.0+5,23));
+        popup.sizeTo(450, Math.max(box.boxObject.height*1.0+5,23));
       },
 
       menuPopup: function(refNode){
@@ -705,29 +684,28 @@ display: none;
     }
     popupTranslate.init();
 	
-// Popup Übersetzung aus dem Kontextmenü heraus	
+	// Popup Übersetzung aus dem Kontextmenü heraus
 	(function (){
-        var contextMenu = document.getElementById("contentAreaContextMenu");
-        var translate = document.createElement("menuitem");
-        translate.setAttribute("id", "context-translateD");
-        translate.setAttribute("label", "Übersetzung Auto DE");
-        translate.setAttribute("oncommand","popupTranslate.onCommand(false);");
+	var contextMenu = document.getElementById("contentAreaContextMenu");
+	var translate = document.createElement("menuitem");
+	translate.setAttribute("id", "context-translateD");
+	translate.setAttribute("label", "Übersetzung Auto DE");
+	translate.setAttribute("oncommand","popupTranslate.onCommand(false);");
 
-        contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+	contextMenu.insertBefore(translate, document.getElementById("context-stop"));
 
-})();
+	})();
 
-    (function (){
-        var contextMenu = document.getElementById("contentAreaContextMenu");
-        var translate = document.createElement("menuitem");
-        translate.setAttribute("id", "context-translateE");
-        translate.setAttribute("label", "Übersetzung Auto EN");
-        translate.setAttribute("oncommand","popupTranslate.onCommand(true);");
+	(function (){
+	var contextMenu = document.getElementById("contentAreaContextMenu");
+	var translate = document.createElement("menuitem");
+	translate.setAttribute("id", "context-translateE");
+	translate.setAttribute("label", "Übersetzung Auto EN");
+	translate.setAttribute("oncommand","popupTranslate.onCommand(true);");
 
-        contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+	contextMenu.insertBefore(translate, document.getElementById("context-stop"));
 
-})();
-	
+	})();
   ]]></script>
   <menupopup id="menu_ToolsPopup">
     <menu id="translation_optionsMenu"
@@ -751,7 +729,7 @@ display: none;
 
   <popupset id="mainPopupSet">
     <popup id="translationResult"
-           style="-moz-appearance:tooltip;display:-moz-popup;font:message-box;background-color:InfoBackground;color:InfoText;border: 1px solid InfoText;width:650px;font-size:14px;">
+           style="-moz-appearance:tooltip;display:-moz-popup;font:message-box;background-color:InfoBackground;color:InfoText;border: 1px solid InfoText;width:450px;">
       <vbox id="translationResultPopupBox">
         <html:div id="translationResultPopupLabel" type="content" flex="1" onclick="popupTranslate.copyToClipboard(this.textContent);"/>
       </vbox>
@@ -760,13 +738,13 @@ display: none;
   <window id="main-window">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
   <window id="messengerWindow">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
 </overlay>

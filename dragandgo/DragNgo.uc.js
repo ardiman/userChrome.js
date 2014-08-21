@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 17
 // @author         Alice0775
+// @version        2014/07/05 12:00 adjusts tolerance due to Bug 378775
 // @version        2014/05/01 12:00 Fix unnecessary toolbaritem creation
 // @version        2013/10/31 00:00 Bug 821687  Status panel should be attached to the content area
 // @version        2013/09/13 00:00 Bug 856437 Remove Components.lookupMethod
@@ -144,6 +145,9 @@ var DragNGo = {
 */
     {dir:'RD', modifier:'',name:'Bild mit Namen speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
     {dir:'RD', modifier:'',name:'Link unter den Namen speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
+
+  /*=== im Text Editor öffnen ===*/
+    {dir:'DL', modifier:'',name:'Im Texteditor öffnen',obj:'text',cmd:function(self,event,info){self.editText(null, info.texts[0]);}}, // 引数 null: view_source.editor.pathのエディターを使う
 
   /*=== appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される (Externe Anwendungen) ===*/
     {dir:'U', modifier:'shift,ctrl',name:'Link im IE',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Programme\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
@@ -1157,7 +1161,8 @@ var DragNGo = {
   // D&Dの方向を得る
   getDirection: function getDirection(event){
     // 認識する最小のマウスの動き
-    const tolerance = 10;
+    const tolerance_x = this.directionChain == "" ? 30 : 10;
+    const tolerance_y = this.directionChain == "" ? 40 : 10;
     var x = event.screenX;
     var y = event.screenY;
 
@@ -1170,14 +1175,14 @@ var DragNGo = {
     // 直前の座標と比較, 移動距離が極小のときは無視する
     var distanceX = Math.abs(x - this.lastX);
     var distanceY = Math.abs(y - this.lastY);
-    if (distanceX < tolerance && distanceY < tolerance)
+    if (distanceX < tolerance_x && distanceY < tolerance_y)
       return this.directionChain;
 
     // 方向の決定
     var direction;
-    if (distanceX > distanceY*2)
+   if (distanceX*1.5 >= distanceY)
         direction = x < this.lastX ? "L" : "R";
-    else if (distanceX*2 < distanceY)
+    else if (distanceX*1.5 < distanceY)
         direction = y < this.lastY ? "U" : "D";
     else {
         this.lastX = x;
