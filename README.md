@@ -9,6 +9,7 @@ Die Ergebnisse der für neuere Firefox-Versionen aktualisierten Skripte sehen vi
 werden nur bei extremen Unterschieden aktualisiert. 
 
 # Testumgebung/Historie
+- Win 7 64bit SP 1/ Firefox 33 (ab 14.10.2014)
 - Win 7 64bit SP 1/ Firefox 32 (ab 03.09.2014)
 - Win 7 64bit SP 1/ Firefox 31 (ab 23.07.2014)
 - Win 7 64bit SP 1/ Firefox 30 (ab 11.06.2014)
