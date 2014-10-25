@@ -22,14 +22,15 @@ var clearcache = {
 
   onMenuItemCommand: function(e) {
 
-
-    var cacheClass = Components.classes["@mozilla.org/network/cache-service;1"];
-    var cacheService    = cacheClass.getService(Components.interfaces.nsICacheService);
+    // ungueltig ab Fx 32 - s. auch Zeile 31+32 + http://www.camp-firefox.de/forum/viewtopic.php?p=931841#p931841
+    // var cacheClass = Components.classes["@mozilla.org/network/cache-service;1"];
+    //var cacheService    = cacheClass.getService(Components.interfaces.nsICacheService);
 
     try
     {
-        cacheService.evictEntries(Components.interfaces.nsICache.STORE_ON_DISK);
-        cacheService.evictEntries(Components.interfaces.nsICache.STORE_IN_MEMORY);
+        // cacheService.evictEntries(Components.interfaces.nsICache.STORE_ON_DISK);
+        // cacheService.evictEntries(Components.interfaces.nsICache.STORE_IN_MEMORY);
+        Services.cache2.clear();
 	}
     catch(exception)
     {
