@@ -40,12 +40,12 @@
 // ==/UserScript==
 var ucjs_zoom = {
 // ------------------------------ 任意に設定 -----------------------------------------------
-	// ボタンを置くターゲット・パネルのＩＤ (default: ページ・レポートの後)
-	_TAGET_ID:	"page-report-button",
+	// ボタンを置くターゲット・パネルのＩＤ (default: Nach dem Seitenbericht)
+	_TAGET_ID: "base64_Btn",
 
 	// ズームモードを表す文字と文字色
 	_ZOOM_MODE: [ { txt: "Zoom Einstellungen", color: "#00000" }, 					// 0) フルズーム、黒
-				  { txt: "Nur Text zoomen", color: "#FF0000" } ],	// 1) テキストズーム、青
+				  { txt: "Text Zoom", color: "#096CE6" } ],	// 1) Text Zoom、青
 
 	// toolkit.zoomManager.zoomValues とメニューを(true: 同期させる、false: 同期させない)
 	_SYNC_ZOOMVALUES: true,
@@ -75,7 +75,7 @@ var ucjs_zoom = {
 		eval("FullZoom.onLocationChange = " + FullZoom.onLocationChange.toString().replace(/}$/, _cmd));
 		// _handleMouseScrolled
 		_cmd = "setTimeout(ucjs_zoom.updateZoom, 0); $&";
-		eval("FullZoom._handleMouseScrolled = " + FullZoom._handleMouseScrolled.toString().replace(/}$/, _cmd));
+		/* eval("FullZoom._handleMouseScrolled = " + FullZoom._handleMouseScrolled.toString().replace(/}$/, _cmd)); */
 
 		// メニューに表示するズーム値リストを作る
 		if (this._SYNC_ZOOMVALUES) {	// toolkit.zoomManager.zoomValues とメニューを同期させる場合
@@ -151,7 +151,7 @@ var ucjs_zoom = {
 			if (markupDocumentViewer.textZoom != n) markupDocumentViewer.textZoom = n;
 			if (markupDocumentViewer.fullZoom != 1) markupDocumentViewer.fullZoom = 1;
 		}
-		FullZoom._applySettingToPref();
+		FullZoom._applyZoomToPref(gBrowser);
 		ucjs_zoom.updateZoom();
 		return n;
 	},

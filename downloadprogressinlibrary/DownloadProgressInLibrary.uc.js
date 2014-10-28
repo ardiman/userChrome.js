@@ -1,140 +1,83 @@
+
 // ==UserScript==
-// @name downloadProgressInLibrary.uc.js
+// @name downloadProgressInLibrary_Fx26.uc.js
 // @namespace http://space.geocities.yahoo.co.jp/gl/alice0775
 // @include chrome://browser/content/places/places.xul
-// @compatibility Firefox 20
+// @compatibility Firefox 31+
 // @version 1.0
+// @date 2014-10-23 22:00 number of files
+// @date 2013-11-26 21:00 null check
 // @date 2013-04-06 22:00
 // @description Display Download Progress In Library
 // ==/UserScript==
-(function(){
+const originalTitle = document.title;
 
-  const progressInTitleBar = true;
-  const originalTitle = document.title;
+var downloadProgressInLibrary = {
+  _summary: null,
+  _list: null,
 
-  let DownloadMonitorPanel = {
-    //////////////////////////////////////////////////////////////////////////////
-    //// DownloadMonitorPanel Member Variables
+   init: function() {
+    window.addEventListener("unload", this, false);
+    // Ensure that the DownloadSummary object will be created asynchronously.
+    if (!this._summary) {
+      Downloads.getSummary(Downloads.ALL).then(summary => {
+        this._summary = summary;
+        return this._summary.addView(this);
+      }).then(null, Cu.reportError);
+    }
 
-    _listening: false,
+    if (!this._list) {
+      Downloads.getList(Downloads.ALL).then(list => {
+        this._list = list;
+        return this._list.addView(this);
+      }).then(null, Cu.reportError);
+    }
+  },
 
-    get DownloadUtils() {
-      delete this.DownloadUtils;
-      Cu.import("resource://gre/modules/DownloadUtils.jsm", this);
-      return this.DownloadUtils;
-    },
+  uninit: function() {
+    window.removeEventListener("unload", this, false);
+    if (this._summary) {
+      this._summary.removeView(this);
+    }
+    if (this._list) {
+      this._list.removeView(this);
+    }
+  },
 
-    get gDownloadMgr() {
-      delete this.gDownloadMgr;
-      return this.gDownloadMgr = Cc["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
-    },
+  handleEvent: function(event) {
+    switch (event.type) {
+      case "unload":
+        this.uninit();
+        break;
+    }
+  },
 
-    //////////////////////////////////////////////////////////////////////////////
-    //// DownloadMonitorPanel Public Methods
+  onSummaryChanged: function () {
+    if (!this._summary)
+      return;
+    if (this._summary.allHaveStopped || this._summary.progressTotalBytes == 0) {
+      document.title = originalTitle;
+    } else {
+      // Update window title
+	    this.numDls = 0;
+	    if (!this._list)
+	      return;
+	    this._list.getAll().then(downloads => {
+		    for (let download of downloads) {
+		      if (download.hasProgress &&
+                !download.succeeded &&
+                !download.canceled  &&
+                !download.stopped )
+		        this.numDls++;
+		    }
+	      let progressCurrentBytes = Math.min(this._summary.progressTotalBytes,
+	                                        this._summary.progressCurrentBytes);
+	      let percent = Math.floor(progressCurrentBytes / this._summary.progressTotalBytes * 100);
+	      let text = percent + "% of " + this.numDls + (this.numDls < 2 ? " file - " : " files - ") ;
+	      document.title = text + originalTitle;
+	    }).then(null, Cu.reportError);
+    }
+  }
 
-    /**
-     * Initialize the status panel and member variables
-     */
-    init: function DMP_init() {
-
-      this.gDownloadMgr.addListener(this);
-      this._listening = true;
-
-      this.updateStatus();
-    },
-
-    uninit: function DMP_uninit() {
-      if (this._listening)
-        this.gDownloadMgr.removeListener(this);
-    },
-
-    /**
-     * Update status based on the number of active and paused downloads
-     */
-    updateStatus: function DMP_updateStatus() {
-
-      let numActive = this.gDownloadMgr.activeDownloadCount;
-
-      // Hide the status if there's no downloads
-      if (numActive == 0) {
-        if (progressInTitleBar) {
-          // Update window title
-          document.title = originalTitle;
-        }
-        return;
-      }
-
-      // Find the download with the longest remaining time
-      let numPaused = 0;
-      let dls = this.gDownloadMgr.activeDownloads;
-      let totalsize = 0;
-      let transferredsize = 0;
-      while (dls.hasMoreElements()) {
-        let dl = dls.getNext();
-        if (dl.state == this.gDownloadMgr.DOWNLOAD_DOWNLOADING) {
-          // Figure out if this download takes longer
-          if (dl.speed > 0 && dl.size > 0) {
-            totalsize += dl.size;
-            transferredsize += dl.amountTransferred;
-          }
-        }
-        else if (dl.state == this.gDownloadMgr.DOWNLOAD_PAUSED)
-          numPaused++;
-      }
-
-      // Figure out how many downloads are currently downloading
-      let numDls = numActive - numPaused;
-
-      // If all downloads are paused, show the paused message instead
-      if (numDls == 0) {
-        numDls = numPaused;
-      }
-
-      if (progressInTitleBar && totalsize > 0) {
-        // Update window title
-        let percent = Math.floor(transferredsize / totalsize * 100);
-        let text = percent + "% von " + numDls + (numDls < 2 ? " Datei - " : " Dateien - ") ;
-        document.title = text + originalTitle;
-      }
-    },
-    //////////////////////////////////////////////////////////////////////////////
-    //// nsIDownloadProgressListener
-
-    /**
-     * Update status for download progress changes
-     */
-    onProgressChange: function() {
-      this.updateStatus();
-    },
-
-    /**
-     * Update status for download state changes
-     */
-    onDownloadStateChange: function() {
-      this.updateStatus();
-    },
-
-    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus, aDownload) {
-    },
-
-    onSecurityChange: function(aWebProgress, aRequest, aState, aDownload) {
-    },
-
-    //////////////////////////////////////////////////////////////////////////////
-    //// nsISupports
-
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIDownloadProgressListener]),
-  };
-
-
-
-
-
-  DownloadMonitorPanel.init();
-
-  window.addEventListener("unload", function unloadDownloadProgressInLibrary(){
-    window.removeEventListener("unload", unloadDownloadProgressInLibrary, false);
-    DownloadMonitorPanel.uninit();
-  }, false);
-  
-})();
+}
+downloadProgressInLibrary.init();

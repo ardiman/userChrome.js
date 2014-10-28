@@ -2,10 +2,10 @@
     var contextMenu = document.getElementById("contentAreaContextMenu");
     var translate = document.createElement("menuitem");
     translate.setAttribute("id", "context-translate");
-    translate.setAttribute("label", "\u00DCbersetzen");
+    translate.setAttribute("label", "Übersetzen");
     translate.setAttribute("oncommand","_translate()");
 	
-    contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+    contextMenu.insertBefore(translate, document.getElementById("context-sep-viewbgimage"));
 })();
 
 

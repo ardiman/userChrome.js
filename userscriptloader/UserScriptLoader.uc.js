@@ -3,9 +3,12 @@
 // @description    Greasemonkey っぽいもの
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
-// @compatibility  Firefox 5.0
+// @compatibility  Firefox 32
 // @license        MIT License
-// @version        0.1.8.2
+// @version        0.1.8.3
+// @note           0.1.8.3 Firefox 32 で GM_xmlhttpRequest が動かないのを修正
+// @note           0.1.8.3 内臓の console を利用するようにした
+// @note           0.1.8.3 obsever を使わないようにした
 // @note           0.1.8.2 Firefox 22 用の修正
 // @note           0.1.8.2 require が機能していないのを修正
 // @note           0.1.8.1 Save Script が機能していないのを修正
@@ -271,26 +274,6 @@ USL.ScriptEntry.prototype = {
 	},
 };
 
-USL.Console = function Console() {};
-USL.Console.prototype = {
-	__exposedProps__: {
-		log: "r",
-		dir: "r",
-		time: "r",
-		timeEnd: "r",
-	},
-	log: function(str){ Application.console.log(str); },
-	dir: function(obj){ window.inspectObject? inspectObject(obj): this.log(obj); },
-	time: function(name) { this['_' + name] = new Date().getTime(); },
-	timeEnd: function(name) {
-		if (typeof this['_' + name] == 'undefined')
-			return this.log('timeEnd: Error' + name);
-		this.log(name + ':' + (new Date().getTime() - this['_' + name]));
-		delete this['_' + name];
-	},
-	__noSuchMethod__: function(id, args){ this.log('console.' + id + ' is not function'); }
-};
-
 USL.API = function(script, sandbox, win, doc) {
 	var self = this;
 
@@ -307,8 +290,10 @@ USL.API = function(script, sandbox, win, doc) {
 		req.open(obj.method || 'GET',obj.url,true);
 		if(typeof(obj.headers) == 'object') for(var i in obj.headers) req.setRequestHeader(i,obj.headers[i]);
 		['onload','onerror','onreadystatechange'].forEach(function(k) {
-			if(obj[k] && (typeof(obj[k]) == 'function' || obj[k] instanceof Function)) req[k] = function() {
-				obj[k]({
+			// thx! script uploader
+			let obj_k = (obj.wrappedJSObject) ? new XPCNativeWrapper(obj.wrappedJSObject[k]) : obj[k];
+			if(obj_k && (typeof(obj_k) == 'function' || obj_k instanceof Function)) req[k] = function() {
+				obj_k({
 					__exposedProps__: {
 						status: "r",
 						statusText: "r",
@@ -442,7 +427,6 @@ USL.database = { pref: {}, resource: {} };
 USL.readScripts = [];
 USL.USE_STORAGE_NAME = ['cache', 'cacheInfo'];
 USL.initialized = false;
-USL.eventName = "USL_DocumentStart" + Math.random();
 
 USL.__defineGetter__("pref", function(){
 	delete this.pref;
@@ -505,10 +489,10 @@ USL.__defineGetter__("disabled", function() DISABLED);
 USL.__defineSetter__("disabled", function(bool){
 	if (bool) {
 		this.icon.setAttribute("state", "disable");
-		gBrowser.mPanelContainer.removeEventListener(USL.eventName, this, false);
+		gBrowser.mPanelContainer.removeEventListener("DOMWindowCreated", this, false);
 	} else {
 		this.icon.setAttribute("state", "enable");
-		gBrowser.mPanelContainer.addEventListener(USL.eventName, this, false);
+		gBrowser.mPanelContainer.addEventListener("DOMWindowCreated", this, false);
 	}
 	return DISABLED = bool;
 });
@@ -548,7 +532,7 @@ USL.getFocusedWindow = function () {
 USL.init = function(){
 	USL.loadSetting();
 	USL.style = addStyle(css);
-/*
+/*	
 	USL.icon = $('status-bar').appendChild($C("statusbarpanel", {
 		id: "UserScriptLoader-icon",
 		class: "statusbarpanel-iconic",
@@ -562,6 +546,7 @@ USL.init = function(){
 		onclick: "USL.iconClick(event);",
 		style: "padding: 0px 2px;",
 	}));
+
 
 	var xml = '\
 		<menupopup id="UserScriptLoader-popup" \
@@ -587,7 +572,7 @@ USL.init = function(){
 					          id="UserScriptLoader-hide-exclude"\
 					          accesskey="a"\
 					          type="checkbox"\
-					          checked="' + USL.HIDE_EXCLUDE + '"\
+					          checked=" + USL.HIDE_EXCLUDE + "\
 					          oncommand="USL.HIDE_EXCLUDE = !USL.HIDE_EXCLUDE;" />\
 					<menuitem label="Scriptordner öffnen"\
 					          id="UserScriptLoader-openFolderMenu"\
@@ -626,22 +611,16 @@ USL.init = function(){
 	USL.rebuild();
 	USL.disabled = USL.pref.getValue('disabled', false);
 	window.addEventListener('unload', USL, false);
-	Services.obs.addObserver(USL, "content-document-global-created", false);
-	USL.debug('observer start');
 	USL.initialized = true;
 };
 
 USL.uninit = function () {
 	window.removeEventListener('unload', USL, false);
-	Services.obs.removeObserver(USL, "content-document-global-created");
-	USL.debug('observer end');
 	USL.saveSetting();
 };
 
 USL.destroy = function () {
 	window.removeEventListener('unload', USL, false);
-	Services.obs.removeObserver(USL, "content-document-global-created");
-	USL.log('observer end');
 
 	let disabledScripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
 	USL.pref.setValue('script.disabled', disabledScripts.join('|'));
@@ -658,7 +637,7 @@ USL.destroy = function () {
 
 USL.handleEvent = function (event) {
 	switch(event.type) {
-		case USL.eventName:
+		case "DOMWindowCreated":
 			var win = event.target.defaultView;
 			win.USL_registerCommands = {};
 			win.USL_run = [];
@@ -669,15 +648,6 @@ USL.handleEvent = function (event) {
 		case "unload":
 			this.uninit();
 			break;
-	}
-};
-
-USL.observe = function (subject, topic, data) {
-	if (topic === "content-document-global-created") {
-		var doc = subject.document;
-		var evt = doc.createEvent("Events");
-		evt.initEvent(USL.eventName, true, false);
-		doc.dispatchEvent(evt);
 	}
 };
 
@@ -917,18 +887,17 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	var locationHref = safeWindow.location.href;
 
 	// document-start でフレームを開いた際にちょっとおかしいので…
-	if (!rsflag && locationHref == "" && safeWindow.frameElement)
+	if (!rsflag && locationHref == ""/* && safeWindow.frameElement*/)
 		return USL.retryInject(safeWindow);
-	// target="_blank" で about:blank 状態で開かれるので…
+/*	// target="_blank" で about:blank 状態で開かれるので…
 	if (!rsflag && locationHref == 'about:blank')
-		return USL.retryInject(safeWindow);
+		return USL.retryInject(safeWindow);*/
 
 	if (USL.GLOBAL_EXCLUDES_REGEXP.test(locationHref)) return;
 
 	if (!USL.CACHE_SCRIPT)
 		USL.reloadScripts();
 
-	var console = new USL.Console();
 	var documentEnds = [];
 	var windowLoads = [];
 
@@ -983,7 +952,7 @@ USL.injectScripts = function(safeWindow, rsflag) {
 		sandbox.XPathResult  = Ci.nsIDOMXPathResult;
 		sandbox.unsafeWindow = safeWindow.wrappedJSObject;
 		sandbox.document     = safeWindow.document;
-		sandbox.console      = console;
+		sandbox.console      = safeWindow.console;
 		sandbox.window       = safeWindow;
 
 		sandbox.__proto__ = safeWindow;
@@ -1002,19 +971,15 @@ USL.evalInSandbox = function(aScript, aSandbox) {
 	}
 };
 
-USL.log = function() {
-	Services.console.logStringMessage("[USL] " + Array.slice(arguments));
-};
+USL.log = console.log.bind(console);
 
 USL.debug = function() {
-	if (USL.DEBUG) Services.console.logStringMessage('[USL DEBUG] ' + Array.slice(arguments));
+	if (!USL.DEBUG) return;
+	var arr = ['[USL DEBUG]'].concat(Array.from(arguments));
+	console.log.apply(console, arr);
 };
 
-USL.error = function() {
-	var err = Cc["@mozilla.org/scripterror;1"].createInstance(Ci.nsIScriptError);
-	err.init(Array.slice(arguments), null, null, null, null, err.errorFlag, null);
-	Services.console.logMessage(err);
-};
+USL.error = console.error.bind(console);
 
 USL.loadText = function(aFile) {
 	var fstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);

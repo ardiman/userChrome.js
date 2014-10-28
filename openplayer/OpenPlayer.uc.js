@@ -9,7 +9,7 @@ var OpenPlayer = {
 
     mi: null,
 
-    PATH: "F:\\Programme\\VideoLAN\\VLC\\vlc.exe",
+    PATH: "C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe",
     NAME: "VLC Player",
     REGEXP: /youtube\.com/,
 
@@ -24,7 +24,7 @@ var OpenPlayer = {
 
     onPopupShowing: function (popup) {
         if (!gContextMenu.target) return;
-        popup.insertBefore(this.mi, document.getElementById("context-sep-" + ((gContextMenu.onLink) ? "open" : "stop")));
+        popup.insertBefore(this.mi, document.getElementById("context-sep-copyimage" + ((gContextMenu.onLink) ? "open" : "stop")));
         this.mi.setAttribute("oncommand", "OpenPlayer.exec(" + ((gContextMenu.onLink) ? "gContextMenu.linkURI" : "gBrowser.currentURI") + ");");
         this.mi.hidden = !this.REGEXP.test(gContextMenu.onLink ? gContextMenu.linkURL : gContextMenu.target.ownerDocument.location.href);
     },

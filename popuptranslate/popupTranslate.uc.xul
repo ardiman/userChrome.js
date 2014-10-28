@@ -692,7 +692,7 @@ display: none;
 	translate.setAttribute("label", "Übersetzung Auto DE");
 	translate.setAttribute("oncommand","popupTranslate.onCommand(false);");
 
-	contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+	contextMenu.insertBefore(translate, document.getElementById("context-sep-viewbgimage"));
 
 	})();
 
@@ -703,7 +703,7 @@ display: none;
 	translate.setAttribute("label", "Übersetzung Auto EN");
 	translate.setAttribute("oncommand","popupTranslate.onCommand(true);");
 
-	contextMenu.insertBefore(translate, document.getElementById("context-stop"));
+	contextMenu.insertBefore(translate, document.getElementById("context-sep-viewbgimage"));
 
 	})();
   ]]></script>

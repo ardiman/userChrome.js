@@ -5,14 +5,20 @@
 // @include        main
 // @include        chrome://messenger/content/messenger.xul
 // @include        chrome://messenger/content/messageWindow.xul
-// @compatibility  Firefox 10, Thunderbird 10
+// @compatibility  Firefox 24, Thunderbird 24
 // @author         Alice0775
 // @note           Left DblClick        : open link on  new tab
 // @note           ctrl + Left DblClick : open current tab
 // @note           shift + Left DblClick: save as link
 // @note           全角で書かれたURLを解釈するには,user.jsにおいて,user_pref("network.enableIDN", true);
+// @version        2014/10/12 23:30 !
+// @version        2014/10/10 00:00 use gBrowser.selectedBrowser.contentWindowAsCPOW instead of content
+// @version        2014/10/10 00:00 Detect DOM instances by constructor function instead of XPCOM interface 
+// @version        2014/06/20 07:00 experiments e10s
+// @version        2014/06/18 13:30 working with autoCopyToClipboard.uc.js
+// @version        2014/06/18 13:30 experiments e10s
+// @version        2014/06/18 13:30 Fix Thunderbird
 // @version        2014/06/18 12:30 remove experiments e10s
-// @version        2014/06/18 07:10 experiments e10s event
 // @version        2014/06/18 07:04 experiments e10s
 // @version        2014/06/18 07:00 experiments e10s
 // @version        2014/03/15 06:00 Fix Issue#21
@@ -98,8 +104,8 @@ function ucjs_textlink(event){
 /*
 /(([\w-]+:\/\/?|[\w\d]+[.])?[^\s()<>]+[.](?:\([\w\d]+\)|([^`!()\[\]{};:'\".,<>?«»“”‘’\s]|\/)+))/
 */
-  const urlRegex = /(((h?t)?tps?|h..ps?|ftp|((\uff48)?\uff54)?\uff54\uff50(\uff53)?|\uff48..\uff50(\uff53)?|\uff46\uff54\uff50)(:\/\/|\uff1a\/\/|:\uff0f\uff0f|\uff1a\uff0f\uff0f)[-_.~*'()|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]*[-_,.~*)\[\]|a-zA-Z0-9;:\/?@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]+)/ig;
-  const urlRegex1 = /([-_.~*'()|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]*[.\uff0e]+[-_.~*'\[\]|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c]+[.\uff0e/\uff0f]*[-_,.~*\[\]|a-zA-Z0-9;:\/?@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c]+)/ig;
+  const urlRegex = /(((h?t)?tps?|h..ps?|ftp|((\uff48)?\uff54)?\uff54\uff50(\uff53)?|\uff48..\uff50(\uff53)?|\uff46\uff54\uff50)(:\/\/|\uff1a\/\/|:\uff0f\uff0f|\uff1a\uff0f\uff0f)[-_.~*'()|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]*[-_,.~*)\[\]|a-zA-Z0-9;!:\/?@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]+)/ig;
+  const urlRegex1 = /([-_.~*'()|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c\uff3b\uff3d]*[.\uff0e]+[-_.~*'\[\]|a-zA-Z0-9;:\/?,@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff08\uff09\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c]+[.\uff0e/\uff0f]*[-_,.~*\[\]|a-zA-Z0-9;!:\/?@&=+$%#\uff0d\uff3f\u301c\uffe3\uff0e\uff01\uff5e\uff0a\u2019\uff5c\uff41-\uff5a\uff21-\uff3a\uff10-\uff19\uff1b\uff1a\uff0f\uff1f\uff1a\uff20\uff06\uff1d\uff0b\uff04\uff0c\uff05\uff03\uff5c]+)/ig;
   const urlRx = /^(ttp|tp|h..p|\uff54\uff54\uff50|\uff54\uff50|\uff48..\uff50)/i;
   const urlRx1 = /(:\/\/|\uff1a\/\/|:\uff0f\uff0f|\uff1a\uff0f\uff0f)/i;
   const mailRx = /(^(mailto:|\uff4d\uff41\uff49\uff4c\uff54\uff4f\uff1a)(?:(?:(?:(?:[a-zA-Z0-9_#\$\%&'*+/=?\^`{}~|\-]+)(?:\.(?:[a-zA-Z0-9_#\$\%&'*+/=?\^`{}~|\-]+))*)|(?:"(?:\\[^\r\n]|[^\\"])*")))\@(?:(?:(?:(?:[a-zA-Z0-9_#\$\%&'*+/=?\^`{}~|\-]+)(?:\.(?:[a-zA-Z0-9_#\$\%&'*+/=?\^`{}~|\-]+))*)|(?:\[(?:\\\S|[\x21-\x5a\x5e-\x7e])*\])))$)/;
@@ -267,6 +273,7 @@ function ucjs_textlink(event){
 //すべての文字列の中でURLと思しき文字列を配列として得る
   var i1, i2;
   var arrUrl = allStr.match(urlRegex);
+
   if (arrUrl) {
 //見つかったURLと思しき文字列の中にレンジが含まれているかどうか
     i2 = 0;
@@ -407,7 +414,7 @@ function ucjs_textlink(event){
   function _getFocusedWindow(){ //現在のウインドウを得る
     var focusedWindow = document.commandDispatcher.focusedWindow;
     if (!focusedWindow || focusedWindow == window)
-        return window._content;
+        return window.gBrowser.selectedBrowser.contentWindowAsCPOW;
     else
         return focusedWindow;
   }
@@ -479,13 +486,18 @@ function ucjs_textlink(event){
   }
 
   function textlink(event, doc, uri) {
-      try{
-        if(event.shiftKey)
-          saveAsURL(uri, doc);
-        else
-          openNewTab(uri, doc);
-      }catch(e){}
-      closeContextMenu();
+    if ("autoCopy" in window) {
+      autoCopy.forceDisable = true;
+      setTimeout(function(){ autoCopy.forceDisable = false;}, 1500);
+    }
+
+    try{
+      if(event.shiftKey)
+        saveAsURL(uri, doc);
+      else
+        openNewTab(uri, doc);
+    }catch(e){}
+    closeContextMenu();
   }
 
   function saveAsURL(uri, doc){
@@ -497,8 +509,6 @@ function ucjs_textlink(event){
     //Thunderbird
     if (/^chrome:\/\/messenger\/content\//.test(window.location.href)) {
       // URL Loading Security Check
-      var focusedWindow = document.commandDispatcher.focusedWindow;
-      var sourceURL = getContentFrameURI(focusedWindow);
       const nsIScriptSecurityManager = Components.interfaces.nsIScriptSecurityManager;
       var secMan = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
                              .getService(nsIScriptSecurityManager);
@@ -514,12 +524,8 @@ function ucjs_textlink(event){
       return;
     }
 
-    // urlSecurityCheck wanted a URL-as-string for Fx 2.0, but an nsIPrincipal on trunk
-    if(activeBrowser().contentPrincipal)
-      urlSecurityCheck(uri.spec, activeBrowser().contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
-    else
-      urlSecurityCheck(uri.spec, activeBrowser().currentURI.spec,Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
-
+    // urlSecurityCheck
+    urlSecurityCheck(uri.spec, _unremotePrincipal(doc.nodePrincipal));
     saveURL( uri.spec, linkText, null, true, false, aReferrer , doc );
   }
 
@@ -528,16 +534,14 @@ function ucjs_textlink(event){
     if (/^chrome:\/\/messenger\/content\//.test(window.location.href)) {
       // Make sure we are allowed to open this URL
       // URL Loading Security Check
-      var focusedWindow = document.commandDispatcher.focusedWindow;
-      var sourceURL = getContentFrameURI(focusedWindow);
       const nsIScriptSecurityManager = Components.interfaces.nsIScriptSecurityManager;
       var secMan = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
                              .getService(nsIScriptSecurityManager);
       try {
         if (uri instanceof Components.interfaces.nsIURI)
-         secMan.checkLoadURIWithPrincipal(doc.nodePrincipal, uri, nsIScriptSecurityManager.STANDARD);
+         secMan.checkLoadURIWithPrincipal(_unremotePrincipal(doc.nodePrincipal), uri, nsIScriptSecurityManager.STANDARD);
         else
-         secMan.checkLoadURIStrWithPrincipal(doc.nodePrincipal, uri, nsIScriptSecurityManager.STANDARD);
+         secMan.checkLoadURIStrWithPrincipal(_unremotePrincipal(doc.nodePrincipal), uri, nsIScriptSecurityManager.STANDARD);
       } catch (e) {
         throw "Load denied.";
       }
@@ -546,12 +550,8 @@ function ucjs_textlink(event){
       protocolSvc.loadUrl(uri);
       return;
     }
-
-    // urlSecurityCheck wanted a URL-as-string for Fx 2.0, but an nsIPrincipal on trunk
-    if(activeBrowser().contentPrincipal)
-      urlSecurityCheck(uri.spec, activeBrowser().contentPrincipal,Ci.nsIScriptSecurityManager.DISALLOW_INHERIT_PRINCIPAL);
-    else
-      urlSecurityCheck(uri.spec, activeBrowser().currentURI.spec,Ci.nsIScriptSecurityManager.DISALLOW_SCRIPT);
+    // urlSecurityCheck
+    urlSecurityCheck(uri.spec, _unremotePrincipal(doc.nodePrincipal));
     if( (event.ctrlKey) ){
       openLinkIn(uri.spec, "current", {});
     }else{
@@ -562,9 +562,28 @@ function ucjs_textlink(event){
     }
   }
 
+  
+  function _unremotePrincipal(aRemotePrincipal) {
+    try {
+      let isRemote = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                    .getInterface(Ci.nsIWebNavigation)
+                    .QueryInterface(Ci.nsILoadContext)
+                    .useRemoteTabs;
+      if (isRemote) {
+        return Cc["@mozilla.org/scriptsecuritymanager;1"]
+                 .getService(Ci.nsIScriptSecurityManager)
+                 .getAppCodebasePrincipal(aRemotePrincipal.URI,
+                                          aRemotePrincipal.appId,
+                                          aRemotePrincipal.isInBrowserElement);
+      }
+    } catch(e) {}
+    return aRemotePrincipal;
+  }
+
   function closeContextMenu() {
     var popup = document.getElementById("contentAreaContextMenu");
-    popup.hidePopup();
+    if (popup)
+      popup.hidePopup();
   }
 
   function getURLRange(selRange, url) {
@@ -621,7 +640,7 @@ function ucjs_textlink(event){
   }
 
   function getDocumentBody(aDocument) {
-    if (aDocument instanceof Components.interfaces.nsIDOMHTMLDocument)
+    if (aDocument.body)
       return aDocument.body;
 
     try {
@@ -673,11 +692,10 @@ function ucjs_textlink(event){
     if (!aTarget) return null;
 
     const nsIDOMNSEditableElement = Components.interfaces.nsIDOMNSEditableElement;
-    const nsIDOMWindow = Components.interfaces.nsIDOMWindow;
     try {
       return (aTarget instanceof nsIDOMNSEditableElement) ?
             aTarget.QueryInterface(nsIDOMNSEditableElement).editor.selectionController :
-          (aTarget instanceof nsIDOMWindow) ?
+          (typeof aTarget.Window == 'function' && aTarget instanceof aTarget.Window) ?
             DocShellIterator.prototype.getDocShellFromFrame(aTarget)
               .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
               .getInterface(Components.interfaces.nsISelectionDisplay)
@@ -763,14 +781,26 @@ var textLinkForSidebar = {
     }catch(e){}
   }
 }
+
 //for contents area
-if (/^chrome:\/\/messenger\/content\//.test(window.location.href)) {
-  var target = document.getElementById("messagepane");
-} else {
-  var target = document.getElementById("appcontent");
+if (parseInt(Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).version.substr(0,3) * 10,10) / 10 > 24) { // fx25 and more
+  var script = 'data:application/javascript,' + encodeURIComponent('addEventListener("dblclick", function(event) {sendSyncMessage("textlink_dblclick", {}, {event: event}); }, false);');
+  window.messageManager.loadFrameScript(script, true);
+  window.messageManager.addMessageListener("textlink_dblclick", 
+    function(m){setTimeout(ucjs_textlink, 100, m.objects.event);}
+  );
+
+  script = 'data:application/javascript,' + encodeURIComponent('addEventListener("keypress", function(event) {sendSyncMessage("textlink_keypress", {}, {event: event}); }, false);');
+  window.messageManager.loadFrameScript(script, true);
+  window.messageManager.addMessageListener("textlink_keypress",
+    function(m){setTimeout(ucjs_textlink, 100, m.objects.event);}
+  );
+
+} else { //Fx24 and less
+  window.document.addEventListener('dblclick', function(event){setTimeout(ucjs_textlink, 100, event);}, false);
+  window.document.addEventListener('keypress', function(event){setTimeout(ucjs_textlink, 100, event);}, false);
 }
-target.addEventListener('dblclick',function(event){setTimeout(ucjs_textlink,100,event);},false);
-target.addEventListener('keypress',function(event){ucjs_textlink(event);},false);
+
 //for already loaded chrome://browser/content/web-panels.xul
 if (!/^chrome:\/\/messenger\/content\//.test(window.location.href)) {
   setTimeout(function(){

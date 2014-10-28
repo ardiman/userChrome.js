@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 29+
 // @author         Alice0775
+// @version        2014/09/28 22:00 fix does not preserve position due to bug 1001090
 // @version        2014/06/20 22:00 do not collapse in gullscreen
 // @version        2014/06/07 20:00 slightly delayed to display toolbar
 // @version        2014/05/23 00:00 preserve position after customize toolbar
@@ -85,7 +86,7 @@ var addToolbarInsideLocationBar = {
     toolbar.setAttribute("context", "toolbar-context-menu");
     toolbar.setAttribute("class", "toolbar-primary chromeclass-toolbar customization-target");
     toolbar.setAttribute("fullscreentoolbar", "true");
-    toolbar.setAttribute("toolbarname", "UCJS Toolbar innerhalb Locationbar");
+    toolbar.setAttribute("toolbarname", "UCJS Toolbar Inside LocationBar");
     toolbar.setAttribute("toolboxid", "navigator-toolbox");
     toolbar.setAttribute("hidden", "true");
     setTimeout(function(){toolbar.removeAttribute("hidden");}, 0)
@@ -120,14 +121,12 @@ var addToolbarInsideLocationBar = {
         window.addEventListener("customizationending", this, false);
         this.placeholder = toolbar.parentNode.insertBefore(document.createElement("hbox"), toolbar);
         let ref = document.getElementById("nav-bar-customization-target");
-        toolbar.setAttribute("tooltiptext", "Toolbar innerhalb Locationbar");
+        toolbar.setAttribute("tooltiptext", "Toolbar inside LocationBar");
         ref.parentNode.insertBefore(toolbar, ref);
         break;
       case "customizationending":
         window.removeEventListener("customizationending", this, false);
-
-        ref = this. placeholder;
-        ref.parentNode.replaceChild(toolbar, ref);
+        this. placeholder.parentNode.replaceChild(toolbar, this. placeholder);
         toolbar.removeAttribute("tooltiptext");
         //BookmarkingUI._updateCustomizationState();
         break;

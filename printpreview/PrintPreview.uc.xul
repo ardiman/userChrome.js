@@ -3,12 +3,12 @@
 @namespace%20url('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul');
 @namespace%20html%20url('http://www.w3.org/1999/xhtml');
 
-%23print-toolbarbutton { 
-list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAB3RJTUUH1AwOETswZ9t4eAAAAAlwSFlzAAAnEAAAJxABlGlRGQAAAARnQU1BAACxjwv8YQUAAAL1SURBVHjafVFLTBNRFD0z06llgLZUyhRLW4FWqKGCCVETdWdYmfgjRsPCRF3IDhe6JSwJ0ZVLYjRBSQiJJhoTWWhCjJqoIXFhpQ60WuhQaEtnWtpOZ6bjayHKQrzJyXvv5t1z7z2HAok7kxuNNGfya3olYFLVQ7ydDjgaqICFQeDdl%2FTtB3e7p7BX3Jsrvp9fVCpf42UjvqkacrliyKphZMuGkVEMY%2FLZyvLoqEHvVU9nZeVp8ABD%2BXgW9ZwJ5QoFRcMfBLus7bGtDwN7EqTXlEcLQimv6X%2BLSjtQVIB3NcBhWXm8J0HQmNkXFsRvNPWXoFpYRZWkrFPguPqWoaGh1n8RmPL5%2FFFJ%2BHysVGyHojOoGKhB1yuQMmlkN9bhcujoOXv509WrN2yKUl79%2BTP%2BUJJW7o%2BNjWnU8PBwEyye1LXrN%2BlcQUYumwGtlWGChia7Fc3NDlAUg1xuC4VCET5fKwyjgvn5j28FIX6eGRi4%2BJgz093NVjPN2zn4Wpthra8Dw7CQ5SKi0QSWln4hHheRSKzhx48Y%2FH4v%2BvtD7YKwfMHU2em75PG4mUgkit7ew1BVHd%2B%2FR5FOZ6FpKnlXUd51VzE9%2FRwezwGsriYDNX9Z1gSbzYq5ubdkZBvOnDlOshoymVQNm5tpcm6jes%2Flcmhs3A%2B7vYmsuhNmM4tUKoOpqVm0tbWCpvXa52rHujpLLcfzLtLASfJZogu17YIoJj94ve5T25OwcDqdOH36BCRJJgVOeL0eYiOH5eUowuEw3rx5DVFMYHBwiIi6lTRFo%2FFzqqq98vs7ju%2F21263ka48ETBChIzVHCiVlNqqbrcbi4tfkM9vzTALCx%2BLLS09TwoFqY1lzX0ORxM6OrxIJtewvr5OCku1NSwWjhC6EQr1IhjsJpPyCtEnTO3ueuvW3SvEkbGurk5vKrWREoRvfF9fP3vwYAcaGriqiCVZll7HYkuzoii%2BGB8flyj8J0ZGRk6GQkceuVyur5HI4mwikXg5MTGR2%2F3nN9uWfV5YKc%2F2AAAAAElFTkSuQmCC);
+%23print-toolbarbutton {
+list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAYCAYAAADkgu3FAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAAF2+SX8VGAAAEEElEQVR42mL8//8/Az0AQACxkKJYSNmE30ZbMVRKRPgHsviBYxfv37hx/Cg+vQABxEiMjxRVLSyiIv3UXjx/aeLlYJTNyMjAhCx/9MyNHdz8Aktv3Lj979rlE2uuXLnyC90MgABiAFmED4tKaxvcunnr4r+/v/8Twr9//fxf19hdi80cgABiIuSb+OgITxUVRT18av7/+8fw4+t7hu+fXjDYWRvHYFMDEEAE40hUiFv5968fWOWAvmD4+e0jw++fXxkYmZgZmJlZGb59/SqGTS1AABG06Mv7l+xfPr2Fuvwvwz8g/v/vD8Pf3z+BQfIXaAELAxPQEmC8AcX/M3z68IYZmzkAAYTTIgkZfSemf/8/utjpC12+coNh9bpdDJKSIgxsLIwMoPQDNBNK/2eApacvX74x8HKxM0tJ6Rn/Y2SUfvH04iaYeQABhDUBGBo66p89d+HCf6ATYXjC7NX/zz/4gBd39c+Eq3/77t2X5LTieJiZAAGE1UeOzrbBuloq+r9/foOLPX7zmeHCvZd4g/n79x8MMD28XGzcVub6EUDmQhAfIICwWiQrJazwBxjByODhy/cMfwlYxP3rJwOyPk52ZmUYGyCAMCxKD3Pl1zJ3l/6D5BsQ0FVXYDDXEWPg4+ZgEOTjxLDk6Yu3DL/E1RmQ9TH//8PfVxwpW9S7/DFAAGFYJC7Eq/X3+0dFdB/l+qgDyT+gKIdiNH1SQEJKGcVHv39/F2RkYrAFMpcBBBBGhhXkYVUD5htRQiUGMRhoOCuQ1g8LC+MECCAUHzk6OrL4GYvJMjMycoD4127cZpizYBnJJbWHmyODm5MdjCuvJ84gARBAKBZpSnHzArOEBNA9YPFnz18wLF+9EZINGP5DswM8X2AXB4WKoADYImYWFlB+k+RmZZADCCAUi768+f2LUYrxyL2Hz92XLF4h8uDRE1YleWluGQkxhoT4BLih2As8Boa7t28xLFm9luHR/Qc/gfq/3334kkGM7e9WZtb/jwECCMWiRTt3fgWG5zoVWRF+FWWFGdKSwgy37txmsDMzYgiNiSUYZJdOHGY4fvokg562KruzvRn7hy1HNr69+3Fy36rV3wECCCPVrVq1CliXrJ6zbtmXiV9//mdXkpNmUFNSYPjz5xdBi1S0dRj0VBQY2Ng5GF5++MXAzs2zv2/Vqu8gOYAAwlHWhf4NimLg6G8sElJRlFSUlJLa8ff3LxFCFjGzsDIYaanOePLufZeTd8h9J2+EHEAA4S29C+v73gGpd8c2L2L+85uwj/79BZbuP7/+KWmefB9dDiCAiGozXDu2+cHVo1sEGQmo+8/A+JOB6e8lbHIAAUSURYw/GV2Y2f8J/GMGVkB4a9r/7ALsLA+wyQEEECO9mlsAAQYAq1BA/vIVsYsAAAAASUVORK5CYII=);
 }
 
 %23print-toolbarbutton> dropmarker {
- display: none;
+display: none;
 }
 
 " type="text/css"?>
@@ -20,26 +20,26 @@ list-style-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYA
 
 <overlay id="printpreviewoverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<toolbar id="nav-bar">
-	<toolbarbutton id="print-toolbarbutton" type="menu" class="toolbarbutton-1" insertafter="urlbar-container">
-		<menupopup>
-			<menuitem id="print-button-popup" label="&printCmd.label;" tooltiptext="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
-			<menuitem label="&printPreviewCmd.label;" tooltiptext="&printPreviewCmd.label;" oncommand="PrintUtils.printPreview(PrintPreviewListener); event.stopPropagation();" accesskey="&printPreviewCmd.accesskey;"/>
-			<menuseparator/>
-			<menuitem label="&printSetupCmd.label;" tooltiptext="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
-		</menupopup>
-	</toolbarbutton>
+<toolbar id="ctraddon_extra-bar">
+<toolbarbutton id="print-toolbarbutton" type="menu" class="toolbarbutton-1" insertbefore="home-button">
+<menupopup>
+<menuitem id="print-button-popup" label="&printCmd.label;" tooltiptext="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
+<menuitem label="&printPreviewCmd.label;" tooltiptext="&printPreviewCmd.label;" oncommand="PrintUtils.printPreview(PrintPreviewListener); event.stopPropagation();" accesskey="&printPreviewCmd.accesskey;"/>
+<menuseparator/>
+<menuitem label="&printSetupCmd.label;" tooltiptext="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
+</menupopup>
+</toolbarbutton>
 </toolbar>
 
 <popup id="contentAreaContextMenu">
-	<menu id="context-print-menu" label="&printCmd.label;" accesskey="&printCmd.accesskey;" insertafter="context-stop">
-		<menupopup>
-			<menuitem id="context-print-menu-print" label="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
-			<menuitem id="context-print-menu-preview" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" oncommand="PrintUtils.printPreview(PrintPreviewListener);"/>
-			<menuseparator/>
-			<menuitem id="context-print-menu-printSetup" label="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
-		</menupopup>
-	</menu>
+<menu id="context-print-menu" label="&printCmd.label;" accesskey="&printCmd.accesskey;" insertafter="context-sep-viewbgimage">
+<menupopup>
+<menuitem id="context-print-menu-print" label="&printCmd.label;" accesskey="&printCmd.accesskey;" command="cmd_print"/>
+<menuitem id="context-print-menu-preview" label="&printPreviewCmd.label;" accesskey="&printPreviewCmd.accesskey;" oncommand="PrintUtils.printPreview(PrintPreviewListener);"/>
+<menuseparator/>
+<menuitem id="context-print-menu-printSetup" label="&printSetupCmd.label;" command="cmd_pageSetup" accesskey="&printSetupCmd.accesskey;"/>
+</menupopup>
+</menu>
 </popup>
 
 </overlay>

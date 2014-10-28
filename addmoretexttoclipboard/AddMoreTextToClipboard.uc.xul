@@ -174,16 +174,16 @@ window.addEventListener("load", function() { addmoretexttoclipboard.onFirefoxLoa
 
   <popup id="contentAreaContextMenu">
     <menuitem id="context-addmoretexttoclipboard-newline" label="Einfügen mit Zeilenumbruch"
-              insertafter="context-stop"
+              insertafter="context-openlink"
               oncommand="addmoretexttoclipboard.onMenuItemCommand(event, true);"/>
     <menuitem id="context-addmoretexttoclipboard" label="Einfügen in Zwischenablage"
-              insertafter="context-stop"
+              insertafter="context-openlink"
               oncommand="addmoretexttoclipboard.onMenuItemCommand(event, false);"/>
   </popup>
 
-  <addonbar id="addon-bar">
+	<addonbar id="toolbar-menubar">
     <statusbarpanel id="context-addmoretexttoclipboard-status">
-      <image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAABGdBTUEAALGPC%2FxhBQAAAuxJREFUOE9lk1tTU2cUhj86Xvcv9Fd0vPLS%2B956084w2vFQOy0zth4viuKhnVJbp4QKooDUQxNCQgBFKCaRQiAJhyBUAwJJNskmkHAIp5Dsx7V3phm1a%2BadPd9hvd%2Bz1ppdcc0zx6effKwKBUOZUaEMSwpZUFQYhqUDH1Uohy%2Bq6qoOW%2FfK4Z3OYJ%2Ff5P7LNWzBDD%2F6VviuU%2BfkI42j9xMca9Msfd6apPP5NB%2BG6p9K82d0naaJDLdGMlx1vcY3nWYgovN8SscbSeGLaHgnNXpDcVyDs7T7XuN%2BEeXEz70oz5gOBuzulbx7J9PvE3nTXOzWqXJofPVQ47SQmfryQZK%2B4agYhFPs7EN2y2A7Dz3jKYvorhD9Flihpl%2Fne3dSkuIcb4tZOiGqbE3Q5f8X1RlOsvuOgWN0qUyUl%2F39AhSLsiWUZpjfgqzNaHsaEYLg0vsGI1qZaG3b4F2ZlKs5g%2BUNgw0pubV7EvXX0Bz74vpfCfaAZhlu7EBul7JBOXnTILlukJXzFs846pfOPpJrq%2BwJ6o70wD4UJy%2BIM0sLjEYjFMV8fZvSy5KckuRE1iCdg2Z3GPVsLMuF9uO4A11siasrsGrVNxNbpPrFNzT02ciJwZqcmcmaJC%2BuGuhicLcjhOoJypxf%2BrHHGqkLXefmwA2a%2FXdo8jbQErvF7cUbXHhyCt%2FkGJtSUiwDs%2BkCiXVocgZRHYPz1ovOoIffQzUM5J10ZJt5oNfTFKulbq6GX99c4nywkmrXeWb1PHPL0gchaHELgXtoHnMq0gLe6CtcfHyVK39X8VP4HLaFa9yMXuKHqdOc6ark2USYrJST2yvN9Mi3jaiTtX3c8UxQZw9is4foCSxbh35BvjzxNWf8X2DrrUcT9IUVrDLMaG0fpPq2D%2FXhz%2FHIGy01UaZw1nWUVwmdLRlrahPiG6Xb%2F4RnOXSkFk0a%2Bz%2BDU0L0sH%2BGeucQbd2vZNYRGp2jNDhG%2BOPxMPccwxz87DJpqXs8XuQtQgNT%2ByYl9s0AAAAASUVORK5CYII%3D" 
+      <image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACzElEQVQ4jWWTSU9TYRhG749y5Z9w7UYTogYHTNTEWReCOEacIkVBFISqWCh0YKhFbCtC6URbBLUM5baX9lK4LS1t6fAdF01Q5E2e5N08JyffIN21LmEPpxgNqIwGVMYCCWwBBZtfweaTGfNEGXUvY/escPKRDen/ccxrGFay9PxIo/NqPHBucMmicqpP4VhvnON6heN6hSM9Ccxf5/cDxudS6CMZOoMaz2c07ph+45xPMRFW+Tqn4ggncYYVHCEFmy/G0OQiRudvTN8iNSNLQAUBxR0AsIVSe40cKW4Mq1wYUDjzUaGhr5YTHxLYpyNIFn+SQhm0bUG+BCOzSfSRDG+CGs/cGzSPq1w2J2joi1Gvl6nXy5zUy9T1xLG6fiKZ/QmK/wD6PWu7RqUylCtQrYIQNUMhoFKt7b1jYSSLd20vYEbZNUrn90bbFmzmBOtbgq0deDccQjJMLVEWfwEGt0KxDFsFyBXZX84KEhmBVoBu6yzSY4udRHqTnQoUSmCYilGqwsJaFE8kTFVAJs9uOZkRxNOCVA66zH6kzwGN68Z6TG4r2wUYcm8CsCCv0vjtHO12Hbk8pAuQzAiUtGB1U6Dm4M2QD2nEm8T5w4VB7qDVd48nE/fpcr2m09FOt/ycV6v3uT56GmcoQLYIsgaLqQrxDHQOepGGJlcAMHotvPA1M1EyMpju4r3aRqfcQutSM0+Xb3LNW0ej6RqLaomldUEiB91mH5JpaoUqUAGW1Q1ufLrD7S8XeOi/ii56lyeRm9yaa+CitY7PQT9aHnI7tTs9fL4D6VSLndfWIK39XnT9Pkbc6wC4QgGagme56DqKztaGokF0A7LF2ht4Z5yk8ZVz/9/46IjUDnEtyhXTMX7FVbbLkMxCbKtW/u5f5ODhFpQC+wGnW+x8GF+gbXCK3uFfdFvDdAx6aB+Y4eWnad4OTHPgUBOpKszGqvwBWPw5BawTJBcAAAAASUVORK5CYII=" 
 	        style="cursor:pointer; width: 16px; height: 16px;" tooltiptext="Zwischenablage leeren" 
             onclick="addmoretexttoclipboard.leftClick(event);"/>
     </statusbarpanel> 

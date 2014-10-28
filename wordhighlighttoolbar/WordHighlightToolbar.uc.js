@@ -7,7 +7,8 @@
 // @compatibility  Firefox 17
 // @charset        UTF-8
 // @include        main
-// @version        0.0.8
+// @version        0.0.9
+// @note           0.0.9 細部を修正
 // @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
 // @note           0.0.7 ツールバーが自動で消えないことがあったのを修正
 // @note           0.0.6 アイコンを作って検索時の強調を ON/OFF できるようにした
@@ -215,7 +216,9 @@ window.gWHT = {
 				if (!checkDoc(doc)) return;
 
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
-				this.launch(doc, keywords);
+				setTimeout(function() {
+					this.launch(doc, keywords);
+				}.bind(this), 500);
 				break;
 			case "pageshow":
 				var doc = event.target;
@@ -437,7 +440,7 @@ window.gWHT = {
 		box.setAttribute("ordinal", "5");
 
 		var closebutton = toolbar.appendChild(document.createElement("toolbarbutton"));
-		closebutton.setAttribute("class", PREFIX + "closebutton tabs-closebutton");
+		closebutton.setAttribute("class", PREFIX + "closebutton tabs-closebutton close-icon");
 		closebutton.setAttribute("oncommand", "gWHT.destroyToolbar();");
 		closebutton.setAttribute("ordinal", "1");
 
@@ -519,7 +522,7 @@ window.gWHT = {
 	},
 	addWord: function(aWord, aBold, aRange) {
 		if (!aWord) {
-			aWord = prompt('Bitte geben Sie den gewünschten Text zum Hervorheben', getBrowserSelection());
+			aWord = prompt('Gewünschten Text zum Hervorheben angeben', getBrowserSelection());
 			aBold = true;
 		}
 		if (!aWord) return;
@@ -687,6 +690,8 @@ window.gWHT.ContentClass.prototype = {
 		,'padding: 0px !important;'
 		,'border: none !important;'
 		,'text-shadow: none !important;'
+		,'float: none !important;'
+		,'display: inline !important;'
 	].join(' '),
 	throughSelector: ['textarea', 'input', '.' + CLASS_SPAN].map(function(w) w+', '+w+' *').join(','),
 
@@ -1072,8 +1077,8 @@ window.gWHT.init();
 .wordhighlight-toolbar-addbutton {\
   list-style-image: url("chrome://browser/skin/Toolbar.png");\
 }\
-.wordhighlight-toolbar-reloadbutton { -moz-image-region: rect(0pt, 72px, 18px, 54px); }\
-.wordhighlight-toolbar-addbutton    { -moz-image-region: rect(0pt, 306px, 18px, 288px); }\
+.wordhighlight-toolbar-reloadbutton { -moz-image-region: rect(0pt, 270px, 18px, 252px); }\
+.wordhighlight-toolbar-addbutton    { -moz-image-region: rect(0px, 576px, 18px, 558px); }\
 \
 #wordhighlight-toolbar-box:empty,\
 .wordhighlight-toolbar-arrowscrollbox:empty,\
