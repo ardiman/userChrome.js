@@ -39,16 +39,7 @@
           });
        } catch(e) { };
 
-       setTimeout(function() {
-          var extApps = document.getElementById('menubar-items').nextSibling;
-          var wdbButton = document.getElementById('Webdeveloper-button');
-          var dlfButton = document.getElementById('downloadfolder-toolbar-button');
-          var rstButton = document.getElementById('restart-button');
-          extApps.parentElement.insertBefore(wdbButton, extApps);
-          extApps.parentElement.insertBefore(dlfButton, rstButton);
-       }, 100);
-
-       }, 0);
+	       }, 0);
 
     }());
 
