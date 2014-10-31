@@ -8,5 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ## Installation
 Kopiere für den Button die "WebDeveloperToolbarButton.uc.js"-Datei in den Chromeordner des Profils. Falls der Eintrag im 
-Kontextmenü erwünscht ist, verwende "WebDeveloper-Menu.uc".
+Kontextmenü erwünscht ist, verwende "WebDeveloper-Menu.uc.js".
 
