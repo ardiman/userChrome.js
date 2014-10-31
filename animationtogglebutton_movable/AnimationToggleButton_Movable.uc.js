@@ -78,16 +78,17 @@
 		}
 
 		function updateToolbar() {
-		var toolbars = document.querySelectorAll("toolbar");
-		Array.slice(toolbars).forEach(function (toolbar) {
-		        var currentset = toolbar.getAttribute("currentset");
-		        if (currentset.split(",").indexOf("animation-button") < 0) return;
-        		toolbar.currentSet = currentset;
-        		try {
-        		    BrowserToolboxCustomizeDone(true);
-        		} catch (ex) {
-        		}
-    		});			
+		var toolbars = Array.slice(document.querySelectorAll('toolbar'));
+   for (var i=0; i<toolbars.length; i++) {          
+      var currentset = toolbars[i].getAttribute('currentset');      
+      if (currentset.split(',').indexOf('animation-button') >= 0) {      
+         var j;
+         if (i == 0) j = 1
+         else j = 0;         
+         toolbars[j].currentSet += ','+'animation-button';         
+         toolbars[i].currentSet = currentset;      
+      };      
+   };	
 		}
 		
 	createBtn();	
