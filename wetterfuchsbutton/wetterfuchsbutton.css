@@ -19,21 +19,20 @@
 	}
 }
 
-@-moz-document domain(wetter.msn.com) {
-	#weathermap,#head,#nav,#subhead,#Breadcrumb,#MehrUeber,#area2,#subfoot,#foot,#tptrck,#__mcnnav,#navCollPart,#postarea1,.nav_hover,.parent.chrome24.single1.weamap.customcontainer.blue,#reporting,.heading.alignright,.wearss,.observedat.firstleft, #mediaarea > DIV:first-child > DIV:last-child > NOSCRIPT {
-		display: none !important;
+@-moz-document domain(www.msn.com) {
+	.head,#conditionalbanner,.maps,.pagingsection,#foot,.historical,NOSCRIPT,.addfavorite,.gps,.actions,#precontent{
+		display: none! important;
 	}
-	#mediaarea {
-		background-color: #BFEFFF !important;
+	div.outer:nth-child(2) {
+		margin-left: 50px !important;
 	}
 	body {
 		overflow: hidden !important;
-		margin-left: -25px !important;
 	}
 }
 
 @-moz-document domain(www.daswetter.com) {
-	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),.top,#izquierda > UL:last-child > LI:last-child > DIV:last-child > UL,#izquierda > UL:last-child > LI:last-child > DIV:last-child > A > IMG,#p-sup,.nav-sup,.tiempo.l-de,.gota.breadcrumb,.der,.chart,.social,#p2-pred,.mapMet,.f-text,FOOTER,NOSCRIPT,H2,.alerts.av-1,.f-city {
+	#titulo,#menu_horizontal,.caja_boton,#derecha,#pie,#cabezera_directorio,.tools,#izquierda > UL > LI:nth-child(5),#izquierda > UL > LI:nth-child(7),.top,#izquierda > UL:last-child > LI:last-child > DIV:last-child > UL,#izquierda > UL:last-child > LI:last-child > DIV:last-child > A > IMG,#p-sup,.nav-sup,.tiempo.l-de,.gota.breadcrumb,.der,.chart,.social,#p2-pred,.mapMet,.f-text,FOOTER,NOSCRIPT,H2,.alerts.av-1,.f-city,.tCook,#bottom_newsletter {
 		display: none !important;
 	}
 	.pred{
@@ -42,7 +41,7 @@
 	#cookies {
 		margin-right: 20px !important;
 	}
-		.ctemp,.loc.c1,.loc.c2,.loc.c3,.loc.c4 {
+	.ctemp,.loc.c1,.loc.c2,.loc.c3,.loc.c4 {
 		margin-right: 30px !important;
 	}
 	body {
