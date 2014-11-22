@@ -13,7 +13,7 @@
     status.parentNode.insertBefore(sep, status);
     status.parentNode.insertBefore(count, status);
     gFindBar.__proto__._foundMatches = count;
-    
+
     gFindBar.__proto__._updateMatchesCount = function(aRes) {
         if (!this._updateMatchCountTimeout)
             window.clearTimeout(this._updateMatchCountTimeout);
@@ -158,9 +158,9 @@
 
 	// 検索バーからフォーカスを外し画面クリックで検索バーを閉じる
 	function closeFindbar(e){
-		if(!gFindBar.hidden)
+		if (!gFindBar.hidden)
 		{
-			if(e.target.id != "FindToolbar"){
+			if (e.target.nodeName != 'tabbrowser') {
 				gFindBar.close();
 			}
 		}
@@ -174,42 +174,34 @@
 		gFindBar.onFindAgainCommand(event.detail < 0);
 		}, false);
 
+function ClearFindbarButton() {
+	var ClearFindbarBtn = document.getAnonymousElementByAttribute(gFindBar, 'anonid', 'clearFindbar-button');
+	if (ClearFindbarBtn) return;
+	var refNode = document.getAnonymousElementByAttribute(gFindBar, 'anonid', 'find-next');
+	if (!refNode) return;
+	ClearFindbarBtn = document.createElement("toolbarbutton");
+	ClearFindbarBtn.setAttribute("anonid", "clearFindbar-button");
+	ClearFindbarBtn.setAttribute("type", "button");
+	ClearFindbarBtn.setAttribute("class", "toolbarbutton-1");
+	ClearFindbarBtn.setAttribute("oncommand", "clearFindbarTweak.onCommand(event);");
+	ClearFindbarBtn.setAttribute("label", " Löschen ");
+	ClearFindbarBtn.setAttribute("tooltiptext", "Inhalt der Suchleiste löschen");
+	ClearFindbarBtn.style.listStyleImage = "url('')";
+	refNode.parentNode.insertBefore(ClearFindbarBtn, refNode);
+	clearFindbarTweak = {
+		onCommand: function(event) {
+		var findBar = gFindBar;
+		var findField = findBar.getElement('findbar-textbox');
+		if (!findBar.hidden) {
+			findField.focus();
+			findField.select();
+			findField.value = "";
+		};
+		}
+	};
+};
+
+ClearFindbarButton();
+gBrowser.tabContainer.addEventListener('TabSelect', ClearFindbarButton);
 })();
 
-
-	// 検索バーに消去ボタンを付けたったで
-	(function ClearFindbarButton() {
-		var refNode = document.getAnonymousElementByAttribute(gFindBar, 'anonid', 'find-next');
-		if (!refNode) return;
-			const locale = (Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale")).indexOf("zh")==-1;
-			var ClearFindbarBtn = document.createElement("toolbarbutton");
-			ClearFindbarBtn.setAttribute("id", "clearFindbar-button");
-			ClearFindbarBtn.setAttribute("type", "button");
-			ClearFindbarBtn.setAttribute("class", "toolbarbutton-1");
-			ClearFindbarBtn.setAttribute("oncommand", "clearFindbarTweak.onCommand(event);");
-			ClearFindbarBtn.setAttribute("label", " Löschen ");
-			ClearFindbarBtn.setAttribute("tooltiptext", "Inhalt der Suchleiste löschen");
-			ClearFindbarBtn.style.listStyleImage = "url('')";			
-			refNode.parentNode.insertBefore(ClearFindbarBtn, refNode);
-			clearFindbarTweak = {
-				onCommand: function(event) {
-					var findBar = document.getElementById('FindToolbar');
-					var findField = document.getElementById('FindToolbar').getElement('findbar-textbox');
-					var highlightBtn = findBar.getElement("highlight");					
-					var historyfindBar = document.getElementById('historyfindbar');
-					var historyfindField = document.getElementById('find-field2');
-					if (findBar.hidden == false) {
-						findField.focus();
-						findField.select();
-						findField.value = "";
-					}
-					if (historyfindBar.hidden == false && historyfindField != null) {
-						historyfindField.focus();
-						historyfindField.select();
-						historyfindField.value = "";
-					}
-					else return;
-				}
-			}
-})();
