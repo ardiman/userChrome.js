@@ -5,6 +5,9 @@
 // @include        main
 // @compatibility  Firefox 24-35 (not e10s)
 // @author         Alice0775
+// @version        2014/11/26 21:00 Bug 1103280, Bug 704320
+// @version        2014/11/10 10:00 get rid document.commandDispatcher
+// @version        2014/10/30 10:00 working with addHistoryFindbarFx3.0.uc.js
 // @version        2014/10/07 20:00 adjusts tolerance due to backed out Bug 378775
 // @version        2014/10/07 19:00 Modified to use capturing phase for drop and event.defaultprevent
 // ==/UserScript==
@@ -92,7 +95,7 @@ var DragNGo = {
   // name    :'hoge'
   // obj     :'link, textlink, text, image, file' Zielobjekte
   // cmd     :function(self, event, info) {} /* info:{urls:[], texts:[], nodes:[], files:[], fname:[]}*/
-  //          urls:link,image,file und textlinks, die url´s enthalten
+  //          urls: Link, Bild, Datei und Textlinks, die url´s enthalten
   //          texts:Link-Text für den Link oder ALT-text, Bild mit Titel, alt Text, Text von RESTRICT_SELECTED_TEXT
   //          nodes:DOM Knoten
   //          fname:Vorgeschlagene Dateinamen für Links und Bilder, Textvorgabe durch RESTRICT_SELECTED_TEXT
@@ -118,8 +121,7 @@ var DragNGo = {
     {dir:'U', modifier:'',name:'Bild im Vordergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
     {dir:'D', modifier:'',name:'Bild im Hintergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
     {dir:'L', modifier:'',name:'Bild in aktuellem Tab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
-    {dir:'LD', modifier:'',name:'Google Suche nach ähnlichen Bildern',obj:'image',cmd:function(self,event,info){var TargetImage=info.urls[0];var URL="http://www.google.com/searchbyimage?image_url="+TargetImage;if(TargetImage)gBrowser.loadOneTab(URL,null,null,null,false,false);}},	
-
+    {dir:'LD', modifier:'',name:'Google Suche nach ähnlichen Bildern',obj:'image',cmd:function(self,event,info){var TargetImage=info.urls[0];var URL="http://www.google.com/searchbyimage?image_url="+TargetImage;if(TargetImage)gBrowser.loadOneTab(URL,null,null,null,false,false);}},
   /*=== Web Suche ===*/
     {dir:'R', modifier:'',name:'ConQuery Textsuche',obj:'text',cmd:function(self,event,info){self.openConQueryPopup(event);}},
     {dir:'UL', modifier:'',name:'Google Textsuche in aktuellem Tab(Green Label)',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google Textsuche(Green Label)'], 'current');}},
@@ -129,14 +131,14 @@ var DragNGo = {
     {dir:'UL', modifier:'',name:'Amazon Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Amazon.com'], 'tab');}},
     {dir:'UR', modifier:'',name:'Yahoo Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Yahoo! GERMAN'], 'tab');}},
 
-  /*=== Suche auf Seite ===*/
+  /*=== Suche auf der Seite ===*/
     {dir:'L', modifier:'',name:'Text innerhalb der Seite suchen',obj:'link, text',cmd:function(self,event,info){self.findWord(info.texts[0]);}},
 
   /*=== Zwischenablage ===*/
     {dir:'UD', modifier:'',name:'Link-Url in die Zwischenablage kopieren',obj:'text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
     {dir:'LR', modifier:'',name:'Link-Text in die Zwischenablage kopieren',obj:'link, text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
     {dir:'UDU', modifier:'',name:'Url in die Zwischenablage kopieren',obj:'link',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.urls[0]);}},
-    {dir:'DR', modifier:'',name:'Text in die Searchbar kopieren',obj:'link, text',cmd:function(self,event,info){self.copyToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
+    {dir:'DR', modifier:'',name:'Text in die Suchleiste kopieren',obj:'link, text',cmd:function(self,event,info){self.copyToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
     {dir:'DR', modifier:'ctrl',name:'Zusatz-Text in die Searchbar kopieren',obj:'link, text',cmd:function(self,event,info){self.appendToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
 
   /*=== Speichern ===*/
@@ -145,15 +147,15 @@ var DragNGo = {
     {dir:'RD', modifier:'',name:'画像をD:/hogeに保存(SF)',obj:'image',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\hoge');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/hoge', true);}}},
     {dir:'RD', modifier:'',name:'リンクをD:/に保存(SF)',obj:'link',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/', false);}}},
 */
-    {dir:'RD', modifier:'',name:'Bild mit Namen speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
-    {dir:'RD', modifier:'',name:'Link unter den Namen speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0]);}},
+    {dir:'RD', modifier:'',name:'Bild mit Namen speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
+    {dir:'RD', modifier:'',name:'Link unter den Namen speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
 
   /*=== im Text Editor öffnen ===*/
     {dir:'DL', modifier:'',name:'Im Texteditor öffnen',obj:'text',cmd:function(self,event,info){self.editText(null, info.texts[0]);}}, // 引数 null: view_source.editor.pathのエディターを使う
 
 
   /*=== appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される (Externe Anwendungen) ===*/
-    {dir:'U', modifier:'shift,ctrl',name:'Link im IE',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Programme\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
+    {dir:'U', modifier:'shift,ctrl',name:'Link im IE',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Program Files\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
     {dir:'R', modifier:'shift,ctrl',name:'Text im Notepad++',obj:'text',cmd:function(self,event,info){self.launch(info.texts[0], "D:\\Programme\\Notepad++\\notepad++.exe", [",2,,G1,%%SEL%%"], "Shift_JIS");}},
 
   /*=== Utility ===*/
@@ -170,9 +172,15 @@ var DragNGo = {
           popupTranslate.getTranslateResult(text, engine, null);
       }
     },
-  {dir:'RLU', modifier:'',name:'Textauswahl-Suche unter der Domain',obj:'link, text',
+    {dir:'RLU', modifier:'',name:'Textauswahl-Suche unter der Domain',obj:'link, text',
       cmd:function(self,event,info){
-        var _document=document.commandDispatcher.focusedWindow.document;
+        if ("BrowserUtils" in window) {
+          var [node, win] = BrowserUtils.getFocusSync(document);
+        } else {
+          win = document.commandDispatcher.focusedWindow;
+        }
+
+        var _document = win.document;
         var p = prompt('Textauswahl-Suche unter der Domain('+_document.location.hostname+'):', info.texts[0]);
         if(p)
           _document.location.href = 'http://www.google.com/search?as_qdr=y15&q=site:' +
@@ -183,10 +191,14 @@ var DragNGo = {
     {dir:'UDUD', modifier:'',name:'Auswahl als Textdatei speichern unter',obj:'text',
       cmd:function(self){
         // 選択範囲をテキストファイルとして保存する。
-        var _window = document.commandDispatcher.focusedWindow;
-        var sel = _window.getSelection();
+        if ("BrowserUtils" in window) {
+          var [node, win] = BrowserUtils.getFocusSync(document);
+        } else {
+          win = document.commandDispatcher.focusedWindow;
+        }
+        var sel = win.getSelection();
         if (sel && !sel.isCollapsed) {
-          var fname = _window.location.href.match(/[^\/]+$/) + '.txt';
+          var fname = win.location.href.match(/[^\/]+$/) + '.txt';
           fname = decodeURIComponent(fname);
           fname = fname.replace(/[\*\:\?\"\|\/\\<>]/g, '_');
           self.saveTextToLocal(sel.toString(), fname, false);
@@ -255,7 +267,11 @@ var DragNGo = {
     var targetWindow = this.focusedWindow;
     var sel = targetWindow.getSelection();
     if (sel && !sel.toString()) {
-      var node = document.commandDispatcher.focusedElement;
+      if ("BrowserUtils" in window) {
+        var [node, win] = BrowserUtils.getFocusSync(document);
+      } else {
+        node = document.commandDispatcher.focusedElement;
+      }
       if (node &&
           ((typeof node.mozIsTextField == 'function' && node.mozIsTextField(true)) ||
            node.type == "search" ||
@@ -273,7 +289,11 @@ var DragNGo = {
 
   //現在のウインドウを得る
   get focusedWindow() {
-    var win = document.commandDispatcher.focusedWindow;
+    if ("BrowserUtils" in window) {
+      var [node, win] = BrowserUtils.getFocusSync(document);
+    } else {
+      win = document.commandDispatcher.focusedWindow;
+    }
     if (!win || win == window)
       win = window.content;
     return win;
@@ -382,7 +402,7 @@ var DragNGo = {
             fieldname : searchbar._textbox.getAttribute("autocompletesearchparam"),
             value : searchText },
           { handleError : function(aError) {
-              Components.utils.reportError("Speichern der Suchchronik fehlgeschlagen, Grund: " + aError.message);
+              Components.utils.reportError("Saving search to form history failed: " + aError.message);
           }});
       }
     } else {
@@ -467,6 +487,8 @@ var DragNGo = {
     if ('onFindAgainCommand' in findbar){ //fx3
       if(findbar.hidden)
         findbar.onFindCommand();
+    if("historyFindbar" in window)
+      historyFindbar._findField2.value = word;
       findbar._findField.value = word;
       var event = document.createEvent("UIEvents");
       event.initUIEvent("input", true, false, window, 0);
@@ -547,7 +569,13 @@ var DragNGo = {
       let privacyContext = window.QueryInterface(Ci.nsIInterfaceRequestor)
                                 .getInterface(Ci.nsIWebNavigation)
                                 .QueryInterface(Ci.nsILoadContext);
-      persist.saveURI( uri, null, null, null, "", file, privacyContext);
+      if (parseInt(Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).version) < 36) {
+        persist.saveURI( uri, null, null, null, "", file, privacyContext);
+      } else {
+        persist.saveURI( uri, null, null, Ci.nsIHttpChannel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE,
+                         null, "", file, privacyContext);
+      }
+
     } catch (ex) {
       alert('failed:\n' + ex);
       file = null;
@@ -687,7 +715,7 @@ var DragNGo = {
       // Figure out what editor to use.
       editor = editor || getExternalViewSourceEditorPath();
       if (!editor) {
-        alert("Fehler: kein Editor");
+        alert("Error_No_Editor");
         return false;
       }
 
@@ -695,11 +723,11 @@ var DragNGo = {
           createInstance(Components.interfaces.nsILocalFile);
       file.initWithPath(editor);
       if(!file.exists()){
-        alert("Fehler: ungültige Editor Datei");
+        alert("Error_invalid_Editor_file");
         return false;
       }
       if(!file.isExecutable()){
-        alert("Fehler: Editor kann nicht ausgeführt werden");
+        alert("Error_Editor_not_executable");
         return false;
       }
 
@@ -965,7 +993,7 @@ var DragNGo = {
           throw '';
       }
       catch(e) {
-        throw 'Fehler: Ungültiger Kontext-Knotenpunkt';
+        throw 'ERROR: invalid context node';
       }
     }
 
@@ -1465,7 +1493,7 @@ var DragNGo = {
       }
     }; // GESTURES
     if (!dragSession.canDrop) {
-      self.setStatusMessage('Undefiniert', 0, false);
+      self.setStatusMessage('未定義', 0, false);
     }
   },
 
