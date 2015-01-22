@@ -6,7 +6,7 @@ let delay = 500 ;//Zeitintervall
 let ttb = document.getElementById('TabsToolbar');
 if(!ttb)return;
 let searchTabParent = function(node){
-	let node = node.parentElement;
+	node = node.parentElement;
 	if(null===node){
 		return null;
 	}else if('tab'===node.nodeName){
