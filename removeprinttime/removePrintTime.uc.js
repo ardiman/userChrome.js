@@ -2,7 +2,7 @@
 // @name           removePrintTime.uc.js
 // @compatibility  Firefox 35.*
 // @include        main
-// @version        1.0.20120318
+// @version        1.0.20150125
 // ==/UserScript==
 
 var removePrintTime = {
