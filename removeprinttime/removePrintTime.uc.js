@@ -2,11 +2,11 @@
 // @name           removePrintTime.uc.js
 // @compatibility  Firefox 35.*
 // @include        main
-// @version        1.0.20150125
+// @version        1.0.20150130
 // ==/UserScript==
 
 var removePrintTime = {
-  // Beginn der Konfiguration (der Druckername muss bestimmt geändert werden)
+  // Beginn der Konfiguration (Druckernamen müssen bestimmt geändert werden)
   printerNames: ['printer_Drucker_A', 'printer_Drucker_B', 'printer_Drucker_C'],
   // Ende der Konfiguration
   searchInPrefs: ['print_footerright','print_footercenter','print_footerleft','print_headerright','print_headercenter','print_headerleft'],
