@@ -1059,7 +1059,9 @@ window.gWHT.init();
   list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANUlEQVQ4jWNgGBTg6dOi/6RgrAb8/19PFB7EBlAUBoMDFD0t+k8qxjCgngQ4SA2gKAwGDAAAM3SE/usVkKQAAAAASUVORK5CYII=");\
 }\
 .wordhighlight-toolbar-icon[state="Deaktiviert"] {\
-  filter: url("chrome://mozapps/skin/extensions/extensions.svg#greyscale");\
+ filter: '
+   + (Number(Application.version.substring(0,2))>=36 ? 'grayscale(1)' : 'url("chrome://mozapps/skin/extensions/extensions.svg#greyscale")')
+   + ';\
 }\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-up,\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down {\
