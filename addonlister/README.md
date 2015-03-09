@@ -19,4 +19,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot AddonLister](https://github.com/ardiman/userChrome.js/raw/master/addonlister/scr_addonlister.png)
 
 ## Installation
-Kopiere die uc.js-Datei in den Chromeordner des Profils und ziehe den Button an die gewünschte Stelle.
+Kopiere die uc.js-Datei in den Chromeordner des Profils und ziehe den Button an die gewünschte Stelle. Passe auf jeden Fall den Wert `EXPORTPATH` an.
