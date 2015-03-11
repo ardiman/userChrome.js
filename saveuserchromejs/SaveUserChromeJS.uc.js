@@ -4,6 +4,9 @@
 // @description    像 Greasemonkey 一样保存 uc脚本
 // @include        main
 // @charset        UTF-8
+// @version        0.4
+// @homepageURL    https://github.com/ywzhaiqi/userChromeJS/tree/master/SaveUserChromeJS
+// @reviewURL      http://bbs.kafan.cn/thread-1590873-1-1.html
 // ==/UserScript==
 
 (function() {
@@ -12,7 +15,7 @@
 var notificationsAfterInstall = true;
 
 // 保存完毕是否加载脚本（无需启动）？仅支持 .uc.js，一些脚本有问题。
-var runWithoutRestart = true;
+var runWithoutRestart = false;
 
 
 let { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
@@ -23,7 +26,7 @@ if(typeof window.saveUserChromeJS != "undefined"){
 	delete window.saveUserChromeJS;
 }
 
-const RE_USERCHROME_JS = /\.uc(?:-\d+)?\.(?:js|xul)$/;
+const RE_USERCHROME_JS = /\.uc(?:-\d+)?\.(?:js|xul)$|userChrome\.js$/i;
 const RE_CONTENTTYPE = /text\/html/i;
 
 var ns = window.saveUserChromeJS = {
@@ -58,7 +61,7 @@ var ns = window.saveUserChromeJS = {
 			case "popupshowing":
 				if (event.target != event.currentTarget) return;
 				if(gContextMenu.onLink){
-					this._menuitem.hidden = !RE_USERCHROME_JS.test(gContextMenu.linkURL) || !/\/raw\//.test(gContextMenu.linkURL);
+					this._menuitem.hidden = !RE_USERCHROME_JS.test(gContextMenu.linkURL);
 				}else{
 					this._menuitem.hidden = true;
 				}
@@ -91,7 +94,11 @@ var ns = window.saveUserChromeJS = {
                         ns.github_addButton(safeWin.document);
 
                         // github 用了 history.pushstate, 需要加载页面后重新添加按钮
-                        ns.github_addListener(safeWin);
+                        // 2014-7-15：firefox 33（nightly）如果引用了 unsafeWindow.$ 就会崩溃
+                        // 详见 http://tieba.baidu.com/f?ct=335675392&tn=baiduPostBrowser&z=3162087505&sc=53663075812#53663075812
+                        if (Services.appinfo.version < 33) {
+                            ns.github_addListener(safeWin);
+                        }
                     }, false);
                 }
 
@@ -190,15 +197,20 @@ var ns = window.saveUserChromeJS = {
 
 		name = name && name[1] ? name[1] : decodeURIComponent(url.split("/").pop());
         fileName = name.replace(/\.uc\.(js|xul)$|$/i, ".uc.$1").replace(/\s/g, '_');
+        if (fileName.match(/\.uc\.$/i)) {  // 对名字进行修正
+            var m = url.match(/\.(js|xul)$/);
+            if (m)
+                fileName += m[1];
+        }
 		fileExt = name.match(/\.uc\.(js|xul)$/i);
         fileExt = fileExt && fileExt[1] ? fileExt[1] : "js";
         charset = charset && charset[1] ? charset[1] : "UTF-8";
 
-		// https://developer.mozilla.org/ja/XUL_Tutorial/Open_and_Save_Dialogs
+		// https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Tutorial/Open_and_Save_Dialogs
 		var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
 		fp.init(window, "", Ci.nsIFilePicker.modeSave);
-		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, deshalb deaktiviert
-		//fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
+		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, ggf. also deaktivieren
+		fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
 		fp.appendFilters(Ci.nsIFilePicker.filterAll);
 		fp.displayDirectory = ns.SCRIPTS_FOLDER; // nsILocalFile
 		fp.defaultExtension = fileExt;
@@ -235,7 +247,7 @@ var ns = window.saveUserChromeJS = {
                     };
                 }
 
-                persist.saveURI(obj_URI, null, null, null, "", fp.file, null);
+                persist.saveURI(obj_URI, null, null, null, null, "", fp.file, null);
 			}
 		};
 		fp.open(callbackObj);
@@ -246,7 +258,7 @@ var ns = window.saveUserChromeJS = {
         var mainAction, secondActions;
         if(runWithoutRestart && isRun){
             mainAction = {
-                label: "Sofort ausführen (mit Neustart)",
+                label: "Sofort ausführen (ohne Neustart).",
                 accessKey: "a",
                 callback: function(){
                     ns.runScript(info.file, info.charset);
