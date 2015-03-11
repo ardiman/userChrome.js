@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150309
+// @version        1.0.20150311
 // ==/UserScript==
 
 var ADONLI = {
@@ -10,9 +10,11 @@ var ADONLI = {
 // ----- Start Konfiguration
 	// folgende Add-ons nicht auflisten Beispiel: ["InfoLister","AddOnLister.uc.js"]
 	BLACKLIST:			[],
-	// ans eigene System anpassen - unter Windows den \ bitte verdoppeln
+	// einige Tests der Konfiguration durchführen (true oder false)?
+	CHECKCONFIG:		true,
+	// ans eigene System anpassen - Pfad mit Verzeichnistrenner abschliessen. Unter Windows den \ bitte verdoppeln
 	EXPORTPATH:			"d:\\ein\\pfad\\der\\mit\\Verzeichnistrenner\\endet\\",
-	//Dateinamen ohne(!) Erweiterung eingeben - wird weiter unten im Wert "fileext" pro Ausgabeformat definiert
+	//Dateinamen ohne(!) Erweiterung eingeben - diese wird weiter unten im Wert "fileext" pro Ausgabeformat definiert
 	EXPORTFILE:			"addonlister",
 	// Ausgabeformat bbcode, html oder custom
 	FORMAT:				"bbcode", 
@@ -24,7 +26,7 @@ var ADONLI = {
 	TRYGITHUB:			true,
 	// In der folgenden Zeile  den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
 	TEXTOPENEXE :		'C:\\Program Files (x86)\\Notepad++\\notepad++.exe',
-	// Aufzulistende Add-On-Typen festlegen
+	// Aufzulistende Add-On-Typen festlegen - möglich sind: ["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"]
 	WHICHTYPES:			["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"],
 // ----- Ende Konfiguration
 
@@ -103,7 +105,7 @@ var ADONLI = {
 			'tpladdongrp_outro':'\n',
 			'outro':''
 			},
-		'custom':	//für Darstellung als "include" in einem anderen (x)html-Dokument
+		'custom':	//Beispiel - für Darstellung als "include" in einem anderen (x)html-Dokument
 			{
 			'fileext':'txt',
 			'intro':'<p id="bsbuttons">\n<a class="tab active" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=windows">Windows 7</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=ubuntu">XUbuntu</a>\n</p>\n<div id="buttons">\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#extensions">Erweiterungen</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#themes">Themes</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#plugins">Plugins</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#dictionaries">Wörterbücher</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#services">Dienste</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#gmscripts">Greasemonkey</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#userchromejs">userChromeJS</a>\n<br/></div>\n',
@@ -152,8 +154,8 @@ var ADONLI = {
 		icon.id = 'adonli-button';
 		icon.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
 		icon.setAttribute('context', '');
-		icon.setAttribute('tooltiptext', 'AddOnLister starten:\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick öffnet Add-ons-Manager');
-		icon.setAttribute('onclick', 'if (event.button === 2) {event.preventDefault(); BrowserOpenAddonsMgr("addons://list/extension");} else {return ADONLI.launch(event);}');
+		icon.setAttribute('tooltiptext', 'AddOnLister starten:\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser');
+		icon.setAttribute('onclick', 'return ADONLI.launch(event);');
 		icon.style.padding = '0px 2px';
 		icon.style.listStyleImage = "url("+ADONLI.ICON_URL+")";
 		document.getElementById('navigator-toolbox').palette.appendChild(icon);
@@ -161,24 +163,64 @@ var ADONLI = {
 		for (var i=0; i<toolbars.length; i++) {
 			var currentset = toolbars[i].getAttribute('currentset');
 			if (currentset.split(',').indexOf(icon.id) >= 0) {
-				var j;
-				if (i == 0) j = 1
-				else j = 0;
+				var j = 0;
+				if (i === 0) j = 1;
 				toolbars[j].currentSet += ',' + icon.id;
 				toolbars[i].currentSet = currentset;
-			}	;
-		};
+			}
+		}
 	},
 
 	launch: function(e) {
 		// ruft alle noetigen Funktionen nach Klick auf Toolbarbutton auf
 		var expfile =  ADONLI.EXPORTPATH + ADONLI.EXPORTFILE + "." + ADONLI.MYTPLS[ADONLI.FORMAT].fileext;
-		ADONLI.getOtherValues();
-		ADONLI.resetStor();
-		ADONLI.getAddons();
-		if (ADONLI.WHICHTYPES.indexOf('userchromejs') != -1) ADONLI.getScripts();
-		ADONLI.writeAddons(expfile);
-		ADONLI.showAddons(e,ADONLI.TEXTOPENEXE, expfile);
+		var ctrlConf = "";
+		if (ADONLI.CHECKCONFIG) ctrlConf = ADONLI.configCheck();
+		if (ctrlConf === "") {
+			ADONLI.getOtherValues();
+			ADONLI.resetStor();
+			ADONLI.getAddons();
+			if (ADONLI.WHICHTYPES.indexOf('userchromejs') != -1) ADONLI.getScripts();
+			ADONLI.writeAddons(expfile);
+			ADONLI.showAddons(e,ADONLI.TEXTOPENEXE, expfile);
+		} else {
+			alert ("Lt. Konfigurationstest des AddonListers muss folgendes kontrolliert werden:\n" + ctrlConf);
+		}
+	},
+
+	configCheck: function() {
+		var fehler = "";
+		// Kontrolle des Pfades
+		if (ADONLI.EXPORTPATH.substr(-1) != "\\" && ADONLI.EXPORTPATH.substr(-1) != "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
+		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+		file.initWithPath(ADONLI.EXPORTPATH);
+		if (!file.exists()) fehler += "\n - Der Pfad in EXPORTPATH existiert nicht.";
+		// Kontrolle des Dateinamens
+		if (ADONLI.EXPORTFILE.indexOf(".") != -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
+		if (ADONLI.EXPORTFILE.length === 0) fehler += "\n - Es wurde kein Dateiname in EXPORTFILE hinterlegt.";
+		// Kontrolle des Formates
+		var formate = ["bbcode", "custom", "html"];
+		var formatindex = formate.indexOf(ADONLI.FORMAT);
+		if (formatindex ==-1) fehler += "\n - Ungültiges FORMAT.";
+		// Kontrolle des Editors
+		file.initWithPath(ADONLI.TEXTOPENEXE);
+		if (!file.exists()) {
+			var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+			file.initWithPath(pref.getCharPref("view_source.editor.path"));
+			if (!file.exists()) {
+				fehler += "\n - Der in TEXTOPENEXE und about:config [view_source.editor.path] hinterlegte Editor kann nicht gefunden werden.";
+			}
+		}
+		// Kontrolle der gewünschten Addon-Typen, folgende sind momentan gültig:
+		var addontypes = ["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"];
+		var w;
+		for (w = 0; w < ADONLI.WHICHTYPES.length; w++) {
+			if (addontypes.indexOf(ADONLI.WHICHTYPES[w]) == -1) {
+				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. >" + ADONLI.WHICHTYPES[w] + "<) gewählt.";
+				break;
+			}
+		}
+		return fehler;
 	},
 
 	resetStor: function() {
@@ -272,14 +314,14 @@ var ADONLI = {
 		var output = "";
 		var addontpl = "";
 		var addontplwithouturl = "";
-		Components.utils.import("resource://gre/modules/osfile.jsm")
+		Components.utils.import("resource://gre/modules/osfile.jsm");
 
 		addontpl = ADONLI.MYTPLS[format].tpladdon;
 		addontplwithouturl = ADONLI.MYTPLS[format].tpladdon_without_url;
 		output += ADONLI.MYTPLS[format].intro;
 
-		if (ADONLI.SHOWDATE) output +=  ADONLI.MYTPLS[format].tpllastupd.replace(/%%lastupd%%/g,ADONLI.MYSTOR["lastupd"])+"\n";
-		if (ADONLI.SHOWUSERAGENT) output +=  ADONLI.MYTPLS[format].tpluseragent.replace(/%%useragent%%/g,ADONLI.MYSTOR["useragent"])+"\n";
+		if (ADONLI.SHOWDATE) output +=  ADONLI.MYTPLS[format].tpllastupd.replace(/%%lastupd%%/g,ADONLI.MYSTOR.lastupd)+"\n";
+		if (ADONLI.SHOWUSERAGENT) output +=  ADONLI.MYTPLS[format].tpluseragent.replace(/%%useragent%%/g,ADONLI.MYSTOR.useragent)+"\n";
 
 		for (t = 0; t < ADONLI.WHICHTYPES.length; t++) {
 			atype = ADONLI.WHICHTYPES[t];
@@ -288,7 +330,7 @@ var ADONLI = {
 			d = 0;
 			output += ADONLI.MYTPLS[format].tpladdongrp_title[atype].replace(/%%count%%/g,c)+"\n";
 			output += ADONLI.MYTPLS[format].tpladdongrp_intro[atype];
-			if (ADONLI.MYTPLS[format].tpladdongrp_list_intro[atype] === undefined) {
+			if (ADONLI.MYTPLS[format].tpladdongrp_list_intro[atype] == undefined) {
 				output += ADONLI.MYTPLS[format].tpladdongrp_list_intro.default+"\n";
 			} else {
 				output += ADONLI.MYTPLS[format].tpladdongrp_list_intro[atype]+"\n";
@@ -315,7 +357,7 @@ var ADONLI = {
 				} else {
 					aout = aout.replace(/%%description%%/g,"");
 				}
-				if (ADONLI.MYSTOR[atype][a].active != true) {
+				if (ADONLI.MYSTOR[atype][a].active !== true) {
 					aout = aout.replace(/%%class%%/g,ADONLI.MYTPLS[format].inactiveclass);
 					aout = aout.replace(/%%disabled%%/g,ADONLI.MYTPLS[format].disabledtext);
 					d++;
@@ -334,28 +376,34 @@ var ADONLI = {
 		let encoder = new TextEncoder();
 		let marray = encoder.encode(output);
 		let promise = OS.File.writeAtomic(file, marray);
-		// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-		alert("Export nach >"+ file + "< ("+ ADONLI.FORMAT + "-format) ist erfolgt.");
-		XULBrowserWindow.statusTextField.label = "Export nach >"+ file + "< ist erfolgt.";
 	},
 
 	showAddons: function(e,RanPath,OpenPath) {
-		// zeigt das EXPORTFILE im Browser (Mittelklick) oder Editor an
-		if (e.button === 1) {
-			getBrowser().selectedTab = getBrowser().addTab(OpenPath);
-		} else {
-			var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-			var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
-			var args = [OpenPath];
-			file.initWithPath(RanPath);
-			// falls der im Konfigurationsabschnitt definierte Editor nicht gefunden wird, auf Einstellung in about:config ausweichen:
-			if (!file.exists()) {
-				var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
-				RanPath = pref.getCharPref("view_source.editor.path");
+		// zeigt das EXPORTFILE im Editor oder im Browser (Mittelklick) an
+		switch (e.button) {
+			case 0:
+				var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
+				var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+				var args = [OpenPath];
 				file.initWithPath(RanPath);
-			}
-			proc.init(file);
-			proc.run(false, args, args.length);
+				// falls der im Konfigurationsabschnitt definierte Editor nicht gefunden wird, auf Einstellung in about:config ausweichen:
+				if (!file.exists()) {
+					console.log("AddonLister meldet: Editor nicht gefunden, ausweichen auf about:config.");
+					var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+					RanPath = pref.getCharPref("view_source.editor.path");
+					file.initWithPath(RanPath);
+				}
+				proc.init(file);
+				proc.run(false, args, args.length);
+				break;
+			case 1:
+				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
+				alert("Export nach >"+ OpenPath + "< ("+ ADONLI.FORMAT + "-format) ist erfolgt.");
+				getBrowser().selectedTab = getBrowser().addTab(OpenPath);
+				break;
+			default:
+				XULBrowserWindow.statusTextField.label = "Export nach >"+ OpenPath + "< ist erfolgt.";
+				break;
 		}
 	}
 
