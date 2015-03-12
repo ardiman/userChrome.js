@@ -1,16 +1,17 @@
 # AddonLister
 Dieses Skript füllt ein wenig die Lücke, die die Erweiterung "InfoLister" hinterlassen hat.
 
-Nach Installation des Skriptes gibt es einen Button, der 
-über das "Anpassen"-Fenster frei positioniert werden kann. Standardmässig erstellt ein Linksklick eine Text-Datei im BBCode-Format, die im 
-Editor angezeigt wird (aufgrund möglicher Umlaute sieht man nur so alles korrekt). Ein Mittelklick zeigt die erstellte Datei direkt im Browser - 
-tatsächlich ist das nur beim HTML-Format sinnvoll, weil hier ein charset mitgegeben werden kann. Mit einem Rechtsklick wird die Datei erstellt, aber 
-nicht angezeigt.
+Nach Installation des Skriptes gibt es einen Button, der über das "Anpassen"-Fenster frei positioniert werden kann. Standardmässig erstellt ein **Linksklick** eine 
+Text-Datei im BBCode-Format, die im Editor angezeigt wird (aufgrund möglicher Umlaute sieht man nur so alles korrekt). Ein **Mittelklick** zeigt die erstellte Datei 
+direkt im Browser - tatsächlich ist das nur beim HTML-Format sinnvoll, weil hier ein charset mitgegeben werden kann. Mit einem **Rechtsklick** wird die Datei erstellt, 
+aber nicht angezeigt.
+
+Zusätzlich zum Button wird noch ein Menü unter **Extras** erstellt. Unterhalb von Add-ons sollte der Eintrag AddonLister zu finden sein.
 
 Es können im Konfigurationsabschnitt noch 2 weitere Formate gewählt werden. Dazu bitte den Wert `FORMAT` auf `html` oder `custom` stellen. Alle weiteren 
-Konfigurationen sind im Skript ebenfalls mit Kommentar versehen, sodass hier mit einer Ausnahme nicht näher darauf eingegangen wird.
+Konfigurationen sind im Skript ebenfalls mit Kommentar versehen, sodass hier weitestgehend nicht näher darauf eingegangen wird.
 
-Passe auf jeden Fall den Wert `EXPORTPATH` an.
+Passe auf jeden Fall den Wert** `EXPORTPATH` an.
 
 `TRYGITHUB` steht auf `true` und versucht in dieser Einstellung die Skripte in/mit/von ;) diesem Repository zu verknüpfen (nur für userChrome.js-Skripte).
 
