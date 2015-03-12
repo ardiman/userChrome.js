@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150311
+// @version        1.0.20150312
 // ==/UserScript==
 
 var ADONLI = {
@@ -148,41 +148,68 @@ var ADONLI = {
 	MYSTOR: {},
 
 	init: function() {
-		// legt verschiebbaren Button an
+		// legt verschiebbaren Button und Menü unter Extras an
+		// Button
 		if (location != "chrome://browser/content/browser.xul") return;
-		var icon = document.createElement('toolbarbutton');
-		icon.id = 'adonli-button';
-		icon.className = 'toolbarbutton-1 chromeclass-toolbar-additional';
-		icon.setAttribute('context', '');
-		icon.setAttribute('tooltiptext', 'AddOnLister starten:\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser');
-		icon.setAttribute('onclick', 'return ADONLI.launch(event);');
-		icon.style.padding = '0px 2px';
-		icon.style.listStyleImage = "url("+ADONLI.ICON_URL+")";
-		document.getElementById('navigator-toolbox').palette.appendChild(icon);
-		var toolbars = Array.slice(document.querySelectorAll('toolbar'));
-		for (var i=0; i<toolbars.length; i++) {
-			var currentset = toolbars[i].getAttribute('currentset');
-			if (currentset.split(',').indexOf(icon.id) >= 0) {
-				var j = 0;
-				if (i === 0) j = 1;
-				toolbars[j].currentSet += ',' + icon.id;
-				toolbars[i].currentSet = currentset;
-			}
-		}
+		try {
+			CustomizableUI.createWidget({
+				id: 'adonli-button',
+				type: 'custom',
+				defaultArea: CustomizableUI.AREA_NAVBAR,
+				onBuild: function(aDocument) {
+					var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
+					var attributes = {
+						id: 'adonli-button',
+						class: 'toolbarbutton-1 chromeclass-toolbar-additional',
+						removable: 'true',
+						label: 'AddonLister',
+						tooltiptext: 'AddOnLister starten:\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser',
+						style: 'list-style-image: url(' + ADONLI.ICON_URL + ')',
+						onclick: 'event.preventDefault(); return ADONLI.launch(event.button);'
+					};
+				for (var a in attributes)
+					toolbaritem.setAttribute(a, attributes[a]);
+					return toolbaritem;
+				}
+			});
+		} catch(e) { };
+		// Menü
+		var mytarget = document.getElementById('menu_openAddons');
+		var menu = mytarget.parentNode.insertBefore(this.createME("menu","AddonLister",0,"menu-iconic","menu_ucjsAddonLister","L"), mytarget.nextSibling);
+		menu.style.listStyleImage = "url("+this.ICON_URL+")";
+		var menupopup = menu.appendChild(this.createME("menupopup",0,0,0,"menu_ucjsAddonLister-popup"));
+		menupopup.appendChild(this.createME("menuitem","Liste erstellen und im Editor anzeigen","return ADONLI.launch(0);","menAddonLister_item","menu_ucjsAddonLister_editor","E"));
+		menupopup.appendChild(this.createME("menuitem","Liste erstellen und im Browser anzeigen","return ADONLI.launch(1);","menAddonLister_item","menu_ucjsAddonLister_browser","B"));
+		menupopup.appendChild(this.createME("menuitem","Liste erstellen ohne Anzeige","return ADONLI.launch(2);","menAddonLister_item","menu_ucjsAddonLister_write","o"));
+	},
+
+	createME: function(sTyp,sLabel,sCommand,sClass,sId,sAccesskey) {
+		// Anlegen von menuitem, menu oder menupopup - fuer bestimmte Typen nicht eingesetzte Parameter werden als 0 uebergeben
+		// this.createME("menu","Label des Menues",0,"OptionaleKlasseDesMenues","GewuenschteIdDesMenues","Gewünschter Accesskey")
+		// this.createME("menupopup",0,0,0,"GewuenschteIdDesMenupopups",0)
+		// this.createME("menuitem","Label des Items","ZuzuweisenderCodeFueroncommand","OptionaleKlasseDesItems","OptionaleIdDesItems","Gewünschter Accesskey")
+		const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+		var m = document.createElementNS(XUL_NS, sTyp);
+		if (sLabel !== 0) m.setAttribute('label', sLabel);
+		if (sCommand !== 0) m.setAttribute('oncommand', sCommand);
+		if (sClass !== 0) m.setAttribute('class', sClass);
+		if (sId !== 0) m.setAttribute('id', sId);
+		if (sAccesskey !== 0) m.setAttribute('accesskey', sAccesskey);
+		return m;
 	},
 
 	launch: function(e) {
 		// ruft alle noetigen Funktionen nach Klick auf Toolbarbutton auf
-		var expfile =  ADONLI.EXPORTPATH + ADONLI.EXPORTFILE + "." + ADONLI.MYTPLS[ADONLI.FORMAT].fileext;
 		var ctrlConf = "";
-		if (ADONLI.CHECKCONFIG) ctrlConf = ADONLI.configCheck();
+		if (this.CHECKCONFIG) ctrlConf = this.configCheck();
 		if (ctrlConf === "") {
-			ADONLI.getOtherValues();
-			ADONLI.resetStor();
-			ADONLI.getAddons();
-			if (ADONLI.WHICHTYPES.indexOf('userchromejs') != -1) ADONLI.getScripts();
-			ADONLI.writeAddons(expfile);
-			ADONLI.showAddons(e,ADONLI.TEXTOPENEXE, expfile);
+			var expfile =  this.EXPORTPATH + this.EXPORTFILE + "." + this.MYTPLS[this.FORMAT].fileext;
+			this.getOtherValues();
+			this.resetStor();
+			this.getAddons();
+			if (this.WHICHTYPES.indexOf('userchromejs') != -1) this.getScripts();
+			this.writeAddons(expfile);
+			this.showAddons(e,this.TEXTOPENEXE, expfile);
 		} else {
 			alert ("Lt. Konfigurationstest des AddonListers muss folgendes kontrolliert werden:\n" + ctrlConf);
 		}
@@ -191,19 +218,18 @@ var ADONLI = {
 	configCheck: function() {
 		var fehler = "";
 		// Kontrolle des Pfades
-		if (ADONLI.EXPORTPATH.substr(-1) != "\\" && ADONLI.EXPORTPATH.substr(-1) != "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
+		if (this.EXPORTPATH.substr(-1) != "\\" && this.EXPORTPATH.substr(-1) != "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
 		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-		file.initWithPath(ADONLI.EXPORTPATH);
-		if (!file.exists()) fehler += "\n - Der Pfad in EXPORTPATH existiert nicht.";
+		file.initWithPath(this.EXPORTPATH);
+		if (!file.exists()) fehler += "\n - Der Pfad in EXPORTPATH >" + this.EXPORTPATH + "< existiert nicht.";
 		// Kontrolle des Dateinamens
-		if (ADONLI.EXPORTFILE.indexOf(".") != -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
-		if (ADONLI.EXPORTFILE.length === 0) fehler += "\n - Es wurde kein Dateiname in EXPORTFILE hinterlegt.";
+		if (this.EXPORTFILE.indexOf(".") != -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
+		if (this.EXPORTFILE.length === 0) fehler += "\n - Es wurde kein Dateiname in EXPORTFILE hinterlegt.";
 		// Kontrolle des Formates
 		var formate = ["bbcode", "custom", "html"];
-		var formatindex = formate.indexOf(ADONLI.FORMAT);
-		if (formatindex ==-1) fehler += "\n - Ungültiges FORMAT.";
+		if (formate.indexOf(this.FORMAT) === -1) fehler += "\n - Ungültiges FORMAT >" + this.FORMAT + "<.";
 		// Kontrolle des Editors
-		file.initWithPath(ADONLI.TEXTOPENEXE);
+		file.initWithPath(this.TEXTOPENEXE);
 		if (!file.exists()) {
 			var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 			file.initWithPath(pref.getCharPref("view_source.editor.path"));
@@ -214,9 +240,9 @@ var ADONLI = {
 		// Kontrolle der gewünschten Addon-Typen, folgende sind momentan gültig:
 		var addontypes = ["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"];
 		var w;
-		for (w = 0; w < ADONLI.WHICHTYPES.length; w++) {
-			if (addontypes.indexOf(ADONLI.WHICHTYPES[w]) == -1) {
-				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. >" + ADONLI.WHICHTYPES[w] + "<) gewählt.";
+		for (w = 0; w < this.WHICHTYPES.length; w++) {
+			if (addontypes.indexOf(this.WHICHTYPES[w]) == -1) {
+				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. >" + this.WHICHTYPES[w] + "<) gewählt.";
 				break;
 			}
 		}
@@ -226,8 +252,8 @@ var ADONLI = {
 	resetStor: function() {
 		// setzt das JSON-Object (bzw. die "Listen" darin) zurueck
 		var h;
-		for (h = 0; h < ADONLI.WHICHTYPES.length; h++) {
-			ADONLI.MYSTOR[ADONLI.WHICHTYPES[h]] = [];
+		for (h = 0; h < this.WHICHTYPES.length; h++) {
+			this.MYSTOR[this.WHICHTYPES[h]] = [];
 		}
 	},
 
@@ -235,14 +261,14 @@ var ADONLI = {
 		// speichert momentan Auswertungsdatum und useragent im JSON-Object
 		var options;
 		options = {weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric", hour12: false};
-		if (ADONLI.SHOWDATE) ADONLI.MYSTOR["lastupd"] = new Date().toLocaleDateString("de-DE", options);
-		if (ADONLI.SHOWUSERAGENT) ADONLI.MYSTOR["useragent"] = window.navigator.userAgent;
+		if (this.SHOWDATE) this.MYSTOR["lastupd"] = new Date().toLocaleDateString("de-DE", options);
+		if (this.SHOWUSERAGENT) this.MYSTOR["useragent"] = window.navigator.userAgent;
 	},
 
 	getAddons: function() {
 		// speichert die gewaehlten Addons (s. WHICHTYPES) im JSON-Object
 		var i, x, j, iAo, Addons, added, storedItems;
-		AddonManager.getAddonsByTypes(ADONLI.WHICHTYPES, function(addonlist) {
+		AddonManager.getAddonsByTypes(this.WHICHTYPES, function(addonlist) {
 			Addons = addonlist;
 		});
 		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
@@ -253,18 +279,18 @@ var ADONLI = {
 		for (i = 0; i < Addons.length; i++) {
 			iAo = Addons[i];
 			added = false;
-			storedItems = ADONLI.MYSTOR[iAo.type].length;
+			storedItems = this.MYSTOR[iAo.type].length;
 			// nächste Aktionen nur, wenn Addon *nicht* in BLACKLIST steht
-			if (ADONLI.BLACKLIST.indexOf(iAo.name) == -1) {
+			if (this.BLACKLIST.indexOf(iAo.name) == -1) {
 				// Ablage gleich sortiert vornehmen
 				for (j = 0; j < storedItems; j++) {
-					if (iAo.name.toLowerCase() < ADONLI.MYSTOR[iAo.type][j].name.toLowerCase()) {
-						ADONLI.MYSTOR[iAo.type].splice(j,0,{ 'name': iAo.name, 'version': iAo.version, 'active': iAo.isActive, 'description': iAo.description, 'homepage': iAo.homepageURL});
+					if (iAo.name.toLowerCase() < this.MYSTOR[iAo.type][j].name.toLowerCase()) {
+						this.MYSTOR[iAo.type].splice(j,0,{ 'name': iAo.name, 'version': iAo.version, 'active': iAo.isActive, 'description': iAo.description, 'homepage': iAo.homepageURL});
 						added = true;
 						break;
 					}
 				}
-				if (!added) ADONLI.MYSTOR[iAo.type].push({ 'name': iAo.name, 'version': iAo.version, 'active': iAo.isActive, 'description': iAo.description, 'homepage': iAo.homepageURL});
+				if (!added) this.MYSTOR[iAo.type].push({ 'name': iAo.name, 'version': iAo.version, 'active': iAo.isActive, 'description': iAo.description, 'homepage': iAo.homepageURL});
 			}
 		}
 	},
@@ -283,13 +309,13 @@ var ADONLI = {
 		while (files.hasMoreElements()) {
 			let file = files.getNext().QueryInterface(Ci.nsIFile);
 			// keine gewuenschte Datei, deshalb continue
-			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || ADONLI.BLACKLIST.indexOf(file.leafName) != -1) continue;
+			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || this.BLACKLIST.indexOf(file.leafName) != -1) continue;
 			hp = null;
-			if (ADONLI.TRYGITHUB) hp = ADONLI.githubLink(file.leafName);
+			if (this.TRYGITHUB) hp = this.githubLink(file.leafName);
 			// uc.js gefunden -> im Array ablegen
-			if (extjs.test(file.leafName)) ADONLI.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
+			if (extjs.test(file.leafName)) this.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
 			// uc.xul gefunden -> im Array ablegen
-			if (extxul.test(file.leafName)) ADONLI.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
+			if (extxul.test(file.leafName)) this.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
 		}
 	},
 
@@ -308,79 +334,80 @@ var ADONLI = {
 	},
 
 	writeAddons: function(OpenPath){
-		var a, t, c, n, d, atype, aout;
+		var a, t, c, n, d, atype, aout, thisaddon;
 		var file  = OpenPath;
-		var format = ADONLI.FORMAT;
+		var format = this.FORMAT;
 		var output = "";
 		var addontpl = "";
 		var addontplwithouturl = "";
 		Components.utils.import("resource://gre/modules/osfile.jsm");
 
-		addontpl = ADONLI.MYTPLS[format].tpladdon;
-		addontplwithouturl = ADONLI.MYTPLS[format].tpladdon_without_url;
-		output += ADONLI.MYTPLS[format].intro;
+		addontpl = this.MYTPLS[format].tpladdon;
+		addontplwithouturl = this.MYTPLS[format].tpladdon_without_url;
+		output += this.MYTPLS[format].intro;
 
-		if (ADONLI.SHOWDATE) output +=  ADONLI.MYTPLS[format].tpllastupd.replace(/%%lastupd%%/g,ADONLI.MYSTOR.lastupd)+"\n";
-		if (ADONLI.SHOWUSERAGENT) output +=  ADONLI.MYTPLS[format].tpluseragent.replace(/%%useragent%%/g,ADONLI.MYSTOR.useragent)+"\n";
+		if (this.SHOWDATE) output +=  this.MYTPLS[format].tpllastupd.replace(/%%lastupd%%/g,this.MYSTOR.lastupd)+"\n";
+		if (this.SHOWUSERAGENT) output +=  this.MYTPLS[format].tpluseragent.replace(/%%useragent%%/g,this.MYSTOR.useragent)+"\n";
 
-		for (t = 0; t < ADONLI.WHICHTYPES.length; t++) {
-			atype = ADONLI.WHICHTYPES[t];
-			c = ADONLI.MYSTOR[atype].length;
+		for (t = 0; t < this.WHICHTYPES.length; t++) {
+			atype = this.WHICHTYPES[t];
+			c = this.MYSTOR[atype].length;
 			n = 0;
 			d = 0;
-			output += ADONLI.MYTPLS[format].tpladdongrp_title[atype].replace(/%%count%%/g,c)+"\n";
-			output += ADONLI.MYTPLS[format].tpladdongrp_intro[atype];
-			if (ADONLI.MYTPLS[format].tpladdongrp_list_intro[atype] == undefined) {
-				output += ADONLI.MYTPLS[format].tpladdongrp_list_intro.default+"\n";
+			output += this.MYTPLS[format].tpladdongrp_title[atype].replace(/%%count%%/g,c)+"\n";
+			output += this.MYTPLS[format].tpladdongrp_intro[atype];
+			if (this.MYTPLS[format].tpladdongrp_list_intro[atype] == undefined) {
+				output += this.MYTPLS[format].tpladdongrp_list_intro.default+"\n";
 			} else {
-				output += ADONLI.MYTPLS[format].tpladdongrp_list_intro[atype]+"\n";
+				output += this.MYTPLS[format].tpladdongrp_list_intro[atype]+"\n";
 			}
 			for (a = 0; a < c; a++) {
-				// console.log(atype + " "+ ADONLI.MYSTOR[atype][a].name + " " +ADONLI.MYSTOR[atype][a].active);
-				if (ADONLI.MYSTOR[atype][a].homepage == undefined) {
+				thisaddon =  this.MYSTOR[atype][a];
+				// console.log(atype + " "+ thisaddon.name + " " +thisaddon.active);
+				if (thisaddon.homepage == undefined) {
 					aout = addontplwithouturl;
 				} else {
 					aout = addontpl;
-					aout = aout.replace(/%%homepageURL%%/g,ADONLI.MYSTOR[atype][a].homepage.replace(/&(?!amp;)/g,'&amp;'));
+					aout = aout.replace(/%%homepageURL%%/g,thisaddon.homepage.replace(/&(?!amp;)/g,'&amp;'));
 				}
-				aout = aout.replace(/%%name%%/g,ADONLI.MYSTOR[atype][a].name);
-				if (ADONLI.MYSTOR[atype][a].version == undefined) {
-					if (ADONLI.MYSTOR[atype][a].description != undefined) {
+				aout = aout.replace(/%%name%%/g,thisaddon.name);
+				if (thisaddon.version == undefined) {
+					if (thisaddon.description != undefined) {
 						aout = aout.replace(/ %%version%%: /g,": ");
 					} else {
 						aout = aout.replace(/ %%version%%: /g,"");
 					}
 				}
-				aout = aout.replace(/%%version%%/g,ADONLI.MYSTOR[atype][a].version);
-				if (ADONLI.MYSTOR[atype][a].description != undefined) {
-					aout = aout.replace(/%%description%%/g,ADONLI.MYSTOR[atype][a].description);
+				aout = aout.replace(/%%version%%/g,thisaddon.version);
+				if (thisaddon.description != undefined) {
+					aout = aout.replace(/%%description%%/g,thisaddon.description);
 				} else {
 					aout = aout.replace(/%%description%%/g,"");
 				}
-				if (ADONLI.MYSTOR[atype][a].active !== true) {
-					aout = aout.replace(/%%class%%/g,ADONLI.MYTPLS[format].inactiveclass);
-					aout = aout.replace(/%%disabled%%/g,ADONLI.MYTPLS[format].disabledtext);
+				if (thisaddon.active !== true) {
+					aout = aout.replace(/%%class%%/g,this.MYTPLS[format].inactiveclass);
+					aout = aout.replace(/%%disabled%%/g,this.MYTPLS[format].disabledtext);
 					d++;
 				} else {
-					aout = aout.replace(/%%class%%/g,ADONLI.MYTPLS[format].activeclass);
+					aout = aout.replace(/%%class%%/g,this.MYTPLS[format].activeclass);
 					aout = aout.replace(/%%disabled%%/g,"");
 					n++;
 				}
 				output += aout;
 			}
 			output = output.replace(/%%countactive%%/g,n).replace(/%%countinactive%%/g,d);
-			output += ADONLI.MYTPLS[format].tpladdongrp_list_outro;
-			output += ADONLI.MYTPLS[format].tpladdongrp_outro;
+			output += this.MYTPLS[format].tpladdongrp_list_outro;
+			output += this.MYTPLS[format].tpladdongrp_outro;
 		}
-		output += ADONLI.MYTPLS[format].outro+"\n";
+		output += this.MYTPLS[format].outro+"\n";
 		let encoder = new TextEncoder();
-		let marray = encoder.encode(output);
-		let promise = OS.File.writeAtomic(file, marray);
+		let myarray = encoder.encode(output);
+		let promise = OS.File.writeAtomic(file, myarray);
 	},
 
 	showAddons: function(e,RanPath,OpenPath) {
 		// zeigt das EXPORTFILE im Editor oder im Browser (Mittelklick) an
-		switch (e.button) {
+		switch (e) {
 			case 0:
 				var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
 				var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
@@ -398,7 +425,7 @@ var ADONLI = {
 				break;
 			case 1:
 				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-				alert("Export nach >"+ OpenPath + "< ("+ ADONLI.FORMAT + "-format) ist erfolgt.");
+				alert("Export nach >"+ OpenPath + "< ("+ this.FORMAT + "-format) ist erfolgt.");
 				getBrowser().selectedTab = getBrowser().addTab(OpenPath);
 				break;
 			default:
