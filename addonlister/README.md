@@ -11,7 +11,7 @@ Zusätzlich zum Button wird noch ein Menü unter **Extras** erstellt. Unterhalb 
 Es können im Konfigurationsabschnitt noch 2 weitere Formate gewählt werden. Dazu bitte den Wert `FORMAT` auf `html` oder `custom` stellen. Alle weiteren 
 Konfigurationen sind im Skript ebenfalls mit Kommentar versehen, sodass hier weitestgehend nicht näher darauf eingegangen wird.
 
-Passe auf jeden Fall den Wert** `EXPORTPATH` an.
+Passe auf jeden Fall den Wert `EXPORTPATH` an.
 
 `TRYGITHUB` steht auf `true` und versucht in dieser Einstellung die Skripte in/mit/von ;) diesem Repository zu verknüpfen (nur für userChrome.js-Skripte).
 
