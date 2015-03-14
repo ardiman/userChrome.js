@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150312
+// @version        1.0.20150314
 // ==/UserScript==
 
 var ADONLI = {
@@ -26,7 +26,7 @@ var ADONLI = {
 	TRYGITHUB:			true,
 	// In der folgenden Zeile  den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
 	TEXTOPENEXE :		'C:\\Program Files (x86)\\Notepad++\\notepad++.exe',
-	// Aufzulistende Add-On-Typen festlegen - möglich sind: ["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"]
+	// Aufzulistende Add-On-Typen festlegen - möglich sind: ["extension","theme","plugin","dictionary","service","userstyle","greasemonkey-user-script","userchromejs"]
 	WHICHTYPES:			["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"],
 // ----- Ende Konfiguration
 
@@ -36,7 +36,8 @@ var ADONLI = {
 		'html':	//für Darstellung als vollständiges html5-Dokument
 			{
 			'fileext':'html',
-			'intro':'<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<title>Meine Firefox-Informationen</title>\n</head>\n<body>\n<h1>Meine Firefox-Informationen</h1>\n',
+			'intro':'<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n'
+				+'<title>Meine Firefox-Informationen</title>\n</head>\n<body>\n<h1>Meine Firefox-Informationen</h1>\n',
 			'tpllastupd':'<div>\nLetzte Aktualisierung: %%lastupd%%\n</div>',
 			'tpluseragent':'<div>\nUser Agent: %%useragent%%\n</div>',
 			'tpladdongrp_title':{
@@ -45,17 +46,14 @@ var ADONLI = {
 								'plugin':'<div id="plugins">\n<h2>Plugins <small>(%%count%%)</small></h2>',
 								'dictionary':'<div id="dictionaries">\n<h2>Wörterbücher <small>(%%count%%)</small></h2>',
 								'service':'<div id="services">\n<h2>Dienste <small>(%%count%%)</small></h2>',
+								'userstyle':'<div id="userstyles">\n<h2>Userstyles <small>(%%count%%)</small></h2>',
 								'greasemonkey-user-script':'<div id="gmscripts">\n<h2>Greasemonkey <small>(aktiviert: %%countactive%%, deaktiviert: %%countinactive%%, gesamt: %%count%%)</small></h2>',
 								'userchromejs':'<div id="userchromejs">\n<h2>userChromeJS <small>(%%count%%)</small></h2>'
 								},
 			'tpladdongrp_intro':{
-								'extension':'',
-								'theme':'',
-								'plugin':'',
-								'dictionary':'',
-								'service':'',
-								'greasemonkey-user-script':'<p>Greasemonkey-Skripte können Webseiten um diverse Funktionen erweitern.</p>\n',
-								'userchromejs':'<p>Durch die Erweiterung <a href="http://userchromejs.mozdev.org/">userChromeJS</a> eingebundene Skripte ergänzen den Firefox um diverse Funktionen.</p>\n'
+								'default':'',
+								'greasemonkey-user-script':'<p>Greasemonkey-Skripte können Webseiten um diverse Funktionen erweitern.</p>',
+								'userchromejs':'<p>Durch die Erweiterung <a href="http://userchromejs.mozdev.org/">userChromeJS</a> eingebundene Skripte ergänzen den Firefox um diverse Funktionen.</p>'
 								},
 			'tpladdongrp_list_intro':{
 								'default':'<ul>'
@@ -81,17 +79,14 @@ var ADONLI = {
 								'plugin':'[b]Plugins[/b] (%%count%%)',
 								'dictionary':'[b]Wörterbücher[/b] (%%count%%)',
 								'service':'[b]Dienste[/b] (%%count%%)',
+								'userstyle':'[b]Userstyles[/b] (%%count%%)',
 								'greasemonkey-user-script':'[b]Greasemonkey[/b] (aktiviert: %%countactive%%, deaktiviert: %%countinactive%%, gesamt: %%count%%)',
 								'userchromejs':'[b]userChromeJS[/b] (%%count%%)'
 								},
 			'tpladdongrp_intro':{
-								'extension':'',
-								'theme':'',
-								'plugin':'',
-								'dictionary':'',
-								'service':'',
-								'greasemonkey-user-script':'Greasemonkey-Skripte können Webseiten um diverse Funktionen erweitern.\n',
-								'userchromejs':'Durch die Erweiterung [url=http://userchromejs.mozdev.org/]userChromeJS[/url] eingebundene Skripte ergänzen den Firefox um diverse Funktionen.\n'
+								'default':'',
+								'greasemonkey-user-script':'Greasemonkey-Skripte können Webseiten um diverse Funktionen erweitern.',
+								'userchromejs':'Durch die Erweiterung [url=http://userchromejs.mozdev.org/]userChromeJS[/url] eingebundene Skripte ergänzen den Firefox um diverse Funktionen.'
 								},
 			'tpladdongrp_list_intro':{
 								'default':'[list]',
@@ -108,7 +103,20 @@ var ADONLI = {
 		'custom':	//Beispiel - für Darstellung als "include" in einem anderen (x)html-Dokument
 			{
 			'fileext':'txt',
-			'intro':'<p id="bsbuttons">\n<a class="tab active" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=windows">Windows 7</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=ubuntu">XUbuntu</a>\n</p>\n<div id="buttons">\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#extensions">Erweiterungen</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#themes">Themes</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#plugins">Plugins</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#dictionaries">Wörterbücher</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#services">Dienste</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#gmscripts">Greasemonkey</a>\n<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#userchromejs">userChromeJS</a>\n<br/></div>\n',
+			'intro':'<p id="bsbuttons">\n'
+				+'<a class="tab active" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=windows">Windows 7</a>\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=ubuntu">XUbuntu</a>\n'
+				+'</p>\n'
+				+'<div id="buttons">\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#extensions">Erweiterungen</a>\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#themes">Themes</a>\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#plugins">Plugins</a>\n'
+				//+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#dictionaries">Wörterbücher</a>\n'
+				//+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#services">Dienste</a>\n'
+				//+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#userstyles">Userstyles</a>\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#gmscripts">Greasemonkey</a>\n'
+				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html#userchromejs">userChromeJS</a>\n'
+				+'<br/></div>\n',
 			'tpllastupd':'<div class="lastupd">\nLetzte Aktualisierung: %%lastupd%%\n</div>',
 			'tpluseragent':'<div class="useragent">\nUser Agent: %%useragent%%\n</div>',
 			'tpladdongrp_title':{
@@ -117,17 +125,14 @@ var ADONLI = {
 								'plugin':'<div id="plugins" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_plugins.gif" />Plugins <small>(%%count%%)</small></h2>',
 								'dictionary':'<div id="dictionaries" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_dictionaries.png" />Wörterbücher <small>(%%count%%)</small></h2>',
 								'service':'<div id="services" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_services.png" />Dienste <small>(%%count%%)</small></h2>',
+								'userstyle':'<div id="userstyles" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_styles.png" />Userstyles <small>(%%count%%)</small></h2>',
 								'greasemonkey-user-script':'<div id="gmscripts" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_monkey.png" />Greasemonkey <small>(aktiviert: %%countactive%%, deaktiviert: %%countinactive%%, gesamt: %%count%%)</small></h2>',
 								'userchromejs':'<div id="userchromejs" class="tab-element">\n<h2><img alt="" style="float: right; margin: 0.5ex 1ex 0 0;" width="16" height="16" src="/assets/images/fx_javascript.gif" />userChromeJS <small>(%%count%%)</small></h2>'
 								},
 			'tpladdongrp_intro':{
-								'extension':'',
-								'theme':'',
-								'plugin':'',
-								'dictionary':'',
-								'service':'',
-								'greasemonkey-user-script':'<p>Einige Skripte stammen direkt von mir (s. auch <a href="http://www.ardiman.de/sonstiges/fxconfig/gmskripte.html">Greasemonkey-Skripte</a> bzw. <a class="extlink" href="https://openuserjs.org/users/ardiman/scripts" rel="nofollow">https://openuserjs.org/users/ardiman/scripts</a>), andere wurden nur geringf&uuml;gig angepasst.</p>\n',
-								'userchromejs':'<p id="fxcuclisteintro">Durch die Erweiterung userChromeJS eingebundene Skripte erg&auml;nzen den Firefox um diverse Funktionen.</p>\n'
+								'default':'',
+								'greasemonkey-user-script':'<p>Einige Skripte stammen direkt von mir (s. auch <a href="http://www.ardiman.de/sonstiges/fxconfig/gmskripte.html">Greasemonkey-Skripte</a> bzw. <a class="extlink" href="https://openuserjs.org/users/ardiman/scripts" rel="nofollow">https://openuserjs.org/users/ardiman/scripts</a>), andere wurden nur geringf&uuml;gig angepasst.</p>',
+								'userchromejs':'<p id="fxcuclisteintro">Durch die Erweiterung userChromeJS eingebundene Skripte erg&auml;nzen den Firefox um diverse Funktionen.</p>'
 								},
 			'tpladdongrp_list_intro':{
 								'default':'<ul>',
@@ -163,9 +168,9 @@ var ADONLI = {
 						class: 'toolbarbutton-1 chromeclass-toolbar-additional',
 						removable: 'true',
 						label: 'AddonLister',
-						tooltiptext: 'AddOnLister starten:\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser',
+						tooltiptext: 'AddOnLister starten (Erstellung im Format »'+ADONLI.FORMAT+'«):\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser',
 						style: 'list-style-image: url(' + ADONLI.ICON_URL + ')',
-						onclick: 'event.preventDefault(); return ADONLI.launch(event.button);'
+						onclick: 'event.preventDefault(); return ADONLI.launch(event.button, \"' + ADONLI.FORMAT +'\");'
 					};
 				for (var a in attributes)
 					toolbaritem.setAttribute(a, attributes[a]);
@@ -174,42 +179,59 @@ var ADONLI = {
 			});
 		} catch(e) { };
 		// Menü
-		var mytarget = document.getElementById('menu_openAddons');
-		var menu = mytarget.parentNode.insertBefore(this.createME("menu","AddonLister",0,"menu-iconic","menu_ucjsAddonLister","L"), mytarget.nextSibling);
-		menu.style.listStyleImage = "url("+this.ICON_URL+")";
-		var menupopup = menu.appendChild(this.createME("menupopup",0,0,0,"menu_ucjsAddonLister-popup"));
-		menupopup.appendChild(this.createME("menuitem","Liste erstellen und im Editor anzeigen","return ADONLI.launch(0);","menAddonLister_item","menu_ucjsAddonLister_editor","E"));
-		menupopup.appendChild(this.createME("menuitem","Liste erstellen und im Browser anzeigen","return ADONLI.launch(1);","menAddonLister_item","menu_ucjsAddonLister_browser","B"));
-		menupopup.appendChild(this.createME("menuitem","Liste erstellen ohne Anzeige","return ADONLI.launch(2);","menAddonLister_item","menu_ucjsAddonLister_write","o"));
+		this.createME("menu_ToolsPopup","menu_openAddons",'\
+		<menu id="menu_ucjsAddonLister" accesskey="L" label="AddonLister" class="menu-iconic" style="list-style-image: url(' + ADONLI.ICON_URL + ')">\
+			<menupopup id="menu_ucjsAddonLister-popup">\
+				<menu id="menu_ucjsAddonLister-bbcode" accesskey="B" label="BBCODE" class="menu-iconic">\
+					<menupopup id="menu_ucjsAddonLister-popup-bbcode">\
+						<menuitem id="menu_ucjsAddonLister_editor-bbcode" class="menAddonLister_item" oncommand="ADONLI.launch(0,\'bbcode\')" accesskey="E" label="Liste erstellen und im Editor anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_browser-bbcode" class="menAddonLister_item" oncommand="ADONLI.launch(1,\'bbcode\')" accesskey="A" label="Liste erstellen und im Browser anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_write-bbcode" class="menAddonLister_item" oncommand="ADONLI.launch(2,\'bbcode\')" accesskey="o" label="Liste erstellen ohne Anzeige"/>\
+					</menupopup>\
+				</menu>\
+				<menu id="menu_ucjsAddonLister-html" accesskey="H" label="HTML" class="menu-iconic">\
+					<menupopup id="menu_ucjsAddonLister-popup-html">\
+						<menuitem id="menu_ucjsAddonLister_editor-html" class="menAddonLister_item" oncommand="ADONLI.launch(0,\'html\')" accesskey="E" label="Liste erstellen und im Editor anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_browser-html" class="menAddonLister_item" oncommand="ADONLI.launch(1,\'html\')" accesskey="A" label="Liste erstellen und im Browser anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_write-html" class="menAddonLister_item" oncommand="ADONLI.launch(2,\'html\')" accesskey="o" label="Liste erstellen ohne Anzeige"/>\
+					</menupopup>\
+				</menu>\
+				<menu id="menu_ucjsAddonLister-custom" accesskey="C" label="Custom" class="menu-iconic">\
+					<menupopup id="menu_ucjsAddonLister-popup-custom">\
+						<menuitem id="menu_ucjsAddonLister_editor-custom" class="menAddonLister_item" oncommand="ADONLI.launch(0,\'custom\')" accesskey="E" label="Liste erstellen und im Editor anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_browser-custom" class="menAddonLister_item" oncommand="ADONLI.launch(1,\'custom\')" accesskey="A" label="Liste erstellen und im Browser anzeigen"/>\
+						<menuitem id="menu_ucjsAddonLister_write-custom" class="menAddonLister_item" oncommand="ADONLI.launch(2,\'custom\')" accesskey="o" label="Liste erstellen ohne Anzeige"/>\
+					</menupopup>\
+				</menu>\
+				<menuitem tooltiptext="Erstellung im Format »'+ADONLI.FORMAT+'«" id="menu_ucjsAddonLister_editor" class="menAddonLister_item" oncommand="ADONLI.launch(0,\''+ADONLI.FORMAT+'\')" accesskey="E" label="Liste erstellen und im Editor anzeigen"/>\
+				<menuitem tooltiptext="Erstellung im Format »'+ADONLI.FORMAT+'«" id="menu_ucjsAddonLister_browser" class="menAddonLister_item" oncommand="ADONLI.launch(1,\''+ADONLI.FORMAT+'\')" accesskey="A" label="Liste erstellen und im Browser anzeigen"/>\
+				<menuitem tooltiptext="Erstellung im Format »'+ADONLI.FORMAT+'«" id="menu_ucjsAddonLister_write" class="menAddonLister_item" oncommand="ADONLI.launch(2,\''+ADONLI.FORMAT+'\')" accesskey="o" label="Liste erstellen ohne Anzeige"/>\
+			</menupopup>\
+		</menu>'
+		);
 	},
 
-	createME: function(sTyp,sLabel,sCommand,sClass,sId,sAccesskey) {
-		// Anlegen von menuitem, menu oder menupopup - fuer bestimmte Typen nicht eingesetzte Parameter werden als 0 uebergeben
-		// this.createME("menu","Label des Menues",0,"OptionaleKlasseDesMenues","GewuenschteIdDesMenues","Gewünschter Accesskey")
-		// this.createME("menupopup",0,0,0,"GewuenschteIdDesMenupopups",0)
-		// this.createME("menuitem","Label des Items","ZuzuweisenderCodeFueroncommand","OptionaleKlasseDesItems","OptionaleIdDesItems","Gewünschter Accesskey")
-		const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-		var m = document.createElementNS(XUL_NS, sTyp);
-		if (sLabel !== 0) m.setAttribute('label', sLabel);
-		if (sCommand !== 0) m.setAttribute('oncommand', sCommand);
-		if (sClass !== 0) m.setAttribute('class', sClass);
-		if (sId !== 0) m.setAttribute('id', sId);
-		if (sAccesskey !== 0) m.setAttribute('accesskey', sAccesskey);
-		return m;
+	createME: function (zId,zPos,sXml) {
+		var range = document.createRange();
+		var mytarget = document.getElementById(zPos);
+		range.selectNodeContents(document.getElementById(zId));
+		range.collapse(false);
+		mytarget.parentNode.insertBefore(range.createContextualFragment(sXml.replace(/\n|\t/g, '')), mytarget.nextSibling);
+		range.detach();
 	},
 
-	launch: function(e) {
+	launch: function(e,f) {
 		// ruft alle noetigen Funktionen nach Klick auf Toolbarbutton auf
 		var ctrlConf = "";
 		if (this.CHECKCONFIG) ctrlConf = this.configCheck();
 		if (ctrlConf === "") {
-			var expfile =  this.EXPORTPATH + this.EXPORTFILE + "." + this.MYTPLS[this.FORMAT].fileext;
+			var expfile =  this.EXPORTPATH + this.EXPORTFILE + "." + this.MYTPLS[f].fileext;
 			this.getOtherValues();
 			this.resetStor();
 			this.getAddons();
 			if (this.WHICHTYPES.indexOf('userchromejs') != -1) this.getScripts();
-			this.writeAddons(expfile);
-			this.showAddons(e,this.TEXTOPENEXE, expfile);
+			this.writeAddons(expfile,f);
+			this.showAddons(e,this.TEXTOPENEXE,expfile,f);
 		} else {
 			alert ("Lt. Konfigurationstest des AddonListers muss folgendes kontrolliert werden:\n" + ctrlConf);
 		}
@@ -221,13 +243,13 @@ var ADONLI = {
 		if (this.EXPORTPATH.substr(-1) != "\\" && this.EXPORTPATH.substr(-1) != "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
 		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
 		file.initWithPath(this.EXPORTPATH);
-		if (!file.exists()) fehler += "\n - Der Pfad in EXPORTPATH >" + this.EXPORTPATH + "< existiert nicht.";
+		if (!file.exists()) fehler += "\n - Der Pfad »" + this.EXPORTPATH + "« in EXPORTPATH existiert nicht.";
 		// Kontrolle des Dateinamens
 		if (this.EXPORTFILE.indexOf(".") != -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
 		if (this.EXPORTFILE.length === 0) fehler += "\n - Es wurde kein Dateiname in EXPORTFILE hinterlegt.";
 		// Kontrolle des Formates
 		var formate = ["bbcode", "custom", "html"];
-		if (formate.indexOf(this.FORMAT) === -1) fehler += "\n - Ungültiges FORMAT >" + this.FORMAT + "<.";
+		if (formate.indexOf(this.FORMAT) === -1) fehler += "\n - Ungültiges FORMAT »" + this.FORMAT + "«.";
 		// Kontrolle des Editors
 		file.initWithPath(this.TEXTOPENEXE);
 		if (!file.exists()) {
@@ -238,11 +260,11 @@ var ADONLI = {
 			}
 		}
 		// Kontrolle der gewünschten Addon-Typen, folgende sind momentan gültig:
-		var addontypes = ["extension","theme","plugin","dictionary","service","greasemonkey-user-script","userchromejs"];
+		var addontypes = ["extension","theme","plugin","dictionary","service","userstyle","greasemonkey-user-script","userchromejs"];
 		var w;
 		for (w = 0; w < this.WHICHTYPES.length; w++) {
 			if (addontypes.indexOf(this.WHICHTYPES[w]) == -1) {
-				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. >" + this.WHICHTYPES[w] + "<) gewählt.";
+				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. »" + this.WHICHTYPES[w] + "«) gewählt.";
 				break;
 			}
 		}
@@ -333,10 +355,10 @@ var ADONLI = {
 		return "https://github.com/ardiman/userChrome.js/tree/master/" + sName;
 	},
 
-	writeAddons: function(OpenPath){
+	writeAddons: function(OpenPath,f){
 		var a, t, c, n, d, atype, aout, thisaddon;
 		var file  = OpenPath;
-		var format = this.FORMAT;
+		var format = f;
 		var output = "";
 		var addontpl = "";
 		var addontplwithouturl = "";
@@ -355,7 +377,11 @@ var ADONLI = {
 			n = 0;
 			d = 0;
 			output += this.MYTPLS[format].tpladdongrp_title[atype].replace(/%%count%%/g,c)+"\n";
-			output += this.MYTPLS[format].tpladdongrp_intro[atype];
+			if (this.MYTPLS[format].tpladdongrp_intro[atype] == undefined) {
+				output += this.MYTPLS[format].tpladdongrp_intro.default + (this.MYTPLS[format].tpladdongrp_intro.default.length > 0 ? "\n" : "");
+			} else {
+				output += this.MYTPLS[format].tpladdongrp_intro[atype] + (this.MYTPLS[format].tpladdongrp_intro[atype].length > 0 ? "\n" : "");
+			}
 			if (this.MYTPLS[format].tpladdongrp_list_intro[atype] == undefined) {
 				output += this.MYTPLS[format].tpladdongrp_list_intro.default+"\n";
 			} else {
@@ -363,7 +389,7 @@ var ADONLI = {
 			}
 			for (a = 0; a < c; a++) {
 				thisaddon =  this.MYSTOR[atype][a];
-				// console.log(atype + " "+ thisaddon.name + " " +thisaddon.active);
+				// console.log(atype + " " + thisaddon.name + " " + thisaddon.active);
 				if (thisaddon.homepage == undefined) {
 					aout = addontplwithouturl;
 				} else {
@@ -405,7 +431,7 @@ var ADONLI = {
 		let promise = OS.File.writeAtomic(file, myarray);
 	},
 
-	showAddons: function(e,RanPath,OpenPath) {
+	showAddons: function(e,RanPath,OpenPath,f) {
 		// zeigt das EXPORTFILE im Editor oder im Browser (Mittelklick) an
 		switch (e) {
 			case 0:
@@ -425,11 +451,11 @@ var ADONLI = {
 				break;
 			case 1:
 				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-				alert("Export nach >"+ OpenPath + "< ("+ this.FORMAT + "-format) ist erfolgt.");
+				alert("Export nach >"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
 				getBrowser().selectedTab = getBrowser().addTab(OpenPath);
 				break;
 			default:
-				XULBrowserWindow.statusTextField.label = "Export nach >"+ OpenPath + "< ist erfolgt.";
+				XULBrowserWindow.statusTextField.label = "Export nach  »"+ OpenPath + "« ist erfolgt.";
 				break;
 		}
 	}
