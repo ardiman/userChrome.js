@@ -24,7 +24,7 @@ Ganz grobe Fehler in der Konfiguration werden seit der Version vom 11.03.2015 du
 In der Expertenkonfiguration wird unter anderem das Icon festgelegt, welches vom Button und beim Menü verwendet wird (`ICON_URL`).
 
 Der größte Anteil entfällt aber auf die 3 vorgefertigten Formate, die im Auslieferungszustand benutzt werden können. Die einzelnen Vorgaben enthalten z.T. feste 
-Zeichenfolgen, andere enthalten aber auch Platzhalter, die aber nur dort auch im weiteren Verlauf ersetzt werden.
+Zeichenfolgen, andere enthalten Platzhalter, die aber nur dort auch im weiteren Verlauf ersetzt werden.
 
 Das Ergebnis eines Exports wird in folgender Reihenfolge zusammengesetzt:
 ```
@@ -34,9 +34,9 @@ intro
 	tpladdongrp_title (Überschrift und Container je Add-on-Typ. Mgl. Platzhalter %%countactive%%, %%countinactive%%, %%count%%)
 		tpladdongrp_intro (weitere Info zum Add-on-Typ vor der eigentlichen Liste)
 			tpladdongrp_list_intro (z.B. <ul> oder [list])
-				tpladdon (mgl. Platzhalter %%class%%, %%homepageURL%%, %%name%%, %%version%%, %%description%%, %%disabled%%<)
+				tpladdon (mgl. Platzhalter %%class%%, %%homepageURL%%, %%name%%, %%version%%, %%description%%, %%disabled%%)
 			  oder:
-				tpladdon_without_url (mgl. Platzhalter %%class%%, %%name%%, %%version%%, %%description%%, %%disabled%%<)
+				tpladdon_without_url (mgl. Platzhalter %%class%%, %%name%%, %%version%%, %%description%%, %%disabled%%)
 			tpladdongrp_list_outro (z.B. </ul> oder [/list])
 	tpladdongrp_outro (z.B. </div> oder '\n')
 outro
@@ -50,7 +50,7 @@ inactiveclass - HTML-Klasse für deaktivierte Add-ons
 disabledtext - Text, der in der Liste nach deaktivierten Add-ons erscheinen soll
 ```
 
-Ganz einfaches Beispiel: Wenn man also möchte, dass im BBCOde-Format der Text "deaktiviert" in rot erscheinen soll, dann ändert man die entsprechenden von 
+Ganz einfaches Beispiel: Wenn man also möchte, dass im BBCode-Format der Text "deaktiviert" in rot erscheinen soll, dann ändert man die entsprechende Zeile von 
 ```
 			'disabledtext':'[deaktiviert]',
 ```
