@@ -2,7 +2,7 @@
 // @name           wetterfuchsbutton.uc.js
 // @compatibility  Firefox 33.*
 // @include        main
-// @version        1.0.20141115
+// @version        1.0.20150316
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -35,12 +35,31 @@ var wetterfuchs = {
   TARGET_BUTTON: "search-container",  // search-container - sollte ein Element auf TOOLBAR sein
   wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
   createBtn: function() {
-    this.$F(this.TOOLBAR,'\
-	<toolbarbutton id="wetterfuchs-toolbarbutton" class="toolbarbutton-1 chromeclass-toolbar-additional" type="menu" label="Wetterfuchs" tooltiptext="Lokale und globale Wetter Infos" \
-	ondblclick="if (event.button === 0) { wetterfuchs.openPanel(\'MO_Doppelklick\',event,\'b\')}" \
-	onclick="if (event.button === 1) {wetterfuchs.openPanel(\'MO_Mittelklick\',event,\'b\')};if (event.button === 2) {wetterfuchs.openPanel(\'MO_Rechtsklick\',event,\'b\')}" \
-	style="list-style-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAD+0lEQVQ4jb3Tf0zUZRwH8LdgEngngitiMVBXcxH4h+lmETndkqVIOYemrewH4ipJmCjmmDLJRmrKBkPgMNYSMYNN3cQ1YoG4ovjpwQEnX+644ziP7/fbHd9z4SnH8+4PxXIWtLX13j7bsz17Xtvz+TwP8H9lfXx02NT62HJd3JHlurgHe9GhYX9/appkx+k31m0JKtEBzzdlLLz08+6FlxcAz9VtCi7JjtNv/NfQ60sXJQJA/VocutVx6I77+9fGbl/fNeG7nu53X355zNu89W5DSkA+AGyIj1o1I1i1KtQglyzn2MUk/+TNYgq1nEIuohg9TuHK56Qtg2PfxftdJ2L4zStzK6azHgOwoDNRf9Q/kEPeqiJ/MwiqZaRSQsqFpOswhSNL0PEeJ9pXsDVBd1IH3ZMA5jyiFSwOWt//2eIfTF+lyt3XjrCvrZjjN0vJsQpSOUbezCQdH5D2N0nrBk6aYun5+nHF+KmusXDJ/JRHwI7UrS9WH05TW1quUZLMorOjlacNp9j/ay7p2kmquyhGd5HOHeTwNgrLq0J0hfPGhyE9BUA0gICHwIq8vNy2tva7DoeDZrOZNTU1rK6uZl1dPc+fr+HF2uOUBw9SKPtJ18fk8FZOGqPYsy34l1Ig9iEwBogs+uLzVpPJRIvFIoxGIxsaGihJEm02G212O43dfaysrKC9L4/05JDOHRTmeKHVzOaVJH1tInRPTHmBGe9v3/NTc/P40NAQrVYrJUni4ODgPcxm4/DwMB0OBzs6Onm2qpAj/bmcdKZTmBbRtD2o80pw4MZ9gB4AkJaWFnHhwoU7qqrS6XSKkZGRB5DL5aIsy1QUhaqq0uVycWBggF1d7aLlx+OcuB4hpMwQaz6w5P4rAVJSUhJ6e3vpdrupKAplWaYkSTSZTJRlmZqm0ev10uv1UtM0jo+P0+fzcXBIFj1nEiekzBDnt0vnffKgfytXrlxWX1/v93g8dLvdtFqt7O7uFhaLhXa7nYqiUNM0appGVVXp8/mE3+/nrdvjrMrY214FJJUBkX8dSkRycvKpsrIy58VLl+5cbW6m0WgUHo+HsizT1NtLVVWpaRodIyNUVDdv+3x0jI6y8I017SeAp7OBuQBmTYEBAGL1ev27EWFhB/ZnZTkbm5rYb77BltZWGsrLRWPTVfaZB1h7tpKGL/ewsqTo992bNnXs0wfvBRD0T19vdjgQFQmkLwkPN2x+aVnbO3ExA6uB2p0vPGX7KOEZxzrgXE402rbMw7nVwOZS4NnpwKkEA4hZByRnAm/lA2tP6HHgaAgOngTW1ABJZ4AV9282awbrz2QBwQVAaCowpxiIMQCLUoE5ecD8t+/17D8l8H7NmD8Aw0h46qvM+RMAAAAASUVORK5CYII=)"\
-	>\
+   try {
+      CustomizableUI.createWidget({
+         id: 'wetterfuchs-toolbarbutton',
+         type: 'custom',
+         defaultArea: CustomizableUI.AREA_NAVBAR,
+         onBuild: function(aDocument) {
+            var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
+            var attributes = {
+               id: 'wetterfuchs-toolbarbutton',
+               class: 'toolbarbutton-1 chromeclass-toolbar-additional',
+               type: 'menu',
+               removable: 'true',
+               label: 'Wetterfuchs',
+               tooltiptext: 'Lokale und globale Wetter Infos',
+               ondblclick: "if (event.button === 0) { wetterfuchs.openPanel(\'MO_Doppelklick\',event,\'b\')}",
+               onclick: "if (event.button === 1) {wetterfuchs.openPanel(\'MO_Mittelklick\',event,\'b\')};if (event.button === 2) {wetterfuchs.openPanel(\'MO_Rechtsklick\',event,\'b\')}",
+               style: 'list-style-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAD+0lEQVQ4jb3Tf0zUZRwH8LdgEngngitiMVBXcxH4h+lmETndkqVIOYemrewH4ipJmCjmmDLJRmrKBkPgMNYSMYNN3cQ1YoG4ovjpwQEnX+644ziP7/fbHd9z4SnH8+4PxXIWtLX13j7bsz17Xtvz+TwP8H9lfXx02NT62HJd3JHlurgHe9GhYX9/appkx+k31m0JKtEBzzdlLLz08+6FlxcAz9VtCi7JjtNv/NfQ60sXJQJA/VocutVx6I77+9fGbl/fNeG7nu53X355zNu89W5DSkA+AGyIj1o1I1i1KtQglyzn2MUk/+TNYgq1nEIuohg9TuHK56Qtg2PfxftdJ2L4zStzK6azHgOwoDNRf9Q/kEPeqiJ/MwiqZaRSQsqFpOswhSNL0PEeJ9pXsDVBd1IH3ZMA5jyiFSwOWt//2eIfTF+lyt3XjrCvrZjjN0vJsQpSOUbezCQdH5D2N0nrBk6aYun5+nHF+KmusXDJ/JRHwI7UrS9WH05TW1quUZLMorOjlacNp9j/ay7p2kmquyhGd5HOHeTwNgrLq0J0hfPGhyE9BUA0gICHwIq8vNy2tva7DoeDZrOZNTU1rK6uZl1dPc+fr+HF2uOUBw9SKPtJ18fk8FZOGqPYsy34l1Ig9iEwBogs+uLzVpPJRIvFIoxGIxsaGihJEm02G212O43dfaysrKC9L4/05JDOHRTmeKHVzOaVJH1tInRPTHmBGe9v3/NTc/P40NAQrVYrJUni4ODgPcxm4/DwMB0OBzs6Onm2qpAj/bmcdKZTmBbRtD2o80pw4MZ9gB4AkJaWFnHhwoU7qqrS6XSKkZGRB5DL5aIsy1QUhaqq0uVycWBggF1d7aLlx+OcuB4hpMwQaz6w5P4rAVJSUhJ6e3vpdrupKAplWaYkSTSZTJRlmZqm0ev10uv1UtM0jo+P0+fzcXBIFj1nEiekzBDnt0vnffKgfytXrlxWX1/v93g8dLvdtFqt7O7uFhaLhXa7nYqiUNM0appGVVXp8/mE3+/nrdvjrMrY214FJJUBkX8dSkRycvKpsrIy58VLl+5cbW6m0WgUHo+HsizT1NtLVVWpaRodIyNUVDdv+3x0jI6y8I017SeAp7OBuQBmTYEBAGL1ev27EWFhB/ZnZTkbm5rYb77BltZWGsrLRWPTVfaZB1h7tpKGL/ewsqTo992bNnXs0wfvBRD0T19vdjgQFQmkLwkPN2x+aVnbO3ExA6uB2p0vPGX7KOEZxzrgXE402rbMw7nVwOZS4NnpwKkEA4hZByRnAm/lA2tP6HHgaAgOngTW1ABJZ4AV9282awbrz2QBwQVAaCowpxiIMQCLUoE5ecD8t+/17D8l8H7NmD8Aw0h46qvM+RMAAAAASUVORK5CYII=)'
+            };
+            for (var a in attributes)
+               toolbaritem.setAttribute(a, attributes[a]);
+            return toolbaritem;
+         }
+      });
+   } catch(e) { };
+	this.$F('wetterfuchs-toolbarbutton','\
 		<menupopup id="wetterfuchsmenu">\
 			<menu label="DE Wetterdaten">\
 				<menupopup id="wetterfuchsdatamenu">\
@@ -82,21 +101,7 @@ var wetterfuchs = {
 				</menupopup>\
 			</menu>\
 		</menupopup>\
-	</toolbarbutton>'
-    );
-    var mywfButton = document.getElementById('wetterfuchs-toolbarbutton');
-    document.getElementById('navigator-toolbox').palette.appendChild(mywfButton);
-    var toolbars = document.getElementsByTagName('toolbar');
-    for (var i=0; i<toolbars.length; i++) {
-      var currentset = toolbars[i].getAttribute('currentset');
-      if (currentset.split(',').indexOf('wetterfuchs-toolbarbutton') >= 0) {
-        var j;
-        if (i == 0) j = 1
-        else j = 0;
-        toolbars[j].currentSet += ',' + 'wetterfuchs-toolbarbutton';
-        toolbars[i].currentSet = currentset;
-      };
-    };
+	');
   },
   init: function() {
     this.createBtn();
