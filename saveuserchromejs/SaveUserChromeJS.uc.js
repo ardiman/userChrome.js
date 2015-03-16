@@ -4,7 +4,7 @@
 // @description    像 Greasemonkey 一样保存 uc脚本
 // @include        main
 // @charset        UTF-8
-// @version        0.4
+// @version        0.4a
 // @homepageURL    https://github.com/ywzhaiqi/userChromeJS/tree/master/SaveUserChromeJS
 // @reviewURL      http://bbs.kafan.cn/thread-1590873-1-1.html
 // ==/UserScript==
@@ -208,7 +208,15 @@ var ns = window.saveUserChromeJS = {
 
 		// https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Tutorial/Open_and_Save_Dialogs
 		var fp = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
-		fp.init(window, "", Ci.nsIFilePicker.modeSave);
+		var err = false;
+          try {
+             fp.init(window, "", Ci.nsIFilePicker.modeSave);
+          } catch(e) {
+             fp.init(ns.getMostRecentWindow(), "", Ci.nsIFilePicker.modeSave);
+             err = true;
+             Application.console.log('SaveUserChromeJS.uc.js - error catched (A)');
+          };
+
 		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, ggf. also deaktivieren
 		fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
 		fp.appendFilters(Ci.nsIFilePicker.filterAll);
@@ -233,7 +241,9 @@ var ns = window.saveUserChromeJS = {
                     persist.progressListener = {
                         onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
                             if(aCurSelfProgress == aMaxSelfProgress){
-                                setTimeout(function(){
+                var win1 = err ? ns.getMostRecentWindow() : window;
+                                    win1.setTimeout(function(){
+
                                     ns.showInstallMessage({
                                         fileExt: fileExt,
                                         fileName: fileName,
@@ -327,7 +337,12 @@ var ns = window.saveUserChromeJS = {
     },
 	getFocusedWindow: function() {
 		var win = document.commandDispatcher.focusedWindow;
-		return (!win || win == window) ? content : win;
+		try {
+         return (!win || win == window) ? content : win;
+      } catch(e) {
+         Application.console.log('SaveUserChromeJS.uc.js - error catched (B)');
+         return (!win || win == window) ? null : win;
+      };
 	},
 	getMostRecentWindow: function(){
 		return Services.wm.getMostRecentWindow("navigator:browser")
