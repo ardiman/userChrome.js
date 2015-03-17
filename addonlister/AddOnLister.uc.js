@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150314
+// @version        1.0.20150317
 // ==/UserScript==
 
 var ADONLI = {
@@ -89,7 +89,7 @@ var ADONLI = {
 								'userchromejs':'Durch die Erweiterung [url=http://userchromejs.mozdev.org/]userChromeJS[/url] eingebundene Skripte ergänzen den Firefox um diverse Funktionen.'
 								},
 			'tpladdongrp_list_intro':{
-								'default':'[list]',
+								'default':'[list]'
 								},
 			'tpladdon':'[*][url=%%homepageURL%%]%%name%%[/url] %%version%%: %%description%% %%disabled%%\n',
 			'tpladdon_without_url':'[*]%%name%% %%version%%: %%description%% %%disabled%%\n',
@@ -319,7 +319,7 @@ var ADONLI = {
 
 	getScripts: function() {
 		// speichert ggf. im Chrome-Ordner vorhandene uc.js und uc.xul-Dateien im JSON-Object
-		var hp;
+		var hp, j, storedItems, added;
 		// Suchmuster, also die Dateierweiterungen uc.js und uc.xul
 		let extjs = /\.uc\.js$/i;
 		let extxul = /\.uc\.xul$/i;
@@ -332,12 +332,19 @@ var ADONLI = {
 			let file = files.getNext().QueryInterface(Ci.nsIFile);
 			// keine gewuenschte Datei, deshalb continue
 			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || this.BLACKLIST.indexOf(file.leafName) != -1) continue;
+			// uc.js bzw. uc.xul gefunden, die nicht in der Blacklist stehen -> Ablage sortiert (unter Linux erforderlich) im JSON vornehmen
 			hp = null;
 			if (this.TRYGITHUB) hp = this.githubLink(file.leafName);
-			// uc.js gefunden -> im Array ablegen
-			if (extjs.test(file.leafName)) this.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
-			// uc.xul gefunden -> im Array ablegen
-			if (extxul.test(file.leafName)) this.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
+			added = false;
+			storedItems = this.MYSTOR.userchromejs.length;
+			for (j = 0; j < storedItems; j++) {
+				if (file.leafName.toLowerCase() < this.MYSTOR.userchromejs[j].name.toLowerCase()) {
+					this.MYSTOR.userchromejs.splice(j,0,{'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
+					added = true;
+					break;
+				}
+			}
+			if (!added) this.MYSTOR.userchromejs.push({'name': file.leafName, 'version': undefined, 'active': true, 'description': undefined, 'homepage': hp});
 		}
 	},
 
