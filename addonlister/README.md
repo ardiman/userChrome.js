@@ -3,9 +3,9 @@ Dieses Skript füllt ein wenig die Lücke, die die Erweiterung "InfoLister" hint
 Useragent, Erweiterungen, Themes, Plugins, Wörterbücher, Dienste, Stylish-Einträge, Greasemonkey- und userChromeJS-Skripte) in eine Datei.
 
 Nach Installation des Skriptes gibt es einen Button, der über das "Anpassen"-Fenster frei positioniert werden kann. Standardmässig erstellt ein **Linksklick** eine 
-Text-Datei im BBCode-Format, die im Editor angezeigt wird (aufgrund möglicher Umlaute sieht man nur so alles korrekt). Ein **Mittelklick** zeigt die erstellte Datei 
-direkt im Browser - tatsächlich ist das nur beim HTML-Format sinnvoll, weil hier ein charset mitgegeben werden kann. Mit einem **Rechtsklick** wird die Datei erstellt, 
-aber nicht angezeigt.
+Text-Datei im BBCode-Format, die im Editor angezeigt wird. Ein **Mittelklick** zeigt die erstellte Datei direkt im Browser - tatsächlich wird nur beim HTML-Format 
+die Datei direkt angezeigt, bei anderen Formaten wird auf einen data-uri ausgewichen, weil auch hier ein charset mitgegeben werden kann. Mit einem **Rechtsklick** wird 
+die Datei erstellt, aber nicht angezeigt.
 
 Zusätzlich zum Button wird noch ein Menü unter **Extras** erstellt. Unterhalb von **Add-ons** sollte der Eintrag **AddonLister** zu finden sein. In den 3 Untermenüs 
 kann unabhängig vom gewählten `FORMAT` ein Export vorgenommen werden. Die Einträge, die ohne weitere Verzweigung aufgerufen werden können, richten sich nach dem 
