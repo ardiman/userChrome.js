@@ -171,7 +171,7 @@ var ADONLI = {
 						class: 'toolbarbutton-1 chromeclass-toolbar-additional',
 						removable: 'true',
 						label: 'AddonLister',
-						tooltiptext: 'AddOnLister starten (Erstellung im Format »'+ADONLI.FORMAT+'«):\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser (nur bei HTML sinnvoll)\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser',
+						tooltiptext: 'AddOnLister starten (Erstellung im Format »'+ADONLI.FORMAT+'«):\nLinksklick öffnet Ergebnis im Editor\nMittelklick öffnet Ergebnis als Tab im Browser\nRechtsklick exportiert die Liste ohne Anzeige im Editor oder Browser',
 						style: 'list-style-image: url(' + ADONLI.ICON_URL + ')',
 						onclick: 'event.preventDefault(); return ADONLI.launch(event.button, \"' + ADONLI.FORMAT +'\");'
 					};
