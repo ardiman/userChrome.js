@@ -45,6 +45,8 @@ outro
 Ein Template enthält noch weitere Angaben zu:
 ```
 fileext - Dateiendung der erstellten Datei
+opendatauri - Bei Templates, bei denen kein charset mitgegeben werden kann (also ungleich html) festlegen, dass das
+              Ergebnis im Browser als data-uri geöffnet werden soll.
 activeclass - HTML-Klasse für aktive Add-ons
 inactiveclass - HTML-Klasse für deaktivierte Add-ons
 disabledtext - Text, der in der Liste nach deaktivierten Add-ons erscheinen soll
