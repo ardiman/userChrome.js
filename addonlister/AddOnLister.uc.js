@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150317
+// @version        1.0.20150318
 // ==/UserScript==
 
 var ADONLI = {
@@ -36,6 +36,7 @@ var ADONLI = {
 		'html':	//für Darstellung als vollständiges html5-Dokument
 			{
 			'fileext':'html',
+			'opendatauri': false,
 			'intro':'<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n'
 				+'<title>Meine Firefox-Informationen</title>\n</head>\n<body>\n<h1>Meine Firefox-Informationen</h1>\n',
 			'tpllastupd':'<div>\nLetzte Aktualisierung: %%lastupd%%\n</div>',
@@ -65,11 +66,12 @@ var ADONLI = {
 			'disabledtext':'<small>[deaktiviert]</small>',
 			'tpladdongrp_list_outro':'</ul>\n',
 			'tpladdongrp_outro':'</div>\n\n',
-			'outro':'</body>\n</html>'
+			'outro':'<p>Diese Liste wurde mit <a href="https://github.com/ardiman/userChrome.js/tree/master/addonlister">AddonLister</a> erstellt.</p>\n</body>\n</html>'
 			},
 		'bbcode':	//für Postings in Foren, die bbcode unterstützen
 			{
 			'fileext':'txt',
+			'opendatauri': true,
 			'intro':'Meine Firefox-Informationen\n\n',
 			'tpllastupd':'Letzte Aktualisierung: %%lastupd%%',
 			'tpluseragent':'User Agent: %%useragent%%\n',
@@ -98,11 +100,12 @@ var ADONLI = {
 			'disabledtext':'[deaktiviert]',
 			'tpladdongrp_list_outro':'[/list]\n',
 			'tpladdongrp_outro':'\n',
-			'outro':''
+			'outro':'Diese Liste wurde mit [url=https://github.com/ardiman/userChrome.js/tree/master/addonlister]AddonLister[/url] erstellt.'
 			},
 		'custom':	//Beispiel - für Darstellung als "include" in einem anderen (x)html-Dokument
 			{
 			'fileext':'txt',
+			'opendatauri': true,
 			'intro':'<p id="bsbuttons">\n'
 				+'<a class="tab active" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=windows">Windows 7</a>\n'
 				+'<a class="tab" href="http://www.ardiman.de/sonstiges/fxconfig.html?mode=ubuntu">XUbuntu</a>\n'
@@ -230,8 +233,8 @@ var ADONLI = {
 			this.resetStor();
 			this.getAddons();
 			if (this.WHICHTYPES.indexOf('userchromejs') != -1) this.getScripts();
-			this.writeAddons(expfile,f);
-			this.showAddons(e,this.TEXTOPENEXE,expfile,f);
+			var result = this.writeAddons(expfile,f);
+			this.showAddons(e,this.TEXTOPENEXE,expfile,f,result);
 		} else {
 			alert ("Lt. Konfigurationstest des AddonListers muss folgendes kontrolliert werden:\n" + ctrlConf);
 		}
@@ -436,9 +439,10 @@ var ADONLI = {
 		let encoder = new TextEncoder();
 		let myarray = encoder.encode(output);
 		let promise = OS.File.writeAtomic(file, myarray);
+		return output;
 	},
 
-	showAddons: function(e,RanPath,OpenPath,f) {
+	showAddons: function(e,RanPath,OpenPath,f,r) {
 		// zeigt das EXPORTFILE im Editor oder im Browser (Mittelklick) an
 		switch (e) {
 			case 0:
@@ -459,7 +463,12 @@ var ADONLI = {
 			case 1:
 				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
 				alert("Export nach >"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
-				getBrowser().selectedTab = getBrowser().addTab(OpenPath);
+				if (this.MYTPLS[f].opendatauri) {
+					var datastring = r.replace(/\n/g,"%0A").replace(/#/g,"%23");
+					getBrowser().selectedTab = getBrowser().addTab('data:text/plain;charset=utf-8,' + datastring);
+				} else {
+					getBrowser().selectedTab = getBrowser().addTab(OpenPath);
+				}
 				break;
 			default:
 				XULBrowserWindow.statusTextField.label = "Export nach  »"+ OpenPath + "« ist erfolgt.";
