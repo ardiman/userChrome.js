@@ -17,8 +17,8 @@ Konfigurationen sind im Skript ebenfalls mit Kommentar versehen, sodass hier wei
 Passe auf jeden Fall den Wert `EXPORTPATH` an.
 
 `GITHUBBLACKLIST` enthält zur Zeit ein leeres Array und somit wird versucht in dieser Einstellung die Skripte in/mit/von ;) diesem Repository zu verknüpfen 
-(nur für userChrome.js-Skripte). Mit `["*"]` kann eingestellt werden, dass gar keine Velinkung probiert wird, ansonsten können hier gezielt Skriptnamen eingetragen 
-werden, die in diesem Repository nicht enthalten sind (Namen jeweils in Anführungszeichen und duch Komma getrennt). 
+(nur für userChrome.js-Skripte). Mit `["*"]` kann eingestellt werden, dass gar keine Verlinkung probiert wird, ansonsten können hier gezielt Skriptnamen eingetragen 
+werden, die in diesem Repository nicht enthalten sind (Namen jeweils in Anführungszeichen und durch Komma getrennt). 
 
 Ganz grobe Fehler in der Konfiguration werden seit der Version vom 11.03.2015 durch das Skript gemeldet.
 
