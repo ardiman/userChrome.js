@@ -16,7 +16,9 @@ Konfigurationen sind im Skript ebenfalls mit Kommentar versehen, sodass hier wei
 
 Passe auf jeden Fall den Wert `EXPORTPATH` an.
 
-`TRYGITHUB` steht auf `true` und versucht in dieser Einstellung die Skripte in/mit/von ;) diesem Repository zu verknüpfen (nur für userChrome.js-Skripte).
+`GITHUBBLACKLIST` enthält zur Zeit ein leeres Array und somit wird versucht in dieser Einstellung die Skripte in/mit/von ;) diesem Repository zu verknüpfen 
+(nur für userChrome.js-Skripte). Mit `["*"]` kann eingestellt werden, dass gar keine Velinkung probiert wird, ansonsten können hier gezielt Skriptnamen eingetragen 
+werden, die in diesem Repository nicht enthalten sind (Namen jeweils in Anführungszeichen und duch Komma getrennt). 
 
 Ganz grobe Fehler in der Konfiguration werden seit der Version vom 11.03.2015 durch das Skript gemeldet.
 
@@ -54,11 +56,11 @@ disabledtext - Text, der in der Liste nach deaktivierten Add-ons erscheinen soll
 
 Ganz einfaches Beispiel: Wenn man also möchte, dass im BBCode-Format der Text "deaktiviert" in rot erscheinen soll, dann ändert man die entsprechende Zeile von 
 ```
-			'disabledtext':'[deaktiviert]',
+			'disabledtext':' [deaktiviert]',
 ```
 in
 ```
-			'disabledtext':'[color=red][deaktiviert][/color]',
+			'disabledtext':' [color=red][deaktiviert][/color]',
 ```
 
 Das **Ergebnis des Skripts**:
