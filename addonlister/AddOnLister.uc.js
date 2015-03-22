@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150318
+// @version        1.0.20150322
 // ==/UserScript==
 
 var ADONLI = {
@@ -22,8 +22,8 @@ var ADONLI = {
 	SHOWDATE:			true,
 	// Useragent anzeigen (true oder false)
 	SHOWUSERAGENT:		true,
-	// Versuche, Links zu Github zu generieren (für userchromejs)?
-	TRYGITHUB:			true,
+	// Versuche folgende userChromeJS-Skripte *nicht* mit GitHub zu verlinken, weil nicht gewünscht oder möglich. ["*"] für gar keine Verlinkung
+	GITHUBBLACKLIST:	[],
 	// In der folgenden Zeile  den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
 	TEXTOPENEXE :		'C:\\Program Files (x86)\\Notepad++\\notepad++.exe',
 	// Aufzulistende Add-On-Typen festlegen - möglich sind: ["extension","theme","plugin","dictionary","service","userstyle","greasemonkey-user-script","userchromejs"]
@@ -59,11 +59,11 @@ var ADONLI = {
 			'tpladdongrp_list_intro':{
 								'default':'<ul>'
 								},
-			'tpladdon':'<li class="%%class%%"><a href="%%homepageURL%%">%%name%%</a> %%version%%: %%description%% %%disabled%%</li>\n',
-			'tpladdon_without_url':'<li class="%%class%%">%%name%% %%version%%: %%description%% %%disabled%%</li>\n',
+			'tpladdon':'<li class="%%class%%"><a href="%%homepageURL%%">%%name%%</a> %%version%%: %%description%%%%disabled%%</li>\n',
+			'tpladdon_without_url':'<li class="%%class%%">%%name%% %%version%%: %%description%%%%disabled%%</li>\n',
 			'activeclass':'addonactive',
 			'inactiveclass':'addoninactive',
-			'disabledtext':'<small>[deaktiviert]</small>',
+			'disabledtext':' <small>[deaktiviert]</small>',
 			'tpladdongrp_list_outro':'</ul>\n',
 			'tpladdongrp_outro':'</div>\n\n',
 			'outro':'<p>Diese Liste wurde mit <a href="https://github.com/ardiman/userChrome.js/tree/master/addonlister">AddonLister</a> erstellt.</p>\n</body>\n</html>'
@@ -93,11 +93,11 @@ var ADONLI = {
 			'tpladdongrp_list_intro':{
 								'default':'[list]'
 								},
-			'tpladdon':'[*][url=%%homepageURL%%]%%name%%[/url] %%version%%: %%description%% %%disabled%%\n',
-			'tpladdon_without_url':'[*]%%name%% %%version%%: %%description%% %%disabled%%\n',
+			'tpladdon':'[*][url=%%homepageURL%%]%%name%%[/url] %%version%%: %%description%%%%disabled%%\n',
+			'tpladdon_without_url':'[*]%%name%% %%version%%: %%description%%%%disabled%%\n',
 			'activeclass':'addonactive',
 			'inactiveclass':'addoninactive',
-			'disabledtext':'[deaktiviert]',
+			'disabledtext':' [deaktiviert]',
 			'tpladdongrp_list_outro':'[/list]\n',
 			'tpladdongrp_outro':'\n',
 			'outro':'Diese Liste wurde mit [url=https://github.com/ardiman/userChrome.js/tree/master/addonlister]AddonLister[/url] erstellt.'
@@ -141,11 +141,11 @@ var ADONLI = {
 								'default':'<ul>',
 								'userchromejs':'<ul id="fxcucliste">'
 								},
-			'tpladdon':'<li class="%%class%%"><a href="%%homepageURL%%" rel="nofollow" class="extlink">%%name%%</a> %%version%%: %%description%% %%disabled%%</li>\n',
-			'tpladdon_without_url':'<li class="%%class%%">%%name%% %%version%%: %%description%% %%disabled%%</li>\n',
+			'tpladdon':'<li class="%%class%%"><a href="%%homepageURL%%" rel="nofollow" class="extlink">%%name%%</a> %%version%%: %%description%%%%disabled%%</li>\n',
+			'tpladdon_without_url':'<li class="%%class%%">%%name%% %%version%%: %%description%%%%disabled%%</li>\n',
 			'activeclass':'addonactive',
 			'inactiveclass':'addoninactive',
-			'disabledtext':'<small>[deaktiviert]</small>',
+			'disabledtext':' <small>[deaktiviert]</small>',
 			'tpladdongrp_list_outro':'</ul>\n',
 			'tpladdongrp_outro':'</div>\n\n',
 			'outro':''
@@ -336,8 +336,7 @@ var ADONLI = {
 			// keine gewuenschte Datei, deshalb continue
 			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || this.BLACKLIST.indexOf(file.leafName) != -1) continue;
 			// uc.js bzw. uc.xul gefunden, die nicht in der Blacklist stehen -> Ablage sortiert (unter Linux erforderlich) im JSON vornehmen
-			hp = null;
-			if (this.TRYGITHUB) hp = this.githubLink(file.leafName);
+			hp = this.githubLink(file.leafName);
 			added = false;
 			storedItems = this.MYSTOR.userchromejs.length;
 			for (j = 0; j < storedItems; j++) {
@@ -353,6 +352,8 @@ var ADONLI = {
 
 	githubLink: function(sName) {
 		// übergibt für gegebenen Skriptnamen den Link zu github
+		// früher Ausstieg, da Skript nicht verlinkt werden soll
+		if (this.GITHUBBLACKLIST.indexOf(sName) != -1 || this.GITHUBBLACKLIST.indexOf("*") != -1) return null;
 		sName = sName.toLowerCase();
 		/* Das folgende Array enthaelt regulaere Ausdruecke, um ungueltige Zeichenfolgen entfernen:
 		/Datei-Erweiterungen am Ende/, /"ucjs_" am Anfang/, /"_"gefolgtVonZahlUndDanachBeliebigenZeichen/
@@ -462,7 +463,7 @@ var ADONLI = {
 				break;
 			case 1:
 				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-				alert("Export nach >"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
+				alert("Export nach »"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
 				if (this.MYTPLS[f].opendatauri) {
 					var datastring = r.replace(/\n/g,"%0A").replace(/#/g,"%23");
 					getBrowser().selectedTab = getBrowser().addTab('data:text/plain;charset=utf-8,' + datastring);
