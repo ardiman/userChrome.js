@@ -2,7 +2,7 @@
 // @name           AddOnLister.uc.js
 // @compatibility  Firefox 36.*
 // @include        main
-// @version        1.0.20150322
+// @version        1.0.20150324
 // ==/UserScript==
 
 var ADONLI = {
@@ -163,7 +163,7 @@ var ADONLI = {
 			CustomizableUI.createWidget({
 				id: 'adonli-button',
 				type: 'custom',
-				defaultArea: CustomizableUI.AREA_NAVBAR,
+				// defaultArea: CustomizableUI.AREA_NAVBAR,
 				onBuild: function(aDocument) {
 					var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
 					var attributes = {
@@ -462,12 +462,13 @@ var ADONLI = {
 				proc.run(false, args, args.length);
 				break;
 			case 1:
-				// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-				alert("Export nach »"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
 				if (this.MYTPLS[f].opendatauri) {
 					var datastring = r.replace(/\n/g,"%0A").replace(/#/g,"%23");
 					getBrowser().selectedTab = getBrowser().addTab('data:text/plain;charset=utf-8,' + datastring);
+					XULBrowserWindow.statusTextField.label = "Export nach  »"+ OpenPath + "« ist erfolgt.";
 				} else {
+					// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
+					alert("Export nach »"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
 					getBrowser().selectedTab = getBrowser().addTab(OpenPath);
 				}
 				break;
