@@ -17,12 +17,18 @@ function Clock() {
      setTimeout("Clock()", (60- D.getSeconds())*1000);
   }
 if (location == "chrome://browser/content/browser.xul") {
-  // letztes Kindelement der Statusbar finden
-  var ClockStatus = document.getElementById("status-bar").lastChild;
-  // var ClockStatus = document.getElementById("addon-bar").lastChild;
+  // moegliche IDs von Statusbars (je nach Firefox-Version und verwendeter Erweiterung)
+  var arrStatusbars = ["ctraddon_addon-bar","status4evar-status-bar","status-bar","addon-bar"];
+  for (i = 0; i < arrStatusbars.length; i++) {
+    if (document.getElementById(arrStatusbars[i]) !== null) {
+      // letztes Kindelement der Statusbar finden
+      var ClockStatus = document.getElementById(arrStatusbars[i]).lastChild;
+      break;
+    }
+  }
   var ClockPanel = document.createElement("statusbarpanel");
   ClockPanel.setAttribute("id", "statusbar-clock-display");
-  // *vor* dem letzten Kindelement (s.o.) einfuegen - damit ist Uhr immer ganz rechts:
+  // *vor* dem letzten Kindelement (s.o.) einfuegen:
   ClockStatus.parentNode.insertBefore(ClockPanel,ClockStatus.previousSibling);
   Clock();
 }
