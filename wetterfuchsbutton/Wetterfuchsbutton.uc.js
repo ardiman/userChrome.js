@@ -39,7 +39,6 @@ var wetterfuchs = {
       CustomizableUI.createWidget({
          id: 'wetterfuchs-toolbarbutton',
          type: 'custom',
-         defaultArea: CustomizableUI.AREA_NAVBAR,
          onBuild: function(aDocument) {
             var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
             var attributes = {
