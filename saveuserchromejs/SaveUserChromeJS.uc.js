@@ -150,7 +150,7 @@ var ns = window.saveUserChromeJS = {
 
 		var installBtn = doc.createElement("a");
 		installBtn.setAttribute("id", "uc-install-button");
-		installBtn.setAttribute("class", "minibutton");
+		installBtn.setAttribute("class", "btn btn-sm");
 		installBtn.setAttribute("href", downURL);
 		installBtn.innerHTML = "Installieren";
 		installBtn.addEventListener("click", function(event){
