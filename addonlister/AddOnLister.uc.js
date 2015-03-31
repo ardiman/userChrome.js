@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           AddOnLister.uc.js
-// @compatibility  Firefox 36.*
+// @compatibility  Firefox 36.*, 37.*
 // @include        main
-// @version        1.0.20150324
+// @version        1.0.20150331
 // ==/UserScript==
 
 var ADONLI = {
@@ -17,7 +17,7 @@ var ADONLI = {
 	//Dateinamen ohne(!) Erweiterung eingeben - diese wird weiter unten im Wert "fileext" pro Ausgabeformat definiert
 	EXPORTFILE:			"addonlister",
 	// Ausgabeformat bbcode, html oder custom
-	FORMAT:				"bbcode", 
+	FORMAT:				"bbcode",
 	// Erstellungsdatum anzeigen (true oder false)
 	SHOWDATE:			true,
 	// Useragent anzeigen (true oder false)
@@ -66,7 +66,7 @@ var ADONLI = {
 			'disabledtext':' <small>[deaktiviert]</small>',
 			'tpladdongrp_list_outro':'</ul>\n',
 			'tpladdongrp_outro':'</div>\n\n',
-			'outro':'<p>Diese Liste wurde mit <a href="https://github.com/ardiman/userChrome.js/tree/master/addonlister">AddonLister</a> erstellt.</p>\n</body>\n</html>'
+			'outro':'<p>Diese Liste wurde mit <a href="https://github.com/ardiman/userChrome.js/tree/master/addonlister">AddonLister.uc.js</a> erstellt.</p>\n</body>\n</html>'
 			},
 		'bbcode':	//für Postings in Foren, die bbcode unterstützen
 			{
@@ -100,7 +100,7 @@ var ADONLI = {
 			'disabledtext':' [deaktiviert]',
 			'tpladdongrp_list_outro':'[/list]\n',
 			'tpladdongrp_outro':'\n',
-			'outro':'Diese Liste wurde mit [url=https://github.com/ardiman/userChrome.js/tree/master/addonlister]AddonLister[/url] erstellt.'
+			'outro':'Diese Liste wurde mit [url=https://github.com/ardiman/userChrome.js/tree/master/addonlister]AddonLister.uc.js[/url] erstellt.'
 			},
 		'custom':	//Beispiel - für Darstellung als "include" in einem anderen (x)html-Dokument
 			{
@@ -154,6 +154,7 @@ var ADONLI = {
 // ----- Ende Expertenkonfiguration
 
 	MYSTOR: {},
+	FILEUTILS: Cu.import("resource://gre/modules/FileUtils.jsm").FileUtils,
 
 	init: function() {
 		// legt verschiebbaren Button und Menü unter Extras an
@@ -223,18 +224,18 @@ var ADONLI = {
 		range.detach();
 	},
 
-	launch: function(e,f) {
+	launch: function(e,format) {
 		// ruft alle noetigen Funktionen nach Klick auf Toolbarbutton auf
 		var ctrlConf = "";
 		if (this.CHECKCONFIG) ctrlConf = this.configCheck();
 		if (ctrlConf === "") {
-			var expfile =  this.EXPORTPATH + this.EXPORTFILE + "." + this.MYTPLS[f].fileext;
+			var expfile =  this.EXPORTPATH + this.EXPORTFILE + "." + this.MYTPLS[format].fileext;
 			this.getOtherValues();
 			this.resetStor();
 			this.getAddons();
-			if (this.WHICHTYPES.indexOf('userchromejs') != -1) this.getScripts();
-			var result = this.writeAddons(expfile,f);
-			this.showAddons(e,this.TEXTOPENEXE,expfile,f,result);
+			if (this.WHICHTYPES.indexOf('userchromejs') !== -1) this.getScripts();
+			var result = this.writeAddons(expfile,format);
+			this.showAddons(e,this.TEXTOPENEXE,expfile,format,result);
 		} else {
 			alert ("Lt. Konfigurationstest des AddonListers muss folgendes kontrolliert werden:\n" + ctrlConf);
 		}
@@ -243,22 +244,18 @@ var ADONLI = {
 	configCheck: function() {
 		var fehler = "";
 		// Kontrolle des Pfades
-		if (this.EXPORTPATH.substr(-1) != "\\" && this.EXPORTPATH.substr(-1) != "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
-		var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-		file.initWithPath(this.EXPORTPATH);
-		if (!file.exists()) fehler += "\n - Der Pfad »" + this.EXPORTPATH + "« in EXPORTPATH existiert nicht.";
+		if (this.EXPORTPATH.substr(-1) !== "\\" && this.EXPORTPATH.substr(-1) !== "/") fehler += "\n - Der Pfad in EXPORTPATH endet nicht mit einem Verzeichnistrenner.";
+		if (!this.fileExists(this.EXPORTPATH)) fehler += "\n - Der Pfad »" + this.EXPORTPATH + "« in EXPORTPATH existiert nicht.";
 		// Kontrolle des Dateinamens
-		if (this.EXPORTFILE.indexOf(".") != -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
+		if (this.EXPORTFILE.indexOf(".") !== -1) fehler += "\n - Der Dateiname in EXPORTFILE sollte keinen Punkt enthalten (ohne Erweiterung sein).";
 		if (this.EXPORTFILE.length === 0) fehler += "\n - Es wurde kein Dateiname in EXPORTFILE hinterlegt.";
 		// Kontrolle des Formates
 		var formate = ["bbcode", "custom", "html"];
 		if (formate.indexOf(this.FORMAT) === -1) fehler += "\n - Ungültiges FORMAT »" + this.FORMAT + "«.";
 		// Kontrolle des Editors
-		file.initWithPath(this.TEXTOPENEXE);
-		if (!file.exists()) {
-			var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
-			file.initWithPath(pref.getCharPref("view_source.editor.path"));
-			if (!file.exists()) {
+		if (!this.fileExists(this.TEXTOPENEXE)) {
+			var pref = Cc["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+			if (!this.fileExists(pref.getCharPref("view_source.editor.path"))) {
 				fehler += "\n - Der in TEXTOPENEXE und about:config [view_source.editor.path] hinterlegte Editor kann nicht gefunden werden.";
 			}
 		}
@@ -266,12 +263,18 @@ var ADONLI = {
 		var addontypes = ["extension","theme","plugin","dictionary","service","userstyle","greasemonkey-user-script","userchromejs"];
 		var w;
 		for (w = 0; w < this.WHICHTYPES.length; w++) {
-			if (addontypes.indexOf(this.WHICHTYPES[w]) == -1) {
+			if (addontypes.indexOf(this.WHICHTYPES[w]) === -1) {
 				fehler += "\n - In WHICHTYPES wurden ein oder mehrere unbekannte Add-on-Typen (z.B. »" + this.WHICHTYPES[w] + "«) gewählt.";
 				break;
 			}
 		}
 		return fehler;
+	},
+
+	fileExists: function(mypath) {
+		// kontrolliert, ob Pfad oder Datei gültig/vorhanden ist
+		var file = new this.FILEUTILS.File(mypath);
+		return file.exists();
 	},
 
 	resetStor: function() {
@@ -297,7 +300,7 @@ var ADONLI = {
 			Addons = addonlist;
 		});
 		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
-		while (Addons == void(0)) {
+		while (Addons === void(0)) {
 			thread.processNextEvent(true);
 		}
 		// Schleife ueber Addons
@@ -306,7 +309,7 @@ var ADONLI = {
 			added = false;
 			storedItems = this.MYSTOR[iAo.type].length;
 			// nächste Aktionen nur, wenn Addon *nicht* in BLACKLIST steht
-			if (this.BLACKLIST.indexOf(iAo.name) == -1) {
+			if (this.BLACKLIST.indexOf(iAo.name) === -1) {
 				// Ablage gleich sortiert vornehmen
 				for (j = 0; j < storedItems; j++) {
 					if (iAo.name.toLowerCase() < this.MYSTOR[iAo.type][j].name.toLowerCase()) {
@@ -326,15 +329,14 @@ var ADONLI = {
 		// Suchmuster, also die Dateierweiterungen uc.js und uc.xul
 		let extjs = /\.uc\.js$/i;
 		let extxul = /\.uc\.xul$/i;
-		let aFolder = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
-		aFolder.initWithPath(Services.dirsvc.get("UChrm", Ci.nsIFile).path);
+		let aFolder = Cc["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("UChrm", Components.interfaces.nsIFile);
 		// files mit Eintraegen im Chrome-Ordner befuellen
 		let files = aFolder.directoryEntries.QueryInterface(Ci.nsISimpleEnumerator);
 		// Ordner bzw. Dateien durchlaufen und kontrollieren, ob gesuchte Dateien dabei sind
 		while (files.hasMoreElements()) {
 			let file = files.getNext().QueryInterface(Ci.nsIFile);
 			// keine gewuenschte Datei, deshalb continue
-			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || this.BLACKLIST.indexOf(file.leafName) != -1) continue;
+			if ((!extjs.test(file.leafName) && !extxul.test(file.leafName)) || this.BLACKLIST.indexOf(file.leafName) !== -1) continue;
 			// uc.js bzw. uc.xul gefunden, die nicht in der Blacklist stehen -> Ablage sortiert (unter Linux erforderlich) im JSON vornehmen
 			hp = this.githubLink(file.leafName);
 			added = false;
@@ -353,27 +355,25 @@ var ADONLI = {
 	githubLink: function(sName) {
 		// übergibt für gegebenen Skriptnamen den Link zu github
 		// früher Ausstieg, da Skript nicht verlinkt werden soll
-		if (this.GITHUBBLACKLIST.indexOf(sName) != -1 || this.GITHUBBLACKLIST.indexOf("*") != -1) return null;
+		if (this.GITHUBBLACKLIST.indexOf(sName) !== -1 || this.GITHUBBLACKLIST.indexOf("*") !== -1) return null;
 		sName = sName.toLowerCase();
 		/* Das folgende Array enthaelt regulaere Ausdruecke, um ungueltige Zeichenfolgen entfernen:
 		/Datei-Erweiterungen am Ende/, /"ucjs_" am Anfang/, /"_"gefolgtVonZahlUndDanachBeliebigenZeichen/
 		/ "_fx"gefolgtVonZahl(en)/, /"-" oder "+" oder "."/, /"_v"gefolgtVonZahlen
 		*/
-		var regs=[/\.uc\.js$/,/\.uc\.xul$/,/^ucjs_/,/_\d.+/,/_fx\d+/,/[-+\.]/g,/_v\d+/];
+		var regs = [/\.uc\.js$/,/\.uc\.xul$/,/^ucjs_/,/_\d.+/,/_fx\d+/,/[-+\.]/g,/_v\d+/];
 		for (var i = 0; i < regs.length; i++) {
-			sName=sName.replace(regs[i],"");
+			sName = sName.replace(regs[i],"");
 		}
 		return "https://github.com/ardiman/userChrome.js/tree/master/" + sName;
 	},
 
-	writeAddons: function(OpenPath,f){
+	writeAddons: function(file,format){
 		var a, t, c, n, d, atype, aout, thisaddon;
-		var file  = OpenPath;
-		var format = f;
 		var output = "";
 		var addontpl = "";
 		var addontplwithouturl = "";
-		Components.utils.import("resource://gre/modules/osfile.jsm");
+		Cu.import("resource://gre/modules/osfile.jsm");
 
 		addontpl = this.MYTPLS[format].tpladdon;
 		addontplwithouturl = this.MYTPLS[format].tpladdon_without_url;
@@ -443,32 +443,31 @@ var ADONLI = {
 		return output;
 	},
 
-	showAddons: function(e,RanPath,OpenPath,f,r) {
+	showAddons: function(e,RanPath,OpenPath,format,myoutput) {
 		// zeigt das EXPORTFILE im Editor oder im Browser (Mittelklick) an
 		switch (e) {
 			case 0:
-				var file = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsILocalFile);
-				var proc = Components.classes["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
+				var file = new this.FILEUTILS.File(RanPath);
+				var proc = Cc["@mozilla.org/process/util;1"].createInstance(Components.interfaces.nsIProcess);
 				var args = [OpenPath];
-				file.initWithPath(RanPath);
 				// falls der im Konfigurationsabschnitt definierte Editor nicht gefunden wird, auf Einstellung in about:config ausweichen:
-				if (!file.exists()) {
+				if (!this.fileExists(RanPath)) {
 					console.log("AddonLister meldet: Editor nicht gefunden, ausweichen auf about:config.");
-					var pref = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+					var pref = Cc["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
 					RanPath = pref.getCharPref("view_source.editor.path");
-					file.initWithPath(RanPath);
+					file = new this.FILEUTILS.File(RanPath);
 				}
 				proc.init(file);
 				proc.run(false, args, args.length);
 				break;
 			case 1:
-				if (this.MYTPLS[f].opendatauri) {
-					var datastring = r.replace(/\n/g,"%0A").replace(/#/g,"%23");
+				if (this.MYTPLS[format].opendatauri) {
+					var datastring = myoutput.replace(/\n/g,"%0A").replace(/#/g,"%23");
 					getBrowser().selectedTab = getBrowser().addTab('data:text/plain;charset=utf-8,' + datastring);
 					XULBrowserWindow.statusTextField.label = "Export nach  »"+ OpenPath + "« ist erfolgt.";
 				} else {
 					// alert sorgt ein wenig dafür, dem OS Zeit fürs Speichern der Datei zu geben ...
-					alert("Export nach »"+ OpenPath + "« ("+ f + "-format) ist erfolgt.");
+					alert("Export nach »"+ OpenPath + "« ("+ format + "-format) ist erfolgt.");
 					getBrowser().selectedTab = getBrowser().addTab(OpenPath);
 				}
 				break;
