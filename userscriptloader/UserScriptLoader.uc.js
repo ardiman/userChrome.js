@@ -536,22 +536,21 @@ USL.init = function(){
 	USL.loadSetting();
 	USL.style = addStyle(css);
 	
-	USL.icon = $('main-menubar').appendChild($C("toolbarbutton", {
+/*	USL.icon = $('status-bar').appendChild($C("statusbarpanel", {
 		id: "UserScriptLoader-icon",
-		class: "UserScriptLoader-item",
-		type: "checkbox",
-		autocheck: "false",
+		class: "statusbarpanel-iconic",
 		context: "UserScriptLoader-popup",
 		onclick: "USL.iconClick(event);"
 	}));
+*/
 
-/*	USL.icon = $('urlbar-icons').appendChild($C("image", {
+	USL.icon = $('urlbar-icons').appendChild($C("image", {
 		id: "UserScriptLoader-icon",
 		context: "UserScriptLoader-popup",
 		onclick: "USL.iconClick(event);",
 		style: "padding: 0px 2px;",
 	}));
-*/
+
 
 	var xml = '\
 		<menupopup id="UserScriptLoader-popup" \
