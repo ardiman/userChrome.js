@@ -1,82 +1,69 @@
 // ==UserScript==
-// @name           downloadSoundPlay.uc
+// @name           downloadSoundPlay.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    ダウンロードマネージャー用のダウンロードを監視し音を鳴らす
 // @include        main
-// @compatibility  Firefox 3.0 more
+// @compatibility  Firefox 26-37
 // @author         Alice0775
+// @version        2015/01/15 1:00 Fixed strictmode
+// @version        2013/12/18 11:00 defineLazyModuleGetter for Firefox26
+// @version        2013/12/18 Firefox26
 // @version        2009/11/28
 // ==/UserScript==
 
 var downloadPlaySound = {
   // -- config --
-  DL_START : "",
+  DL_START : null,
   DL_DONE  : "file:///C:/WINDOWS/Media/chimes.wav",
-  DL_CANCEL: "",
-  DL_FAILED: "",
+  DL_CANCEL: null,
+  DL_FAILED: null,
   // -- config --
 
-  observerService: null,
+  _list: null,
   init: function sampleDownload_init() {
+    XPCOMUtils.defineLazyModuleGetter(window, "Downloads",
+              "resource://gre/modules/Downloads.jsm");
+
     //window.removeEventListener("load", this, false);
     window.addEventListener("unload", this, false);
 
     //**** ダウンロード監視の追加
-    this.observerService = Components.classes["@mozilla.org/observer-service;1"]
-                                    .getService(Components.interfaces.nsIObserverService);
-    this.observerService.addObserver(this, "dl-start", false);
-    this.observerService.addObserver(this, "dl-done", false);
-    this.observerService.addObserver(this, "dl-cancel", false);
-    this.observerService.addObserver(this, "dl-failed", false);
+    if (!this._list) {
+      Downloads.getList(Downloads.ALL).then(list => {
+        this._list = list;
+        return this._list.addView(this);
+      }).then(null, Cu.reportError);
+    }
   },
 
   uninit: function() {
     window.removeEventListener("unload", this, false);
-    this.observerService.removeObserver(this, "dl-start");
-    this.observerService.removeObserver(this, "dl-done");
-    this.observerService.removeObserver(this, "dl-cancel");
-    this.observerService.removeObserver(this, "dl-failed");
+    if (this._list) {
+      this._list.removeView(this);
+    }
   },
 
-  // ******************************
-  // DownloadObserver
-  // ******************************
-  observe: function (subject, topic, state) {
-    var oDownload = subject.QueryInterface(Components.interfaces.nsIDownload);
-    //**** ダウンロードファイルを持つオブジェクトを取得
-    var oFile = null;
-    try{
-      oFile = oDownload.targetFile;  // New firefox 0.9+
-    } catch (e){
-      oFile = oDownload.target;      // Old firefox 0.8
-    }
+  onDownloadAdded: function (aDownload) {
     //**** ダウンロード開始イベント
-    if (topic == "dl-start"){
-      //alert('Start download to - '+oFile.path);
-      if (this.DL_START)
-        this.playSoundFile(this.DL_START);
-    }
-    //**** ダウンロードキャンセルイベント
-    if(topic == "dl-cancel"){
-      //alert('Canceled download to - '+oFile.path);
-      if (this.DL_CANCEL)
-        this.playSoundFile(this.DL_CANCEL);
-    }
+    if (this.DL_START)
+      this.playSoundFile(this.DL_START);
+  },
+
+  onDownloadChanged: function (aDownload) {
+    //**** ダウンロードキャンセル
+    if (aDownload.canceled && this.DL_CANCEL)
+      this.playSoundFile(this.DL_CANCEL)
     //**** ダウンロード失敗
-    else if(topic == "dl-failed"){
-      //alert('Failed download to - '+oFile.path);
-      if (this.DL_FAILED)
-        this.playSoundFile(this.DL_FAILED);
-    }
+    if (aDownload.error && this.DL_FAILED)
+      this.playSoundFile(this.DL_FAILED)
     //**** ダウンロード完了
-    else if(topic == "dl-done"){
-      //alert('Done download to - '+oFile.path);
-      if (this.DL_DONE)
-        this.playSoundFile(this.DL_DONE);
-    }
+    if (aDownload.succeeded && this.DL_DONE)
+      this.playSoundFile(this.DL_DONE)
   },
 
   playSoundFile: function(aFilePath) {
+    if (!aFilePath)
+      return;
     var ios = Components.classes["@mozilla.org/network/io-service;1"]
               .createInstance(Components.interfaces["nsIIOService"]);
     try {
@@ -99,14 +86,10 @@ var downloadPlaySound = {
 
   handleEvent: function(event) {
     switch (event.type) {
-      case "load":
-        this.init();
-        break;
-      case"unload":
+      case "unload":
         this.uninit();
         break;
     }
   }
 }
-//window.addEventListener("load", downloadPlaySound.init, false);
 downloadPlaySound.init();
