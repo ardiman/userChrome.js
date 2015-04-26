@@ -33,10 +33,10 @@
 
   var conqueryModoki = {
     // -- config -- //大文字小文字留意すること
-    //button + key :               //L M R = 左中右ボタン, S C A = shift,ctrl,altキー(SCAの順で指定)
-    // 'Current', 'Tab', 'Shift'   //Current=現在のタブ, Tab =browser.tabs.loadInBackground, Shift=逆
-    // 'Prompt', 'Clipboard'       //Prompt=検索語句の入力窓表示, Clipboard=クリップボードの語句で検索
-    // 'Clear'                     //Clear=検索実行後検索バーをクリア
+    //button + key :               //L M R = Links, Mitte, Rechts, S C A = shift,ctrl,alt(SCA = Angabe in der Reihenfolge)
+    // 'Current', 'Tab', 'Shift'   //Current = aktueller Tab, Tab = browser.tabs.loadInBackground, Shift = Umgekehrt
+    // 'Prompt', 'Clipboard'       //Prompt = Zeigt Suchbegriff im Eingabefenster, Clipboard = Suche und gleichzeitig in die Zwischenablage
+    // 'Clear'                     //Clear = Nach der Suche wird die Suchleiste geleert
     //  検索バーの検索エンジンプルダウン上の検索エンジンでの動作 (左クリック変更不可)
     funcSearchbar     : {
                          'M'  : 'Tab', //'Tab Clipboard',
@@ -77,20 +77,20 @@
     // 'Clear', 'Context'
     // 検索バーの検索エンジンボタン上で クリック したときの動作 (左クリック変更不可)
     funcButton        : {
-                         'M' : 'Tab Clipboard',
-                         'R' : 'Clear',
-                         'RS': 'Context',  //Context=コンテキストメニュ表示 変更不可
+                         'M' : 'Tab Zwischenablage',
+                         'R' : 'Leeren',
+                         'RS': 'Kontext',  //Context=コンテキストメニュ表示 変更不可
                         },
     //button + key :
     //'And', 'Not', 'Or', 'Site' //And/Not/Or=選択語句を+- で連結, Site=site:カレントホストを付加
     // Revert', 'Clear',
     // 検索バーの検索エンジンボタン上で 左ダブルクリック したときの動作
     funcButtonDblClick: {
-                         'L'  : 'Revert',  //Revert=デフォルトエンジンに戻す 変更不可
-                         'LS' : 'And',
-                         'LSC': 'Site',
-                         'LA' : 'Not',
-                         'LC' : 'Or',
+                         'L'  : 'Zurücksetzen',  //Revert=デフォルトエンジンに戻す 変更不可
+                         'LS' : 'Und',
+                         'LSC': 'Seite',
+                         'LA' : 'Nicht',
+                         'LC' : 'Oder',
                         },
     // -- config --
 
@@ -176,7 +176,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
+        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -269,7 +269,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('串刺し検索: ' + aMenu.getAttribute('label') ,word);
+        word = window.prompt('Glücksuche: ' + aMenu.getAttribute('label') ,word);
         if (!word)
           return;
       }
@@ -787,7 +787,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
+        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -836,9 +836,9 @@ conqueryModoki.init();
   ]]></script>
   <popup id="contentAreaContextMenu">
     <menu id="context-conqueryModoki"
-          label="Query to…"
-          tooltiptext="DoubleClick: Do Search."
-          accesskey="q"
+          label="Web-Suche nach…"
+          tooltiptext="Doppelklick: Suche..."
+          accesskey="s"
           insertbefore="context-searchselect"
           ondblclick="conqueryModoki.hideAllPopup();conqueryModoki.searchWord(event, null);"
           onclick="if(event.button == 2 || event.button == 1) {conqueryModoki.kusizasi(event);}"

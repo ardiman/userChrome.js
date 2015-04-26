@@ -1012,41 +1012,41 @@ window.addEventListener("unload", function(){ GrabScroll.uninitGrabScroll(); }, 
   ]]></script>
   <menupopup id="menu_ToolsPopup">
     <menu id="GrabScroll_optionsMenu"
-          label="GrabScrollの設定" insertbefore="menu_preferences" accesskey="g">
+          label="GrabScroll Einstellungen" insertbefore="menu_preferences" accesskey="E">
       <menupopup id="GrabScroll_options"
                  onpopupshowing="event.stopPropagation();GrabScroll.onpopup()"
                  menugenerated="true">
         <menuitem id="GrabScroll_enable"
-                  label="GrabScroll有効"
-                  accesskey="g"
+                  label="GrabScroll aktivieren"
+                  accesskey="v"
                   oncommand="GrabScroll.toggle();"
                   type="checkbox" />
-        <menuitem label="GrabScrollを開始するボタン"
-                  accesskey="b"
+        <menuitem label="GrabScroll Tastenwahl"
+                  accesskey="w"
                   oncommand="GrabScroll.button();"/>
         <menuseparator/>
-        <menuitem label="GrabScrollを開始する閾値"
-                  accesskey="x"
+        <menuitem label="GrabScroll Startzeit"
+                  accesskey="z"
                   oncommand="GrabScroll.threshold();"/>
-        <menuitem label="GrabScrollの倍率"
+        <menuitem label="GrabScroll Scrollrate"
                   accesskey="r"
                   oncommand="GrabScroll.moverate();"/>
         <menuseparator/>
         <menuitem id="GrabScroll_enableInertia"
-                  label="慣性スクロール有効"
-                  accesskey="i"
+                  label="Autoscroll aktivieren"
+                  accesskey="a"
                   oncommand="GrabScroll.inertiaToggle();"
                   type="checkbox" />
-        <menuitem label="慣性スクロールの閾値"
-                  accesskey="k"
+        <menuitem label="Nachlauf beim Autoscroll"
+                  accesskey="A"
                   oncommand="GrabScroll.inertiaThreshold();"/>
-        <menuitem label="慣性スクロールの速度"
-                  accesskey="s"
+        <menuitem label="Scrollgeschwindigkeit"
+                  accesskey="e"
                   oncommand="GrabScroll.inertiarate();"/>
         <menuseparator/>
         <menuitem id="GrabScroll_clickable"
-                  label="クリック可能リンクでも開始する"
-                  accesskey="c"
+                  label="GrabScroll beim Linkklick"
+                  accesskey="L"
                   oncommand="GrabScroll.clickable();"
                   type="checkbox" />
       </menupopup>

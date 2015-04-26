@@ -43,7 +43,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 			var ins = $("devToolsSeparator");
 			ins.parentNode.insertBefore($C("menuitem", {
 				id: "AwesomeBookmarkbar_set",
-				label: "智能书签栏配置",
+				label: "AwesomeBookmarkbar Einstellungen",
 				oncommand: "AwesomeBookmarkbar.openPref();",
 				image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAByklEQVQ4jZ2Rz4sSYRjHn2yxYmlpqYV+LOye6uCtS3uu6LBFMJCJgviC0jonfxzUndMrHvI9hDiOh/eVGUE3kIEQHEedlx1eh7nVn1D/wF5rLwX9uCQsgRP6uTw8D3w/fOEBuIAQYkMIsXFhv+X7/rYQYt913XsQhGma14QQR67rItM0wwAAnuc9FkKczufzj57nPQsUOI6zyTn/wDnvTSaTKwAAs9ks6zjOD8757+l02hkOhzeWCjDGIdu292zb3vvbKDwej19alnUyGo18y7Ke9Hq9zWX5SwAA0Wj08mLqun4dAKDf798ZDAYHgfUNw3hoGMaxYRgZAABd1193u13R6XSCgwsopSnG2C9Kqd9ut28zxiTG2Dml1FdVdScwjDEOqar6VFXVsaZpx5qm3cQYh1qtVq7ZbL5tNBpvCCG7/21BCNnFGG/9c3tFCDmv1+vvMcbLP7CMSqWyXavVTqrV6k+M8TuE0NWVJaVS6a6iKDNFUb6Xy+XS4lMrkcvlHhSLxU+FQuFbPp9HKwsAAGRZPpBl+Us2mz3LZDKHa0nS6fRzhNBZKpX6nEwmH60lSSQSKB6Pf43FYmQtQSQSCUuS9EKSpPsAAH8A5AfFG6aqwRIAAAAASUVORK5CYII=",
 				class: "menuitem-iconic",
@@ -244,7 +244,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 					<prefwindow xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"\
 					id="AwesomeBookmarkbar_Settings"\
 					ignorekeys="true"\
-					title="智能书签栏配置"\
+					title="AwesomeBookmarkbar Einstellungen"\
 					buttons="accept,cancel,extra1"\
 					ondialogextra1="Resets();"\
 					windowtype="AwesomeBookmarkbar:Preferences">\
@@ -284,36 +284,36 @@ location == "chrome://browser/content/browser.xul" && (function() {
 							function $(id) document.getElementById(id);\
 						</script>\
 						<groupbox>\
-							<checkbox id="LShow" label="启动时显示书签栏" preference="LShow"/>\
+							<checkbox id="LShow" label="Beim Firefoxstart Lesezeichenleiste anzeigen" preference="LShow"/>\
 						</groupbox>\
 						<hbox>\
 							<groupbox>\
-								<caption label="隐藏书签工具栏"/>\
+								<caption label="Lesezeichenleiste ausblenden"/>\
 									<row align="center">\
-										<label value="隐藏延时："/>\
-										<textbox id="Hide_Time" type="number" preference="Hide_Time" style="width:125px" tooltiptext="单位：毫秒！"/>\
+										<label value="Ausblendenverzögerung："/>\
+										<textbox id="Hide_Time" type="number" preference="Hide_Time" style="width:125px" tooltiptext="In Millisekunden！"/>\
 									</row>\
-									<checkbox id="UClick_H" label="地址栏点击" preference="UClick_H"/>\
-									<checkbox id="UDblclick_H" label="地址栏双击" preference="UDblclick_H"/>\
-									<checkbox id="UKey_H" label="地址栏任意按键" preference="UKey_H"/>\
-									<checkbox id="UBlur_H" label="地址栏失去焦点(页面内点击)" preference="UBlur_H"/>\
-									<checkbox id="UMouseout_H" label="鼠标移出地址栏" preference="UMouseout_H"/>\
-									<checkbox id="PMouseout_H" label="鼠标移出书签工具栏" preference="PMouseout_H"/>\
-									<checkbox id="PClick_H" label="书签工具栏点击书签之后" preference="PClick_H"/>\
+									<checkbox id="UClick_H" label="Klick auf Adressleiste" preference="UClick_H"/>\
+									<checkbox id="UDblclick_H" label="Doppelklick auf Adressleiste" preference="UDblclick_H"/>\
+									<checkbox id="UKey_H" label="Beliebigen Tastendruck in Adressleiste" preference="UKey_H"/>\
+									<checkbox id="UBlur_H" label="Wenn Adressleiste den Fokus verliert (Seite anklicken)" preference="UBlur_H"/>\
+									<checkbox id="UMouseout_H" label="Maus aus Adressleiste bewegen" preference="UMouseout_H"/>\
+									<checkbox id="PMouseout_H" label="Maus aus Lesezeichenleiste bewegen" preference="PMouseout_H"/>\
+									<checkbox id="PClick_H" label="Nach Klick auf Lesezeichenleiste" preference="PClick_H"/>\
 							</groupbox>\
 							<groupbox>\
-								<caption label="显示书签工具栏"/>\
+								<caption label="Lesezeichenleiste einblenden"/>\
 									<row align="center">\
-										<label value="显示延时："/>\
-										<textbox id="Show_Time" type="number" preference="Show_Time" style="width:125px" tooltiptext="单位：毫秒！"/>\
+										<label value="Anzeigeverzögerung："/>\
+										<textbox id="Show_Time" type="number" preference="Show_Time" style="width:125px" tooltiptext="In Millisekunden!"/>\
 									</row>\
-									<checkbox id="UDblclick_S" label="地址栏双击" preference="UDblclick_S"/>\
-									<checkbox id="UClick_S" label="地址栏单击" preference="UClick_S"/>\
-									<checkbox id="UMove_S" label="鼠标移入地址栏" preference="UMove_S"/>\
+									<checkbox id="UDblclick_S" label="Adressleiste Doppelklick" preference="UDblclick_S"/>\
+									<checkbox id="UClick_S" label="Klick auf Adressleiste" preference="UClick_S"/>\
+									<checkbox id="UMove_S" label="Maus in die Adresszeile bewegen" preference="UMove_S"/>\
 							</groupbox>\
 						</hbox>\
 						<hbox flex="1">\
-							<button dlgtype="extra1" label="还原默认值" />\
+							<button dlgtype="extra1" label="Standardeinstellungen wiederherstellen" />\
 							<spacer flex="1" />\
 							<button dlgtype="accept"/>\
 							<button dlgtype="cancel"/>\
