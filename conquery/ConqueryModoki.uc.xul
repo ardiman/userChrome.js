@@ -9,7 +9,8 @@
 // @include        main
 // @compatibility  Firefox 16+
 // @author         Alice0775
-// @version        2014/07/30 23:00 e10s.
+// @version        2014/10/16 07:00 Revert=デフォルトエンジンに戻す は一番最初の奴にするようにした
+// @version        2014/08/22 22:00 Fixed due to Bug 1051017.
 // @version        2014/06/27 08:00 Fixed deprecated search service API.
 // @version        2014/04/18 23:50 Fixed rebuildPopup
 // @version        2014/04/18 23:30 Fixed rebuildPopup
@@ -32,12 +33,12 @@
 
   var conqueryModoki = {
     // -- config -- //大文字小文字留意すること
-    //button + key :               //L M R = Links, Mitte, Rechts, S C A = shift,ctrl,alt(SCA = Angabe in der Reihenfolge)
-    // 'Current', 'Tab', 'Shift'   //Current = aktueller Tab, Tab = browser.tabs.loadInBackground, Shift = Umgekehrt
-    // 'Prompt', 'Clipboard'       //Prompt = Zeigt Suchbegriff im Eingabefenster, Clipboard = Suche und gleichzeitig in die Zwischenablage
-    // 'Clear'                     //Clear = Nach der Suche wird die Suchleiste geleert
+    //button + key :               //L M R = 左中右ボタン, S C A = shift,ctrl,altキー(SCAの順で指定)
+    // 'Current', 'Tab', 'Shift'   //Current=現在のタブ, Tab =browser.tabs.loadInBackground, Shift=逆
+    // 'Prompt', 'Clipboard'       //Prompt=検索語句の入力窓表示, Clipboard=クリップボードの語句で検索
+    // 'Clear'                     //Clear=検索実行後検索バーをクリア
     //  検索バーの検索エンジンプルダウン上の検索エンジンでの動作 (左クリック変更不可)
-   funcSearchbar     : {
+    funcSearchbar     : {
                          'M'  : 'Tab', //'Tab Clipboard',
                          'R'  : 'Current',
                          'RS' : 'Shift',
@@ -85,11 +86,11 @@
     // Revert', 'Clear',
     // 検索バーの検索エンジンボタン上で 左ダブルクリック したときの動作
     funcButtonDblClick: {
-                         'L'  : 'Zurücksetzen',  //Revert=デフォルトエンジンに戻す 変更不可
-                         'LS' : 'Und',
-                         'LSC': 'Seite',
-                         'LA' : 'Nicht',
-                         'LC' : 'Oder',
+                         'L'  : 'Revert',  //Revert=デフォルトエンジンに戻す 変更不可
+                         'LS' : 'And',
+                         'LSC': 'Site',
+                         'LA' : 'Not',
+                         'LC' : 'Or',
                         },
     // -- config --
 
@@ -175,7 +176,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
+        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -268,7 +269,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Glücksuche: ' + aMenu.getAttribute('label') ,word);
+        word = window.prompt('串刺し検索: ' + aMenu.getAttribute('label') ,word);
         if (!word)
           return;
       }
@@ -310,46 +311,39 @@
     },
 
     _getFocusedWindow: function(){ //現在のウインドウを得る
-      let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
-      return focusedWindow;
+        if ("BrowserUtils" in window) {
+          let [elt, win] = BrowserUtils.getFocusSync(document);
+          return win;
+        }
+        var focusedWindow = document.commandDispatcher.focusedWindow;
+        if (!focusedWindow || focusedWindow == window)
+            return window._content;
+        else
+            return focusedWindow;
     },
 
-    _getselection: function(aCharLen) {  //選択されている文字列を得る
-       // selections of more than 150 characters aren't useful
-      const kMaxSelectionLen = 150;
-      const charLen = Math.min(aCharLen || kMaxSelectionLen, kMaxSelectionLen);
-
-      let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
-      var selection = focusedWindow.getSelection().toString();
-      // try getting a selected text in text input.
-      if (!selection) {
-        var isOnTextInput = function isOnTextInput(elem) {
-          // we avoid to return a value if a selection is in password field.
-          // ref. bug 565717
-          return elem instanceof HTMLTextAreaElement ||
-                 (elem instanceof HTMLInputElement && elem.mozIsTextField(true));
-        };
-
-        if (isOnTextInput(element)) {
-          selection = element.QueryInterface(Ci.nsIDOMNSEditableElement)
-                             .editor.selection.toString();
+    _getselection: function() {  //選択されている文字列を得る
+        var targetWindow = this._getFocusedWindow();
+        var sel = targetWindow.getSelection();
+        // for textfields
+        if (sel && !sel.toString()) {
+          if ("BrowserUtils" in window) {
+            var [node, win] = BrowserUtils.getFocusSync(document);
+          } else {
+            node = document.commandDispatcher.focusedElement;
+          }
+          if (node &&
+              ((typeof node.mozIsTextField == 'function' &&  node.mozIsTextField(true)) ||
+               node.type == "search" ||
+               node.type == "text" || node.type == "textarea") &&
+              'selectionStart' in node &&
+              node.selectionStart != node.selectionEnd) {
+              var offsetStart = Math.min(node.selectionStart, node.selectionEnd);
+              var offsetEnd   = Math.max(node.selectionStart, node.selectionEnd);
+              return node.value.substr(offsetStart, offsetEnd-offsetStart);
+          }
         }
-      }
-
-      if (selection) {
-        if (selection.length > charLen) {
-          // only use the first charLen important chars. see bug 221361
-          var pattern = new RegExp("^(?:\\s*.){0," + charLen + "}");
-          pattern.test(selection);
-          selection = RegExp.lastMatch;
-        }
-
-        selection = selection.trim().replace(/\s+/g, " ");
-
-        if (selection.length > charLen)
-          selection = selection.substr(0, charLen);
-      }
-      return selection;
+        return sel ? sel.toString().replace(/\s/g,' ').replace(/^[\ ]+|[\ ]+$/g,'').replace(/[\ ]+/g,' ') : "";
     },
 
     hideAllPopup: function(){
@@ -601,7 +595,7 @@
 
       for (var a in this.funcButton)
         this.tooltipSB  += a + ' : ' + this.funcButton[a] + '\n';
-      this.tooltipSB  += '---Doppelklick---\n';
+      this.tooltipSB  += '---double click---\n';
       for (var a in this.funcButtonDblClick)
         this.tooltipSB  += a + ' : ' + this.funcButtonDblClick[a] + '\n';
 
@@ -793,7 +787,7 @@
       }
       //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
-        word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
+        word = window.prompt('検索エンジン: ' + aEngine.name ,word);
         if (!word)
           return;
       }
@@ -814,13 +808,7 @@
     },
 
     engineRevert: function(aEvent){
-      let defaultPrefB = Services.prefs.getDefaultBranch("browser.search.");
-      let nsIPLS = Components.interfaces.nsIPrefLocalizedString;
-      let defaultEngine =Services.search.defaultEngine;
-      try {
-        defaultEngineName = defaultPrefB.getComplexValue("defaultenginename", nsIPLS).data;
-        defaultEngine = Services.search.getEngineByName(defaultEngineName);
-      } catch (ex) {}
+      let defaultEngine = Services.search.getVisibleEngines({ })[0];
       setTimeout(function(){Services.search.currentEngine = defaultEngine;},100);
       return false;
     }
@@ -848,9 +836,9 @@ conqueryModoki.init();
   ]]></script>
   <popup id="contentAreaContextMenu">
     <menu id="context-conqueryModoki"
-          label="Web-Suche nach…"
-          tooltiptext="Doppelklick: Suche..."
-          accesskey="s"
+          label="Query to…"
+          tooltiptext="DoubleClick: Do Search."
+          accesskey="q"
           insertbefore="context-searchselect"
           ondblclick="conqueryModoki.hideAllPopup();conqueryModoki.searchWord(event, null);"
           onclick="if(event.button == 2 || event.button == 1) {conqueryModoki.kusizasi(event);}"
