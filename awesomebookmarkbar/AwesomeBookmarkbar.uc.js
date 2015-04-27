@@ -304,12 +304,12 @@ location == "chrome://browser/content/browser.xul" && (function() {
 							<groupbox>\
 								<caption label="Lesezeichenleiste einblenden"/>\
 									<row align="center">\
-										<label value="Anzeigeverzögerung："/>\
+										<label value="Einblendenverzögerung："/>\
 										<textbox id="Show_Time" type="number" preference="Show_Time" style="width:125px" tooltiptext="In Millisekunden!"/>\
 									</row>\
-									<checkbox id="UDblclick_S" label="Adressleiste Doppelklick" preference="UDblclick_S"/>\
+									<checkbox id="UDblclick_S" label="Doppelklick auf Adressleiste" preference="UDblclick_S"/>\
 									<checkbox id="UClick_S" label="Klick auf Adressleiste" preference="UClick_S"/>\
-									<checkbox id="UMove_S" label="Maus in die Adresszeile bewegen" preference="UMove_S"/>\
+									<checkbox id="UMove_S" label="Maus in die Adressleiste bewegen" preference="UMove_S"/>\
 							</groupbox>\
 						</hbox>\
 						<hbox flex="1">\
