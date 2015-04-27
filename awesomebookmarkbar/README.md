@@ -3,8 +3,7 @@
 Mit diesem Skript bleibt die Lesezeichenleiste ausgeblendet. Beim Fokussieren der Addresleiste (auch per Tastenkombi) wird die 
 Lesezeichenleiste automatisch wieder eingeblendet und zwar so lange, bis die Adressleiste ihren Fokus wieder verliert.
 
-Im Menüpunkt **Extras** gibt es einen Eintrag, zum Öffnen der Einstellungen, über welchen man das ein und Ausblenden der Lesezeichenleiste, seinen eigenen Wünschen 
-entsprechend anpassen kann.
+Im Menüpunkt **Extras** gibt es einen Eintrag zum Öffnen der Einstellungen, mit dem man das Ein- und Ausblenden der Lesezeichenleiste anpassen kann.
 
 Das **Ergebnis des Skripts**:
 
