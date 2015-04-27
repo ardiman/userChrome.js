@@ -1,40 +1,54 @@
 // ==UserScript==
 // @name           OpenPlayer
-// @description    特定のサイト上でリンクやページURLを外部プレーヤーで開く
+// @description    Youtubeの動画を外部プレーヤーで開く
 // @include        main
 // @charset        UTF-8
-// @version        0.2
+// @version        0.4 Youtubeにてplaylist内の個別動画を再生できなかったのを修正。menuitemの表示位置を先頭に固定。コマンドライン引数をcustomArgsで指定できるように改善。
+// @version        0.3 youtu.be形式の短縮URLリンクに対応
 // ==/UserScript==
+/*
+Youtube以外でもリンクが動画への直リンクであればVLCやMPC-HC(BE)などで開けると思います
+その際はregExpへそのサイトのドメインを追加してください
+*/
 var OpenPlayer = {
 
-    mi: null,
+    playerPath: 'C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe',
+    playerName: 'VLC Player',
+    customArgs: '', // Befehlszeilenargument des Players angeben
 
-    PATH: "C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe",
-    NAME: "VLC Player",
-    REGEXP: /youtube\.com/,
+    regExp: /youtube\.com|youtu\.be/,
 
     init: function () {
-        this.mi = document.createElement("menuitem");
-        this.mi.setAttribute("label", this.NAME + " öffnen");
-        this.mi.setAttribute("image", "moz-icon:file://" + this.PATH + "?size=16;");
-        document.getElementById("contentAreaContextMenu").addEventListener("popupshowing", function () {
-            OpenPlayer.onPopupShowing(this);
+        var cacm = document.getElementById('contentAreaContextMenu')
+        var mi = document.createElement('menuitem');
+        mi.setAttribute('label', this.playerName + ' öffnen');
+        mi.setAttribute('class', 'menuitem-iconic');
+        mi.setAttribute('image', 'moz-icon:file://' + this.playerPath + '?size=16;');
+        cacm.addEventListener('popupshowing', function () {
+            if (!gContextMenu.target) return;
+            cacm.insertBefore(mi, document.getElementById('context-' + ((gContextMenu.onLink) ? 'openlinkintab' : 'openlinkincurrent')));
+            mi.setAttribute('oncommand', 'OpenPlayer.launchPlayer(' + (gContextMenu.onLink ? 'gContextMenu.getLinkURL()' : 'gBrowser.currentURI.spec') + ');');
+            mi.hidden = !OpenPlayer.regExp.test(gContextMenu.onLink ? gContextMenu.linkURL : gContextMenu.target.ownerDocument.location.href);
         }, false);
     },
 
-    onPopupShowing: function (popup) {
-        if (!gContextMenu.target) return;
-        popup.insertBefore(this.mi, document.getElementById("context-sep-copyimage" + ((gContextMenu.onLink) ? "open" : "stop")));
-        this.mi.setAttribute("oncommand", "OpenPlayer.exec(" + ((gContextMenu.onLink) ? "gContextMenu.linkURI" : "gBrowser.currentURI") + ");");
-        this.mi.hidden = !this.REGEXP.test(gContextMenu.onLink ? gContextMenu.linkURL : gContextMenu.target.ownerDocument.location.href);
+    extractYoutubeID: function (url) {
+        url = url.replace(/v\=|v\%3D|youtu.be\/|\/v\/|\/embed\/|attribution_link\a\=/ig, 'IDSTART');
+        var IDPos = url.indexOf('IDSTART');
+
+        var newUrl = 'https://www.youtube.com/watch?v=' + url.substr(IDPos+7, 11);
+        return newUrl;
     },
 
-    exec: function (url) {
-        var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-        file.initWithPath(OpenPlayer.PATH);
-        var proc = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
+    launchPlayer: function (videoURL) {
+        videoURL = OpenPlayer.extractYoutubeID(videoURL);
+
+        var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+        file.initWithPath(OpenPlayer.playerPath);
+        var proc = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
         proc.init(file);
-        proc.run(false, [url.spec], 1, {});
+        var args = [videoURL].concat(OpenPlayer.customArgs.split(' '));
+        proc.run(false, args, args.length);
     }
 
 };

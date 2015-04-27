@@ -1,47 +1,43 @@
 // ==UserScript==
 // @name			LinkLocationbarLite.uc.js
-// @namespace		myfriday9_r1232313@live.com
-// @description		マウスがリンク上にあるとき、リンクのURLをロケーションバーに表示
-// @version			2013/01/16
-// @include			main
-// @compatibility	Firefox 18
-// @auther			http://j.mozest.com/zh-CN/ucscript/script/48/
 // ==/UserScript==
-(function() {
-	if (!isElementVisible(gURLBar)) return;	// アドレスバーが無かったらストップ
+(function(){
+	if (!isElementVisible(gURLBar)) return;
 
-	var loadingStat = true;	// Der Ladevorgang wird auch in der Adressleiste angezeigt,  false = Aus
+	var loadingStat = true;
 
-	var urlbarIcons = document.getElementById('urlbar-icons');
-	var additionBar = document.createElement('label');
-	additionBar.setAttribute('id', 'addtion-link');
-	additionBar.setAttribute('value', '');
-	additionBar.setAttribute('crop', 'center');	// Die Mitte einer langen URL wird weggelassen
-	//additionBar.setAttribute('flex', '1');
-	//additionBar.setAttribute('style', "-moz-box-ordinal-group: 99 !important;");  ////在urlbar-icons最左边显示?
-	additionBar.style.color = 'brown';
-	additionBar.style.margin = "0px 0px 0px 0px";
-	urlbarIcons.insertBefore(additionBar, urlbarIcons.firstChild);
+	var Bar = $('urlbar'),
+		sTxt = XULBrowserWindow.statusTextField;
+	var additionBar = $C('label', {
+		id: 'addtion-link',
+		value: '',
+//		crop: 'center',
+//		flex: '1',
+		style: "color: green; margin: 0px 0px 0px 1px; -moz-box-ordinal-group: 0;"
+	});
+	Bar.appendChild(additionBar);
+//	Bar.insertBefore(additionBar, Bar.firstChild);
 
-	function resetmaxWidth() {
-		//var p = gURLBar.boxObject.width;
-		//Der Abstand (120) in Px zwischen angezeigtem Link und der Adresse in der Urlbar
-		//urlbarIcons.style.maxWidth = Math.ceil(p - 270) + 'px';
-	}
-	resetmaxWidth();
-	window.addEventListener('resize', resetmaxWidth, false);
-
-	XULBrowserWindow.statusTextField.__defineGetter__('label', function() {
+	sTxt.__defineGetter__('label', function() {
 		return this.getAttribute("label");
-  	});
-	XULBrowserWindow.statusTextField.__defineSetter__('label', function(str) {
+	});
+	sTxt.__defineSetter__('label', function(str) {
 		if (str) {
 			this.setAttribute('label', str);
-			if(this.getAttribute('type') == 'overLink') {	// overLink
-				additionBar.value = '➥' + str + ' ';
-			} else {	// その他
+			var txt = str.substr(0, 39) + '...' + str.substr(str.length - 39, 39) + ' ';
+			if (this.getAttribute('type') == 'overLink') {
+				if (str.length > 80) {
+					additionBar.value = '➥ ' + txt;
+				} else {
+					additionBar.value = '➥ ' + str + ' ';
+				}
+			} else {
 				if (loadingStat == true) {
-					additionBar.value = str;
+					if (str.length > 80) {
+						additionBar.value = txt;
+					} else {
+						additionBar.value = str + ' ';
+					}
 				} else {
 					this.style.opacity = 1;
 					additionBar.value = '';
@@ -50,10 +46,17 @@
 		} else {
 			this.style.opacity = 0;
 			additionBar.value = '';
-	    }
-	    if (this.style.opacity == 0) {
-	    	XULBrowserWindow.statusTextField.removeAttribute('mirror');
-	    }
-	    return str;
+		}
+		if (this.style.opacity == 0) {
+			sTxt.removeAttribute('mirror');
+		}
+		return str;
 	});
+
+	function $(id) document.getElementById(id);
+	function $C(name, attr) {
+		var el = document.createElement(name);
+		if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+		return el;
+	}
 })();

@@ -4,11 +4,12 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @license        MIT License
-// @compatibility  Firefox 10
+// @compatibility  Firefox 32
 // @charset        UTF-8
 // @include        main
 // @screenshot     http://f.hatena.ne.jp/Griever/20120409200608
-// @version        0.0.3
+// @version        0.0.4
+// @note           0.0.4 なんかいじった
 // @note           0.0.3 CSS Selector も取得してみた
 // @note           0.0.3 E4X の修正忘れを修正
 // @note           0.0.2 Remove E4X
@@ -23,91 +24,113 @@ if (window.Inspector_de_Info) {
 
 window.Inspector_de_Info = {
 	getFocusedWindow: function(){
-		if (InspectorUI.selection)
-			return InspectorUI.selection.ownerDocument.defaultView;
 		var win = document.commandDispatcher.focusedWindow;
 		return (!win || win == window) ? window.content : win;
 	},
-	init: function() {
-		var popup = document.getElementById("inspector-node-popup");
-		if (!popup) return;
-		
-		this.xulstyle = addStyle(CSS);
-		this.icon = $("inspector-tools").appendChild(document.createElement("toolbarbutton"));
-		this.icon.setAttribute("id", "idei-button");
-		this.icon.setAttribute("class", "devtools-toolbarbutton");
-		this.icon.setAttribute("label", "INFO");
-		this.icon.setAttribute("accesskey", "I");
-		this.icon.setAttribute("oncommand", "Inspector_de_Info.run();");
+	ready: function(subject, aToolbox) {
+		var doc = aToolbox.doc;
+		var win = doc.defaultView;
+		win.Inspector_de_Info = window.Inspector_de_Info;
 
-		var m = document.createElement("menu");
-		m.setAttribute("label", "Get Selector");
-		m.setAttribute("id", "idei-selector-menu");
-		m.setAttribute("accesskey", "S");
-		var p = m.appendChild(document.createElement("menupopup"));
-		p.setAttribute("onpopupshowing", "Inspector_de_Info.onPopupshowing(event)");
-		p.setAttribute("idei-type", "selector");
-		popup.insertBefore(m, popup.firstChild);
+		if (doc.getElementById("idei-container")) return;
 
-		var m = document.createElement("menu");
-		m.setAttribute("label", "Get XPath");
-		m.setAttribute("id", "idei-xpath-menu");
-		m.setAttribute("accesskey", "X");
-		var p = m.appendChild(document.createElement("menupopup"));
-		p.setAttribute("onpopupshowing", "Inspector_de_Info.onPopupshowing(event)");
-		p.setAttribute("idei-type", "xpath");
-		popup.insertBefore(m, popup.firstChild);
+		var inspectFrame = doc.getElementById("toolbox-panel-iframe-inspector");
+		if (!inspectFrame)
+			return;
+
+		inspectFrame.addEventListener("load", inspectFrameOnload, true);
+		if (inspectFrame.contentDocument)
+			inspectFrameOnload(inspectFrame.contentDocument);
+
+		function inspectFrameOnload(iDoc) {
+			inspectFrame.removeEventListener("load", inspectFrameOnload, true);
+
+			var popup = iDoc.getElementById("inspector-node-popup");
+
+			var m = iDoc.createElement("menu");
+			m.setAttribute("label", "Selektor");
+			m.setAttribute("id", "idei-selector-menu");
+			m.setAttribute("accesskey", "S");
+			var p = m.appendChild(iDoc.createElement("menupopup"));
+			p.setAttribute("onpopupshowing", "window.top.Inspector_de_Info.onPopupshowing(event)");
+			p.setAttribute("idei-type", "selector");
+			popup.insertBefore(m, popup.firstChild);
+
+			var m = iDoc.createElement("menu");
+			m.setAttribute("label", "XPfad");
+			m.setAttribute("id", "idei-xpath-menu");
+			m.setAttribute("accesskey", "X");
+			var p = m.appendChild(iDoc.createElement("menupopup"));
+			p.setAttribute("onpopupshowing", "window.top.Inspector_de_Info.onPopupshowing(event)");
+			p.setAttribute("idei-type", "xpath");
+			popup.insertBefore(m, popup.firstChild);
+		};
+
+		var buttons = doc.getElementById("toolbox-buttons");
+
+		var infobutton = buttons.insertBefore(document.createElement("toolbarbutton"), buttons.firstChild);
+		infobutton.setAttribute("id", "idei-button");
+		infobutton.setAttribute("class", "command-button");
+		infobutton.setAttribute("image", "resource://gre/chrome/toolkit/skin/classic/mozapps/plugins/pluginHelp-16.png");
+		infobutton.setAttribute("label", "INFO");
+		infobutton.setAttribute("accesskey", "Q");
+		infobutton.addEventListener("command", function(event) {
+			var container = doc.getElementById("idei-container");
+			if (container.hidden = !container.hidden) return;
+
+			doc.getElementById("idei-url").value = "^" + content.location.href.replace(/[()\[\]{}|+.,^$?\\]/g, "\\$&");
+		}, false);
 
 		var xml = '\
 			<hbox id="idei-container" hidden="true">\
 				<popupset>\
 					<menupopup id="idei-textbox-popup">\
 						<menuitem label="@class=&quot;value&quot; → contains()"\
-						          tooltiptext="class 属性を contains() を使った形式にします"\
+						          tooltiptext="class Eigenschaft enthält() das zu verwendende Format"\
 						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_CLASS)" />\
-						<menuitem label="@name=&quot;value&quot; → starts-with(@name, &quot;value&quot;)"\
-						          tooltiptext="属性を starts-with(@name, &quot;value&quot;) にします"\
+						<menuitem label="@name=&quot;value&quot; → beginnt mit(@name, &quot;value&quot;)"\
+						          tooltiptext="Gesuchte Eigenschaft beginnt mit(@name, &quot;value&quot;)"\
 						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_STARTS)" />\
 						<menuitem label="@name=&quot;value&quot; → ends-with(@name, &quot;value&quot;)"\
-						          tooltiptext="属性を substring(@name, string-length(@name) - string-length(&quot;value&quot;) + 1) = &quot;value&quot; にします"\
+						          tooltiptext="Gesuchte Zeichenfolge-Eigenschaft (@name, string-length(@name) - string-length(&quot;value&quot;) + 1) = &quot;value&quot; "\
 						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.NORMAL_TO_ENDS)" />\
 						<menuseparator />\
 						<menuitem label="starts/ends/contains → @name=&quot;value&quot;"\
-						          tooltiptext="属性を @name=&quot;value&quot; に戻します"\
+						          tooltiptext="Zu Eigenschaft @name=&quot;value&quot; zurück."\
 						          oncommand="Inspector_de_Info.replaceAttrXPath(Inspector_de_Info.SOME_TO_NORMAL)" />\
 						<menuseparator />\
 						<menuitem label=":first-child"\
-						          tooltiptext="CSS の :first-child に相当する XPath を挿入します\n[not(preceding-sibling::*)]"\
+						          tooltiptext="CSS von :first-child entspricht anzugebenden XPfad\n[not(preceding-sibling::*)]"\
 						          oncommand="Inspector_de_Info.insertText(\'[not(preceding-sibling::*)]\');" />\
 						<menuitem label=":last-child"\
-						          tooltiptext="CSS の :last-child に相当する XPath を挿入します\n[not(following-sibling::*)]"\
+						          tooltiptext="CSS von :last-child entspricht anzugebenden XPfad\n[not(following-sibling::*)]"\
 						          oncommand="Inspector_de_Info.insertText(\'[not(following-sibling::*)]\');" />\
 						<menuitem label=":only-child"\
-						          tooltiptext="CSS の :only-child に相当する XPath を挿入します\n[count(parent::*/child::*) = 1]"\
+						          tooltiptext="CSS von :only-child entspricht anzugebenden XPfad\n[count(parent::*/child::*) = 1]"\
 						          oncommand="Inspector_de_Info.insertText(\'[count(parent::*/child::*) = 1]\');" />\
 						<menuitem label=":empty"\
-						          tooltiptext="CSS の :empty に相当する XPath を挿入します\n[not(*) and not(text())]"\
+						          tooltiptext="CSS v :empty entspricht anzugebenden XPfad\n[not(*) and not(text())]"\
 						          oncommand="Inspector_de_Info.insertText(\'[not(*) and not(text())]\');" />\
-						<menuitem label="E の後の F ( E + F )"\
-						          tooltiptext="CSS の E + F に相当する XPath を挿入します\nE/following-sibling::*[1][self::F]"\
+						<menuitem label="E nach F ( E + F )"\
+						          tooltiptext="CSS von E + F entspricht anzugebenden XPfad\nE/following-sibling::*[1][self::F]"\
 						          oncommand="Inspector_de_Info.insertText(\'E/following-sibling::*[1][self::F]\');" />\
-						<menuitem label="E 以降の F ( E ~ F )"\
-						          tooltiptext="CSS の E ~ F に相当する XPath を挿入します\nE/following-sibling::F"\
+						<menuitem label="E nach F ( E ~ F )"\
+						          tooltiptext="CSS von E ~ F entspricht anzugebenden XPfad\nE/following-sibling::F"\
 						          oncommand="Inspector_de_Info.insertText(\'E/following-sibling::F\');" />\
-						<menuitem label="E の前の F"\
+						<menuitem label="E vor F"\
 						          tooltiptext="E/preceding-sibling::*[1][self::F]"\
 						          oncommand="Inspector_de_Info.insertText(\'E/preceding-sibling::*[1][self::F]\');" />\
-						<menuitem label="E 以前の F"\
+						<menuitem label="E vor F"\
 						          tooltiptext="E/preceding-sibling::F"\
 						          oncommand="Inspector_de_Info.insertText(\'E/preceding-sibling::F\');" />\
 					</menupopup>\
 				</popupset>\
 				<vbox id="idei-hbox">\
 					<button label="JSON"\
-					        oncommand="Inspector_de_Info.checkInfo(true);"/>\
-					<button label="launch"\
-					        oncommand="Inspector_de_Info.launch();"\
-					        tooltiptext="uAutoPagerize で実行してみます"/>\
+					        oncommand="Inspector_de_Info.checkInfo(document, true);"/>\
+					<button label="Testen"\
+					        oncommand="Inspector_de_Info.launch(document);"\
+					        tooltiptext="In uAutoPagerize testen"/>\
 				</vbox>\
 				<grid id="idei-grid" flex="1">\
 					<columns>\
@@ -136,10 +159,13 @@ window.Inspector_de_Info = {
 			</hbox>\
 		';
 		var range = document.createRange();
-		range.selectNode($("inspector-toolbar"));
+		range.selectNode(inspectFrame);
 		range.collapse(false);
 		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
-		range.detach();
+	},
+	init: function() {
+		gDevTools.on("toolbox-ready", Inspector_de_Info.ready);
+
 
 		window.addEventListener("unload", this, false);
 	},
@@ -168,7 +194,7 @@ window.Inspector_de_Info = {
 		range.deleteContents();
 		range.detach();
 		
-		var elem = InspectorUI.selection;
+		var elem = popup.ownerDocument.defaultView.inspector.selection.node;
 		if (elem instanceof Text) elem = elem.parentNode;
 		if (!(elem instanceof Element)) return;
 
@@ -182,8 +208,7 @@ window.Inspector_de_Info = {
 			if (a.indexOf(str) !== i) return;
 			let m = document.createElement("menuitem");
 			m.setAttribute("label", str);
-			m.setAttribute("oncommand", "Inspector_de_Info.copyToClipboard(event)");
-			m.setAttribute("class", "menuitem-non-iconic");
+			m.setAttribute("oncommand", "window.top.Inspector_de_Info.copyToClipboard(event)");
 			m.style.setProperty("max-width","63em","important");
 			if (str.length > 110)
 				m.setAttribute("tooltiptext", str);
@@ -272,76 +297,98 @@ window.Inspector_de_Info = {
 		res.push(localName);
 		return res;
 	},
-	toJSON: function() {
+	toJSON: function(tDoc) {
 		var json = "{\n";
-		json += "\turl          : '" + $("idei-url").value.replace(/\\/g, "\\\\") + "'\n";
-		json += "\t,nextLink    : '" + $("idei-nextLink").value + "'\n";
-		json += "\t,pageElement : '" + $("idei-pageElement").value + "'\n";
-		if ($("idei-insertBefore").value)
-			json += "\t,insertBefore: '" + $("idei-insertBefore").value + "'\n";
-		json += "\t,exampleUrl  : '" + this.getFocusedWindow().location.href + "'\n";
+		json += "\turl          : '" + tDoc.getElementById("idei-url").value.replace(/\\/g, "\\\\") + "'\n";
+		json += "\t,nextLink    : '" + tDoc.getElementById("idei-nextLink").value + "'\n";
+		json += "\t,pageElement : '" + tDoc.getElementById("idei-pageElement").value + "'\n";
+		if (tDoc.getElementById("idei-insertBefore").value)
+			json += "\t,insertBefore: '" + tDoc.getElementById("idei-insertBefore").value + "'\n";
+		json += "\t,exampleUrl  : '" + content.location.href + "'\n";
 		json += "}";
+//		if (confirm(json + '\n\n設定ファイルに追記しますか？')) {
+//			this.addSaveFile('\nMY_SITEINFO.unshift('+ json +');');
+//			if (!window.uAutoPagerize) return
+//			uAutoPagerize.loadSetting(true);
+//		}
 		alert(json);
 	},
-	launch: function() {
+	launch: function(tDoc) {
 		var uap = window.uAutoPagerize;
 		if (!uap) return this.checkInfo(true);
-		var win = this.getFocusedWindow();
-		if (win.ap) return alert("既に実行されています");
+		var win = content;
+		if (win.ap) return alert("Ist bereits aktiv");
 
-		var i = this.checkInfo();
+		var i = this.checkInfo(tDoc);
 		if (!i) return;
 
 		var [index, info] = uap.getInfo([i], win);
 		if (index === 0) {
 			if (win.AutoPagerize && win.AutoPagerize.launchAutoPager)
 				win.AutoPagerize.launchAutoPager([i]);
-			else alert("SITEINFO は正常ですが、uAutoPagerize は実行できませんでした");
+			else alert("SITEINFO ist normal, aber, uAutoPagerize wird nicht ausgeführt");
 		} else {
-			alert("この SITEINFO にはマッチしませんでした");
+			alert("Entspricht nicht diesen SITEINFO");
 		}
 	},
-	checkInfo: function(isAlert) {
+	addSaveFile: function(data) {
+		if (!window.uAutoPagerize)
+			return alert('nicht mit uAutoPagerize');
+		var file = uAutoPagerize.file;
+		if (!window.uAutoPagerize.file || !file.exists())
+			return alert('_uAutoPagerize.js nicht gefunden');
+
+		var suConverter = Cc['@mozilla.org/intl/scriptableunicodeconverter'].createInstance(Ci.nsIScriptableUnicodeConverter);
+		suConverter.charset = 'UTF-8';
+		data = suConverter.ConvertFromUnicode(data);
+
+		var foStream = Cc['@mozilla.org/network/file-output-stream;1'].createInstance(Ci.nsIFileOutputStream);
+		foStream.init(file, 0x02 | 0x10, 0664, 0);
+		foStream.write(data, data.length);
+		foStream.close();
+	},
+	checkInfo: function(tDoc, isAlert) {
 		var i = {
-			url         : $("idei-url").value,
-			nextLink    : $("idei-nextLink").value,
-			pageElement : $("idei-pageElement").value,
-			insertBefore: $("idei-insertBefore").value
+			url         : tDoc.getElementById("idei-url").value,
+			nextLink    : tDoc.getElementById("idei-nextLink").value,
+			pageElement : tDoc.getElementById("idei-pageElement").value,
+			insertBefore: tDoc.getElementById("idei-insertBefore").value
 		};
 		if (!i.url || !i.nextLink || !i.pageElement)
-			return alert("入力値が不正です");
+			return alert("Eingegebener Wert ist ungültig.");
 		var logs = [];
-		var win = this.getFocusedWindow();
+		var win = content;
 		var doc = win.document;
+
 		try {
 			if (!new RegExp(i.url).test(doc.location.href))
-				logs.push("url がマッチしません");
+				logs.push("url stimmt nicht überein");
 		} catch (e) {
 			return alert(e);
 		}
 		try {
 			if (!doc.evaluate(i.nextLink, doc, null, 9, null).singleNodeValue)
-				logs.push("nextLink が見つかりません");
+				logs.push("nextLink nicht gefunden");
 		} catch (e) {
-			logs.push("nextLink が不正です");
+			logs.push("Ungültiger nextLink.");
 		}
 		try {
 			if (!doc.evaluate(i.pageElement, doc, null, 9, null).singleNodeValue)
-				logs.push("pageElement が見つかりません");
+				logs.push("Seiten-Element nicht gefunden");
 		} catch (e) {
-			logs.push("pageElement が不正です");
+			logs.push("Ungültiges Seiten-Element");
 		}
 		try {
 			if (i.insertBefore)
 				doc.evaluate(i.insertBefore, doc, null, 9, null).singleNodeValue;
 		} catch (e) {
-			logs.push("insertBefore が不正です");
+			logs.push("insertBefore Ungültig.");
 		}
 
 		if (logs.length) 
 			return alert(logs.join("\n"));
 		if (isAlert)
-			this.toJSON();
+			this.toJSON(tDoc);
 		return i;
 	},
 	NORMAL_TO_CLASS: 0,
@@ -388,6 +435,8 @@ window.Inspector_de_Info = {
 };
 
 window.Inspector_de_Info.init();
+
+
 
 
 function normal2class(xpath) {

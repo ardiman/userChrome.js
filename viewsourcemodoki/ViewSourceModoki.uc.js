@@ -5,8 +5,14 @@
 // @include        main
 // @compatibility  Firefox 2.0 3.0
 // @author         Alice0775
+// @version        2014.9.6
+// @startup        window.viewSourceModoki.init();
+// @shutdown       window.viewSourceModoki.destory();
+// @homepageURL    https://github.com/ywzhaiqi/userChromeJS/tree/master/viewSourceModoki
+// @downloadURL    https://raw.githubusercontent.com/ywzhaiqi/userChromeJS/master/viewSourceModoki/viewSourceModoki.uc.js
 // @version        2008/07/06 00:00 例外処理
 // ==/UserScript==
+// @version        2014/08/12 12:00 add startup and shutdown
 // @version        2012/03/25 18:00 aLineNumber
 // @version        2012/01/08 23:00 aLineNumber
 // @version        2008/03/24 13:00 テンポラリファイルを削除するように
@@ -26,7 +32,13 @@
     }
   }
 */
-var viewSourceModoki = {
+
+if (window.viewSourceModoki) {
+  window.viewSourceModoki.destory();
+  delete window.viewSourceModoki;
+}
+
+window.viewSourceModoki = {
   MAXLEN:100,
   LASTDOC:null,
   TMP:[],
@@ -35,8 +47,13 @@ var viewSourceModoki = {
 
     var menu, menupopup, menuitem;
     menu = document.createElement('menu');
+    menu.setAttribute('id', 'view_source_with');
     menu.setAttribute('label','Quelltext anzeigen');
     menu.setAttribute('accesskey','a');
+
+    // 配合 addMenu，不在输入框显示
+    menu.setAttribute('class', 'addMenu addMenuNot');
+    menu.setAttribute('condition', 'noinput');
 
     menupopup = document.createElement('menupopup');
     menupopup.setAttribute('onpopupshowing','event.stopPropagation();viewSourceModoki.popup(event)');
@@ -67,6 +84,12 @@ var viewSourceModoki = {
 
     menu.appendChild(menupopup);
     document.getElementById('contentAreaContextMenu').appendChild(menu);
+  },
+  destory: function() {
+    ["view_source_with"].forEach(function(id){
+        var node = document.getElementById(id);
+        if (node) node.parentNode.removeChild(node);
+    });
   },
 
   popup: function(event){
@@ -242,7 +265,7 @@ var viewSourceModoki = {
       }
       var frames = doc.getElementsByTagName('iframe');
       for (var i = 0; i < frames.length; i++) {
-//alert(frames[i].src);
+    //alert(frames[i].src);
         var host = frames[i].src;
         if(host == 'browser') continue;
         if(host && this.chkdup(_frames, host)) _frames.push(host);
@@ -253,6 +276,16 @@ var viewSourceModoki = {
 
   //リスト表示
   list: function(kind){
+    var doc = this.getTargetDoc()
+    if (this.LASTDOC != doc) {
+      this.debug("getDocumentInfo for viewSourceModoki");
+
+      this.LASTDOC = doc;
+      this.getDataByDoc(doc);
+      this._All =[];
+      this._All = this._All.concat(this._frames, this._css, this._scripts);
+    }
+
     switch(kind){
       case 'All':
         this.displayList(this._All);
@@ -312,7 +345,7 @@ var viewSourceModoki = {
   daleteTmpFile: function(){
     while(this.TMP.length > 0){
       var file = this.TMP.pop();
-this.debug(file.path);
+    this.debug(file.path);
       try{file.remove(false);}catch(e){}
     }
   },
@@ -356,4 +389,4 @@ this.debug(file.path);
   aCallBack: function(status,data){
   }
 }
-viewSourceModoki.init();
+window.viewSourceModoki.init();
