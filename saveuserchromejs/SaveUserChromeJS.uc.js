@@ -11,7 +11,7 @@
 
 (function() {
 
-// 保存完毕是否启用通知？
+// 保存完毕是否启用通知-保存完？
 var notificationsAfterInstall = true;
 
 // 保存完毕是否加载脚本（无需启动）？仅支持 .uc.js，一些脚本有问题。
@@ -168,7 +168,7 @@ var ns = window.saveUserChromeJS = {
 		var installBtn = doc.createElement("a");
 		installBtn.setAttribute("id", "uc-install-button");
 		installBtn.setAttribute("class", "btn btn-sm");
-		installBtn.setAttribute("href", downURL);
+	  //installBtn.setAttribute("href", downURL);
 		installBtn.innerHTML = "Installieren";
 		installBtn.addEventListener("click", function(event){
 			event.preventDefault();
@@ -235,7 +235,8 @@ var ns = window.saveUserChromeJS = {
           };
 
 		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, ggf. also deaktivieren
-		fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
+	 ///fp.appendFilter("*." + fileExt, "*.uc.js;*.uc.xul");
+	    fp.appendFilter("*." + fileExt, "*.js;*.xul")
 		fp.appendFilters(Ci.nsIFilePicker.filterAll);
 		fp.displayDirectory = ns.SCRIPTS_FOLDER; // nsILocalFile
 		fp.defaultExtension = fileExt;
@@ -274,7 +275,14 @@ var ns = window.saveUserChromeJS = {
                     };
                 }
 
-                persist.saveURI(obj_URI, null, null, null, null, "", fp.file, null);
+ ///             persist.saveURI(obj_URI, null, null, null, "", fp.file, null); /// Fx35 まで
+////
+                try {
+                    persist.saveURI(obj_URI, null, null, null, null, "", fp.file, null);
+                } catch(e) {
+                    persist.saveURI(obj_URI, null, null, null, "", fp.file, null);
+                }
+////
 			}
 		};
 		fp.open(callbackObj);
