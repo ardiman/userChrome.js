@@ -5,7 +5,7 @@
 // @include			main
 // @author			otokiti
 // @compatibility	WindowsXP / Ubuntu8.04(gnome)
-// @compatibility	Firefox 3.0 - 3.6a1pre
+// @compatibility	Firefox 3.0 - 37
 // @compatibility	userChrome.js 0.7 - 0.8 / userChromeJS 1.0
 // @compatibility	Sub-Script/Overlay Loader v3.0.24mod
 // @version			0.1: 08/10/21 初版
@@ -40,17 +40,17 @@
 // ==/UserScript==
 var ucjs_zoom = {
 // ------------------------------ 任意に設定 -----------------------------------------------
-	// ボタンを置くターゲット・パネルのＩＤ (default: Nach dem Seitenbericht)
-	_TAGET_ID: "base64_Btn",
+	// (Standardmäßig wird das Zoompanel in der Adressleiste angezeigt)
+	_TAGET_ID: "urlbar-icons", // id angeben, wo Zoompanel angezeigt werden soll. 
 
-	// ズームモードを表す文字と文字色
-	_ZOOM_MODE: [ { txt: "Zoom Einstellungen", color: "#00000" }, 					// 0) フルズーム、黒
-				  { txt: "Text Zoom", color: "#096CE6" } ],	// 1) Text Zoom、青
+	// Zoom-Modus und Text-Farbe einstellen
+	_ZOOM_MODE: [ { txt: "Zoom Einstellungen", color: "#00000" },      // 0) Zoom, schwarz
+				  { txt: "Text Zoom", color: "#096CE6" } ],	// 1) Text Zoom、Standard ist blau
 
-	// toolkit.zoomManager.zoomValues とメニューを(true: 同期させる、false: 同期させない)
+	// toolkit.zoomManager.zoom Werte Menü(true: Synchronisieren、false: nicht Synchronisieren)
 	_SYNC_ZOOMVALUES: true,
 
-	// メニューに表示するユーザ設定のズーム値(_SYNC_ZOOMVALUES: false の場合のみ有効) ％（整数）で表記
+	// Zoomwert des Menüs "Einstellen"(_SYNC_ZOOMVALUES: false の場合のみ有効) ％（整数）で表記
 	USER_ZOOM_LEVEL: [ 30, 50, 67, 80, 90, 100, 110, 120, 133, 150, 170, 200, 240, 300 ],
 //	USER_ZOOM_LEVEL: [ 30, 50, 75, 100, 150, 200, 250, 300 ],
 // --------------------------------------------------------------------------------
@@ -92,7 +92,8 @@ var ucjs_zoom = {
 		zoomPanel.setAttribute("context", "ucjs_zoom-context");
 		zoomPanel.setAttribute("onclick", "ucjs_zoom.click_StatusLabel(event);event.stopPropagation();");
 		var targetPanel = document.getElementById(this._TAGET_ID);
-		targetPanel.parentNode.insertBefore(zoomPanel, targetPanel.nextSibling);
+		targetPanel.parentNode.insertBefore(zoomPanel, targetPanel.historydropmarker); // für Urlbar Anzeige
+	  //  targetPanel.parentNode.insertBefore(zoomPanel, targetPanel.nextSibling); // wenn das ZoomPanel nicht in der Urlbar soll!	
 
 		// Zoom パネルのコンテキストメニューを登録
 		var MainPopup = document.getElementById("mainPopupSet");

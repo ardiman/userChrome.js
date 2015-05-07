@@ -3,7 +3,7 @@
 // @description    Einfacher FF-Speicher-Monitor
 // @include        main
 // @charset        UTF-8
-// @note           Basiert auf dem Script MemoryMonitorMod.uc.js Funktioniert auch mitFF28+
+// @note           Basiert auf dem Script MemoryMonitorMod.uc.js Funktioniert auch mit FF28+
 // ==/UserScript==
 var ucjsMM = {
   // Update-Intervall[ms]
@@ -23,9 +23,9 @@ var ucjsMM = {
 		memoryPanel.id = 'MemoryDisplay';
 		memoryPanel.setAttribute('label', ucjsMM._MemoryValue + ucjsMM._prefix);
 		memoryPanel.setAttribute('tooltiptext', 'Speicher Monitor. Klick öffnet about:memory');
-		document.getElementById('addon-bar').insertBefore(memoryPanel, document.getElementById('addonbar-closebutton'));   // Anzeige in Addonleiste
-	//  document.getElementById('urlbar-icons').insertBefore(memoryPanel, document.getElementById('uAutoPagerize-icon'));   Anzeige in Adressleiste
-	//  document.getElementById('ctr_addon-bar').insertBefore(memoryPanel, document.getElementById('uAutoPagerize-icon'));  Anzeige in Addonleiste mit CTR Erweiterung
+	    document.getElementById('urlbar-icons').insertBefore(memoryPanel, document.getElementById('element.nextSibling'));  //Anzeige in Adressleiste
+	 // document.getElementById('addon-bar').insertBefore(memoryPanel, document.getElementById('element.nextSibling'));     //Anzeige in Addonleiste
+	 // document.getElementById('ctraddon_addon-bar').insertBefore(memoryPanel, document.getElementById('element.nextSibling')); //Anzeige in Addonleiste mit CTR Erweiterung
 		this.start();
 		this.interval = setInterval(this.start, this._interval);
 	},
