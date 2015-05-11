@@ -66,6 +66,14 @@ if (window.USL) {
 
 var USL = {};
 
+// mögliche Positionen des Icons
+USL.POSITION_MOVABLE = 0;		// verschiebbar
+USL.POSITION_URLBAR = 1;		// URL-Leiste
+USL.POSITION_STATUSBAR = 2;	// Statusleiste
+
+// Festlegen der Position
+USL.position = USL.POSITION_MOVABLE;
+
 // Class
 USL.PrefManager = function (str) {
 	var root = 'UserScriptLoader.';
@@ -538,9 +546,11 @@ USL.__defineSetter__("disabled", function(bool){
 	if (bool) {
 		this.icon.setAttribute("state", "disable");
 	  // gBrowser.mPanelContainer.removeEventListener("DOMWindowCreated", this, false);
+		this.icon.setAttribute("tooltiptext", "inaktiv: Mit Linksklick aktivieren, Rechtsklick Menü öffnen");
 	} else {
 		this.icon.setAttribute("state", "enable");
 	  // gBrowser.mPanelContainer.addEventListener("DOMWindowCreated", this, false);
+		this.icon.setAttribute("tooltiptext", "aktiv: Mit Linksklick deaktivieren, Rechtsklick Menü öffnen");
 	}
 	return DISABLED = bool;
 });
@@ -589,21 +599,46 @@ USL.getFocusedWindow = function () {
 USL.init = function(){
 	USL.loadSetting();
 	USL.style = addStyle(css);
-	
-/*
-	USL.icon = $('status-bar').appendChild($C("statusbarpanel", {
-		id: "UserScriptLoader-icon",
-		class: "statusbarpanel-iconic",
-		context: "UserScriptLoader-popup",
-		onclick: "USL.iconClick(event);"
-	}));
-*/
-	USL.icon = $('urlbar-icons').appendChild($C("image", {
-		id: "UserScriptLoader-icon",
-		context: "UserScriptLoader-popup",
-		onclick: "USL.iconClick(event);",
-		style: "padding: 0px 2px;",
-	}));
+
+	if (this.position == this.POSITION_STATUSBAR) {
+		USL.icon = $('status-bar').appendChild($C("statusbarpanel", {
+			id: "UserScriptLoader-icon",
+			class: "statusbarpanel-iconic",
+			context: "UserScriptLoader-popup",
+			onclick: "USL.iconClick(event);"
+		}));
+	} else if (this.position == this.POSITION_URLBAR) {
+		USL.icon = $('urlbar-icons').appendChild($C("image", {
+			id: "UserScriptLoader-icon",
+			context: "UserScriptLoader-popup",
+			onclick: "USL.iconClick(event);",
+			style: "padding: 0px 2px;",
+		}));
+	} else {
+		try {
+			CustomizableUI.createWidget({
+				id: 'UserScriptLoader-icon',
+				type: 'custom',
+				defaultArea: CustomizableUI.AREA_NAVBAR,
+				onBuild: function(aDocument) {
+					var btn = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
+					var attributes = {
+						id: 'UserScriptLoader-icon',
+						class: 'toolbarbutton-1 chromeclass-toolbar-additional',
+						removable: 'true',
+						context: 'UserScriptLoader-popup',
+						onclick: 'USL.iconClick(event)',
+						label: 'UserScriptLoader',
+						style: 'padding: 0px 2px;'
+					};
+					for (var a in attributes)
+						btn.setAttribute(a, attributes[a]);
+					return btn;
+				}
+			});
+		} catch(e) { };
+		USL.icon = $('UserScriptLoader-icon');
+	};
 
 	var xml = '\
 		<menupopup id="UserScriptLoader-popup" \
