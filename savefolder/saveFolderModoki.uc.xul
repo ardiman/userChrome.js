@@ -9,6 +9,7 @@
 // @include        main
 // @compatibility  Firefox 31-37
 // @author         Alice0775
+// @version        2015/04/08 12:30 focusedWindow
 // @version        2014/11/26 21:00 Bug 1103280, Bug 704320
 // @version        2013/05/02 01:00 Bug 789546
 // @version        2013/04/14 21:00 checking element using Ci.nsIImageLoadingContent instead of HTMLImageElement
@@ -25,19 +26,19 @@
 // 指定されたホルダは about:config  userChrome.save.folders に 「,」区切りで保存
 //
 // 画像をダブルクリックしたときの保存フォルダをIMAGE_DBLCLICKに指定
-// これはabout:config  userChrome.save.folderOnImageDblclickにて変更可能
+// これはabout:config  userChrome.save.folderOnImageDblclick 
  -->
   <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
 
 var saveFolderModoki = {
 //-- config --
-  IMAGE_DBLCLICK          : "F:\\Downloads", // 画像を右ダブルクリックしたときの保存フォルダ, nullならファイルピッカ起動
-  CONTENTDISPOSITION      : true,       // content-disposition 使う[true], 使わないfalse
-  REPLACE_SYSTEM_saveURL  : false,       // CONTENTDISPOSITIONがtrueのとき, システム既定のsaveURLでもcontent-disposition 使う[true], 使わないfalse
-  REPLACE_SYSTEM_fileTitle: false,      // デフォルトのファイル名にtitle属性を 使うtrue, 使わない[false]
+  IMAGE_DBLCLICK          : "C:\\Firefox\\Bilder", // Bilder mit rechten Doppelklick im angegeben Ordner speichern. Dateiauswahlfenster wird dabei nicht geöffnet.
+  CONTENTDISPOSITION      : true,       // Inhaltsreihenfolge verwenden[true], nicht verwenden: [false]
+  REPLACE_SYSTEM_saveURL  : false,       // Wenn Inhaltsreihenfolge verwenden auf true, dann auch bei URl Speichern Systemstandard verwenden [true], nicht verwenden [false]
+  REPLACE_SYSTEM_fileTitle: false,      // Titelattribut als Standarddateinamen verwenden [true], nicht verwenden[false]
 //-- config --
 
-  //リスナー登録
+  //Listener-Registrierung
   init: function() {
     this.initPrefs();
     gBrowser.mPanelContainer.addEventListener("dblclick", function(event){saveFolderModoki.onDblClick(event,saveFolderModoki.imagedblclick);}, true);
@@ -47,13 +48,13 @@ var saveFolderModoki = {
     }
   },
 
-  //リスナー削除
+  //Listener löschen
   uninit: function() {
     gBrowser.mPanelContainer.removeEventListener("dblclick", function(event){saveFolderModoki.onDblClick(event,saveFolderModoki.imagedblclick);}, true);
     this.removePrefListener(saveFolderModoki.buttonPrefListener); // 登録処理
   },
 
-  //バージョン
+  //Version
   getVer: function(){
     const Cc = Components.classes;
     const Ci = Components.interfaces;
@@ -62,7 +63,7 @@ var saveFolderModoki = {
     return ver;
   },
 
-  //デバッグ用
+  //Debuggen
   debug: function(aMsg){
     const Cc = Components.classes;
     const Ci = Components.interfaces;
@@ -81,8 +82,8 @@ var saveFolderModoki = {
              .createBundle("chrome://global/locale/contentAreaCommands.properties");
   },
 
-  //メニュー用
-  //保存用フォルダを新規追加する
+  //Menü
+  //Neuen Speicherordner hinzufügen
   addFolderPath: function(){
     var fp = this.getFolderPath();
     var folders = this.getPref('userChrome.save.folders', 'str', '') + ',';
@@ -94,20 +95,20 @@ var saveFolderModoki = {
     }
   },
 
-  //保存用フォルダを編集する
+  //Speicherordner editieren
   editFolderPath: function(){
     var folders = this.getPref('userChrome.save.folders', 'str', '');
-    folders = window.prompt('Ordner/Pfade bearbeiten', folders);
+    folders = window.prompt('Edit Folders', folders);
     if (folders)
     this.setPref('userChrome.save.folders', 'str', folders);
   },
 
-  //保存用フォルダをファイルピッカにより選択する
+  //Speicherordner für Dateiauswahl auswählen
   getFolderPath: function(){
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"]
             .createInstance(nsIFilePicker);
-    fp.init(window, "Wählen Sie einen Ordner", nsIFilePicker.modeGetFolder);
+    fp.init(window, "Select a Folder", nsIFilePicker.modeGetFolder);
     var file = Components.classes["@mozilla.org/file/directory_service;1"]
                          .getService(Components.interfaces.nsIProperties)
                          .get("TmpD", Components.interfaces.nsIFile);
@@ -120,7 +121,7 @@ var saveFolderModoki = {
     return null;
   },
 
-  //Documentlinkの保存
+  //Documentlink Speichern
   saveDocFolder: function(event, afolder){
     var focusedWindow = document.commandDispatcher.focusedWindow;
     if (isContentFrame(focusedWindow)){
@@ -146,14 +147,14 @@ var saveFolderModoki = {
     }
   },
 
-  //urlの保存 この内部および DragNgoModoki5.uc.js から呼び出される
+  //url Internen speichern und für DragNgoModoki5.uc.js verwenden.
   saveLink: function(url, text, afolder){
     var doc = this._getFocusedWindow().document;
     contentDisposition.saveURL(url, text, null, true,
                        afolder?true:false, doc.documentURIObject, afolder);
   },
 
-  //画像urlの保存
+  //Bildadresse speichern
   saveImageURL: function saveImageURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
                         aSkipPrompt, aReferrer, aFolder, aDoc){
     const imgICache = Components.interfaces.imgICache;
@@ -186,7 +187,7 @@ var saveFolderModoki = {
     }
   },
 
-  //画像の右ダブルクリック保存
+  //Rechten Doppelklick Bild speichern
   onDblClick: function(event, aFolder){
     if(event.button != 2) return;
     if (event.target.tagName.toLowerCase() == "img" && event.target.src){
@@ -198,7 +199,7 @@ var saveFolderModoki = {
     }
   },
 
-  //リンク等の保存
+  //Links, usw. speichern.
   saveLinkFolder: function(target, afolder){
     var url;
     if (target instanceof HTMLAnchorElement ||
@@ -212,7 +213,7 @@ var saveFolderModoki = {
     }
   },
 
-  //画像の保存
+  //Speicherung von Bildern
   saveImageFolder: function(target, afolder){
     var url;
     if (target instanceof Ci.nsIImageLoadingContent){
@@ -574,9 +575,9 @@ var saveFolderModoki = {
     return true;
   },
 
-  //コンテキストメニューポップアップ
+  //Kontext-Menü-popup
   popupContextMenu: function(popup){
-    //メニュー構築
+    //Menüaufbau
     const kXULNS =
            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     var folders = this.getPref('userChrome.save.folders', 'str', '').split(',');
@@ -596,7 +597,7 @@ var saveFolderModoki = {
       menuitem.fp = folder;
       menupopup.appendChild(menuitem);
     }
-    //フォルダを選択して保存
+    //Ordner auswählen und speichern
     menuitem = document.createElementNS(kXULNS,"menuitem");
     menuitem.setAttribute("label", 'Seite speichern unter...');
     menuitem.setAttribute('oncommand',"saveFolderModoki.saveDocFolder(event, null);");
@@ -716,13 +717,10 @@ var saveFolderModoki = {
     return targets;
   },
 
-  //現在のウインドウを得る
+  //aktuelle Fenster verwenden
   _getFocusedWindow: function(){
-      var focusedWindow = document.commandDispatcher.focusedWindow;
-      if (!focusedWindow || focusedWindow == window)
-          return window.content;
-      else
-          return focusedWindow;
+    let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
+    return focusedWindow;
   },
 
   //ブラウザを得る
@@ -806,11 +804,11 @@ var saveFolderModoki = {
   //変更処理
   buttonPrefListener:{
       domain  : 'userChrome.save',
-          //"userChrome.save.folders.XXX"という名前の設定が変更された場合全てで処理を行う
+          //"userChrome.save.folders.XXX" という名前の設定が変更された場合全てで処理を行う
 
       observe : function(aSubject, aTopic, aPrefstring) {
           if (aTopic == 'nsPref:changed') {
-              // 設定が変更された時の処理
+              // Wenn die Einstellungen geändert werden
               saveFolderModoki.initPrefs();
           }
       }
@@ -844,7 +842,7 @@ var contentDisposition = {
     that.cdisp.folder = aFolder;
     that.cdisp.timeout = null;
     if (!saveFolderModoki.CONTENTDISPOSITION){
-      //  content-disposition 使わない
+      //  content-disposition nicht verwenden
       that.skip();
       return;
     }
@@ -890,7 +888,7 @@ var contentDisposition = {
 }
 
 if (saveFolderModoki.REPLACE_SYSTEM_saveURL)
-  // システム既定のsaveURLでもcontent-disposition を使う
+  // System Standard SaveURL im Inhaltsdispositions- Verwendung
   window.saveURL = contentDisposition.saveURL;
 
 
@@ -978,7 +976,7 @@ var savefileTitle = {
   }
 }
 if (saveFolderModoki.REPLACE_SYSTEM_fileTitle)
-  // システム既定のsaveURLでもgetDefaultFileName を使う
+  //  System Methode zum Url speichen, und dabei Standard Dateibezeichnung verwenden
   window.getDefaultFileName = savefileTitle.getDefaultFileName;
 
 
@@ -988,7 +986,7 @@ if (saveFolderModoki.REPLACE_SYSTEM_fileTitle)
       <menupopup>
 
         <menuitem label="Downloadordner suchen"
-                  accesskey="S"
+                  accesskey="s"
                   oncommand="saveFolderModoki.addFolderPath();"/>
         <menuseparator/>
         <menuitem label="Downloadordner editieren"
