@@ -22,7 +22,7 @@
 // Original function of directSaveLink and setLeafName are from Drag de Go.xpi,
 // and author is Yukichi http://bushwhacker.up.seesaa.net/ .
 //
-// ツールメニューで保存するホルダを指定する
+// Ordner in Extras-Menü einfügen
 // 指定されたホルダは about:config  userChrome.save.folders に 「,」区切りで保存
 //
 // 画像をダブルクリックしたときの保存フォルダをIMAGE_DBLCLICKに指定
@@ -108,7 +108,7 @@ var saveFolderModoki = {
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"]
             .createInstance(nsIFilePicker);
-    fp.init(window, "Select a Folder", nsIFilePicker.modeGetFolder);
+    fp.init(window, "Wählen Sie einen Ordner", nsIFilePicker.modeGetFolder);
     var file = Components.classes["@mozilla.org/file/directory_service;1"]
                          .getService(Components.interfaces.nsIProperties)
                          .get("TmpD", Components.interfaces.nsIFile);
@@ -233,7 +233,7 @@ var saveFolderModoki = {
                       afolder?true:false, target.ownerDocument.documentURIObject, afolder, target.ownerDocument);
 },
 
-  //rebuild_userChrome.uc.xulから呼び出される
+  //Bei Verwendung des rebuild_userChrome.uc.xul Scripts
   directSaveLink: function(dummy, aURL, aDefaultFileName, aDocumentURI, aFolder){
     this.internalSave(aURL, null, aDefaultFileName, null, null, false,
            null, null, aDocumentURI, true, aFolder.path);
@@ -259,7 +259,7 @@ var saveFolderModoki = {
         if (target.hasAttribute("alt")){
           text = target.getAttribute("alt");
           //fx2
-          if (!!text && text.match(/画像ファイル ".+" は壊れているため、表示できませんでした。/)) text = null;
+          if (!!text && text.match(/Bild-Datei ".+" Kann nicht angezeigt werden, weil sie Fehler enthält./)) text = null;
           if (!!text && text.match(/The image ".+" cannot be displayed, because it contains errors./)) text = null;
           //fx3
           if(!!text && text.match(/.*\/(.+)$/)) text = RegExp.$1;
@@ -804,11 +804,11 @@ var saveFolderModoki = {
   //変更処理
   buttonPrefListener:{
       domain  : 'userChrome.save',
-          //"userChrome.save.folders.XXX" という名前の設定が変更された場合全てで処理を行う
+          //"userChrome.save.folders.XXX"という名前の設定が変更された場合全てで処理を行う
 
       observe : function(aSubject, aTopic, aPrefstring) {
           if (aTopic == 'nsPref:changed') {
-              // Wenn die Einstellungen geändert werden
+              // 設定が変更された時の処理
               saveFolderModoki.initPrefs();
           }
       }
@@ -842,7 +842,7 @@ var contentDisposition = {
     that.cdisp.folder = aFolder;
     that.cdisp.timeout = null;
     if (!saveFolderModoki.CONTENTDISPOSITION){
-      //  content-disposition nicht verwenden
+      //  content-disposition 使わない
       that.skip();
       return;
     }
