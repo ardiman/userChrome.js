@@ -1,22 +1,23 @@
 // ==UserScript==
 // @name           setCurrentProfileNameToTitlebar
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    現在のプロファイル名をタイトルバーに表示
+// @description    Profilbezeichnung in der Titelleiste angezeigen
 // @include        main
-// @compatibility  Firefox 19
+// @compatibility  Firefox 19 - 38.*
 // @author         Alice0775
 // @version        2012/12/31 00:00 Bug 818800 Remove the global private browsing service
 // ==/UserScript==
+// @version        2015/06/06 fix
 // @version        2012/08/06 08:00 remove hack privatebrowsingUI
 // @version        2010/09/25 23:00 Bug 598221 - Page Title not shown in Title Bar on Session Restore
 // @version        2009/07/25 18:00 Bug 506437 -  The titlebar of a tear off window is not updated correctly after having detached a tab
 // @version        2008/03/06 15:00
-// @Note           公式Win32版 以外および起動時オプション-profileによりパスを変更しているのものについては知りません
+// @Note           Offizielle Win32 Version, Start und andere Profil-Optionen, bei Verwendung des Standardpfades.
 (function(){
-  //現在のプロファイル名を得る
-  //名称を変更している場合にも対応
-  //もっとスマートな方法(nsIToolkitProfileService)を使えればいいのですが...orz,でもこれで動くから
-  //公式Win32版 以外および起動時オプション-profileによりパスを変更しているのものについては知りません
+  //Aktuelle Profilbezeichnung abrufen
+  //auch wenn die Bezeichnung geändert wurde
+  //(nsIToolkitProfileService)zum Arbeiten verwenden
+  //Bootoptionen und Informationen der offizielle Win32 Version auslesen, bei Verwendung des Standardpfades.
   function getCurrentProfileName(){
     function readFile(aFile){
       var stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);    stream.init(aFile, 0x01, 0, 0);
@@ -37,8 +38,8 @@
     var profiles = ini.match(/Name=.+/g);
     var profilesD = ini.match(/Path=.+/g);
     for ( var i = 0; i < profiles.length;i++) {
-      if (profilesD[i].indexOf(PrefD.leafName) >= 0) {
-        profiles[i].match(/Name=(.+)/);
+      if ((profilesD[i]+"$").indexOf(PrefD.leafName+"$") >= 0) {
+        profiles[i].match(/Name=(.+)$/);
         return RegExp.$1;
       }
     }
