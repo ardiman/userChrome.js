@@ -4,10 +4,11 @@
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @license        MIT License
-// @compatibility  Firefox 17
+// @compatibility  Firefox 40
 // @charset        UTF-8
 // @include        main
-// @version        0.0.9
+// @version        0.0.10
+// @note           0.0.10 Firefox 40 で動かなくなった部分を修正
 // @note           0.0.9 細部を修正
 // @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
 // @note           0.0.7 ツールバーが自動で消えないことがあったのを修正
@@ -94,7 +95,7 @@ window.gWHT = {
 		bool = !!bool;
 		var icon = $(PREFIX + "icon");
 		if (icon) {
-			icon.setAttribute("state", bool ? "Aktiviert" : "Deaktiviert");
+			icon.setAttribute("state", bool ? "enable" : "disable");
 			icon.setAttribute("tooltiptext", bool ? "Aktiviert" : "Deaktiviert");
 		}
 		return GET_KEYWORD = bool;
@@ -210,9 +211,9 @@ window.gWHT = {
 				if (!this.GET_KEYWORD) return;
 				var doc = event.target;
 				var win = doc.defaultView;
-				// frame 内では動作しない
+				// in Frame deaktivieren
 				if (win != win.parent) return;
-				// HTMLDocument じゃない場合
+				// Wenn kein Html Dokument, überprüfen
 				if (!checkDoc(doc)) return;
 
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
@@ -918,7 +919,7 @@ window.gWHT.ContentClass.prototype = {
 		delete this.items[w];
 	},
 	newIndexOf: function() {
-		// index プロパティの欠番を探す
+		// Nach Lücken in der Indexeigenschaft suchen
 		var arr = [];
 		Object.keys(this.items).forEach(function(key) arr[this.items[key].index] = true, this);
 
@@ -929,7 +930,7 @@ window.gWHT.ContentClass.prototype = {
 	},
 	find: function(isPrev) {
 		if (this.isEmpty) {
-			debug('強調されていないようなので検索しません');
+			debug('Da nichts markiert wurde, konnte nicht gesucht werden');
 			return;
 		}
 		var tw = this.tw;
@@ -1019,10 +1020,17 @@ function getWins(win) {
 }
 function checkDoc(doc) {
 	if (!(doc instanceof HTMLDocument)) return false;
-	if (!window.mimeTypeIsTextBased(doc.contentType)) return false;
+	if (!mimeTypeIsTextBased(doc.contentType)) return false;
 	if (!doc.body || !doc.body.hasChildNodes()) return false;
 	if (doc.body instanceof HTMLFrameSetElement) return false;
 	return true;
+}
+function mimeTypeIsTextBased(contentType) {
+	return /^text\/|\+xml$/.test(contentType) ||
+		contentType == "application/x-javascript" ||
+		contentType == "application/javascript" ||
+		contentType == "application/xml" ||
+		contentType == "mozilla.application/cached-xul";
 }
 function getFocusedWindow() {
 	var win = document.commandDispatcher.focusedWindow;
@@ -1058,10 +1066,8 @@ window.gWHT.init();
 .wordhighlight-toolbar-icon {\
   list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAANUlEQVQ4jWNgGBTg6dOi/6RgrAb8/19PFB7EBlAUBoMDFD0t+k8qxjCgngQ4SA2gKAwGDAAAM3SE/usVkKQAAAAASUVORK5CYII=");\
 }\
-.wordhighlight-toolbar-icon[state="Deaktiviert"] {\
- filter: '
-   + (Number(Application.version.substring(0,2))>=36 ? 'grayscale(1)' : 'url("chrome://mozapps/skin/extensions/extensions.svg#greyscale")')
-   + ';\
+.wordhighlight-toolbar-icon[state="disable"] {\
+  filter: grayscale(100%);\
 }\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-up,\
 .wordhighlight-toolbar-arrowscrollbox > .autorepeatbutton-down {\
