@@ -1,5 +1,5 @@
 # Clear Cookies
-Das Skript bringt einen Button in der Status-/Addonbar und einen Eintrag im "Extra" Menü mit, über die man alle Cookies löschen kann.
+Das Skript bringt einen Button in der Navigationsleiste und einen Eintrag im "Extra" Menü mit, über die man alle Cookies löschen kann.
 
 Das **Ergebnis des Skripts**:
 
