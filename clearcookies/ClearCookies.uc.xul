@@ -40,8 +40,8 @@ window.addEventListener("load", cookiemonster.onFirefoxLoad, false);
     	<menuitem id="miClearCookies" accesskey="l" label="Cookies löschen" insertafter="devToolsSeparator"  oncommand="cookiemonster.onToolbarButtonCommand();"/>
 	</menupopup>
 
-	<toolbar id="status-bar">
-		<toolbarbutton id="cookiemonster-toolbar-button" class="toolbarbutton-1"
+	<toolbar id="nav-bar-customization-target"> 
+		<toolbarbutton id="cookiemonster-toolbar-button" class="toolbarbutton-1 chromeclass-toolbar-additional"
 			label="Clear Cookies" tooltiptext="Alle Cookies löschen"
 			image="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8%2F9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArxJREFUeNqkU0tPE1EYPTNMIYUG%2BrIM71cRCNGKSCEtGNSgqZoQgi40caExrv0pLowxsjCi7jQmLiAmhiAtCgSNiSGEWN5SW4RSKM7QduaO906nqCsX3vTMTL57zun57nzDaZqG%2F1kCu4zcECDkcRB4gP7sHIcuWm6icBq8LYoF%2Bl9TBIgr9KKo2m%2BDP5Y3z1x8RTzW43U0nmoqsNgcrJja39ne%2Fjq7EP0SnCHy3gtamvkrgbG6TMWu2y2BO%2F2W0kpnvtkMXhAQCk3C19UpFjrKRFtdW%2Bv86CO7ktikQTHFROwBNIwD%2BUXX3Odu9lvEKmd0axtpWYa0swNv%2B0n9mdXYHuMwLtMQzTBQVPQ63B1es93ljERjePr4GZbDS1AzGaSSSQQnQnqN7TEO4zKNSgyDNMGJkopmN4vtspZg4HIAZaVHoCqKjo42jw62xziMyzTpnEFG1ar4giIrx%2FNIHxygtqH2UByamNbv3ad9%2Bl5w%2FAPMVqeVaSiMBAryTSYTNzY6rpOl3d2s%2BN00gmPTWFlaP6z5e7wgqsoxDYVhoGJLSiaSvu52EEKwsriuk72dHgxeDaC8PNsOM5P395GIRZJMQ2G0QLTPy3OfYsl4HGvLG3g%2B9Aor4axJfWNNth1VxZnzfsh7e9hYmo8xjWlBA8dG%2BV6AF00F5qGeS9d7ba4yy7e1GCqrS5Eb88WHI5AWo%2Bx1Q0mniRSPJ3mJrGoEU%2Fog0fcZlWX5QejNS7vvwqCnrqG6KEUPLPR2Ft19HYiGv2PA35cbOJa6hOL4k%2BHhjJ6Ao8Nfb%2BNwtk672Cya79a3eI7WuFscLrGikBpj8v5rJRaOIC3JKZIiMWSwa4zxx5wBS8Lm3um2Q%2FRVwV9jRauJR3n2jBBZTWDu%2FTomw3Fs0tKPavqB3aId5QxYrEIDwj%2B%2BYHr2%2BEkhse5%2FCTAAXnxi0o4gTYMAAAAASUVORK5CYII%3D"
 			oncommand="cookiemonster.onToolbarButtonCommand();"/>
