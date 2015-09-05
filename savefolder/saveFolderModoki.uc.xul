@@ -3,12 +3,13 @@
 <overlay id="saveFolderModokiOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <!--
 // ==UserScript==
-// @name           saveFolderModoki
+// @name           saveFolderModoki40.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    saveFolderModoki
 // @include        main
-// @compatibility  Firefox 31-37
+// @compatibility  Firefox 40+ non-e10s
 // @author         Alice0775
+// @version        2015/08/12 18:00 Fixed due to Bug 1134769
 // @version        2015/04/08 12:30 focusedWindow
 // @version        2014/11/26 21:00 Bug 1103280, Bug 704320
 // @version        2013/05/02 01:00 Bug 789546
@@ -22,11 +23,11 @@
 // Original function of directSaveLink and setLeafName are from Drag de Go.xpi,
 // and author is Yukichi http://bushwhacker.up.seesaa.net/ .
 //
-// Ordner in Extras-Menü einfügen
+// ツールメニューで保存するホルダを指定する
 // 指定されたホルダは about:config  userChrome.save.folders に 「,」区切りで保存
 //
 // 画像をダブルクリックしたときの保存フォルダをIMAGE_DBLCLICKに指定
-// これはabout:config  userChrome.save.folderOnImageDblclick 
+// これはabout:config  userChrome.save.folderOnImageDblclickにて変更可能
  -->
   <script type="application/x-javascript" xmlns="http://www.w3.org/1999/xhtml"><![CDATA[
 
@@ -42,7 +43,7 @@ var saveFolderModoki = {
   init: function() {
     this.initPrefs();
     gBrowser.mPanelContainer.addEventListener("dblclick", function(event){saveFolderModoki.onDblClick(event,saveFolderModoki.imagedblclick);}, true);
-    this.addPrefListener(saveFolderModoki.buttonPrefListener); // 登録処理
+    this.addPrefListener(saveFolderModoki.buttonPrefListener); // Registrierungsprozess
     if(this.FILENAMEasLINKTEXT && this.FORCELINKTEXT){
       nsContextMenu.prototype.saveImage = saveFolderModoki.saveImageFolder;
     }
@@ -51,7 +52,7 @@ var saveFolderModoki = {
   //Listener löschen
   uninit: function() {
     gBrowser.mPanelContainer.removeEventListener("dblclick", function(event){saveFolderModoki.onDblClick(event,saveFolderModoki.imagedblclick);}, true);
-    this.removePrefListener(saveFolderModoki.buttonPrefListener); // 登録処理
+    this.removePrefListener(saveFolderModoki.buttonPrefListener); // Registrierungsprozess
   },
 
   //Version
@@ -98,7 +99,7 @@ var saveFolderModoki = {
   //Speicherordner editieren
   editFolderPath: function(){
     var folders = this.getPref('userChrome.save.folders', 'str', '');
-    folders = window.prompt('Edit Folders', folders);
+    folders = window.prompt('Ordner bearbeiten', folders);
     if (folders)
     this.setPref('userChrome.save.folders', 'str', folders);
   },
@@ -108,7 +109,7 @@ var saveFolderModoki = {
     var nsIFilePicker = Components.interfaces.nsIFilePicker;
     var fp = Components.classes["@mozilla.org/filepicker;1"]
             .createInstance(nsIFilePicker);
-    fp.init(window, "Wählen Sie einen Ordner", nsIFilePicker.modeGetFolder);
+    fp.init(window, "Select a Folder", nsIFilePicker.modeGetFolder);
     var file = Components.classes["@mozilla.org/file/directory_service;1"]
                          .getService(Components.interfaces.nsIProperties)
                          .get("TmpD", Components.interfaces.nsIFile);
@@ -149,12 +150,12 @@ var saveFolderModoki = {
 
   //url Internen speichern und für DragNgoModoki5.uc.js verwenden.
   saveLink: function(url, text, afolder){
-    var doc = this._getFocusedWindow().document;
+    var doc = document.activeElement.ownerDocument;
     contentDisposition.saveURL(url, text, null, true,
                        afolder?true:false, doc.documentURIObject, afolder);
   },
 
-  //Bildadresse speichern
+   //Bildadresse speichern
   saveImageURL: function saveImageURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
                         aSkipPrompt, aReferrer, aFolder, aDoc){
     const imgICache = Components.interfaces.imgICache;
@@ -233,7 +234,7 @@ var saveFolderModoki = {
                       afolder?true:false, target.ownerDocument.documentURIObject, afolder, target.ownerDocument);
 },
 
-  //Bei Verwendung des rebuild_userChrome.uc.xul Scripts
+  //rebuild_userChrome.uc.xulから呼び出される
   directSaveLink: function(dummy, aURL, aDefaultFileName, aDocumentURI, aFolder){
     this.internalSave(aURL, null, aDefaultFileName, null, null, false,
            null, null, aDocumentURI, true, aFolder.path);
@@ -259,7 +260,7 @@ var saveFolderModoki = {
         if (target.hasAttribute("alt")){
           text = target.getAttribute("alt");
           //fx2
-          if (!!text && text.match(/Bild-Datei ".+" Kann nicht angezeigt werden, weil sie Fehler enthält./)) text = null;
+          if (!!text && text.match(/Bild-Datei ".+" kann nicht angezeigt werden, weil sie Fehler enthält./)) text = null;
           if (!!text && text.match(/The image ".+" cannot be displayed, because it contains errors./)) text = null;
           //fx3
           if(!!text && text.match(/.*\/(.+)$/)) text = RegExp.$1;
@@ -607,16 +608,16 @@ var saveFolderModoki = {
       var menusepa = document.createElementNS(kXULNS,"menuseparator");
       menupopup.appendChild(menusepa);
     }
-    //イメージおよびリンク用ポップアップアップ をappendする
+    //Links für Bilder und Popups einfügen
     this.makePopup(menupopup, folders, targets);
   },
 
-  //イメージおよびリンク用ポップアップアップ
+  //Bilder und Links für Pop Ups
   makePopup: function(menupopup, folders, targets){
     const kXULNS =
            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
     if(targets.image){
-      //フォルダに画像を保存
+      //Bild im Ordner speichern
       for(var i=0,len=folders.length;i<len;i++){
         var folder = folders[i];
         if(!folder) continue;
@@ -627,7 +628,7 @@ var saveFolderModoki = {
         menuitem.target = targets.image;
         menupopup.appendChild(menuitem);
       }
-      //フォルダを選択して画像を保存
+      //Ordner zum Speichern des Bildes wählen
       menuitem = document.createElementNS(kXULNS,"menuitem");
       menuitem.setAttribute("label", 'Grafik speichern unter...');
       menuitem.setAttribute('oncommand',"saveFolderModoki.saveLinkFolder(this.target, null);");
@@ -651,7 +652,7 @@ var saveFolderModoki = {
         menuitem.target = targets.link;
         menupopup.appendChild(menuitem);
       }
-      //フォルダを選択してリンクを保存
+      //Wählen Sie einen Ordner zum Speichern des Links
       menuitem = document.createElementNS(kXULNS,"menuitem");
       menuitem.setAttribute("label", 'Link speichern unter...');
       menuitem.setAttribute('oncommand',"saveFolderModoki.saveLinkFolder(this.target, null);");
@@ -674,7 +675,7 @@ var saveFolderModoki = {
       hotmenu.removeChild(hotmenu.lastChild);
     }
 
-    //ポップアップメニュー構築
+    //Menü-Aufbau
     var folders = this.getPref('userChrome.save.folders', 'str', '').split(',');
     //sourcenode
     var target = (('DragNGo' in window) ? DragNGo.sourcenode : (this.sourcenode) ? this.sourcenode : null);
@@ -687,7 +688,7 @@ var saveFolderModoki = {
     hotmenu.showPopup(this.activeBrowser(), x, y, "context","bottomleft","topleft");
   },
 
-  //targetの上位のイメージとリンクノードを得る
+  //Obere Bild und Link-Knoten erfassen
   getTargetFromSourceNode: function(target){
     var targets = {link:null, image:null};
     if (target &&
@@ -717,19 +718,13 @@ var saveFolderModoki = {
     return targets;
   },
 
-  //aktuelle Fenster verwenden
-  _getFocusedWindow: function(){
-    let [element, focusedWindow] = BrowserUtils.getFocusSync(document);
-    return focusedWindow;
-  },
-
-  //ブラウザを得る
+  //aktuelles Fenster verwenden
   activeBrowser: function() {
     return ('SplitBrowser' in window ? SplitBrowser.activeBrowser : null )
             ||  gBrowser;
   },
 
-  //設定を読む
+  //Lese-Einstellungen
   initPrefs: function() {
     var that = saveFolderModoki;
     that.imagedblclick = that.IMAGE_DBLCLICK;
@@ -737,7 +732,7 @@ var saveFolderModoki = {
     that.imagedblclick = that.getPref('userChrome.save.folderOnImageDblclick', 'str', that.imagedblclick);
   },
 
-  //prefを得る
+  //pref erhalten
   getPref: function(aPrefString, aPrefType, aDefault){
     var UI = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
       createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
@@ -761,7 +756,7 @@ var saveFolderModoki = {
     return aDefault;
   },
 
-  //prefを保存
+  //pref einsparen
   setPref: function(aPrefString, aPrefType, aValue){
     var UI = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
       createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
@@ -786,7 +781,7 @@ var saveFolderModoki = {
     return null;
   },
 
-  // 監視を開始する
+  // Starten der Überwachung
   addPrefListener: function(aObserver) {
       try {
           var pbi = Components.classes['@mozilla.org/preferences;1'].getService(Components.interfaces.nsIPrefBranch2);
@@ -794,21 +789,21 @@ var saveFolderModoki = {
       } catch(e) {}
   },
 
-  // 監視を終了する
+  // Beenden der Überwachung
   removePrefListener: function(aObserver) {
       try {
           var pbi = Components.classes['@mozilla.org/preferences;1'].getService(Components.interfaces.nsIPrefBranch2);
           pbi.removeObserver(aObserver.domain, aObserver);
       } catch(e) {}
   },
-  //変更処理
+  //Prozess Änderungen
   buttonPrefListener:{
       domain  : 'userChrome.save',
           //"userChrome.save.folders.XXX"という名前の設定が変更された場合全てで処理を行う
 
       observe : function(aSubject, aTopic, aPrefstring) {
           if (aTopic == 'nsPref:changed') {
-              // 設定が変更された時の処理
+              // Wenn die Einstellungen geändert werden
               saveFolderModoki.initPrefs();
           }
       }
@@ -976,7 +971,7 @@ var savefileTitle = {
   }
 }
 if (saveFolderModoki.REPLACE_SYSTEM_fileTitle)
-  //  System Methode zum Url speichen, und dabei Standard Dateibezeichnung verwenden
+  // System Methode zum Url speichen, und dabei Standard Dateibezeichnung verwenden
   window.getDefaultFileName = savefileTitle.getDefaultFileName;
 
 

@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name           DragNgoModoki_Fx3.7.uc.js
+// @name           DragNgoModoki_Fx40.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    ファイル名をD&D
 // @include        main
-// @compatibility  Firefox 24-35 (not e10s)
+// @compatibility  Firefox 40 (not e10s)
 // @author         Alice0775
+// @version        2015/08/12 18:00 Fixed due to Bug 1134769
 // @version        2014/11/26 21:00 Bug 1103280, Bug 704320
 // @version        2014/11/10 10:00 get rid document.commandDispatcher
 // @version        2014/10/30 10:00 working with addHistoryFindbarFx3.0.uc.js
@@ -104,44 +105,44 @@ var DragNGo = {
 
   GESTURES: [
   /*=== From Foreign data ===*/
-    {dir:'', modifier:'',name:'Fire',obj:'file'},
+    {dir:'', modifier:'',name:'Pfad zur auszuführenden Datei',obj:'file'},
     {dir:'', modifier:'',name:'xpi/jar Installation',obj:'file'},
     /*{dir:'', modifier:'',name:'新しいタブ前面に開く',obj:'file',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},//Google doc などでdrag drop uploadができなくなる*/
     {dir:'', modifier:'',name:'Link in neuem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
     {dir:'', modifier:'',name:'Google-Suche in neuem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
 
-  /*=== Link ===*/
+  /*=== リンク ===*/
     {dir:'U', modifier:'',name:'xpi/jar Installation',obj:'xpi,jar',cmd:function(self,event,info){self.installXpi(info.urls);}},
     {dir:'U', modifier:'',name:'Link in neuem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
-    //{dir:'D', modifier:'',name:'リンクを新しいタブ後面に開く',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
+    //{dir:'D', modifier:'',name:'Link in neuem Hintergrundtab öffnen',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
     {dir:'D', modifier:'',name:'Link in neuem Tab Google Suche',obj:'link, textlink',cmd:function(self,event,info){self.searchWithEngine(info.urls, ['Google'], 'tab');}},
     {dir:'L', modifier:'',name:'Link in aktuellem Tab',obj:'link, textlink',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
 
-  /*=== Bild ===*/
+  /*=== 画像 ===*/
     {dir:'U', modifier:'',name:'Bild im Vordergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tab', null);}},
     {dir:'D', modifier:'',name:'Bild im Hintergrundtab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'tabshifted', null);}},
     {dir:'L', modifier:'',name:'Bild in aktuellem Tab',obj:'image',cmd:function(self,event,info){self.openUrls(info.urls, 'current', null);}},
     {dir:'LD', modifier:'',name:'Google Suche nach ähnlichen Bildern',obj:'image',cmd:function(self,event,info){var TargetImage=info.urls[0];var URL="http://www.google.com/searchbyimage?image_url="+TargetImage;if(TargetImage)gBrowser.loadOneTab(URL,null,null,null,false,false);}},
   /*=== Web Suche ===*/
     {dir:'R', modifier:'',name:'ConQuery Textsuche',obj:'text',cmd:function(self,event,info){self.openConQueryPopup(event);}},
-    {dir:'UL', modifier:'',name:'Google Textsuche in aktuellem Tab(Green Label)',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google Textsuche(Green Label)'], 'current');}},
+    {dir:'UL', modifier:'',name:'Google Textsuche in aktuellem Tab(Green Label',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google Textsuche(Green Label)'], 'current');}},
     {dir:'U', modifier:'',name:'Google Textsuche in neuem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
     {dir:'D', modifier:'',name:'Google Textsuche in aktuellem Tab',obj:'text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'current');}},
     {dir:'DL', modifier:'',name:'Google Textlink Suche in neuem Tab',obj:'link',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Google'], 'tab');}},
     {dir:'UL', modifier:'',name:'Amazon Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Amazon.com'], 'tab');}},
     {dir:'UR', modifier:'',name:'Yahoo Textsuche in neuem Tab',obj:'link, text',cmd:function(self,event,info){self.searchWithEngine(info.texts, ['Yahoo! GERMAN'], 'tab');}},
 
-  /*=== Suche auf der Seite ===*/
+  /*=== ページ内検索 ===*/
     {dir:'L', modifier:'',name:'Text innerhalb der Seite suchen',obj:'link, text',cmd:function(self,event,info){self.findWord(info.texts[0]);}},
 
-  /*=== Zwischenablage ===*/
+  /*=== クリップボード ===*/
     {dir:'UD', modifier:'',name:'Link-Url in die Zwischenablage kopieren',obj:'text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
     {dir:'LR', modifier:'',name:'Link-Text in die Zwischenablage kopieren',obj:'link, text',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.texts[0]);}},
     {dir:'UDU', modifier:'',name:'Url in die Zwischenablage kopieren',obj:'link',cmd:function(self,event,info){Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper).copyString(info.urls[0]);}},
     {dir:'DR', modifier:'',name:'Text in die Suchleiste kopieren',obj:'link, text',cmd:function(self,event,info){self.copyToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
-    {dir:'DR', modifier:'ctrl',name:'Zusatz-Text in die Searchbar kopieren',obj:'link, text',cmd:function(self,event,info){self.appendToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
+    {dir:'DR', modifier:'ctrl',name:'Zusatz-Text in die Suchleiste kopieren',obj:'link, text',cmd:function(self,event,info){self.appendToSearchBar(info.texts[0].replace(/\n/mg,' '));}},
 
-  /*=== Speichern ===*/
+  /*=== 保存 ===*/
     {dir:'RU', modifier:'',name:'Link/Bild SaveFileModoki(SF) speichern',obj:'image, link',cmd:function(self,event){self.openSaveFileModokiPopup(event);}},
 /*
     {dir:'RD', modifier:'',name:'画像をD:/hogeに保存(SF)',obj:'image',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\hoge');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/hoge', true);}}},
@@ -150,13 +151,13 @@ var DragNGo = {
     {dir:'RD', modifier:'',name:'Bild mit Namen speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
     {dir:'RD', modifier:'',name:'Link unter den Namen speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
 
-  /*=== im Text Editor öffnen ===*/
-    {dir:'DL', modifier:'',name:'Im Texteditor öffnen',obj:'text',cmd:function(self,event,info){self.editText(null, info.texts[0]);}}, // 引数 null: view_source.editor.pathのエディターを使う
+  /*=== テキストをえでぃたーで開く ===*/
+    {dir:'DL', modifier:'',name:'Im Texteditor öffnen',obj:'text',cmd:function(self,event,info){self.editText(null, info.texts[0]);}}, // Argument null: view_source.editor.path Verwendung des Editors
 
 
-  /*=== appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される (Externe Anwendungen) ===*/
-    {dir:'U', modifier:'shift,ctrl',name:'Link im IE',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Program Files\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
-    {dir:'R', modifier:'shift,ctrl',name:'Text im Notepad++',obj:'text',cmd:function(self,event,info){self.launch(info.texts[0], "D:\\Programme\\Notepad++\\notepad++.exe", [",2,,G1,%%SEL%%"], "Shift_JIS");}},
+  /*=== appPathをparamsで開く, paramsはtxtで置き換えcharsetに変換される ===*/
+    {dir:'U', modifier:'shift,ctrl',name:'Link im IE öffnen',obj:'link',cmd:function(self,event,info){self.launch(info.urls[0], "C:\\Program Files\\Internet Explorer\\iexplore.exe",["%%URL%%"],"Shift_JIS");}},
+    {dir:'R', modifier:'shift,ctrl',name:'Text im Notepad++ öffnen',obj:'text',cmd:function(self,event,info){self.launch(info.texts[0], "C:\\Programme\\Notepad++\\notepad++.exe", [",2,,G1,%%SEL%%"], "Shift_JIS");}},
 
   /*=== Utility ===*/
     {dir:'RDR', modifier:'',name:'Eijiro',obj:'text',cmd:function(){var TERM=getBrowserSelection().toString();var URL="http://eow.alc.co.jp/"+TERM+"/UTF-8/";if(TERM)gBrowser.loadOneTab(URL,null,null,null,false,false);}},
@@ -167,19 +168,14 @@ var DragNGo = {
         UI.charset = "UTF-8";
 
         var text = info.texts[0];
-        var engine = popupTranslate.selectEngineByDescription(UI.ConvertToUnicode("Excite 英日"));
+        var engine = popupTranslate.selectEngineByDescription(UI.ConvertToUnicode("Google Englisch-Deutsch"));
         if (engine)
           popupTranslate.getTranslateResult(text, engine, null);
       }
     },
     {dir:'RLU', modifier:'',name:'Textauswahl-Suche unter der Domain',obj:'link, text',
       cmd:function(self,event,info){
-        if ("BrowserUtils" in window) {
-          var [node, win] = BrowserUtils.getFocusSync(document);
-        } else {
-          win = document.commandDispatcher.focusedWindow;
-        }
-
+        var win = document.commandDispatcher.focusedWindow;
         var _document = win.document;
         var p = prompt('Textauswahl-Suche unter der Domain('+_document.location.hostname+'):', info.texts[0]);
         if(p)
@@ -190,12 +186,8 @@ var DragNGo = {
     },
     {dir:'UDUD', modifier:'',name:'Auswahl als Textdatei speichern unter',obj:'text',
       cmd:function(self){
-        // 選択範囲をテキストファイルとして保存する。
-        if ("BrowserUtils" in window) {
-          var [node, win] = BrowserUtils.getFocusSync(document);
-        } else {
-          win = document.commandDispatcher.focusedWindow;
-        }
+        // Wählen Sie als Textdatei speichern.
+        var win = document.commandDispatcher.focusedWindow;
         var sel = win.getSelection();
         if (sel && !sel.isCollapsed) {
           var fname = win.location.href.match(/[^\/]+$/) + '.txt';
@@ -203,7 +195,7 @@ var DragNGo = {
           fname = fname.replace(/[\*\:\?\"\|\/\\<>]/g, '_');
           self.saveTextToLocal(sel.toString(), fname, false);
         } else {
-          alert('Keine Auswahl!');
+          alert('Kein Text ausgewaehlt!');
         }
       }
     },
@@ -246,7 +238,7 @@ var DragNGo = {
                     .createInstance(Ci.nsILocalFile);
     appfile.initWithPath(decodeURIComponent(escape(appPath)));
     if (!appfile.exists()){
-      alert("Keine ausführbare Datei vorhanden.");
+      alert("Executable does not exist.");
       return;
     }
     var process = Cc['@mozilla.org/process/util;1']
@@ -262,16 +254,12 @@ var DragNGo = {
     process.run(false, args, args.length, {});
   },
 
-  //選択文字列を得る
+  //Auswahlzeichenfolge erhalten
   get selection() {
     var targetWindow = this.focusedWindow;
     var sel = targetWindow.getSelection();
     if (sel && !sel.toString()) {
-      if ("BrowserUtils" in window) {
-        var [node, win] = BrowserUtils.getFocusSync(document);
-      } else {
-        node = document.commandDispatcher.focusedElement;
-      }
+      var node = document.commandDispatcher.focusedElement;
       if (node &&
           ((typeof node.mozIsTextField == 'function' && node.mozIsTextField(true)) ||
            node.type == "search" ||
@@ -289,11 +277,7 @@ var DragNGo = {
 
   //現在のウインドウを得る
   get focusedWindow() {
-    if ("BrowserUtils" in window) {
-      var [node, win] = BrowserUtils.getFocusSync(document);
-    } else {
-      win = document.commandDispatcher.focusedWindow;
-    }
+    var win = document.commandDispatcher.focusedWindow;
     if (!win || win == window)
       win = window.content;
     return win;
@@ -532,7 +516,7 @@ var DragNGo = {
     if (!skipPrompt) {
       var nsIFilePicker = Ci.nsIFilePicker;
       var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      fp.init(this.focusedWindow, "Select a File", nsIFilePicker.modeSave);
+      fp.init(this.focusedWindow, "Datei auswaehlen", nsIFilePicker.modeSave);
       fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterImages);
       fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterHTML);
       if (dir)
@@ -1493,7 +1477,7 @@ var DragNGo = {
       }
     }; // GESTURES
     if (!dragSession.canDrop) {
-      self.setStatusMessage('未定義', 0, false);
+      self.setStatusMessage('Nicht definiert', 0, false);
     }
   },
 
