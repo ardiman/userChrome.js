@@ -122,45 +122,45 @@ var openbookResizer = {
     this.folderTreeRow   = this.isFx35 ? "folderTreeRow"   : "folderTree";
     this.tagsSelectorRow = this.isFx35 ? "tagsSelectorRow" : "tagsSelector";
 
-	// default all show
-	StarUI._doShowEditBookmarkPanel = Task.async(function* (aNode, aAnchorElement, aPosition) {
-	  if (this.panel.state != "closed")
-		return;
-	  this._blockCommands();
-	  this._element("editBookmarkPanelTitle").value =
-		this._batching ?
-		  gNavigatorBundle.getString("editBookmarkPanel.pageBookmarkedTitle") :
-		  gNavigatorBundle.getString("editBookmarkPanel.editBookmarkTitle");
-	  this._element("editBookmarkPanelDescription").textContent = "";
-	  this._element("editBookmarkPanelBottomButtons").hidden = false;
-	  this._element("editBookmarkPanelContent").hidden = false;
-	  this._element("editBookmarkPanelRemoveButton").hidden = this._batching;
-	  let bookmarks = PlacesUtils.getBookmarksForURI(gBrowser.currentURI);
-	  let forms = gNavigatorBundle.getString("editBookmark.removeBookmarks.label");
-	  let label = PluralForm.get(bookmarks.length, forms).replace("#1", bookmarks.length);
-	  this._element("editBookmarkPanelRemoveButton").label = label;
-	  this._element("editBookmarkPanelStarIcon").removeAttribute("unstarred");
-	  this._itemId = aNode.itemId;
-	  this.beginBatch();
-	  if (aAnchorElement) {
-		let parent = aAnchorElement.parentNode;
-		while (parent) {
-		  if (parent.localName == "toolbarbutton") {
-			break;
-		  }
-		  parent = parent.parentNode;
-		}
-		if (parent) {
-		  this._anchorToolbarButton = parent;
-		  parent.setAttribute("open", "true");
-		}
-	  }
-	  this.panel.openPopup(aAnchorElement, aPosition);
-	  gEditItemOverlay.initPanel({ node: aNode,
-								   hiddenRows: openbookResizer.getHideRow });
-	});   
+    // default all show
+    StarUI._doShowEditBookmarkPanel = Task.async(function* (aNode, aAnchorElement, aPosition) {
+      if (this.panel.state != "closed")
+        return;
+      this._blockCommands();
+      this._element("editBookmarkPanelTitle").value =
+        this._batching ?
+          gNavigatorBundle.getString("editBookmarkPanel.pageBookmarkedTitle") :
+          gNavigatorBundle.getString("editBookmarkPanel.editBookmarkTitle");
+      this._element("editBookmarkPanelDescription").textContent = "";
+      this._element("editBookmarkPanelBottomButtons").hidden = false;
+      this._element("editBookmarkPanelContent").hidden = false;
+      this._element("editBookmarkPanelRemoveButton").hidden = this._batching;
+      let bookmarks = PlacesUtils.getBookmarksForURI(gBrowser.currentURI);
+      let forms = gNavigatorBundle.getString("editBookmark.removeBookmarks.label");
+      let label = PluralForm.get(bookmarks.length, forms).replace("#1", bookmarks.length);
+      this._element("editBookmarkPanelRemoveButton").label = label;
+      this._element("editBookmarkPanelStarIcon").removeAttribute("unstarred");
+      this._itemId = aNode.itemId;
+      this.beginBatch();
+      if (aAnchorElement) {
+        let parent = aAnchorElement.parentNode;
+        while (parent) {
+          if (parent.localName == "toolbarbutton") {
+            break;
+          }
+          parent = parent.parentNode;
+        }
+        if (parent) {
+          this._anchorToolbarButton = parent;
+          parent.setAttribute("open", "true");
+        }
+      }
+      this.panel.openPopup(aAnchorElement, aPosition);
+      gEditItemOverlay.initPanel({ node: aNode,
+                                   hiddenRows: openbookResizer.getHideRow });
+    });
 
-	var func;
+    var func;
 
     // selected tree visible
     func = gEditItemOverlay.toggleFolderTreeVisibility.toString();
