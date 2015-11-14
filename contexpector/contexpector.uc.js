@@ -72,8 +72,8 @@
               : "DOMInspect Chrome Element"),
       accesskey: "E",
       oncommand: (
-        "Cc['@mozilla.org/appshell/window-mediator;1']"+
-        ".getService(Ci.nsIWindowMediator)"+
+        "Components.classes['@mozilla.org/appshell/window-mediator;1']"+
+        ".getService(Components.interfaces.nsIWindowMediator)"+
         ".getMostRecentWindow('navigator:browser')"+
         ".inspectDOMDocument(document._contexpected)"),
     });
@@ -84,10 +84,12 @@
 
   var newPopup = document.createElement("menupopup");
   addMenuitem(newPopup);
-  var mainPS = document.getElementById("mainPopupSet") ||
-    let(ps = document.createElement("popupset"))(
-      ps.id = "mainPopupSet",
-      document.documentElement.appendChild(ps));
+  var mainPS = document.getElementById("mainPopupSet");
+  if (!mainPS) {
+    mainPS = document.createElement("popupset");
+    mainPS.id = "mainPopupSet";
+    document.documentElement.appendChild(mainPS);
+  };
   document.documentElement.setAttribute(
     "context",
     mainPS.appendChild(newPopup).id = "chrome-inspector-popup");
