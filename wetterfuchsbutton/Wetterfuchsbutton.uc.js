@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 33.*
+// @compatibility  Firefox 33. - 42
 // @include        main
-// @version        1.0.20150316
+// @version        1.0.20151114
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -10,26 +10,24 @@ var wetterfuchs = {
     MO_Doppelklick: {url:"http://www.msn.com/de-de/wetter/heute/de/Berlin,BE,Deutschland/we-city-52.520,13.380",width:700,height:640},
     MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:442},
     MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
-    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:635},
-    DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp?dayno=0",width:478,height:635},
-    DED_PollenbelastungAktuell: {url:"http://www.wetterkontor.de/de/bio/pollenflug_aktuell.asp?p=1",width:478,height:590},
-    DED_PollenbelastungVorhersage: {url:"http://www.wetterkontor.de/de/bio/pollenflug_vorhersage.asp?p=1",width:478,height:590},
-    DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv_aktuell.asp?p=1",width:478,height:590},
-    DE_WetterAktuell: {url:"http://www.dwd.de/wundk/wetter/de/Deutschland.jpg",width:558,height:518},
-    DE_Vorhersage: {url:"http://www.dwd.de/wundk/wetter/de/Deutschland_morgen_spaet.jpg",width:558,height:518},
+    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:630},
+    DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp",width:478,height:630},
+    DED_Pollenbelastung: {url:"http://www.wetterkontor.de/de/bio/pollenflug-erle.asp",width:478,height:590},
+    DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv-index.asp",width:478,height:590},
+    DE_WetterAktuell: {url:"http://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/wx_deutschland.jpg",width:872,height:502},
+    DE_Vorhersage: {url:"http://www.dwd.de/DWD/wetter/wv_allg/deutschland/film/vhs_deutschland.jpg",width:872,height:502},
     DE_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/deutschland_index.png",width:572,height:572},
     DE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx",width:568,height:530},
     DE_RegenradarPrognose: {url:"http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
-    EU_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/welt/europa-0.html",width:478,height:460},
+    EU_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/europa/",width:478,height:540},
     EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:570,height:570},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     WE_WetterAktuell: {url:"http://www.meteocentrale.ch/de/wetter/weltwetter.html#sytl",width:575,height:360},
-    // WE_Vorhersage: {url:"http://wetter.faz.net/wetter/wettervorhersage/wetter_welt/?offset=1",width:575,height:380},
-    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/brandenburg0.html",width:478,height:635},
-    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BB",width:700,height:630},
+    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/bayern.asp",width:478,height:655},
+    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BY",width:850,height:480},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"http://www.wetterkontor.de/de/radar/?r=o",width:478,height:478}
+    RE_RegenradarPrognose: {url:"http://www.wetteronline.de/?ireq=true&pid=p_radar_map&src=radar/vermarktung/p_radar_map_forecast/forecastLoop/BRA/latestForecastLoop.gif",width:540,height:590},
   },
   TOOLBAR: "nav-bar",       // nav-bar - Toolbar, auf der der Button landen soll
   TARGET_BUTTON: "search-container",  // search-container - sollte ein Element auf TOOLBAR sein
@@ -64,9 +62,8 @@ var wetterfuchs = {
 				<menupopup id="wetterfuchsdatamenu">\
 					<menuitem label="Wetter aktuell" oncommand="wetterfuchs.openPanel(\'DED_WetterAktuell\',event,\'p\')"/>\
 					<menuitem label="Vorhersage" oncommand="wetterfuchs.openPanel(\'DED_Vorhersage\',event,\'p\')"/>\
-					<menuitem label="Pollenbelastung aktuell" oncommand="wetterfuchs.openPanel(\'DED_PollenbelastungAktuell\',event,\'p\')"/>\
-					<menuitem label="Pollenbelastung Vorhersage" oncommand="wetterfuchs.openPanel(\'DED_PollenbelastungVorhersage\',event,\'p\')"/>\
-					<menuitem label="UV-Index Vorhersage" oncommand="wetterfuchs.openPanel(\'DED_UVIndexVorhersage\',event,\'p\')"/>\
+					<menuitem label="Pollenbelastung" oncommand="wetterfuchs.openPanel(\'DED_Pollenbelastung\',event,\'p\')"/>\
+					<menuitem label="UV-Index" oncommand="wetterfuchs.openPanel(\'DED_UVIndexVorhersage\',event,\'p\')"/>\
 				</menupopup>\
 			</menu>\
 			<menu label="DE Wetterkarten">\
