@@ -2,7 +2,7 @@
 // @name           wetterfuchsbutton.uc.js
 // @compatibility  Firefox 33. - 42
 // @include        main
-// @version        1.0.20151114
+// @version        1.0.20151122
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -24,13 +24,11 @@ var wetterfuchs = {
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:570,height:570},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     WE_WetterAktuell: {url:"http://www.meteocentrale.ch/de/wetter/weltwetter.html#sytl",width:575,height:360},
-    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/bayern.asp",width:478,height:655},
-    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BY",width:850,height:480},
+    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/berlin.asp",width:478,height:655},
+    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BB",width:850,height:480},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
     RE_RegenradarPrognose: {url:"http://www.wetteronline.de/?ireq=true&pid=p_radar_map&src=radar/vermarktung/p_radar_map_forecast/forecastLoop/BRA/latestForecastLoop.gif",width:540,height:590},
   },
-  TOOLBAR: "nav-bar",       // nav-bar - Toolbar, auf der der Button landen soll
-  TARGET_BUTTON: "search-container",  // search-container - sollte ein Element auf TOOLBAR sein
   wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
   createBtn: function() {
    try {
