@@ -1,146 +1,159 @@
 // ==UserScript==
-// @name           colorfulTab.uc.js
-// @namespace      http://d.hatena.ne.jp/Griever/
-// @author         Griever
+// @name           Colorful Tabs
+// @author         Palatoo Young
 // @include        main
-// @version        ä¸‹æ›¸ã1
-// @compatibility  Firefox 4
+// @description    Colorful Tabs for Firefox
+// @version        0.1
 // ==/UserScript==
 
-(function(css_temp){
+location.href === 'chrome://browser/content/browser.xul' && (function(){
 
-// ä½¿ã†è‰²ã®æ•° default:10, min:2, max:15
-const PALETTE_LENGTH = 10; 
+    'use strict';
 
-// ãƒ‰ãƒ¡ã‚¤ãƒ³æ¯Žã«è‰²ã‚’å¤‰ãˆã‚‹ã‹ã€‚ default:false
-const DOMAIN = false;
+    if(typeof colorfulTab !== 'undefined') return;
 
+    var ctxt = (function(){
+        const canvas = document.createElementNS('http://www.w3.org/1999/xhtml','canvas');
+        document.documentElement.appendChild(canvas);
+        canvas.width = 16;
+        canvas.height = 16;
+        canvas.style.display = 'none';
+        return canvas.getContext('2d');
+    })();
 
-if (window.colorfulTab) {
-  window.colorfulTab.destroy();
-}
-
-
-window.colorfulTab = {
-  PALETTE_LENGTH: PALETTE_LENGTH,
-  DOMAIN: DOMAIN,
-
-  init: function() {
-    if (typeof this.PALETTE_LENGTH != "number" || 
-        this.PALETTE_LENGTH > 15 || 
-        this.PALETTE_LENGTH < 2) {
-      this.PALETTE_LENGTH = 10;
-    }
-    var css = [];
-    for(var i = 0, c = 0; c < 360; i++, c += this.PALETTE_LENGTH) {
-      let s = css_temp.replace(/\%COLOR\%/g, parseInt(c, 10)).replace(/\%NUMBER\%/g, i);
-      css.push(s);
-    }   
-    this.css = css.join('\n\n');
-    this.style = addStyle(this.css);
-
-    if (this.DOMAIN) {
-      gBrowser.mPanelContainer.addEventListener("DOMContentLoaded", this, false);
-    } else {
-      gBrowser.mTabContainer.addEventListener("TabOpen", this, false);
-    }
+    var colorfulTab = {       
     
-    this.setColorAllTabs();
-  },
-  uninit: function() {
-    if (this.DOMAIN) {
-      gBrowser.mPanelContainer.removeEventListener("DOMContentLoaded", this, false);
-    } else {
-      gBrowser.mTabContainer.removeEventListener("TabOpen", this, false);
-    }
-  },
-  destroy: function() {
-    Array.forEach(gBrowser.mTabs, function(e) e.removeAttribute("colorful"));
-    this.style.parentNode.removeChild(this.style);
-    this.uninit();
-  },
-  handleEvent: function(event) {
-    switch(event.type){
-    case "DOMContentLoaded":
-      var win = event.target.defaultView;
-      if (win != win.parent) return;
+        init : function(){
+            colorfulTab.insertCSS();
+            gBrowser.addTabsProgressListener({
+                onLinkIconAvailable : function onLinkIconAvailable(aBrowser){
+                    var tab = colorfulTab.getTabForBrowser(aBrowser);               
+                    var img = new Image,data;
+                    img.src = tab.getAttribute('image');
 
-      var index = gBrowser.getBrowserIndexForDocument(event.target);
-      if (index === -1) return;
-
-      var host = win.location.host;
-      if (!host) return gBrowser.mTabs[index].removeAttribute("colorful");
-
-      var num = 0;
-      for (var i = 0, len = host.length; i < len; i++) {
-        num += host.charCodeAt(i);
-      };
-      
-      this.setColor(gBrowser.mTabs[index], num%this.PALETTE_LENGTH);
-      break;
-    case "TabOpen":
-      this.setColor(event.target, Math.floor(Math.random() * this.PALETTE_LENGTH));
-      break;
-    }
-  },
-  setColor: function(tab, num) {
-    if (typeof num == "number") {
-      tab.setAttribute("colorful", num);
-    } else {
-      tab.removeAttribute("colorful");
-    }
-  },
-  setColorAllTabs: function() {
-    Array.slice(gBrowser.mTabs).forEach(function(tab) {
-      if (this.DOMAIN) {
-        var host = tab.linkedBrowser.contentWindow.location.host
-        if (!host) return gBrowser.mTabs[index].removeAttribute("colorful");
-
-        var num = 0;
-        for (var i = 0, len = host.length; i < len; i++) {
-          num += host.charCodeAt(i);
-        };
-        this.setColor(tab, num%this.PALETTE_LENGTH);
-      } else {
-        this.setColor(tab, Math.floor(Math.random() * this.PALETTE_LENGTH));
-      }
-    }, this);
-  }
-};
-
-window.colorfulTab.init();
-
-
-function $(id) { return document.getElementById(id); }
-function addStyle(css) {
-  var pi = document.createProcessingInstruction(
-    'xml-stylesheet',
-    'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(css) + '"'
-  );
-  return document.insertBefore(pi, document.documentElement);
+                    img.onload = function(){
+                        ctxt.drawImage(img,0,0,16,16);
+                        data = ctxt.getImageData(0, 0, 16, 16).data;
+                        colorfulTab.averageColorValue(data,tab);
+                    }             
+                }
+            });    
+        },       
+               
+        averageColorValue : function(data,tab){
+            var r = 0,g = 0,b = 0,a = 0;
+            Array.prototype.forEach.call(data,function(i,j){
+                var color = (j+1) % 4;
+                switch (color){
+                    case 1:
+                        r += i;
+                        break;
+                    case 2:
+                        g += i;
+                        break;
+                    case 3:
+                        b += i;
+                        break;
+                    case 0:
+                        a += i;
+                        break;
+                }
+            });
+            tab.style.setProperty('background',
+                'rgba('+parseInt(r/256)+','+parseInt(g/256)+','+parseInt(b/256)+','+parseInt(a/256)+')',
+                'important');
+        },
+        
+        getTabForBrowser : function(browser) {
+            var mTabs = gBrowser.mTabContainer.childNodes;
+            for (var i=0; i<mTabs.length; i++) {
+                if (mTabs[i].linkedBrowser == browser) {
+                    return mTabs[i];
+                }
+            }
+            return null;
+        },
+        
+        insertCSS : function(){
+        var cssText = (function(){
+/*
+#TabsToolbar {
+background: transparent !important;
+margin-bottom: 0 !important;
+margin-top: -1px !important;
 }
+#TabsToolbar .tab-background{
+margin: 0 !important;
+background: transparent !important;
+}
+#TabsToolbar .tab-background-start,
+#TabsToolbar .tab-background-end{
+display: none !important;
+}
+#TabsToolbar .tab-background-middle{
+margin: -4px -2px !important;
+background: transparent !important;
+}
+#TabsToolbar .tabbrowser-tab:after,
+#TabsToolbar .tabbrowser-tab:before{
+display: none !important;
+}
+#TabsToolbar .arrowscrollbox-scrollbox {
+padding: 0px !important;
+}
+#TabsToolbar .tabs-newtab-button,
+#TabsToolbar .tabbrowser-tab{
+color: #ffffff !important;
+height: 30px !important;
+-moz-border-image: none !important;
+border:none!important;
+border-style: solid !important;
+border-color: rgba(0,0,0,.2) !important;
+border-width: 1px 0 0 1px !important;
+text-shadow: 0 0 4px rgba(255,255,255,.75) !important;
+padding: 4px 2px !important;
+background-clip: padding-box !important;
+transition: background-color 1.5s ease 0s !important;
+}
+#TabsToolbar .tabbrowser-tab[first-tab][last-tab],
+#TabsToolbar .tabbrowser-tab[last-visible-tab]{
+border-right-width: 1px !important;
+}
+#TabsToolbar .tabbrowser-tab[afterselected]{
+border-left-color: rgba(0,0,0,.25) !important;
+}
+#TabsToolbar .tabbrowser-tab[selected]{
+background-clip: padding-box !important;
+border-color: rgba(0,0,0,.25) !important;
+color: #ffffff;
+box-shadow:0 2.5px 0 0 #ffffff inset !important;
+}
+#TabsToolbar .tabs-newtab-button:hover,
+#TabsToolbar .tabbrowser-tab:hover:not([selected]){
+box-shadow:0 1.5px 0 0 #ffffff inset !important;
+background-image: none !important;
+}
+#TabsToolbar .tabs-newtab-button{
+border-width: 1px 1px 0 0 !important;
+margin: 0 !important;
+width: auto !important;
+padding: 0 5px !important;
+}
+*/}).toString();
+        cssText = cssText.replace(/\r|\n/ig,'');
+        cssText = cssText.substring(cssText.indexOf('/*')+2,cssText.length-3);
+        var css = 'data:text/css,/*colorfulTab*/' + encodeURIComponent(cssText);
 
-})('\
-@namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
-.tabbrowser-tab[colorful="%NUMBER%"] {\
-  color: #000 !important;\
-  background-image:\
-    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),\
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.3), hsla(%COLOR%,100%,65%,.3) 40%, hsla(%COLOR%,100%,55%,.3) 50%, hsla(%COLOR%,100%,50%,.3)),\
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
-}\
-.tabbrowser-tab[colorful="%NUMBER%"]:hover {\
-  color: #000 !important;\
-  background-image:\
-    -moz-linear-gradient(center bottom, rgba(26, 26, 26, 0.4) 1px, transparent 1px),\
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.5), hsla(%COLOR%,100%,65%,.5) 40%, hsla(%COLOR%,100%,55%,.5) 50%, hsla(%COLOR%,100%,50%,.5)),\
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
-}\
-.tabbrowser-tab[colorful="%NUMBER%"][selected="true"] {\
-  color: #000 !important;\
-  background-image:\
-    -moz-linear-gradient(hsla(%COLOR%,100%,75%,.7), hsla(%COLOR%,100%,65%,.7) 40%, hsla(%COLOR%,100%,55%,.7) 50%, hsla(%COLOR%,100%,50%,.7)),\
-    -moz-linear-gradient(-moz-dialog, -moz-dialog) !important;\
-}\
-\
-');
+        var sss = Components.classes['@mozilla.org/content/style-sheet-service;1']
+            .getService(Components.interfaces.nsIStyleSheetService);
+        var ios = Components.classes['@mozilla.org/network/io-service;1']
+            .getService(Components.interfaces.nsIIOService);
+        var uri = ios.newURI(css, null, null);
+        sss.loadAndRegisterSheet(uri, sss.USER_SHEET);          
+        }
+    }
+
+    window.colorfulTab = colorfulTab;
+    colorfulTab.init();
+    
+}());
