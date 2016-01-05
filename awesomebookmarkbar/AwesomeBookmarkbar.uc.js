@@ -17,11 +17,12 @@
 // @note         	点击地址栏显示书签工具栏。
 // @note         	地址栏任意按键，地址栏失去焦点后自动隐藏书签工具栏。
 // @note       		左键点击书签后自动隐藏书签工具栏。
+// @version      	0.3.2	2015.10.11 17:00 	地址栏只在输入框生效，“地址栏失去焦点”修改“页内点击”。
 // @version      	0.3.1	2015.04.17 10:00 	更多功能，表达能力略微提升.
 // @version      	0.3		2015.04.11 20:00 	绘制UI设置界面.
 // @version      	0.2.1 	去除鼠标移到地址栏自动显示书签工具栏
 // @version      	0.2 	增加鼠标移到地址栏自动显示书签工具栏，移出隐藏
-// ==/UserScript== 
+// ==/UserScript==
 location == "chrome://browser/content/browser.xul" && (function() {
 	if (window.AwesomeBookmarkbar) {
 		window.AwesomeBookmarkbar.onDestroy();
@@ -37,6 +38,13 @@ location == "chrome://browser/content/browser.xul" && (function() {
 			var windowsMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
 				.getService(Components.interfaces.nsIWindowMediator);
 			return windowsMediator.getMostRecentWindow("AwesomeBookmarkbar:Preferences");
+		},
+		get CurrentURI() {
+			var windowMediator = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+			var topWindowOfType = windowMediator.getMostRecentWindow("navigator:browser");
+			if (topWindowOfType)
+				return topWindowOfType.document.getElementById("content").currentURI;
+			return null;
 		},
 
 		init: function() {
@@ -72,6 +80,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 			this.AddListener(false, 1, "command", "PersonalToolbarClick2", "PHide");
 			this.ShowToolbar(true);
 			this.prefs.removeObserver('', this.PrefsObs, false);
+			window.getBrowser().removeProgressListener(AwesomeBookmarkbar.progressListener);
 			if (this.Window) this.Window.close();
 			Services.obs.notifyObservers(null, "startupcache-invalidate", "");
 		},
@@ -93,6 +102,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 					case 'LShow':
 					case 'Hide_Time':
 					case 'Show_Time':
+					case 'NewTabS':
 						AwesomeBookmarkbar.loadSetting(data);
 						break;
 				}
@@ -102,8 +112,8 @@ location == "chrome://browser/content/browser.xul" && (function() {
 		loadSetting: function(type) {
 			if (!type || type === "LShow") {
 				this.LShow = this.getPrefs(0, "LShow");
-				if (type) return;
-				this.ShowToolbar(this.LShow);
+				if (!type)
+					this.ShowToolbar(this.LShow);
 			}
 
 			if (!type || type === "Hide_Time")
@@ -124,8 +134,10 @@ location == "chrome://browser/content/browser.xul" && (function() {
 			if (!type || type === "UDblclick_H")
 				this.AddListener(this.getPrefs(0, "UDblclick_H"), 2, "dblclick", "UDblclick_H", "Hide");
 
-			if (!type || type === "UBlur_H")
-				this.AddListener(this.getPrefs(0, "UBlur_H"), 2, "blur", "UBlur_H", "Hide");
+			if (!type || type === "UBlur_H") {
+				//this.AddListener(this.getPrefs(0, "UBlur_H"), 2, "blur", "UBlur_H", "Hide");
+				this.AddListener(this.getPrefs(0, "UBlur_H"), 3, "click", "UBlur_H", "Hide");
+			}
 
 			if (!type || type === "UKey_H")
 				this.AddListener(this.getPrefs(0, "UKey_H"), 2, "keydown", "UKey_H", "keyHide");
@@ -141,6 +153,9 @@ location == "chrome://browser/content/browser.xul" && (function() {
 			if (!type || type === "PMouseout_H")
 				this.AddListener(this.getPrefs(0, "PMouseout_H"), 0, "mouseout", "PMouseout_H", "Hide");
 
+			if (!type || type === "NewTabS")
+				this.TabListen(this.getPrefs(0, "NewTabS"));
+
 			if (!type || type === "PClick_H") {
 				this.AddListener(this.getPrefs(0, "PClick_H"), 0, "command", "PersonalToolbarClick0", "PHide");
 				this.AddListener(this.getPrefs(0, "PClick_H"), 0, "click", "PersonalToolbarClick1", "PHide");
@@ -149,13 +164,41 @@ location == "chrome://browser/content/browser.xul" && (function() {
 		},
 
 		/*****************************************************************************************/
+		TabListen: function(enable) {
+			window.getBrowser().removeProgressListener(AwesomeBookmarkbar.progressListener);
+
+			if (!enable) return;
+
+			this.progressListener = {
+				onLocationChange: function() {
+					AwesomeBookmarkbar.onLocationChange();
+				},
+				onProgressChange: function() {},
+				onSecurityChange: function() {},
+				onStateChange: function() {},
+				onStatusChange: function() {}
+			};
+			window.getBrowser().addProgressListener(AwesomeBookmarkbar.progressListener);
+		},
+
+		onLocationChange: function() {
+			var url = this.CurrentURI.spec;
+			if (url == Services.prefs.getCharPref("browser.startup.homepage") || url == "about:newtab")
+				AwesomeBookmarkbar.ShowToolbar(true);
+			else
+				AwesomeBookmarkbar.ShowToolbar(false);
+		},
+
 		AddListener: function(enable, tag, action, name, command) {
 			if (tag === 0)
 				tag = $("PersonalToolbar");
-			if (tag === 1)
+			else if (tag === 1)
 				tag = $("placesCommands");
-			if (tag === 2)
+			else if (tag === 2)
 				tag = gURLBar;
+			else if (tag === 3)
+				tag = gBrowser.mPanelContainer;
+
 			tag.removeEventListener(action, AwesomeBookmarkbar["Listener_" + name], false);
 
 			if (!enable) return;
@@ -170,17 +213,16 @@ location == "chrome://browser/content/browser.xul" && (function() {
 		},
 
 		Listener: function(e, command) {
-			var Tid = e.target.parentNode.id,
-				paid;
-			if (Tid == 'notification-popup-box' || Tid == 'identity-box' || Tid == 'urlbar-display-box' || Tid == 'urlbar-icons')
-				paid = true;
+			var exclu;
+			if (e.target.nodeName != 'textbox')
+				exclu = true;
 			switch (command) {
 				case "Show":
-					if (paid) return;
+					if (exclu || e.button != 0) return;
 					this.ShowToolbar(true);
 					break;
 				case "Hide":
-					if (paid) return;
+					//if (exclu || e.button != 0) return;
 					this.ShowToolbar(false);
 					break;
 				case "PHide":
@@ -261,6 +303,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 							<preference id="UClick_S" type="bool" name="userChromeJS.AwesomeBookmarkbar.UClick_S"/>\
 							<preference id="UMove_S" type="bool" name="userChromeJS.AwesomeBookmarkbar.UMove_S"/>\
 							<preference id="LShow" type="bool" name="userChromeJS.AwesomeBookmarkbar.LShow"/>\
+							<preference id="NewTabS" type="bool" name="userChromeJS.AwesomeBookmarkbar.NewTabS"/>\
 							<preference id="Hide_Time" type="int" name="userChromeJS.AwesomeBookmarkbar.Hide_Time"/>\
 							<preference id="Show_Time" type="int" name="userChromeJS.AwesomeBookmarkbar.Show_Time"/>\
 						</preferences>\
@@ -277,6 +320,7 @@ location == "chrome://browser/content/browser.xul" && (function() {
 								$("UDblclick_H").value = false;\
 								$("UMove_S").value = false;\
 								$("LShow").value = false;\
+								$("NewTabS").value = false;\
 								$("Hide_Time").value = 0;\
 								$("Show_Time").value = 0;\
 								opener.AwesomeBookmarkbar.ShowToolbar();\
@@ -285,13 +329,14 @@ location == "chrome://browser/content/browser.xul" && (function() {
 						</script>\
 						<groupbox>\
 							<checkbox id="LShow" label="Beim Firefoxstart Lesezeichenleiste anzeigen" preference="LShow"/>\
+							<checkbox id="NewTabS" label="Beim Öffnen der neuen Tabseite Lesezeichenleiste anzeigen" preference="NewTabS"/>\
 						</groupbox>\
 						<hbox>\
 							<groupbox>\
 								<caption label="Lesezeichenleiste ausblenden"/>\
 									<row align="center">\
 										<label value="Ausblendenverzögerung："/>\
-										<textbox id="Hide_Time" type="number" preference="Hide_Time" style="width:125px" tooltiptext="In Millisekunden！"/>\
+										<textbox id="Hide_Time" type="number" preference="Hide_Time" style="width:125px" tooltiptext="In Millisekunden!"/>\
 									</row>\
 									<checkbox id="UClick_H" label="Klick auf Adressleiste" preference="UClick_H"/>\
 									<checkbox id="UDblclick_H" label="Doppelklick auf Adressleiste" preference="UDblclick_H"/>\

@@ -9,6 +9,7 @@
 // @include        main
 // @compatibility  Firefox 40 non-e10s
 // @author         Alice0775
+// @version        2015/10/12 20:00 Nightly44.0a1 fixed contectMenu
 // @version        2015/08/12 20:00 Fixed due to Bug 1134769
 // @version        2014/10/16 07:00 Revert=デフォルトエンジンに戻す は一番最初の奴にするようにした
 // @version        2014/08/22 22:00 Fixed due to Bug 1051017.
@@ -284,7 +285,7 @@
         try {
           var aEngine = this.getEngineByIndex(result.snapshotItem(i).getAttribute('index'));
           setTimeout(function(self, aEngine, sword, anewTab, aEvent){
-            self.loadSearch(aEngine, word, anewTab, false, false)  //Suche nach
+            self.loadSearch(aEngine, word, anewTab, false, false)  //検索実行
           },100, this, aEngine, word, anewTab, aEvent);
         } catch(e) {}
       }
@@ -308,7 +309,7 @@
               ||  gBrowser;
     },
 
-    _getselection: function() {  //Markierten Text merken
+    _getselection: function() {  //選択されている文字列を得る
       if (gBrowser.selectedTab.linkedBrowser.isRemoteBrowser) {
         return gContextMenuContentData.selectionInfo.text;
       } else {
@@ -333,11 +334,11 @@
       this.state = false;
 
       if (this.getPref("userChrome.conqueryModoki.showInContext","bool", false)) {
-        //Kontextmenü direkt anzeigen
+        //コンテキストメニューに直接表示する
         menu.setAttribute('hidden', true);
         if (!!selected ||
             this.getPref("userChrome.conqueryModoki.promptNotSelected","bool",  false) ) {
-          //Kontextmenü anzeigen unter
+          //コンテキストメニュー直下のを表示
           var child = menu.parentNode.childNodes;
           for (var i =0, len = child.length; i < len; i++) {
             if (child[i].hasAttribute('Conquery')) {
@@ -348,7 +349,7 @@
         return;
       }
 
-      //Nachfragen ob im Kontext-Menü angezeigt werden soll
+      //コンテキストメニューにQuery to...を表示するかどうか
       if (!this.getPref("userChrome.conqueryModoki.showInContext","bool",false)) {
         if (!!selected ||
             this.getPref("userChrome.conqueryModoki.promptNotSelected","bool",false) ) {
@@ -368,10 +369,10 @@
       }
     },
 
-    //Kontextmenü erstellen
+    //コンテキスト用メニュー作成
     makePopupMenu: function(menupopup2){
-      //Menüstruktur
-      //Nach verlassen des Eintrags
+      //ポップアップメニュー構築
+      //既にあるなら消す
       while(menupopup2.firstChild){
         menupopup2.removeChild(menupopup2.firstChild);
       }
@@ -400,7 +401,7 @@
     },
 
     makemenu: function(popup, forSearchBar){
-      // popupにメニューを構築, forSearchBar: trueの時検索バー用, false の時, Für Kontext
+      // popupにメニューを構築, forSearchBar: trueの時検索バー用, falseの時, コンテキスト用
       const kXULNS =
            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
@@ -593,29 +594,31 @@
         //search.xmlの置き換え
         searchbar.rebuildPopup=function(){
           var popup = searchbar._popup;
-          //Clear the popup, down to the first separator
-          var popup_org = [];
-          do {
-            if (!popup.lastChild)
-              return;
-            var menuitem = popup.lastChild.cloneNode(true);
-            popup_org.push(menuitem);
-            popup.removeChild(popup.lastChild);
-          } while (popup.lastChild && menuitem.localName != "menuseparator")
-          while (popup.lastChild)
-            popup.removeChild(popup.lastChild);
+          if (popup) {
+            //Clear the popup, down to the first separator
+            var popup_org = [];
+            do {
+              if (!popup.lastChild)
+                return;
+              var menuitem = popup.lastChild.cloneNode(true);
+              popup_org.push(menuitem);
+              popup.removeChild(popup.lastChild);
+            } while (popup.lastChild && menuitem.localName != "menuseparator")
+            while (popup.lastChild)
+              popup.removeChild(popup.lastChild);
 
-          conqueryModoki.makemenu(popup, true); //検索バー用ポップアップメニュー作成
-          //メニューに検索バーの管理と直前のセパレータを追加
-          for (var i = popup_org.length - 1; i > -1; i--) {
-            popup.appendChild(popup_org[i]);
-          }
-          if (conqueryModoki.getVer() > 2) { //trunc Gecko/2007070706 sofern es Minefield/3.0a7pre ist
-            document.getAnonymousElementByAttribute(searchbar, "anonid", "open-engine-manager")
-                    .setAttribute("oncommand","document.getElementById('searchbar').openManager(event);");
+            conqueryModoki.makemenu(popup, true); //検索バー用ポップアップメニュー作成
+            //メニューに検索バーの管理と直前のセパレータを追加
+            for (var i = popup_org.length - 1; i > -1; i--) {
+              popup.appendChild(popup_org[i]);
+            }
+            if (conqueryModoki.getVer() > 2) { //trunc Gecko/2007070706 Minefield/3.0a7pre でこれがいる
+              document.getAnonymousElementByAttribute(searchbar, "anonid", "open-engine-manager")
+                      .setAttribute("oncommand","document.getElementById('searchbar').openManager(event);");
+            }   
           }
           //second search -0.4.2008052301
-          searchbar._engines = searchbar.searchService.getVisibleEngines({ });
+          searchbar._engines = conqueryModoki.browserSearchService.getVisibleEngines({ });
 
           var count = 0;
           var timer = setInterval(function(){
@@ -648,12 +651,12 @@
         //初回起動時, 検索バー用, コンテキストメニュー用ポップアップメニューを作成し直す
         searchbar.rebuildPopup();
       } else {
-        //Popup-Menü für Kontextmenüs erstellen, nicht in der Suchleiste:
+        //検索バーのない時 コンテキストメニュー用ポップアップメニューのみを作成する
         var count = 0;
         var timer = setInterval(function(){
           if(++count > 100 || (function(){
             try{
-              //Kontextmenü für Popup-Menü erstellen
+              //コンテキストメニュー用ポップアップメニュー作成
               conqueryModoki.makePopupMenu(document.getElementById("context-conqueryModoki-popup"));
               conqueryModoki.dupPopupMenu();
               return true;
@@ -665,13 +668,15 @@
         },500);
       }
 
-      //Suchmaschinenschaltflächen für die Suchleiste
+      //検索バーの検索エンジンボタン用
       if (this.searchBar()){
         var button = document.getAnonymousElementByAttribute(this.searchBar(),
                                                              "anonid", "searchbar-engine-button");
-        button.setAttribute('tooltiptext', this.tooltipSB);
-        button.addEventListener("click", this, false);
-        button.addEventListener("dblclick", this, false);
+        if (button) {
+          button.setAttribute('tooltiptext', this.tooltipSB);
+          button.addEventListener("click", this, false);
+          button.addEventListener("dblclick", this, false);
+        }
       }
     },
 
@@ -692,11 +697,11 @@
       searchBar._popup.hidePopup();
 
       if (/Clear/i.test(func)) {
-        //Suchfeld entfernen?
+        //検索ボックスを消す?
         this.clearSearchBar();
       }
       if (/Revert/i.test(func)) {
-        //Standard-Suchmaschine
+        //検索エンジンをデフォルトに
         this.engineRevert(aEvent);
       }
 
@@ -749,13 +754,13 @@
       //Markierten Text
       var word = this._getselection();
 
-      //Clopbord Zeichenfolge
+      //Clopbord文字列
       if (/Clipboard/i.test(func)) {
         word = readFromClipboard();
         if (!word)
           return;
       }
-      //Beim Markieren von Text/Fragen
+      //選択文字列の無いとき/Prompt
       if (!word || /Prompt/i.test(func)) {
         word = window.prompt('Suchmaschine: ' + aEngine.name ,word);
         if (!word)
@@ -764,14 +769,14 @@
       word = word.substring(0,1024);
       searchBar.value = word;
 
-      //Ob in einem neuen Tab Öffnen
+      //新規タブに開くかどうか
       var backGround = /Shift/i.test(func);
       var useNewTab = (/Tab/i.test(func) || backGround) && !/Current/i.test(func);
 
       //engine, searchText, useNewTab, backGround, useNewWin
       this.loadSearch(aEngine, word, useNewTab, backGround, false)  //検索実行
 
-      //Suchfeld entfernen?
+      //検索ボックスを消す?
       if (/Clear/i.test(func))
         this.clearSearchBar();
       return false;
@@ -785,7 +790,7 @@
   };
 conqueryModoki.init();
 
-  //ConQuery Emulation für Drag de Go
+  //ConQueryのエミュレート for Drag de Go用
   function cqrPageSelection(){}
   function cqrShowHotmenu(aflg, x, y){
     const kXULNS =
@@ -796,10 +801,10 @@ conqueryModoki.init();
       hotmenu.id = "cq-hotmenu";
       conqueryModoki.activeBrowser().appendChild(hotmenu);
     }
-    //Menü-Aufbau
+    //ポップアップメニュー構築
     conqueryModoki.makePopupMenu(hotmenu);
     document.popupNode = null; //THANKS http://www.xuldev.org/blog/?p=109
-    //Drag de Go Menüdarstellung
+    //Drag de Goメニュー表示
     hotmenu.showPopup(conqueryModoki.activeBrowser(), x, y, "context","bottomleft","topleft");
   }
 
