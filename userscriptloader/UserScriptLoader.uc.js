@@ -358,7 +358,10 @@ USL.API = function(script, sandbox, win, doc) {
 
 	this.GM_listValues = function() {
 		var p = script.pref.listValues();
-		var s = [x for(x in USL.database.pref[script.prefName + name])];
+//		var s = [x for(x in USL.database.pref[script.prefName + name])];
+		var s = [];
+		for (let x in USL.database.pref[script.prefName + name])
+			s.push(x);
 		s.forEach(function(e, i, a) a[i] = e.replace(script.prefName, ''));
 		p.push.apply(p, s);
 		return p;
@@ -783,7 +786,13 @@ USL.createMenuitem = function () {
 };
 
 USL.rebuild = function() {
-	USL.disabled_scripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+//	USL.disabled_scripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+	USL.disabled_scripts = [];
+	for (let x of USL.readScripts) {
+		if (x.disabled) {
+			USL.disabled_scripts.push(x.leafName);
+		};
+	};
 	USL.pref.setValue('script.disabled', USL.disabled_scripts.join('|'));
 
 	let newScripts = [];
@@ -869,7 +878,10 @@ USL.saveScript = function() {
 
 USL.deleteStorage = function(type) {
 	var data = USL.database[type];
-	var list = [x for(x in data)];
+//	var list = [x for(x in data)];
+	var list = [];
+	for (let x in data)
+		list.push(x);
 	if (list.length == 0)
 		return alert(type + ' is none.');
 
@@ -1189,7 +1201,13 @@ USL.loadSetting = function() {
 };
 
 USL.saveSetting = function() {
-	let disabledScripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+//	let disabledScripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+	let disabledScripts = [];
+	for (let x of USL.readScripts) {
+		if (x.disabled) {
+			disabledScripts.push(x.leafName);
+		};
+	};
 	USL.pref.setValue('script.disabled', disabledScripts.join('|'));
 	USL.pref.setValue('disabled', USL.disabled);
 	USL.pref.setValue('HIDE_EXCLUDE', USL.HIDE_EXCLUDE);

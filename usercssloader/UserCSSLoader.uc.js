@@ -178,7 +178,13 @@ window.UCL = {
 		window.addEventListener("unload", this, false);
 	},
 	uninit: function() {
-		var dis = [x for(x in this.readCSS) if (!this.readCSS[x].enabled)];
+//		var dis = [x for(x in this.readCSS) if (!this.readCSS[x].enabled)];
+		var dis = [];
+		for (let x in this.readCSS) {
+			if (!this.readCSS[x].enabled) {
+				dis.push(x);
+			};
+		};
 		var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
 		str.data = dis.join("|");
 		this.prefs.setComplexValue("disabled_list", Ci.nsISupportsString, str);
