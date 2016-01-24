@@ -5,6 +5,7 @@
 // @include        main
 // @compatibility  Firefox 29+
 // @author         Alice0775
+// @version        2016/01/23 1$:00 fix unexpectedly open url when reorder bookmarks
 // @version        2015/08/11 18:00 fix icon size due to bug Bug 1147702
 // @version        2015/04/11 12:00 fix icon size due to bug 1147702
 // @version        2014/09/28 22:00 fix does not preserve position due to bug 1001090
@@ -68,9 +69,9 @@ var addToolbarInsideLocationBar = {
         padding-left: 2px; \
         padding-right: 2px; \
         width: 23px; \
-     } \
+      } \
       #ucjs-Locationbar-toolbar:not([customizing="true"]) #bookmarks-menu-button[cui-areatype="toolbar"] > .toolbarbutton-menubutton-button > .toolbarbutton-icon { \
-+        width: 18px; \
+        width: 18px; \
       } \
       '.replace(/\s+/g, " ");
 
@@ -95,7 +96,7 @@ var addToolbarInsideLocationBar = {
     toolbar.setAttribute("context", "toolbar-context-menu");
     toolbar.setAttribute("class", "toolbar-primary chromeclass-toolbar customization-target");
     toolbar.setAttribute("fullscreentoolbar", "true");
-    toolbar.setAttribute("toolbarname", "UCJS Toolbar Inside LocationBar");
+    toolbar.setAttribute("toolbarname", "Symbolleiste in Adressleiste");
     toolbar.setAttribute("toolboxid", "navigator-toolbox");
     toolbar.setAttribute("hidden", "true");
     setTimeout(function(){toolbar.removeAttribute("hidden");}, 0)
@@ -114,7 +115,21 @@ var addToolbarInsideLocationBar = {
 
     let ref = this.getInsertPoint();
     ref.parentNode.insertBefore(toolbar, ref);
-
+    // xxxx toDo removing dirty hack
+    gURLBar.onDrop_addToolbarInsideLocationBar = gURLBar.onDrop;
+    gURLBar.onDrop = function(event) {
+      var toolbar = document.getElementById("ucjs-Locationbar-toolbar");
+      var target = event.originalTarget;
+      while(target) {
+        if (target == toolbar) {
+          return;
+        }
+        target = target.parentNode;
+      }
+      
+      gURLBar.onDrop_addToolbarInsideLocationBar(event);
+    };
+    //
     window.addEventListener("beforecustomization", this, true);
     BookmarkingUI._updateCustomizationState();
   },
