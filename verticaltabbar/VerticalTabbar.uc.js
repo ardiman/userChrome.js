@@ -1,62 +1,14 @@
 // ==UserScript==
-// @name           zzzz-VerticalTabbarforFx29.uc.js
+// @name           zzzz-VerticalTabbarforFx44.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    CSS入れ替えまくりバージョン
+// @description    Vertikale Tabbar CSS Version
 // @include        main
-// @compatibility  Firefox 29-37
+// @compatibility  Firefox44
 // @author         Alice0775
-// @note           Standardtheme verwenden und zzzz-removeTabMoveAnimation.uc.js Script sollte installiert sein.
-// @version        2015/01/15 00:00 Fixed strictmode
-// @version        2014/06/09 00:00 Modified dropindicator position
-// @version        2014/05/29 00:00 Bug 1018324 - Remove inIFlasher
-// @version        2014/05/16 00:00 Workaroundposition of private-browsing-indicator
-// @version        2014/05/14 15:30 fix color  if tabsintitlebar and menubar is enabled
-// @version        2014/05/14 09:50 fix color  if tabsintitlebar is enabled
-// @version        2014/05/14 09:00 fix color
-// @version        2014/05/14 07:00 fix double click if tabsintitlebar is enabled
-// @version        2014/05/14 07:00 fix tabsintitlebar (window control in fullscreen/ margin top of tabbar)
-// @version        2014/05/14 00:50 fix text color when browser.tabs.drawInTitlebar=true
-// @version        2014/05/10 13:00 remove fog in titlebar, fixed if no titlebar displayed
-// @version        2014/05/09 15:30 use sizemodechange event
-// @version        2014/05/09 15:30 do not collapse tabbar
-// @version        2014/05/09 15:30 make clicable tab at left side of screen when maxmized
-// @version        2014/05/09 14:50 remove debug
-// @version        2014/05/09 14:30 tweeks scrollbar, splitter width
-// @version        2014/05/09 14:20 scroll tabbar by mouse wheel
-// @version        2014/05/09 14:20 fix unexpected scroll to top by mouse move
-// @version        2014/05/05 19:20 Workaround: hidden tabbar when enter csutomize mode
-// @version        2014/05/05 19:15 Workaround: toolbuttun position
-// @version        2014/05/05 19:00 Fix Win7 Aero and tab padding(background color)
-// @version        2014/05/05 09:00 modified padding-bottom for selcted tab
-// @version        2013/11/19 12:30 Australis 
-// @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
-// ==/UserScript==
-// @version        2012/07/24 14:30 Bug 761723 implement toString of function objects by saving source
-// @version        2011/12/19 02:00 toolbarbutton
-// @version        2011/10/14 12:00 Bug 690227 - Back out bug 455694 (tab drag/detach animations)
-// @version        2010/06/24 23:00 ウインドサイズがおかしくなるので rendering stop/startは止め
-// @version        2010/07/22 12:00 tab context
-// @version        2010/06/24 23:00 ウインドサイズがおかしくなるので rendering stop/startは止め
-// @version        2010/05/04 08:00 選択タブ色
-// @version        2010/05/04 08:00 選択タブ色
-// @version        2010/04/28 08:00 Bug 457187  - Make the tabs toolbar customizable
-// @version        2010/04/06 18:00  不要なメニュー
-// @version        2010/03/24 18:00  tab style
-// @version        2010/03/24 00:00  ポップアップの時非表示
-// @version        2010/03/22 01:10  D&D
-// @version        2010/03/21 18:50  フルスクリーンの時タブバー表示/非表示
-// @version        2010/03/20 21:00  マージン
-// @version        2010/03/20 15:10  タブのデタッチ範囲
-// @version        2010/03/20 15:10  プリントプレビュー時は非表示
-// @version        2010/03/20 14:40  splitterリサイズしたときにタブ幅追従するように
-// @version        2010/03/20 14:10  grippy追加
-// @version        2010/03/20 09:00  D&D
-// @version        2010/03/20 07:50  フルスクリーンの時タブバー非表示およびツールバーの状態に応じて大きさの調整
-// @version        2010/03/20 07:35  2010/03/20 07:30のリグレッション:リサイズ時にタブが見えるように
-// @version        2010/03/20 07:30  サイドバー開いたとき
-// @version        2010/03/20 07:00  リサイズ時にタブが見えるように
-// @version        2010/03/15 00:00  Minefield/3.7a3pre Bug 347930 -  Tab strip should be a toolbar instead
+// @note           zzzz-removeTabMoveAnimationFx44.uc.js funktioniert nur mit Standardtheme
+// @version        2016/02/09 14:30 fix Fullscreen toggler and drag tab effect
 // @license        The MIT License
+// ==/UserScript==
 
 function zzzz_VerticalTabbar(){
       // -----config--------
@@ -99,11 +51,11 @@ function zzzz_VerticalTabbar(){
         gBrowser.tabs[i].removeAttribute("maxwidth");
       }
 
-      /*タブ縦置きCSS適用*/
+      /*Vertikaler Tab CSS Anwendung*/
       var style = ' \
         @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
  \
-        /*不要なメニュー*/ \
+        /*Kein Menü*/ \
         menuitem[command="cmd_ToggleTabsOnTop"], \
         menuitem[command="cmd_ToggleTabsOnTop"] + menuseparator \
         { \
@@ -191,7 +143,7 @@ function zzzz_VerticalTabbar(){
         max-width: 100% !important; \
         } \
  \
-        /*フルスクリーン*/ \
+        /*Vollbild*/ \
         #verticalTabToolBox[moz-collapsed="true"], \
         #vtb_splitter[moz-collapsed="true"] \
         { \
@@ -199,7 +151,7 @@ function zzzz_VerticalTabbar(){
         } \
  \
  \
-        /*ポップアップの時*/ \
+        /*Bei Pop-up*/ \
         #main-window[chromehidden~="directories"] #TabsToolbar, \
         #main-window[chromehidden~="directories"] #verticalTabToolBox, \
         #main-window[chromehidden~="directories"] #vtb_splitter, \
@@ -210,7 +162,7 @@ function zzzz_VerticalTabbar(){
         visibility: collapse; \
         } \
  \
-        /*プリントプレビュー*/ \
+        /*Seitenansicht*/ \
         #print-preview-toolbar[printpreview="true"] + #navigator-toolbox + #browser  #verticalTabToolBox, \
         #print-preview-toolbar[printpreview="true"] + #navigator-toolbox + #browser  #vtb_splitter \
         { \
@@ -226,7 +178,7 @@ function zzzz_VerticalTabbar(){
         min-width:2px !important; \
         } \
  \
-         /*tabs in titlebar/fullscreen要調整*/ \
+         /*Anpassungen für Tabs in Titelbar/Vollbild*/ \
         #main-window[tabsintitlebar] > #titlebar { \
           /*-moz-appearance: none;*/ \
         } \
@@ -255,7 +207,7 @@ function zzzz_VerticalTabbar(){
           margin-top: 0; \
         } \
  \
-         /*default theme要調整*/ \
+         /*Anpassungen für Standardtheme*/ \
         /* Fx3.7a2*/ \
         toolbarbutton:not([id="back-button"]):not([id="forward-button"]) \
         { \
@@ -451,7 +403,7 @@ function zzzz_VerticalTabbar(){
         return document.documentElement.getAttribute(name);
       };
 
-      /* 縦のスクロールバーを細く＆背景着色 */
+      /* Hintergrund Färbung der dünnen vertikalen Scrollbar*/
       style = ' \
       @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
       #tabbrowser-tabs > arrowscrollbox * scrollbar[orient="vertical"], \
@@ -516,52 +468,61 @@ function zzzz_VerticalTabbar(){
 
       //pinned
       gBrowser.tabContainer._positionPinnedTabs = function() {
-        /*何もしない*/
+        /*keine Aktion*/
       };
 
-      //フルスクリーン
-      var func = FullScreen.mouseoverToggle.toString();
-      func = func.replace(
-      '{',
-      ' \
-        $& \
-        if (!aShow) { \
-          verticalTabToolBox.setAttribute("moz-collapsed", "true"); \
-          vtbSplitter.setAttribute("moz-collapsed", "true"); \
-          document.getElementById("TabsToolbar").setAttribute("moz-collapsed", "true"); \
-        } else { \
+      //Vollbild
+      if("ouseoverToggle" in FullScreen) {
+        var func = FullScreen.mouseoverToggle.toString();
+        func = func.replace(
+        '{',
+        ' \
+          $& \
+          if (!aShow) { \
+            verticalTabToolBox.setAttribute("moz-collapsed", "true"); \
+            vtbSplitter.setAttribute("moz-collapsed", "true"); \
+            document.getElementById("TabsToolbar").setAttribute("moz-collapsed", "true"); \
+          } else { \
+            verticalTabToolBox.removeAttribute("moz-collapsed"); \
+            vtbSplitter.removeAttribute("moz-collapsed"); \
+            document.getElementById("TabsToolbar").removeAttribute("moz-collapsed"); \
+          } \
+          '
+        );
+        eval("FullScreen.mouseoverToggle = " + func);
+     } else {
+        func = FullScreen.showNavToolbox.toString();
+        func = func.replace(
+        '{',
+        ' \
+          $& \
           verticalTabToolBox.removeAttribute("moz-collapsed"); \
           vtbSplitter.removeAttribute("moz-collapsed"); \
           document.getElementById("TabsToolbar").removeAttribute("moz-collapsed"); \
-        } \
-        '
-      );
-      eval("FullScreen.mouseoverToggle = " + func);
-
+          '
+        );
+        eval("FullScreen.showNavToolbox = " + func);
+        func = FullScreen.hideNavToolbox.toString();
+        func = func.replace(
+        '{',
+        ' \
+          $& \
+          verticalTabToolBox.setAttribute("moz-collapsed", "true"); \
+          vtbSplitter.setAttribute("moz-collapsed", "true"); \
+          document.getElementById("TabsToolbar").setAttribute("moz-collapsed", "true"); \
+          '
+        );
+        eval("FullScreen.hideNavToolbox = " + func);
+    }
+ 
       //sidebar
       document.getElementById("sidebar-splitter").setAttribute("resizeafter", "flex");
 
-      //D&Dの調整
-      func = gBrowser.tabContainer._setEffectAllowedForDataTransfer.toString();
-      func = func.replace(
-        /\(sourceNode\.boxObject\.screenX \+[\r]*[\s]*sourceNode\.boxObject\.width\)/,
-        'sourceNode.boxObject.screenX + sourceNode.boxObject.width'
-      );
-      func = func.replace(
-        'event.screenX <= sourceNode.boxObject.screenX + sourceNode.boxObject.width',
-        ' \
-        $& && \
-        event.screenY >= sourceNode.boxObject.screenY && \
-        event.screenY <= sourceNode.boxObject.screenY + sourceNode.boxObject.height \
-        '
-      );
-      eval("gBrowser.tabContainer._setEffectAllowedForDataTransfer = " + func);
-
-
+      //Drag&Drop Anpassung
       gBrowser.tabContainer._onDragOver = function(event) {
         event.stopPropagation();
 
-        var effects = this._setEffectAllowedForDataTransfer(event);
+        var effects = this._getDropEffectForTabDrag(event);
 
         var ind = this._tabDropIndicator;
         if (effects == "" || effects == "none") {
@@ -712,7 +673,7 @@ function zzzz_VerticalTabbar(){
     };
 
     if (!("bug489729_onDragOverTimer" in gBrowser.tabContainer)) {
-      //ここからはタブのデタッチ
+      //Freistehende Tabs
       gBrowser.tabContainer._onDragEnd = function(event) {
         // Note: while this case is correctly handled here, this event
         // isn't dispatched when the tab is moved within the tabstrip,
@@ -764,7 +725,7 @@ function zzzz_VerticalTabbar(){
       gBrowser.tabContainer.addEventListener("dragend", gBrowser.tabContainer._onDragEnd, true);
     }
 
-    //ここからは, ツールバーの表示非表示によるタブーバーの位置, 大きさの調整
+    //Symbolleistenposition, Größenanpassung, sowie anzeigen und verbergen der Scrollbar
     verticalTabToolBox.style.width = TABBARWIDTH + TABBARLEFTMERGINE + "px";
     window.addEventListener('resize', VerticalTabbarOnresized, false);
     window.addEventListener('sizemodechange', windowSizemodechange, false);
@@ -785,7 +746,7 @@ function zzzz_VerticalTabbar(){
       function resized() {
         tabbrowsertabs.setAttribute('overflow', true);
 
-        //幅調整
+        //Veränderbare Breite
         if (vtbSplitter.getAttribute('state') == 'collapsed' || !verticalTabToolBox.boxObject.width)
           var w = 0;
         else {
@@ -794,7 +755,7 @@ function zzzz_VerticalTabbar(){
         }
         tabsToolbar.style.width =  w + "px";
 
-        //高さ調整
+        //Veränderbare Höhe
         var toolbuttonH = 0;
         if (!TOOLBARBUTTON_AS_TAB) {
           var newtabbutton = document.getElementById("new-tab-button");
@@ -814,7 +775,7 @@ function zzzz_VerticalTabbar(){
           }
         }
 
-        //位置調整
+        //Positionsanpassung
         var verticalToolBar_width = 0;
         var verticalToolBar = document.getElementById("vertical-toolbox");
         if (verticalToolBar && verticalToolBar.getAttribute("placement") == "left")
@@ -833,7 +794,7 @@ function zzzz_VerticalTabbar(){
         indicatorbox.style.bottom = browserbottombox.boxObject.height + "px";
         gBrowser.tabContainer.adjustTabstrip();
 
-        //選択タブが見えるように
+        //Ansicht des Tabs wählen
         ensureVisibleElement(gBrowser.selectedTab);
       }
     }
@@ -846,7 +807,7 @@ function zzzz_VerticalTabbar(){
     //window['piro.sakura.ne.jp'].stopRendering.start();
 
 
-    //ここからは, 現在のタブがいつも見えるようにスクロールさせる
+    //Ab hier,ist der aktuelle Tab beim Scrollen immer Sichtbar
     gBrowser.tabContainer.addEventListener('TabSelect', ensureVisible, false);
 
     function ensureVisible(event){
@@ -877,7 +838,7 @@ function zzzz_VerticalTabbar(){
     });
 
 
-    //デバッグ用
+    //Zum Debuggen
     function debug(aMsg){
           Cc["@mozilla.org/consoleservice;1"]
             .getService(Ci.nsIConsoleService)

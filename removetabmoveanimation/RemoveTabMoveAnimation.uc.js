@@ -1,21 +1,13 @@
 // ==UserScript==
-// @name           zzzz-removeTabMoveAnimation.uc.js
+// @name           zzzz-removeTabMoveAnimationFx44.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    remove tab move animation
+// @description    Tab Verschiebenanimation entfernen
 // @include        main
-// @compatibility  Firefox29+
+// @compatibility  Firefox44
 // @author         Alice0775
 // @note           no tab related addon installed
-// @version        2014/05/05 10:30 Fixed for Fx29
-// @version        2014/05/05 09:00 Fx29
-// @version        2013/11/19 19:00 getShortcutOrURI
-// @version        2012/12/05 16:00 tst
+// @version        2016/02/09 00:30 Fixed for Fx44 and drop indicator for link
 // ==/UserScript==
-// @version        2014/05/05 10:30 Fx29-Fx32
-// @version        2014/05/05 09:00 Fx29
-// @version        2012/12/05 00:40 cleanup
-// @version        2012/12/04 18:40 pinned
-// @version        2012/12/04 01:00
 if (window['piro.sakura.ne.jp'] &&
     "tabsDragUtils" in window['piro.sakura.ne.jp'] &&
     "canAnimateDraggedTabs" in window['piro.sakura.ne.jp'].tabsDragUtils) {
@@ -50,7 +42,7 @@ if (window['piro.sakura.ne.jp'] &&
     } 
 
       gBrowser.tabContainer._onDragOver = function(event) {
-        var effects = this._setEffectAllowedForDataTransfer(event);
+        var effects = this._getDropEffectForTabDrag(event);
         var ind = this._tabDropIndicator;
         if (effects == "" || effects == "none") {
           ind.collapsed = true;
@@ -90,7 +82,7 @@ if (window['piro.sakura.ne.jp'] &&
         //this._finishAnimateTabMove();
 
         if (effects == "link") {
-          let tab = this._getDragTargetTab(event);
+          let tab = this._getDragTargetTab(event, effects == "link");
           if (tab) {
             if (!this._dragTime)
               this._dragTime = Date.now();

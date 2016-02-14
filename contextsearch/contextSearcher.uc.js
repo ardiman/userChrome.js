@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name           contextSearcher.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
-// @description    右クリック→検索の強化
+// @description    Erweiterte Kontextmenu Suche
 // @include        main
-// @compatibility  Firefox 4
-// @version        0.0.9
+// @compatibility  Firefox 44
+// @version        0.1.0
+// @note           0.1.0 e10s Kompatibilität
 // @note           0.0.9 「々」「ゞ」が拾えなかったのを修正
 // @note           0.0.8 Firefox 19 で入力欄で使えなくなったのを修正
 // @note           0.0.8 NEW_TAB の初期値を browser.search.openintab にした
@@ -20,8 +21,8 @@
 // @note           0.0.4 アイコンの無い検索エンジンがあるとエラーになるのを修正
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
-// ホイールで既定のエンジン変更、サブメニューから他の検索エンジンの利用
-// 右クリックの位置により選択文字列、カーソル下の単語を検索可能
+// Mit Scrollrad Suchmaschine wechseln, aus den verfügbaren Suchmaschinen im Ordner.
+// Suche, mit klick auf Wort unter dem Mauspfeil, oder mit markiertem Text
 
 if (window.contextSearcher) {
   window.contextSearcher.destroy();
@@ -90,15 +91,12 @@ window.contextSearcher = {
 
     this.context.addEventListener('popupshowing', this, false);
     this.menu.addEventListener('DOMMouseScroll', this, false);
-    gBrowser.mPanelContainer.addEventListener(this.isMac ? 'mousedown' : 'click', this, false);
     window.addEventListener('unload', this, false);
   },
 
   uninit: function() {
     this.context.removeEventListener('popupshowing', this, false);
     this.menu.removeEventListener('DOMMouseScroll', this, false);
-    gBrowser.mPanelContainer.removeEventListener('click', this, false);
-    gBrowser.mPanelContainer.removeEventListener('mousedown', this, false);
     window.removeEventListener('unload', this, false);
   },
 
@@ -152,22 +150,6 @@ window.contextSearcher = {
       postData: submission.postData,
       relatedToCurrent: true
     });
-  },
-
-  click: function(event) {
-    if (event.button === 2) {
-      this._clickNode = event.rangeParent;
-      this._clickOffset = event.rangeOffset;
-      this._clientX = event.clientX;
-    } else {
-      this._clickNode = null;
-      this._clickOffset = 0;
-      this._clientX = 0;
-    }
-  },
-
-  mousedown: function(event) {
-    this.click(event);
   },
 
   setMenuitem: function() {
@@ -252,13 +234,14 @@ window.contextSearcher = {
   
   getTextInputSelection: function () {
     var elem = document.commandDispatcher.focusedElement;
+    if (!elem) return '';
     var str = elem.value.slice(elem.selectionStart, elem.selectionEnd);
     return str.replace(/^\s*|\s*$/g, '').replace(/\s+/g, ' ');
   },
 
   getCursorPositionText: function() {
-    var node = this._clickNode;
-    var offset = this._clickOffset;
+    var node = gContextMenuContentData.event.rangeParent;
+    var offset = gContextMenuContentData.event.rangeOffset;
     if (!node || node.nodeType !== Node.TEXT_NODE)
       return "";
 
@@ -269,7 +252,7 @@ window.contextSearcher = {
     range.setStart(node, offset);
     var rect = range.getBoundingClientRect();
     range.detach();
-    if (rect.left >= this._clientX)
+    if (rect.left >= gContextMenuContentData.event.clientX)
       offset--;
 
     if (!text[offset]) return "";
@@ -277,7 +260,7 @@ window.contextSearcher = {
     if (!type) return "";
 
     var mae = text.substr(0, offset);
-    var ato = text.substr(offset); // text[offset] はこっちに含まれる
+    var ato = text.substr(offset); // text[offset] Inhalt
     var ato_word = (this.startReg[type].exec(ato) || [""])[0];
     var str = this.endReg[type].test(mae) ? RegExp.lastMatch + ato_word : ato_word;
 
@@ -294,8 +277,8 @@ window.contextSearcher = {
   },
   
   log: function() {
-    Application.console.log("[contextSearcher] " + Array.slice(arguments));
+    console.log("[contextSearcher] " + Array.slice(arguments));
   }
 }
 
-if (location == "chrome://browser/content/browser.xul") window.contextSearcher.init();
+window.contextSearcher.init();

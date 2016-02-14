@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 33. - 43
+// @compatibility  Firefox 33. - 44
 // @include        main
-// @version        1.0.20160121
+// @version        1.0.20160211
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -10,7 +10,7 @@ var wetterfuchs = {
     MO_Doppelklick: {url:"http://www.msn.com/de-de/wetter/heute/de/Berlin,BE,Deutschland/we-city-52.520,13.380",width:700,height:640},
     MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:442},
     MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
-    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:478,height:665},
+    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:625,height:865},
     DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp",width:478,height:630},
     DED_Pollenbelastung: {url:"http://www.wetterkontor.de/de/bio/pollenflug-erle.asp",width:478,height:590},
     DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv-index.asp",width:478,height:590},
