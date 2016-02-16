@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name                Extension Options Menu.uc.js
-// @description         Symbolleistenschaltfläche zur Add-onsverwaltung
+// @description         Symbolleistenschaltfläche zur Add-ons-Verwaltung
 // @include             main
 // @version             3.0.0  Sortiermöglichkeit für Erweiterungen und Add-ons wurde eingefügt
 // @downloadURL         https://github.com/ardiman/userChrome.js/tree/master/extensionoptionsmenu
@@ -9,33 +9,33 @@
 /*
 Schaltflächensymbol:
 Linksklick: Erweiterungsliste anzeigen
-Mittelklick: Firefox neustarten und sofern installiert DOM & Element Inspector Erweiterung aktivieren / deaktvieren
+Mittelklick: Firefox neustarten und, sofern installiert, Erweiterung DOM Inspector aktivieren/deaktivieren
 Rechtsklick: Add-ons-Manager öffnen
 
 Erweiterungen:
-Linksklick: Erweiterungen aktivieren / deaktivieren
+Linksklick: Erweiterungen aktivieren/deaktivieren
 Mittelklick: Internetseite der Erweiterung öffnen
-Rechtsklick: Erweiterungseinstellungen wenn vorhanden öffnen
+Rechtsklick: Erweiterungseinstellungen öffnen, wenn vorhanden
 Strg + Linksklick: Erweiterungsordner öffnen
-Strg + Mittelklick: Erweiterungs ID und Symboladresse, wenn vorhanden, in Zwischenablage kopieren
+Strg + Mittelklick: Erweiterungs-ID und Symboladresse, wenn vorhanden, in Zwischenablage kopieren
 Strg + Rechtsklick: Erweiterung entfernen
 */
 (function() {
 	EOM = {
 		BUTTON_TYPE:		0, // 0 = Schaltfläche 2 = Menü
-		ADDON_TYPES:		['extension', 'plugin'], // Reihenfolge der Typen (Erweiterungen, Plugins usw. )
+		ADDON_TYPES:		['extension', 'plugin'], // Reihenfolge der Typen (weitere mögliche Parameter: 'dictionary','theme')
 		SHOW_VERSION:		true, // Versionsinfo anzeigen (true = Versionsinfo anzeigen false = nicht anzeigen)
 		SHOW_ALL:			true, // Alles anzeigen, auch bei Erweiterungen ohne Einstellungen
-		SHOW_USERDISABLED:	true, // Vom Benutzer deaktiviete Erweiterungen anzeigen (deaktivierte Add-ons anzeigen)
-		SHOW_APPDISABLED:	false, // Deaktivierte - bzw. inkompatible Erweiterungen anzeigen (nicht kompatible Add-ons anzeigen)
-		AUTO_RESTART:		false, // Firefox, nach Installation- bzw. deinstallation automatisch neu starten
+		SHOW_USERDISABLED:	true, // Vom Benutzer deaktivierte Erweiterungen anzeigen (deaktivierte Add-ons anzeigen)
+		SHOW_APPDISABLED:	false, // Deaktivierte bzw. inkompatible Erweiterungen anzeigen (nicht kompatible Add-ons anzeigen)
+		AUTO_RESTART:		false, // Firefox, nach Installation bzw. Deinstallation automatisch neu starten
 		ICON_URL:			'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCB2My41LjbQg61aAAACkUlEQVQ4T43T60tTYRwH8HMQ9QQJRSBJ50xU8BL1QpJMsbxNc162edxcYlAoZdkFh6gZurF5WV6nc7M/oBdBb7q9DSPEVBDbZtN0c5tzNymolwXht2eDhVO0Dnx4Hn6/5/me8xx4KOqQR2rcYfjpIC81BpXiqWBnxUSgpWQ0kHrY+gN1xdOdu/XTQfDGIMSGAET6AMpG/TbhiD/uv0LqTYF7cmPgN2/wQzzhh2jMB+Gwz1I65I3/Z8A1o5eRTXqP85M+pVTv260Z86JieNtcMridXNjnZvI1Lia31xV7IIgf99AKg/e1wrAN+YQHtXoPJKNbqBrewlWdG6UDLlzRupCv3sTFns3vFx47SqJCFHoPoyAb5eNb4MlGyYgb1UNuiHQulPW7UKRx4rJqE5d6HMjpdiC7066mRFpHvFTnbCHuSJ84E+rIJumQExKdEzVE5YAT5RoHCnvsyO3aQHb7Os63rSHrwRoy76+qqErNBi/ut4PYrdFsKCWDDoj77CjvXUdu+yqyWleQcsuK5GYrBE0WcE0Wm6DZmsk1W7VEI1XRu6YUqb6gUh22W9BhQ8ZtCwQ3PoEjQuM+psi5SSBNCR/Zusq7bSju+IyMpmWwjUvgrh+hcWks6scVKs0tBQ/NSG5YBKtYNHOKRRxt4WUogKufTwmh8lqXU9MaFlY42UcLJ5tnOfk8yPwov0j/LfGNUIe/huXnYrm6uTiOn2UI7GEjcxMxTrwifu7rq6KOw0o+MAT2SI8sYGtnaVJ/s68fFUCfONd2jK2e+cFWv0dY1bu+mPiTocsTmyR8kU56X//2wmtmuiMvoMkkdEkEp3K0N08XPZsKScwzdNB0zFlSz0pIaxBG6mQ0JBU/1yXmm878AbFQoHrb98HyAAAAAElFTkSuQmCC',
 
 		sort: {
 			enabled: 0,
 			clickToPlay: 0,
 			disabled: 1
-			// 0, 0, 0 - In Alphabetischer Reihenfolge sortieren
+			// 0, 0, 0 - In alphabetischer Reihenfolge sortieren
 			// 0, 0, 1 - Selbe Reihenfolge wie im Add-on-Manager
 			// 0, 1, 2 - Reihenfolge: Aktivierte Add-ons, click-to-play und deaktivierte Add-ons
 		},
@@ -74,7 +74,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 				}), $('menu_preferences'));
 			};
 
-			btn.setAttribute('tooltiptext', 'Linksklick: Erweiterungsliste anzeigen\nMittelklick: DOM & Element Inspector Erweiterung aktivieren / deaktvieren\n(und Firefox neustarten)\nRechtsklick: Add-ons-Manager öffnen');
+			btn.setAttribute('tooltiptext', 'Linksklick: Erweiterungsliste anzeigen\nMittelklick: Erweiterung DOM Inspector aktivieren/ deaktivieren\n(und Firefox neustarten)\nRechtsklick: Add-ons-Manager öffnen');
 			btn.setAttribute('onclick', 'EOM.iconClick(event);');
 
 			var mp = btn.appendChild($C('menupopup', {
@@ -138,12 +138,12 @@ Strg + Rechtsklick: Erweiterung entfernen
 					updateDate = ("0"+date.getDate()).substr(-2)+"."+("0"+(date.getMonth()+1)).substr(-2)+"."+date.getFullYear();
 					mi = $C('menuitem', {
 						label: _this.SHOW_VERSION ? addon.name += ' ' + '[' + addon.version + ']' : addon.name,
-						tooltiptext: 'Linksklick: Erweiterungen aktivieren / deaktivieren' + ' (Größe: ' + Math.floor(addon.size / 1024) + 'KB)' + '\nMittelklick: Erweiterungs-Internetseite: ' + addon.homepageURL + ' öffnen.' + '\nRechtsklick: Erweiterungseinstellungen öffnen: ' + addon.optionsURL + '\nStrg + Linksklick: Erweiterungsordner öffnen\nStrg + Mittelklick: Erweiterungs ID:  ' + addon.id + ' \nund　Symboladresse: ' + addon.iconURL + ' kopieren.\nStrg + Rechtsklick: Erweiterung löschen' + '\n\nAktualisierungsdatum： ' + updateDate + '\nBeschreibung: ' + addon.description,
+						tooltiptext: 'Linksklick: Erweiterungen aktivieren/deaktivieren' + ' (Größe: ' + Math.floor(addon.size / 1024) + 'KB)' + '\nMittelklick: Erweiterungs-Internetseite: ' + addon.homepageURL + ' öffnen.' + '\nRechtsklick: Erweiterungseinstellungen öffnen: ' + addon.optionsURL + '\nStrg + Linksklick: Erweiterungsordner öffnen\nStrg + Mittelklick: Erweiterungs-ID:  ' + addon.id + ' \nund　Symboladresse: ' + addon.iconURL + ' kopieren.\nStrg + Rechtsklick: Erweiterung löschen' + '\n\nAktualisierungsdatum： ' + updateDate + '\nBeschreibung: ' + addon.description,
 						class: 'menuitem-iconic',
 						image: menuIcon
 					});
 					if (addon.type == 'plugin') {
-						mi.setAttribute("tooltiptext", 'Linksklick: Plugins aktivieren / deaktivieren' + ' (Größe: ' + Math.floor(addon.size / 1024) + 'KB)' + '\nStrg + Mittelklick:  Plugin ID: ' + addon.id + '\nund Symboladresse:  ' + addon.iconURL + ' kopieren. \n\nAktualisierungsdatum: ' + updateDate + '\nBeschreibung: ' + addon.description)
+						mi.setAttribute("tooltiptext", 'Linksklick: Plugins aktivieren/deaktivieren' + ' (Größe: ' + Math.floor(addon.size / 1024) + 'KB)' + '\nStrg + Mittelklick: Plugin-ID: ' + addon.id + '\nund Symboladresse: ' + addon.iconURL + ' kopieren. \n\nAktualisierungsdatum: ' + updateDate + '\nBeschreibung: ' + addon.description)
 					}
 					mi.addon = addon;
 					mi.addEventListener('click', function(e) {
@@ -207,7 +207,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 					addon.userDisabled = addon.userDisabled ? false : true;
 				});
 			}
-			Application.restart();
+			BrowserUtils.restartApplication();
 		},
 
 		CopyList: function(event) {
@@ -229,7 +229,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 				alt = e.altKey;
 			switch (e.button) {
 			case 0:
-				// 啟用/禁用擴展 (有効/無効を切り替え)
+				// Erweiterungen deaktivieren/aktivieren (zwischen Aktivieren/Deaktivieren wechseln)
 				if (!ctrl && !shift && !alt) {
 					let curDis = addon.userDisabled;
 					let newDis;
@@ -246,7 +246,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 					addon.userDisabled = newDis;
 					this.setDisabled(mi, newDis);
 				}
-				// 打開擴展的安裝文件夾 (拡張のフォルダを開く)
+				// Erweiterungs-Installationsordner öffnen
 				else if (ctrl && !shift && !alt) {
 					var dir = Services.dirsvc.get('ProfD', Ci.nsIFile);
 					var nsLocalFile = Components.Constructor('@mozilla.org/file/local;1', 'nsILocalFile', 'initWithPath');
@@ -270,18 +270,18 @@ Strg + Rechtsklick: Erweiterung entfernen
 				}
 				break;
 			case 1:
-				// 打開擴展首頁 (拡張のウェブページを開く)
+				// Erweiterungswebseite öffnen
 				if ((!ctrl && !shift && !alt) && addon.homepageURL) {
-					openLinkIn(addon.homepageURL, 'tabshifted', {}); // 'tab' で背面に開く
+					openLinkIn(addon.homepageURL, 'tabshifted', {}); // 'tab' in neuem Tab öffnen
 				}
-				// 複製擴展 ID 和圖標地址 (いろいろコピー)
+				// Erweiterungs-ID und Symboladresse (in Zwischenablage) kopieren
 				else if (ctrl && !shift && !alt) {
 					clipboard = Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper);
 					clipboard.copyString("id: " + addon.id + "\r\n" + "iconURL: " + addon.iconURL);
 				}
 				break;
 			case 2:
-				// 打開擴展選項 (拡張の設定画面を開く)
+				// Erweiterungseinstellungen öffnen
 				if ((!ctrl && !shift && !alt) && addon.optionsURL) {
 					if (addon.optionsType == 2) {
 						BrowserOpenAddonsMgr('addons://detail/' + encodeURIComponent(addon.id) + ('/preferences'));
@@ -289,7 +289,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 						openDialog(addon.optionsURL, addon.name, 'chrome,titlebar,toolbar,resizable,scrollbars,centerscreen,dialog=no,modal=no');
 					}
 				}
-				// 移除擴展 (アンインストール)
+				// Erweiterung entfernen - Löschen (Deinstallieren)
 				else if (ctrl && !shift && !alt) {
 					(addon.pendingOperations & AddonManager.PENDING_UNINSTALL) ? addon.cancelUninstall() : addon.uninstall();
 					this.setUninstalled(mi, addon.pendingOperations & AddonManager.PENDING_UNINSTALL);
@@ -317,9 +317,9 @@ Strg + Rechtsklick: Erweiterung entfernen
 	var mMenus = [
 		{
 			alabel: 'Firefox neustarten',
-			label: 'ScriptCache löschen',
+			label: 'Script-Cache löschen',
 			image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACgElEQVQ4jY2RfUzMARjHv7tODnmJOxGm3LnKe3fnoh+W184ypjmZpZrQFLOSstns5g/cIXq9fuqQUd4tx0jFcLVRrSxNNE2bsUYY5Sr09Y9u2Nz6/vk83+ez5/s8gBvFAbKCUKw7Hz6o3KrDDHfev5Qmx/BCAVvKklR1b8rSWHMovM+ignJAw6IeEZU7FC3tNxeSjWvJF8l8Z0/tu5eyqKloiWd6MjDELcCqg/5hqk8bm8LIulCyQiCrjGRVCjuupbN04+Tygyoo3EIypkNVluDd0OsIJe+F8KV5IjtFFXkhnM7iRF5eM+aaEfBwDeTpEGDVQcgLwTyTAl4AIGqhrNg+uvlzaTBti3D0nEGa2W6ZRNoW87VpAfPnwuAC2I1eLa3FMT8cphVOUQtNfz1XA1XJqkH3bQJWAkBJhMcZ54mp/Hl4Fq8aPM+5AFUxsi42JLFR3PwtQ40J/ySShAHS31sFPt873smjKjqihr5yOSo3DH7NO2vZkm/8njUb+v/dJg6Q1e6Sv2FOIOs3jfzqalxYjlM/CrXsvrWVxSs9TwFAjh7q0wKsohbyft8RJcZWJ4zp+nTAj4/WD/v45+vCWtN9SHsk2zINLJiPvVYdNjRbo2mP9X9i8cM4ADAp4FUoINYmIP6kgNV/5bwaIS3tOaEmr0Tybe5qPtg553N3dRa/1Yi8ETvNYQ6A7/+iAQDMAfC9bZQ97jT7k0ULyevR5KUo8qzAnrt7WJ6oeSpqMdMtRNRCXrJMkl27bWTHh/3jfzJDSWb4s/eYmg37QliwALvdAvplCcJUR8yI953mKayP9/5ycRls2cHQAZAMCGDyw6grBumz4qUS83ENgtx5fwEzyhRmLMK7zwAAAABJRU5ErkJggg==",
-			oncommand: "Services.appinfo.invalidateCachesOnRestart() || Application.restart();",
+			oncommand: "Services.appinfo.invalidateCachesOnRestart() || BrowserUtils.restartApplication();",
 			style: "min-width: 358px;"
 		},
 		{
@@ -328,7 +328,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 			oncommand: "FileUtils.getFile('ProfD', ['extensions']).reveal();"
 		},
 		{
-			label: "Add-onsliste in die Zwischenablage kopieren",
+			label: "Add-ons-Liste in die Zwischenablage kopieren",
 			image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABlSURBVDhP5Y5BCsAgEAP3i/1AP+D/zxUlwWBXXQueOhAQzQStcN3p2UmVFK80C7QGH1aEBniOBPqhgRnsQB8P8KzRe+i/+YHCO+htQNPjdaB/G4D6hoWekFzQohfUxngSg4pglgGUsQ0ZR4jGSwAAAABJRU5ErkJggg==",
 			oncommand: "EOM.CopyList(event);"
 		}

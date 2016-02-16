@@ -2,13 +2,13 @@
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*, 13.*, 14.*, 15.*, 16.*, 17.*
 // @include        main
-// @version        1.0.20121213
+// @version        1.0.20160216
 // ==/UserScript==
 
 var uProfMenu = {
   // Beginn der Konfiguration
   // In der folgenden Zeile (11) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
-  TextOpenExe : 'C:\\Programme\\Sonstige\\Notepad++\\notepad++.exe',
+  TextOpenExe : 'C:\\Program Files (x86)\\Notepad++\\notepad++.exe',
   // Falls gewuenscht, in Zeile 15 einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
   // vFileManager: 'C:\\Program Files (x86)\\FreeCommander\\FreeCommander.exe'
@@ -16,7 +16,7 @@ var uProfMenu = {
   // In der folgenden Zeile (19) 'menu' eintragen, damit es unter "Extras" als Menue erscheint, sonst die id des gewuenschten
   // Elements *nach* dem der Button erscheinen soll (z.B. 'urlbar', 'searchbar', 'undoclosetab-button','abp-toolbarbutton')
   // Bitte nicht so etwas wie die Menue- oder Navigationsleiste (sondern einen Menuepunkt oder einen Button mit id auf diesen Leisten) eintragen:
-  warpmenuto: 'urlbar',
+  warpmenuto: 'menubar-items',
  // Unter Linux sollte/kann versucht werden, die userChromeJS-Skripte zu sortieren, unter Windows ist das evtl. nicht noetig (die Sortierung wird Gross- und Kleinschreibung *nicht* beruecksichtigen - dazu wird die sort()-Funktion entsprechend mit einer Vergleichsfunktion aufgerufen)
   sortScripts: 0,   // 1 zum Erzwingen der Sortierung
   // Einbindung GM-Skripte-Ordner (0: nein, 1: Greasemonkey [Profil-Verzeichnis], 2: UserScriptLoader [Chrome-Verzeichnis], 3: Scriptish [Profil-Verzeichnis]):
@@ -137,7 +137,8 @@ var uProfMenu = {
     if (this.showNormalPrefs) menupopup.appendChild(this.createME("menuitem","Einstellungen","try{openOptionsDialog();}catch(e){openPreferences();}","uProfMenu_prefs"),0);
     // Falls addRestartButton installiert ist, Neustart zur Verfuegung stellen (addRestartButton 1.0.20120105mod erforderlich)
     if(typeof(ToolRstartMod) != "undefined" || this.enableRestart) menupopup.appendChild(this.createME("menuitem","Neustart",
-      "try{ToolRstartMod.SaveRestart(event,1);} catch(e){alert(e);}","uProfMenu_restart"),0);
+    "try{ToolRstartMod.restartApp(false);} catch(e){alert(e);}","uProfMenu_restart"),0);
+
   },
 
 
