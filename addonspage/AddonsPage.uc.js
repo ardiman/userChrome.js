@@ -361,7 +361,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             dir.append("extensions");
             dir.append(aAddon.id);
             var fileOrDir = dir.path + (dir.exists() ? "" : ".xpi");
-            //Application.console.log(fileOrDir);
+            //Services.console.logStringMessage(fileOrDir);
             try {
                 (new nsLocalFile(fileOrDir)).reveal();
             } catch (ex) {

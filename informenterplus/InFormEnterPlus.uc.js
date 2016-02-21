@@ -288,7 +288,7 @@ window.InformEnterPlus = {
 			  		let actfritem = content.document.activeElement.contentDocument ? content.document.activeElement.contentDocument : content.document.activeElement.document;
 			  		actfritem.activeElement.value = amenu.culMenu.text;
 			  	}
-			  	//Application.console.log(amenu.culMenu.text);
+			  	//Services.console.logStringMessage(amenu.culMenu.text);
 			  	e.preventDefault();
 			  	break;
 			  }

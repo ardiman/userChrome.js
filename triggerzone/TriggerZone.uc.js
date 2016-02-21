@@ -63,7 +63,7 @@
 			tooltiptext: "Neustart",
 			image: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADB0lEQVQ4jX2TX0hUeRTHv/fe373eae69c++MeUed5ro2pUO6RY6SFawoK1ZjFPUgpajVZrVIjP3BjMkRy9FozU0ogkoy20JQkowyrenfbn/sIQiWXtqeNojdh6KSMpjTQ2RZ1vf1fD/nHA7fA0yhiu3F9l8iufM2tcwNhg5llu7szghEenzaVN5JysmBuLjUDBaWmedLNjifrqjTXpc3q2M1Ha5n27uThyODKWWRGORv8QnJmWjwzuFfeLJ5+iHAU3Yx4sW/Il55gFHtcYV2n0scax5x7o/EoHxFqyY2GqncmJEqkOERyPDyTxItfse8JcLa6nZxuO6UTuEBNzVdco03XWW7AHATsOxAut3FPVKSeFJNnlSTH1fdQuXH+rYeV+6ePutZ65CfWkcsCl9mT6P3xNyJBqKCTaKCuKTxJOsc2Qzusc2AFwBCxzRnuNcX3Xc+6/mh63nU8VcGNd9kFL0t/tk6KpUBAMeL6BIURt6KGtIWFRCTcRuA+nFA3Qkz2HDG92/Htfn02x03NV4RqOIAe1jeDh8ASJwiDczcvINKLjygWS1nSQz8fAuYdCghb7nZG+pyU3hIomXbRJKTbHcBhwHH4dOGv/PkcNHIQwr0jlLa/kHStxz531bWtvqzQzFOcvan52tUsF4mOVEjMMcwgGnQrv+91H/x/g1/3924dTRG05v6SN3w+xs5WH8SBbWeD7zDEOzuUcHuJqaaJExLIiS42j7UYjEmdQ9lGZ2D/zij/aTX/0Hqus6XCSsjJRP7O6xVgjbjFdM8xNRU4pXk/8CcCyflQGzqqRW3Hn6TUHOEpPKDxIJ77rHZhfWSkdYi6tYTUbdI1C0SdCvO21PaAAiTkxRqt/GV0b1Y2fiaK20krriBhMUbScpaRnJ6Psne+SSkZI3zLt9xQHNOHeaCKhmFm6uxoPoB8qrecoEK4n5cRcgoegdv4BFMfwhwfvepOAB2qFY+3DlhpOR2ISm7C3paBEz5CYD9e/CnJmlVMrLXGJhdmojMIhfScxzweGwA+C/N7wF1/PIEbN4/SAAAAABJRU5ErkJggg==",
 			//onmouseover: "",
-			oncommand: "Services.appinfo.invalidateCachesOnRestart() || Application.restart();",
+			oncommand: "Services.appinfo.invalidateCachesOnRestart() || BrowserUtils.restartApplication();",
 			//onDOMMouseScroll: "ZoomScroll.onScroll(event);",
 		},
 		{

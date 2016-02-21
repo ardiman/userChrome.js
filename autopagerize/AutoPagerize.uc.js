@@ -220,7 +220,7 @@ var ns = window.uAutoPagerize = {
 			context: "uAutoPagerize-popup",
 		}));
 */
-		ns.icon = $('urlbar-icons').appendChild($C("image", {
+		ns.icon = $('main-menubar').appendChild($C("image", {
 			id: "uAutoPagerize-icon",
 			state: "disable",
 			tooltiptext: "disable",
@@ -1354,8 +1354,8 @@ function wildcardToRegExpStr(urlstr) {
 	return "^" + reg + "$";
 }
 
-function log(){ Application.console.log('[uAutoPagerize] ' + $A(arguments)); }
-function debug(){ if (ns.DEBUG) Application.console.log('[uAutoPagerize DEBUG] ' + $A(arguments)); };
+function log(){ Services.console.logStringMessage('[uAutoPagerize] ' + $A(arguments)); }
+function debug(){ if (ns.DEBUG) Services.console.logStringMessage('[uAutoPagerize DEBUG] ' + $A(arguments)); };
 function $(id, doc) (doc || document).getElementById(id);
 
 function $A(arr) Array.slice(arr);

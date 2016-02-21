@@ -211,13 +211,11 @@ Strg + Rechtsklick: Erweiterung entfernen
 		},
 
 		CopyList: function(event) {
-			Application.extensions ? Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper).copyString(Application.extensions.all.map(function(item, id) {
-				return id + 1 + ". " + item._item.name + " [" + item._item.version + "]" + "\nID:" + item._item.id;
-			}).join("\n")) : Application.getExtensions(function(extensions) {
-				Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper).copyString(extensions.all.map(function(item, id) {
-					return id + 1 + ". " + item._item.name + " [" + item._item.version + "]" + "\nID:" + item._item.id;
+			AddonManager.getAddonsByTypes(["extension"], function(extensions) {
+				Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper).copyString(extensions.map(function(item, id) {
+					return id + 1 + ". " + item.name + " [" + item.version + "]" + "\nID:" + item.id;
 				}).join("\n"));
-			})
+			});
 			XULBrowserWindow.statusTextField.label = "Add-onsliste in Zwischenablage kopieren";
 		},
 
@@ -301,7 +299,7 @@ Strg + Rechtsklick: Erweiterung entfernen
 		isAskToActivateAddon: function(addon) {
 			return addon.type == 'plugin'
 					&& 'STATE_ASK_TO_ACTIVATE' in AddonManager
-					&& Application.prefs.getValue('plugins.click_to_play', false);
+					&& Services.prefs.getBoolPref('plugins.click_to_play');
 		},
 
 		setDisabled: function(mi, disabled) {

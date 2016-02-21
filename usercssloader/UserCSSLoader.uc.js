@@ -607,7 +607,7 @@ function $C(name, attr) {
 	return el;
 }
 
-function log() { Application.console.log(Array.slice(arguments)); }
+function log() { Services.console.logStringMessage(Array.slice(arguments)); }
 
 })();
 

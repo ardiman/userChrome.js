@@ -648,8 +648,8 @@
                 //===========================
                 case 'Close Window': BrowserTryToCloseWindow(); break;
                 case 'Undo Closed Window': undoCloseWindow(); break;
-                case 'Restart Firefox': Application.restart(); break;
-                case 'Quit Firefox': Application.quit(); break;
+                case 'Restart Firefox': BrowserUtils.restartApplication(); break;
+                case 'Quit Firefox': goQuitApplication(); break;
 //
 //                case 'Save Session and Quit':
 //                    var prefObj = Cc['@mozilla.org/preferences-service;1']
@@ -779,7 +779,7 @@
 
                     var tabs = gBrowser.mTabs;
                     var curTabId = gBrowser.selectedTab.id;
-                    Application.console.log(curTabId);
+                    Services.console.logStringMessage(curTabId);
                     if (tabs.length < 1) break;
                     for (var i=0; i<tabs.length; ++i) {
                         var tab = tabs[i];

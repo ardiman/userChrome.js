@@ -53,7 +53,7 @@ function keyconfig(e){
 	  case 'f1': BrowserCloseTabOrWindow(); break;//Aktuellen Tab schliessen
       case "z+alt": undoCloseTab(); break;//撤销关闭标签页
       case 'm+alt' : BrowserOpenAddonsMgr(); break;//打开附加组件对话框
-	  case 'f4+shift': Application.restart(); break;//重启FF 
+	  case 'f4+shift': BrowserUtils.restartApplication(); break;//重启FF 
 	  //case "c+alt":var tab = gBrowser.mCurrentTab; gBrowser.removeTab(tab); break;//关闭当前标签 
 	  case "f5+shift": BrowserReloadSkipCache(); break;//重新载入(忽略缓存)
 	  case 'f':if(/.*[\u4e00-\u9fa5]+.*$/.test(paste))

@@ -231,7 +231,7 @@ var ns = window.saveUserChromeJS = {
           } catch(e) {
              fp.init(ns.getMostRecentWindow(), "", Ci.nsIFilePicker.modeSave);
              err = true;
-             Application.console.log('SaveUserChromeJS.uc.js - error catched (A)');
+             Services.console.logStringMessage('SaveUserChromeJS.uc.js - error catched (A)');
           };
 
 		// bei einigen Benutzern (Win7) macht die folgende Zeile bei der Dateinamenvergabe Probleme, ggf. also deaktivieren
@@ -365,7 +365,7 @@ var ns = window.saveUserChromeJS = {
 		try {
          return (!win || win == window) ? content : win;
       } catch(e) {
-         Application.console.log('SaveUserChromeJS.uc.js - error catched (B)');
+         Services.console.logStringMessage('SaveUserChromeJS.uc.js - error catched (B)');
          return (!win || win == window) ? null : win;
       };
 	},
@@ -418,7 +418,7 @@ function $C(name, attr) {
 	return el;
 }
 
-function log(arg) Application.console.log("[SaveUserChromeJS]" + arg);
+function log(arg) Services.console.logStringMessage("[SaveUserChromeJS]" + arg);
 
 function checkDoc(doc) {
 	if (!(doc instanceof HTMLDocument)) return false;

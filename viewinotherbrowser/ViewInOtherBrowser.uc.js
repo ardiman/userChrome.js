@@ -99,7 +99,7 @@ var LaunchBrowser = {
 LaunchBrowser.init();
 
 function log() {
-	Application.console.log('[VIOB] ' + Array.slice(arguments));
+	Services.console.logStringMessage('[VIOB] ' + Array.slice(arguments));
 }
 
 function $(id) document.getElementById(id);

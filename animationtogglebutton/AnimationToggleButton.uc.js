@@ -1,5 +1,5 @@
-// AnimationToggleButton.uc.js
-// v. 0.4
+//   AnimationToggleButton.uc.js
+//   v. 0.4.1
 
 (function() {
 
@@ -33,17 +33,26 @@
 
             function onClick() {
 
-               var button = document.getElementById('animation-button');
                function setPref(value) {
                   Services.prefs.setCharPref('image.animation_mode', value);
                };
                function getPref() {
                   return Services.prefs.getCharPref('image.animation_mode');
                };
-               function setIsOnce(value) {
-                  for (var win of Application.windows)
-                     win._window.document.getElementById('animation-button').IsOnce = value;
+               function BrowserWindows() {
+                  var windows = [];
+                  var enumerator = Services.wm.getEnumerator('navigator:browser');
+                  while (enumerator.hasMoreElements()) {
+                     windows.push(enumerator.getNext());
+                  };
+                  return windows;
                };
+               function setIsOnce(value) {
+                  for (var win of BrowserWindows()) {
+                     win.document.getElementById('animation-button').IsOnce = value;
+                  };
+               };
+               var button = document.getElementById('animation-button');
 
                switch (event.button) {
 
@@ -73,8 +82,9 @@
                      break;
                };
 
-               for (var win of Application.windows)
-                  win._window.document.getElementById('animation-button').setAttribute('anim', getPref());
+               for (var win of BrowserWindows()) {
+                  win.document.getElementById('animation-button').setAttribute('anim', getPref());
+               };
             };
 
             button.setAttribute('onclick', '(' + onClick.toString() + ')();');

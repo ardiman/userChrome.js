@@ -9,7 +9,7 @@
 // @note			中クリックの代わりにshift+クリックでも可
 // ==/UserScript==
 (function() {
-function LOG(text) { Application.console.log("[MCPasteAndGo] " + text); }
+function LOG(text) { Services.console.logStringMessage("[MCPasteAndGo] " + text); }
 
 
 var PasteOnlyHtmlID = {
