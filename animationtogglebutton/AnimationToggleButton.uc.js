@@ -1,5 +1,5 @@
 //   AnimationToggleButton.uc.js
-//   v. 0.4.1
+//   v. 0.4.2
 
 (function() {
 
@@ -33,26 +33,19 @@
 
             function onClick() {
 
+               var button = document.getElementById('animation-button');
                function setPref(value) {
                   Services.prefs.setCharPref('image.animation_mode', value);
                };
                function getPref() {
                   return Services.prefs.getCharPref('image.animation_mode');
                };
-               function BrowserWindows() {
-                  var windows = [];
-                  var enumerator = Services.wm.getEnumerator('navigator:browser');
-                  while (enumerator.hasMoreElements()) {
-                     windows.push(enumerator.getNext());
-                  };
-                  return windows;
-               };
                function setIsOnce(value) {
-                  for (var win of BrowserWindows()) {
-                     win.document.getElementById('animation-button').IsOnce = value;
+                  var windows = Services.wm.getEnumerator('navigator:browser');
+                  while (windows.hasMoreElements()) {
+                     windows.getNext().document.getElementById('animation-button').IsOnce = value;
                   };
                };
-               var button = document.getElementById('animation-button');
 
                switch (event.button) {
 
@@ -64,7 +57,7 @@
                         setIsOnce(false);
                      } else {
                         if (animmode == 'normal')
-                           BrowserReloadSkipCache();
+                           BrowserReloadSkipCache()
                         else
                            BrowserReload();
                      };
@@ -82,8 +75,9 @@
                      break;
                };
 
-               for (var win of BrowserWindows()) {
-                  win.document.getElementById('animation-button').setAttribute('anim', getPref());
+               var windows = Services.wm.getEnumerator('navigator:browser');
+               while (windows.hasMoreElements()) {
+                  windows.getNext().document.getElementById('animation-button').setAttribute('anim', getPref());
                };
             };
 
