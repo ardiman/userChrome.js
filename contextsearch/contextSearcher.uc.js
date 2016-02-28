@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name           contextSearcher.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
-// @description    Erweiterte Kontextmenu Suche
+// @description    Erweiterte Suchefunktion aus dem Kontextmenu 
 // @include        main
 // @compatibility  Firefox 44
-// @version        0.1.0
-// @note           0.1.0 e10s Kompatibilität
+// @version        0.1.1
+// @note           0.1.1 e10s で選択文字列の検索ができなかったのを修正
+// @note           0.1.0 e10s に対応したかも
 // @note           0.0.9 「々」「ゞ」が拾えなかったのを修正
 // @note           0.0.8 Firefox 19 で入力欄で使えなくなったのを修正
 // @note           0.0.8 NEW_TAB の初期値を browser.search.openintab にした
@@ -21,8 +22,8 @@
 // @note           0.0.4 アイコンの無い検索エンジンがあるとエラーになるのを修正
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
-// Mit Scrollrad Suchmaschine wechseln, aus den verfügbaren Suchmaschinen im Ordner.
-// Suche, mit klick auf Wort unter dem Mauspfeil, oder mit markiertem Text
+// ホイールで既定のエンジン変更、サブメニューから他の検索エンジンの利用
+// 右クリックの位置により選択文字列、カーソル下の単語を検索可能
 
 if (window.contextSearcher) {
   window.contextSearcher.destroy();
@@ -169,8 +170,8 @@ window.contextSearcher = {
     if (e.target != this.context) return;
 
     this.searchText = 
-      gContextMenu.onTextInput? this.getTextInputSelection() :
-      gContextMenu.isTextSelected? this.getBrowserSelection() :
+      gContextMenu.onTextInput? this.getTextInputSelection(gContextMenu.ownerDoc) :
+      gContextMenu.isTextSelected? this.getBrowserSelection(gContextMenu.ownerDoc) :
       gContextMenu.onImage? gContextMenu.target.getAttribute('alt') :
       //gContextMenu.onLink? gContextMenu.linkText() :
       this.getCursorPositionText();
@@ -219,9 +220,8 @@ window.contextSearcher = {
     }
   },
   
-  getBrowserSelection: function () {
-    var win = document.commandDispatcher.focusedWindow;
-    var sel = win.getSelection();
+  getBrowserSelection: function (doc) {
+    var sel = doc.defaultView.getSelection();
     var str = '';
     if (sel.isCollapsed)
       return str;
@@ -232,9 +232,9 @@ window.contextSearcher = {
     return str.replace(/^\s*|\s*$/g, '').replace(/\s+/g, ' ');
   },
   
-  getTextInputSelection: function () {
-    var elem = document.commandDispatcher.focusedElement;
-    if (!elem) return '';
+  getTextInputSelection: function (doc) {
+    var elem = document.activeElement;
+    if (!elem || !elem.value) return '';
     var str = elem.value.slice(elem.selectionStart, elem.selectionEnd);
     return str.replace(/^\s*|\s*$/g, '').replace(/\s+/g, ' ');
   },

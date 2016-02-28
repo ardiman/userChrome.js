@@ -1,295 +1,344 @@
 // ==UserScript==
 // @name           AutoPopup.uc.js
 // @description    Auto popup menulist/menupopup
-// @compatibility  Firefox 24.0+
-// @author         GOLF-AT
-// @version        3.0.6.20141202
+// @compatibility  Firefox 30.0+
+// @author         GOLF-AT, modify by gsf
+// @version        2015.1.30
+// ==UserScript==
 
 (function() {
-	var overElt = null;   var nDelay = 200;
-	var DropElt = null;   var PopElt = null;
-	var PopTimer = null;  var HideTimer = null;
+	const showDelay = 200;
+	const hideDelay = 500;
+	var overElt = null;
+	var PopElt = null;
+	var PopTimer = null;
+	var HideTimer = null;
 	var AlwaysPop = false;
+	var searchBar = null;
+	if (window.BrowserSearch)
+		searchBar = BrowserSearch.searchBar;
 
-	var BlackIDs = []; //['abp-toolbarbutton'];
+	// by gsf, 支持Fx的CSS所有语法: #表示id，. 表示class，或[id='demo']
+	// Fx support all of CSS syntax: # indicates id, . represents class, or [id='demo']
+	var BlackIDs = [];
 
-	var popupPos = ['after_start', 'end_before',
-		'before_start', 'start_before'];
+	// by gsf, 白名单，及触发动作
+	// whitelist, and trigger action
+	var whiteIDs = [{
+		id: 'omnibar-defaultEngine',
+		popMemu: 'omnibar-engine-menu',
+		run: function(overElem) {
+			document.getElementById('omnibar-in-urlbar').click(0);
+		}
+	},
+	{
+		id: 'ucjs_zoom_statuslabel',
+		popMemu: 'ucjs_zoom-context',
+		run: null
+	},
+	{
+		id: 'UserScriptLoader-icon',
+		popMemu: 'UserScriptLoader-popup',
+		run: null
+	},		
+	{
+		id: 'readLater',
+		popMemu: 'readLater-popup',
+		run: null
+		//function(overElem) {PopElt.popup();}
+	},
+	{
+		id: 'foxyproxy-toolbar-icon',
+		popMemu: 'foxyproxy-toolbarbutton-popup',
+		run: null
+	}];
+	var whitesInx = -1;
 
-	function IsNewMenuBtn(elt) {
+	var popupPos = ['after_start', 'end_before', 'before_start', 'start_before'];
+
+	var menuPanelID = 'PanelUI-popup';
+	var downPanelID = 'downloadsPanel';
+	var widgetPanelID = 'customizationui-widget-panel';
+
+	function IsWidgetBtn(elt) {
 		try {
-			return elt.id=='PanelUI-menu-button';
-		}catch(e) {
+			return elt.hasAttribute('widget-id')
+				&& elt.getAttribute('widget-type') == 'view';
+		} catch(e) {
 			return false;
 		}
 	}
-	
-	function IsSearchDrop(elt) {
+
+	function IsSearchBtn(elt) {
 		try {
-			return elt.localName=='dropmarker'
-				&& elt.parentNode!=null && elt.
-				parentNode.getAttribute('class'
-				)=='searchbar-textbox';
-		}catch(e) { return false; }
+			return elt.getAttribute('anonid') == 'searchbar-search-button'
+				|| whitesInx === 0;
+		} catch(e) {
+			return false;
+		}
+	}
+
+	function IsNewMenuBtn(elt) {
+		try {
+			return elt.id == 'PanelUI-menu-button';
+		} catch(e) {
+			return false;
+		}
 	}
 
 	function IsDownloadBtn(elt) {
 		try {
-			return elt.localName=='toolbarbutton'
-				&& elt.id=='downloads-button';
-		}catch(e) { return false; }
-	}
-
-	function IsMenuPanelChild(node) {
-		for(node=(node?node.parentNode:null);
-			node; node=node.parentNode) {
-			try {
-				if (node.id=='PanelUI-multiView')
-					return true;
-			}catch(e) {}
+			return elt.localName == 'toolbarbutton'
+				&& elt.id == 'downloads-button';
+		} catch(e) {
+			return false;
 		}
-		return false;
 	}
 
 	function IsAutoComplete(elt) {
 		try {
-			return 'PopupAutoComplete'==elt.id.
-				substr(0,17);
-		}catch(e) { return false; }
-	}
-
-	function getPopupMenu(elt)
-	{
-		var nodes = elt!=null ? elt.ownerDocument.
-			getAnonymousNodes(elt) : null;
-		for(var n=(nodes ? nodes.length : 0); n>0;
-			n--) {
-			if (nodes[n-1].localName=='menupopup')
-				return nodes[n-1];
+			return elt.getAttribute('type').substr(0, 12) == 'autocomplete';
+		} catch(e) {
+			return false;
 		}
-		return null;
 	}
 
-	function getPopupPos(elt)
-	{
+	function getPopupMenu(elt) {
+		if (whitesInx > -1 && PopElt)
+			return PopElt;
+		var nodes = elt ? elt.ownerDocument.getAnonymousNodes(elt) : null;
+		for (let [i, k] in Iterator(nodes)) {
+			if (k.localName == 'menupopup')
+				return k;
+		}
+
+		var s = elt.getAttribute('popup');
+		return s ? document.getElementById(s) : null;
+	}
+
+	function isBlackNode(elt) {
+		return BlackIDs.some(function(css) {
+			try {
+				var nodes = document.querySelectorAll(css);
+			} catch(e) {
+				return false;
+			}
+			for (var node of nodes) {
+				if (node == elt)
+					return true;
+			}
+			return false;
+		})
+	}
+
+	function getPopupPos(elt) {
 		var x, y, pos, box;
 
-		for(pos=0,x=elt.boxObject.screenX,y=elt
-			.boxObject.screenY; elt!=null; elt=
-			elt.parentNode) {
-			if (elt.localName=='window' || elt.
-				parentNode==null)
+		for (pos = 0, x = elt.boxObject.screenX, y = elt.boxObject.screenY;
+			elt != null; elt = elt.parentNode)
+		{
+			if (elt.localName == 'window' || !elt.parentNode)
 				break;
-			else if(pos & 8)
-				;
-			else if('toolbar'==elt.localName ||
-				'hbox'==elt.localName || 'vbox'
-				==elt.localName) {
-				if (elt.boxObject.height >= 3*
-					elt.boxObject.width)
+			else if (elt.localName != 'toolbar' && elt.localName != 'hbox'
+				&& elt.localName != 'vbox');
+			else if (elt.boxObject.height >= 3 * elt.boxObject.width) {
+				if (elt.boxObject.height >= 45) {
 					pos = 9;
-				else if(elt.boxObject.width >=
-					3*elt.boxObject.height)
+					break;
+				}
+			} else if (elt.boxObject.width >= 3 * elt.boxObject.height) {
+				if (elt.boxObject.width >= 45) {
 					pos = 8;
-			}
-		}
-		box = elt.boxObject; //box of window
-		if (pos & 1)
-			return popupPos[x<box.width/2+box.
-				screenX?1:3];
-		else
-			return popupPos[y<box.height/2+box
-				.screenY?0:2];
-	}
-
-	function getPopupNode(node)
-	{
-		var isPop, nodeID;
-
-		for(; node!=null; node=node.parentNode) {
-			isPop = false; //Node isn't Popup node
-			try {
-				nodeID = node.id;
-			}catch(ex) { nodeID = ''; }
-			if (node.localName=='toolbarbutton' &&
-				node.parentNode.localName==node.
-				localName && !getPopupMenu(node))
-				return IsNewMenuBtn(overElt)==true
-					&& IsMenuPanelChild(node)==true
-					? overElt : null;
-			else if(IsNewMenuBtn(overElt) && nodeID
-				=='PanelUI-popup')
-				return overElt;
-			else if(IsSearchDrop(overElt) && nodeID
-				=='PopupSearchAutoComplete')
-				return overElt;
-			else if(IsDownloadBtn(overElt) && nodeID
-				=='downloadsPanel')
-				return overElt;
-			if (node.localName=='menupopup' || node.
-				localName=='popup' || node.localName
-				=='menulist' || IsAutoComplete(node)
-				|| IsMenuButton(node))
-				isPop = true;
-			else if(node.localName == 'dropmarker') {
-				if (node.getAttribute('type')=='menu'
-					) {
-					node = node.parentNode;
-					if (node.firstChild && 'menupopup'
-						==node.firstChild.localName)
-						isPop = true;
-				}
-				else if(IsSearchDrop(node) == true)
-					isPop = true;
-				else {
-					try {
-						isPop = node.parentNode.id ==
-							'urlbar';
-					}catch(ex) {}
+					break;
 				}
 			}
-			else if(node.localName == 'menu')
-				isPop = node.parentNode && 'menubar'==
-					node.parentNode.localName;
-			if (isPop) return node;
 		}
-		return null;
-	}
-
-	function AutoPopup()
-	{
-		PopTimer = null;
-		if (DropElt) {
-			var LocalName = DropElt.localName;
-			if (LocalName=='menulist' || LocalName
-				=='dropmarker' || IsDownloadBtn(
-				DropElt) || IsNewMenuBtn(DropElt))
-				PopElt = DropElt;
-			else
-				PopElt = getPopupMenu(DropElt);
-			try {
-				if (PopElt.localName=='dropmarker')
-					PopElt.showPopup();
-				else if(PopElt.localName=='menulist')
-					PopElt.open = true;
-				else if(IsNewMenuBtn(PopElt))
-					PanelUI.show();
-				else if(IsDownloadBtn(PopElt))
-					DownloadsPanel.showPanel();
-				else {
-					var popPos = getPopupPos(overElt
-						);
-					PopElt.openPopup(overElt, popPos
-						, 0, 0, false, false, null);
-				}
-			}catch(e) { PopElt = null; }
-		}
-	}
-
-	function HidePopup()
-	{
 		try {
-			if (PopElt.localName=='dropmarker')
-				PopElt.parentNode.closePopup();
-			else if(PopElt.localName=='menulist')
-				PopElt.open = false;
-			else if(IsNewMenuBtn(PopElt))
-				PanelUI.hide();
-			else if(IsDownloadBtn(PopElt))
-				DownloadsPanel.hidePanel();
-			else
-				PopElt.popupBoxObject.hidePopup();
-		}catch(e) {}
-
-		overElt = null; PopElt    = null;
-		DropElt = null; HideTimer = null;
+			box = elt.boxObject;
+			x = (pos & 1) ? (x <= box.width / 2 + box.screenX ? 1 : 3) :
+			                (y <= box.height / 2 + box.screenY ? 0 : 2);
+		} catch(e) {
+			x = 0;
+		}
+		return popupPos[x];
 	}
 
-	function MouseOver(e)
-	{
-		var n, popNode, sNodeID;
+	function getPopupNode(node) {
+		if (whitesInx > -1 && PopElt)
+			return PopElt;
+		var elt, isPop, s;
 
+		for (; node != null; node = node.parentNode) {
+			if (node == PopElt)
+				return node;
+
+			isPop = false; // Node isn't Popup node
+			s = node.localName;
+			if (s == 'menupopup' || s == 'popup' || s == 'menulist'
+			   || IsAutoComplete(node) || IsMenuButton(node))
+				isPop = true;
+			else if (s == 'dropmarker') {
+				if (node.getAttribute('type') == 'menu') {
+					elt = node.parentNode;
+					if (elt.firstChild.localName == 'menupopup')
+						isPop = true;
+				} else if (node.classList.contains('autocomplete-history-dropmarker'))
+					isPop = true;
+			} else if (s == 'menu')
+				isPop = (node.parentNode.localName == 'menubar');
+			else if (IsButton(node)) {
+				for (elt = node; (elt = elt.nextSibling) != null;) {
+					if (elt.localName == 'dropmarker' && elt.boxObject.width > 0
+					   && elt.boxObject.height > 0)
+						break;
+				}
+				if (elt) break;
+			}
+			if (isPop) break;
+		}
+		if (PopElt && node) {
+			// Whether node is child of PopElt
+			for (elt = node.parentNode; elt != null; elt = elt.parentNode) {
+				if (elt == PopElt)
+					return PopElt;
+			}
+		}
+		return isPop ? node : null;
+	}
+
+	function AutoPopup() {
+		PopTimer = null;
+		if (!overElt) return;
+
+		if (whitesInx > -1 && PopElt && whiteIDs[whitesInx].run) {
+			whiteIDs[whitesInx].run(overElt);
+			return;
+		}
+		!PopElt && (PopElt = overElt);
+
+		if (overElt.localName == 'dropmarker')
+			PopElt.showPopup();
+		else if (overElt.localName == 'menulist')
+			overElt.open = true;
+		else if (IsNewMenuBtn(overElt)) {
+			PanelUI.show();
+			PopElt = document.getElementById(menuPanelID);
+		} else if (IsWidgetBtn(overElt)) {
+			var cmdEvent = document.createEvent('xulcommandevent');
+			cmdEvent.initCommandEvent('command', true, true, window, 0, false,
+				false, false, false, null);
+			overElt.dispatchEvent(cmdEvent);
+			PopElt = document.getElementById(widgetPanelID);
+		} else if (IsDownloadBtn(overElt)) {
+			PopElt = document.getElementById(downPanelID);
+			DownloadsPanel.showPanel();
+		} else if (IsSearchBtn(overElt)) {
+			searchBar.openSuggestionsPanel();
+			//console.log('search click!');
+		} else {
+			PopElt = getPopupMenu(overElt);
+			try {
+				var Pos = getPopupPos(overElt);
+				PopElt.openPopup(overElt, Pos, 0, 0, false, false, null);
+			} catch(e) {
+				PopElt = null;
+			}
+		}
+	}
+
+	function HidePopup() {
+		try {
+			if (overElt.localName == 'dropmarker')
+				try {
+					PopElt.parentNode.closePopup();
+				} catch(e) {
+					PopElt.parentNode.parentNode.closePopup();
+				}
+			else if (overElt.localName == 'menulist')
+				PopElt.open = false;
+			else if (IsDownloadBtn(overElt))
+				DownloadsPanel.hidePanel();
+			//else if (IsNewMenuBtn(overElt) || IsWidgetBtn(overElt))
+			else if (PopElt && PopElt.hidePopup)
+				PopElt.hidePopup();
+			else if (PopElt.popupBoxObject)
+				PopElt.popupBoxObject.hidePopup();
+			else if (IsSearchBtn(overElt))
+				searchBar.textbox.closePopup();
+		} catch(e) { }
+
+		HideTimer = null;
+		overElt = PopElt = null;
+	}
+
+	function MouseOver(e) {
 		if (!AlwaysPop && !document.hasFocus())
 			return;
-		popNode = getPopupNode(e.originalTarget);
-		try {
-			sNodeID = popNode ? popNode.id : '';
-		}catch(ex) { sNodeID = ''; }
-		if (sNodeID!='' && BlackIDs.length!=0) {
-			for(n=0; n<BlackIDs.length; n++) {
-				if (BlackIDs[n] == sNodeID) {
-					popNode = null; break;
-				}
+		var popNode, n = e.originalTarget;
+
+		whitesInx = -1;
+		// gsf ：some,forEach,filter等数组遍历方法接受第二个参数，表作用域this，可不用call了
+		if (n.hasAttribute('id') && whiteIDs.some(function(k,i,me) {
+			//for (let [i, k] in Iterator(whiteIDs)) {
+			if (k.id == n.id) {
+				overElt = n;
+				whitesInx = i;
+				PopElt = document.getElementById(k.popMemu);
+				PopTimer = setTimeout(AutoPopup, showDelay);
+				return true;
 			}
+		})) return;
+
+		popNode = getPopupNode(e.originalTarget);
+		if (!popNode || (popNode && popNode.disabled) || isBlackNode(popNode)) {
+			MouseOut();
+			return;
 		}
-		if (popNode==null) { MouseOut();return; }
 
 		if (HideTimer) {
 			window.clearTimeout(HideTimer);
 			HideTimer = null;
 		}
 		try {
-			if (IsAutoComplete(popNode)) return;
-
-			for(var elt=popNode; elt!=null; elt=
-				elt.parentNode) {
-				if (elt.localName=='popup' || elt.
-					localName=='menupopup')
+			if (IsAutoComplete(popNode))
+				return;
+			for (var elt = popNode; elt != null; elt = elt.parentNode) {
+				if (elt.localName == 'menupopup' || elt.localName == 'popup')
 					return;
 			}
-		}catch(ex) {}
+		}
+		catch(e) { }
 
-		if (IsNewMenuBtn(PopElt)) {
-			if ((popNode==PopElt&&"open"==PanelUI.
-				panel.state) || IsMenuPanelChild(
-				popNode))
-				return;
-		}
-		else if(PopElt != null) {
-			if (DropElt!=null && popNode==DropElt)
-				return;
-			try { 
-				if (PopElt.localName != 'dropmarker'
-					) {
-					for(var elt=popNode; elt!=null;
-						elt=elt.parentNode) {
-						if (elt == PopElt) return;
-					}
-				}
-			}catch(ex) {}
-		}
-		if (DropElt && popNode!=DropElt) HidePopup();
-		DropElt = popNode; overElt = e.originalTarget;
-		PopTimer = setTimeout(AutoPopup, nDelay);
+		if (PopElt && popNode == PopElt && PopElt != overElt)
+			return;
+		if (overElt && popNode != overElt)
+			HidePopup();
+		overElt = popNode;
+		PopElt = null;
+		PopTimer = setTimeout(AutoPopup, showDelay);
 	}
 
-	function MouseOut(e)
-	{
-		if (e!=null && (overElt==null || overElt!=e.
-			originalTarget))
-			return;
+	function MouseOut(e) {
 		if (PopTimer) {
 			window.clearTimeout(PopTimer);
 			PopTimer = null;
 		}
 		if (!HideTimer && PopElt)
-			HideTimer = window.setTimeout(HidePopup,
-				500);
+			HideTimer = window.setTimeout(HidePopup, hideDelay);
 	}
 
 	function IsButton(elt) {
 		try {
-			return elt.localName=='toolbarbutton' ||
-				elt.localName=='button';
-		}catch(e) { return false; }
+			return elt.localName == 'button' || elt.localName == 'toolbarbutton';
+		} catch(e) {
+			return false;
+		}
 	}
 
 	function IsMenuButton(elt) {
-		if (IsNewMenuBtn(elt) || IsDownloadBtn(elt))
-			return true;
-		return IsButton(elt) && getPopupMenu(elt);
+		return IsNewMenuBtn(elt) || IsDownloadBtn(elt) || IsWidgetBtn(elt)
+			|| (IsButton(elt) && getPopupMenu(elt));
 	}
 
-	//window.addEventListener('mouseout', MouseOut, false);
-	window.addEventListener('mouseover',MouseOver, false);
+	window.addEventListener('mouseover', MouseOver, false);
 })();
