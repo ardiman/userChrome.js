@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name           contextSearcher.uc.js
 // @namespace      http://d.hatena.ne.jp/Griever/
-// @description    Erweiterte Suchefunktion aus dem Kontextmenu 
+// @description    Erweiterte Suchefunktion aus dem Kontextmenü
 // @include        main
 // @compatibility  Firefox 44
 // @version        0.1.1
-// @note           0.1.1 e10s で選択文字列の検索ができなかったのを修正
-// @note           0.1.0 e10s に対応したかも
+// @note           0.1.1 e10s Suche nach markierten Text war nicht möglich
+// @note           0.1.0 e10s Kompatibilität
 // @note           0.0.9 「々」「ゞ」が拾えなかったのを修正
 // @note           0.0.8 Firefox 19 で入力欄で使えなくなったのを修正
 // @note           0.0.8 NEW_TAB の初期値を browser.search.openintab にした
@@ -22,8 +22,8 @@
 // @note           0.0.4 アイコンの無い検索エンジンがあるとエラーになるのを修正
 // ==/UserScript==
 // http://f.hatena.ne.jp/Griever/20100918161044
-// ホイールで既定のエンジン変更、サブメニューから他の検索エンジンの利用
-// 右クリックの位置により選択文字列、カーソル下の単語を検索可能
+// Mit Scrollrad Suchmaschine wechseln, aus den verfügbaren Suchmaschinen im Ordner.
+// Suche, mit klick auf Wort unter dem Mauspfeil, oder mit markiertem Text
 
 if (window.contextSearcher) {
   window.contextSearcher.destroy();
@@ -113,7 +113,7 @@ window.contextSearcher = {
     if (this[event.type])
       this[event.type](event);
   },
-  
+
   unload: function(e){
     this.uninit();
   },
@@ -123,7 +123,7 @@ window.contextSearcher = {
       this.searchEngines = this.searchService.getVisibleEngines({});
     if (!this.searchEngines || this.searchEngines.length == 0)
       return;
-    
+
     var index = this.searchEngines.indexOf(this.searchService.currentEngine);
 //    var newEngine = e.detail > 0?
 //      this.searchEngines[index+1] || this.searchEngines[0]:
@@ -162,14 +162,14 @@ window.contextSearcher = {
     this.menu.setAttribute('tooltiptext', currentEngine.name);
     if (currentEngine.iconURI)
       this.menu.style.listStyleImage = 'url("' + currentEngine.iconURI.spec + '")';
-    else 
+    else
       this.menu.style.removeProperty('list-style-image');
   },
 
   popupshowing: function(e){
     if (e.target != this.context) return;
 
-    this.searchText = 
+    this.searchText =
       gContextMenu.onTextInput? this.getTextInputSelection(gContextMenu.ownerDoc) :
       gContextMenu.isTextSelected? this.getBrowserSelection(gContextMenu.ownerDoc) :
       gContextMenu.onImage? gContextMenu.target.getAttribute('alt') :
@@ -183,13 +183,13 @@ window.contextSearcher = {
     if (this.searchText.length > 256)
       this.searchText = this.searchText.substr(0, 256);
     this.menu.hidden = false;
-    
+
     if (!this.popup.hasChildNodes() || e.ctrlKey)
       this.createMenuitem();
-    
+
     this.setMenuitem();
   },
-  
+
   createMenuitem: function(){
     this.searchEngines = this.searchService.getVisibleEngines({});
     if (!this.searchEngines || this.searchEngines.length == 0)
@@ -203,7 +203,7 @@ window.contextSearcher = {
     this.menu.engine = this.searchService.currentEngine;
     if (this.menu.engine.iconURI)
       this.menu.style.listStyleImage = 'url("' + this.menu.engine.iconURI.spec + '")';
-    else 
+    else
       this.menu.style.removeProperty('list-style-image');
     for (var i = 0, s = this.searchEngines, l = s.length; i < l; i++) {
       var engine = s[i];
@@ -219,7 +219,7 @@ window.contextSearcher = {
       this.popup.appendChild(m);
     }
   },
-  
+
   getBrowserSelection: function (doc) {
     var sel = doc.defaultView.getSelection();
     var str = '';
@@ -231,7 +231,7 @@ window.contextSearcher = {
     }
     return str.replace(/^\s*|\s*$/g, '').replace(/\s+/g, ' ');
   },
-  
+
   getTextInputSelection: function (doc) {
     var elem = document.activeElement;
     if (!elem || !elem.value) return '';
@@ -272,10 +272,10 @@ window.contextSearcher = {
         return "";
       }
     }
-    
+
     return str;
   },
-  
+
   log: function() {
     console.log("[contextSearcher] " + Array.slice(arguments));
   }
