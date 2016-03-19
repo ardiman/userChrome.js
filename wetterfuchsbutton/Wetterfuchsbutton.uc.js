@@ -1,21 +1,21 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 33. - 44
+// @compatibility  Firefox 33. - 45
 // @include        main
-// @version        1.0.20160211
+// @version        1.0.20160318
 // ==/UserScript==
 
 var wetterfuchs = {
   urlobj: {
     MO_Doppelklick: {url:"http://www.msn.com/de-de/wetter/heute/de/Berlin,BE,Deutschland/we-city-52.520,13.380",width:700,height:640},
     MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:442},
-    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:810,height:515},
+    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:800,height:620},
     DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:625,height:865},
     DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp",width:478,height:630},
     DED_Pollenbelastung: {url:"http://www.wetterkontor.de/de/bio/pollenflug-erle.asp",width:478,height:590},
     DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv-index.asp",width:478,height:590},
-    DE_WetterAktuell: {url:"http://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/wx_deutschland.jpg",width:872,height:502},
-    DE_Vorhersage: {url:"http://www.dwd.de/DWD/wetter/wv_allg/deutschland/film/vhs_deutschland.jpg",width:872,height:502},
+    DE_WetterAktuell: {url:"http://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/wx_deutschland.jpg",width:780,height:520},
+    DE_Vorhersage: {url:"http://www.dwd.de/DWD/wetter/wv_allg/deutschland/film/vhs_deutschland.jpg",width:780,height:485},
     DE_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/deutschland_index.png",width:572,height:572},
     DE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx",width:568,height:530},
     DE_RegenradarPrognose: {url:"http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
@@ -27,7 +27,7 @@ var wetterfuchs = {
     RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/berlin.asp",width:478,height:655},
     RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BB",width:850,height:480},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"http://www.wetteronline.de/?ireq=true&pid=p_radar_map&src=radar/vermarktung/p_radar_map_forecast/forecastLoop/BRA/latestForecastLoop.gif",width:540,height:590},
+    RE_RegenradarPrognose: {url:"http://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html",width:640,height:690},
   },
   wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
   createBtn: function() {
@@ -54,7 +54,16 @@ var wetterfuchs = {
          }
       });
    } catch(e) { };
-	this.$F('wetterfuchs-toolbarbutton','\
+   
+   var css = '\
+      #wetterfuchs-toolbarbutton .toolbarbutton-icon {max-width: none !important;}\
+   ';
+	   
+   var stylesheet = document.createProcessingInstruction('xml-stylesheet', 'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(css) + '"');
+
+   document.insertBefore(stylesheet, document.documentElement);
+   
+   this.$F('wetterfuchs-toolbarbutton','\
 		<menupopup id="wetterfuchsmenu">\
 			<menu label="DE Wetterdaten">\
 				<menupopup id="wetterfuchsdatamenu">\
@@ -102,7 +111,7 @@ var wetterfuchs = {
     this.$F('mainPopupSet','\
 		<panel id="wetterfuchs-panel" noautohide="false" type="arrow" onpopuphiding="wetterfuchs.clearPanel()" onmousedown="if (event.button === 1) {wetterfuchs.openUrlFromPanel()}">\
 			<vbox>\
-				<iframe flex="1" id="wetterfuchs-iframe" src="' + this.wfthrobber + '" />\
+				<browser type="content" flex="1" id="wetterfuchs-iframe" src="' + this.wfthrobber + '" />\
 			</vbox>\
 		</panel>'
     );
