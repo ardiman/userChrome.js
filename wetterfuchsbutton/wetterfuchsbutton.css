@@ -205,7 +205,7 @@
     }
 
     @-moz-document domain(www.msn.com) {
-    .head,#conditionalbanner,.maps,.pagingsection,#foot,.historical,NOSCRIPT,.addfavorite,.gps,.actions,#precontent,
+    .head,#conditionalbanner,.maps,.pagingsection,#foot,.historical,NOSCRIPT,.addfavorite,.gps,.actions,#precontent,.newlist,
     #main > DIV > DIV:first-child > DIV:first-child > DIV:last-child {display: none! important;}
     div.outer:nth-child(2) {margin-left: 50px !important;}
    
