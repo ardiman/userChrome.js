@@ -73,3 +73,6 @@ Benutzer anderer Themes wie z.B. "Silvermel" probieren es hiermit:
         display: none;
       }
     }
+
+## Weitere Anpassungen des Menüs
+Um die Menüeinträge mit Symbolen zu verschönern, kann man die Wetterfuchs-Kontextmenu-Symbole.css verwenden.
