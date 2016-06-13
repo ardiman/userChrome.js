@@ -7,4 +7,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot Back To Top](https://github.com/ardiman/userChrome.js/raw/master/backtotop/scr_backtotop.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils und verschiebe das Symbol über Anpassen an die gewünschte Stelle.
