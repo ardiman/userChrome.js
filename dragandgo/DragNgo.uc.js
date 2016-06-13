@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name           DragNgoModoki_Fx40.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    ファイル名をD&D
+// @description    Scriptversion der gleichnamigen Erweiterung Drag and go
 // @include        main
 // @compatibility  Firefox 40 (not e10s)
 // @author         Alice0775
+// @version        2016/06/12 22:00 Fix regression from Update form history
+// @version        2016/04/21 22:00 Update form history
 // @version        2015/08/18 00:50 Fixed 受
 // @version        2015/08/12 18:00 Fixed due to Bug 1134769
 // @version        2014/11/26 21:00 Bug 1103280, Bug 704320
@@ -150,7 +152,7 @@ var DragNGo = {
     {dir:'RD', modifier:'',name:'リンクをD:/に保存(SF)',obj:'link',cmd:function(self,event,info){if('saveFolderModoki' in window){saveFolderModoki.saveLink(info.urls[0], info.texts[0], 'D:\\');}else{ self.saveLinkToLocal(info.urls[0],info.fname[0],'D:/', false);}}},
 */
     {dir:'RD', modifier:'',name:'Als Bild speichern'  ,obj:'image',cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
-    {dir:'RD', modifier:'',name:'Als Link speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
+    {dir:'RD', modifier:'',name:'Als Link Speichern',obj:'link' ,cmd:function(self,event,info){self.saveAs(info.urls[0], info.fname[0], info.nodes[0].ownerDocument, info.nodes[0].ownerDocument);}},
 
   /*=== テキストをえでぃたーで開く ===*/
     {dir:'DL', modifier:'',name:'Im Texteditor öffnen',obj:'text',cmd:function(self,event,info){self.editText(null, info.texts[0]);}}, // Argument null: view_source.editor.path Verwendung des Editors
@@ -350,13 +352,13 @@ var DragNGo = {
       }
       where = 'tabshifted';
     }
-    // 検索履歴に残す
-    if (addHistoryEntry)
-      this.searchBardispatchEvent(text);
+    //Suchverlauf
+    if (typeof addHistoryEntry == "undefined" || addHistoryEntry)
+      this.updateSearchbarHistory(text);
     return true;
   },
 
-  //検索バーにテキストをコピー
+  //Text in die Suchleiste kopieren
   copyToSearchBar: function copyToSearchBar(searchText){
     var searchbar = this.searchbar;
     if (!searchbar)
@@ -364,7 +366,7 @@ var DragNGo = {
     searchbar.value = searchText;
   },
 
-  //検索バーにテキストを追加コピー
+  //Text zu Suchleiste hinzufügen
   appendToSearchBar: function appendToSearchBar(searchText){
     var searchbar = this.searchbar;
     if (!searchbar)
@@ -372,14 +374,14 @@ var DragNGo = {
     searchbar.value += (searchbar.value ? " " : "") + searchText;
   },
 
-  //検索バーにテキストをコピー, 疑似イベント発行
-  searchBardispatchEvent: function searchBardispatchEvent(searchText){
+  //Text in die Suchleiste kopieren und Suche starten
+  updateSearchbarHistory: function updateSearchbarHistory(searchText){
     this.copyToSearchBar(searchText);
 
-    var event = document.createEvent("UIEvents");
-    event.initUIEvent("input", true, true, window, 0);
+    //var event = document.createEvent("UIEvents");
+    //event.initUIEvent("input", true, true, window, 0);
     var searchbar = this.searchbar;
-    searchbar.dispatchEvent(event);
+    //searchbar.dispatchEvent(event);
     if (typeof searchbar.FormHistory == "object") {
       if (searchText && !PrivateBrowsingUtils.isWindowPrivate(window)) {
         searchbar.FormHistory.update(
@@ -464,7 +466,7 @@ var DragNGo = {
       cqrShowHotmenu(null, event.screenX, event.screenY);
   },
 
-  //ページ内検索
+  //Innerhalb einer Seite suchen
   findWord: function findWords(word){
     var findbar = (typeof gFindBar != 'undefied')
                    ? gFindBar
@@ -517,7 +519,7 @@ var DragNGo = {
     if (!skipPrompt) {
       var nsIFilePicker = Ci.nsIFilePicker;
       var fp = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-      fp.init(this.focusedWindow, "Datei auswaehlen", nsIFilePicker.modeSave);
+      fp.init(this.focusedWindow, "Datei auswaelen", nsIFilePicker.modeSave);
       fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterImages);
       fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterHTML);
       if (dir)
@@ -640,7 +642,7 @@ var DragNGo = {
     }
   },
 
-  //urlを名前を付けて保存
+  //Adresse Speichern als
   saveURL: function saveURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
                  aSkipPrompt, aReferrer, aSourceDocument) {
     window.saveURL(aURL, aFileName, aFilePickerTitleKey, aShouldBypassCache,
@@ -726,7 +728,7 @@ var DragNGo = {
     }
   },
 
-  //aURLのcontentTypeをキャッシュから得る
+  //aURL ContentType erhalten aus dem Cache
   getContentType: function(aURL, aDoc){
     var contentType = null;
     var contentDisposition = null;
@@ -747,13 +749,13 @@ var DragNGo = {
     return contentType;
   },
 
-  //ファイルのパスをインプットフィールドに記入
+  // Eingabefeld mit Dateipfad füllen
   putMultipleFilePath: function putMultipleFilePath(inputElement, URLs) {
     var self = this;
     var multiFile = [];
     URLs.forEach(function(url) {
       var path = self.fileHandler.getFileFromURLSpec(url).path;
-      // 重複チェック
+      // Dubletten-Kontrolle
       var flg = false;
       for (var j = 0; j < multiFile.length; j++) {
         if (multiFile[j] == path)
@@ -773,7 +775,7 @@ var DragNGo = {
       inputElement.value = aFile.path;
   },
 
-  //Xpiのインストール
+  //Xpi installieren
   installXpi: function installXpi(URLs){
     function buildNextInstall() {
       if (pos == URLs.length) {

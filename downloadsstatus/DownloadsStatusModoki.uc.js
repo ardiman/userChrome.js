@@ -5,6 +5,9 @@
 // @include        main
 // @compatibility  Firefox 26+
 // @author         Alice0775
+// @version        2016/06/10 12:00 modify style independent of font-family
+// @version        2016/06/10 07:00 modify style of close button, fix typo
+// @version        2016/06/10 00:00 Workaround Bug 1279329. adjust some padding
 // @version        2015/05/08 00:00 remove padding due to Bug 1160734
 // @version        2014/03/31 00:00 fix for browser.download.manager.showWhenStarting
 // @version        2013/12/22 13:00 chromehidden
@@ -45,7 +48,7 @@ var ucjsDownloadsStatusModoki = {
       #ucjsDownloadsStatusModoki { \
         width: 100%; \
         max-height: 100px; \
-        height: 34px; \
+        height: 35px; \
       } \
      '.replace(/\s+/g, " ");
     var sspi = document.createProcessingInstruction(
@@ -66,6 +69,7 @@ var ucjsDownloadsStatusModoki = {
     bottombox.appendChild(toolbar);
     var browser = toolbar.appendChild(document.createElement("browser"));
     browser.setAttribute("disablehistory", true);
+	browser.setAttribute("remote", false);
     browser.setAttribute("id", "ucjsDownloadsStatusModoki");
     browser.addEventListener("load", function(event){ucjsDownloadsStatusModoki.onload(event)}, true);
     browser.setAttribute("src", "chrome://browser/content/downloads/contentAreaDownloadsView.xul");
@@ -183,7 +187,7 @@ var ucjsDownloadsStatusModoki = {
       } \
  \
       #downloadsRichListBox { \
-        max-height:34px; \
+        max-height:35px; \
         background-color: -moz-dialog; \
       } \
  \
@@ -196,21 +200,26 @@ var ucjsDownloadsStatusModoki = {
         max-width:200px; \
         max-height:33px; \
         font-size: 13px; \
+		padding-right: 1px; \
       } \
  \
       richlistitem vbox { \
       } \
  \
       .downloadTypeIcon { \
-        height:24px; \
+        height:16px; \
         width: 24px; \
         -moz-margin-end: 0px; \
         -moz-margin-start: 1px; \
+		 padding-right: 0; \
+         padding-left: 1px; \
       } \
  \
       .downloadTarget { \
         margin-top:2px; \
         padding-bottom:16px; \
+		max-width: calc(100% - 50px) !important; \
+        min-width: calc(100% - 50px) !important; \
       } \
  \
       .downloadTarget:-moz-system-metric(windows-default-theme) { \
@@ -220,6 +229,7 @@ var ucjsDownloadsStatusModoki = {
  \
       .downloadProgress { \
         margin-top:-16px; \
+		margin-bottom: -1px; \
       } \
  \
       .progress-bar { \
@@ -246,6 +256,8 @@ var ucjsDownloadsStatusModoki = {
      .button-box { \
         -moz-padding-start: 0px; \
         -moz-padding-end: 1px; \
+		padding-right: 0 !important; \
+        padding-left: 0 !important; \
       } \
  \
      #downloadFilter { \
@@ -254,15 +266,30 @@ var ucjsDownloadsStatusModoki = {
  \
      #ucjsDownloadsStatusModoki-closebutton { \
         border: none; \
+		width:20px;\
         padding: 0 5px; \
         list-style-image: url("chrome://global/skin/icons/close.png"); \
         -moz-appearance: none; \
-        -moz-image-region: rect(0, 16px, 16px, 0); \
+        -moz-image-region: rect(0, 20px, 20px, 0); \
       } \
  \
       #ucjsDownloadsStatusModoki-closebutton:hover { \
-        -moz-image-region: rect(0px, 32px, 16px, 16px); \
+          -moz-image-region: rect(0px, 40px, 20px, 20px); \
       } \
+	   \
+      @media (-moz-windows-classic) { \
+       #ucjsDownloadsStatusModoki-closebutton { \
+          border: none; \
+          padding: 0 5px; \
+          list-style-image: url("chrome://global/skin/icons/close.png"); \
+          -moz-appearance: none; \
+          -moz-image-region: rect(0, 16px, 16px, 0); \
+        } \
+ \
+        #ucjsDownloadsStatusModoki-closebutton:hover { \
+          -moz-image-region: rect(0px, 32px, 16px, 16px); \
+        } \
+    } \
      '.replace(/\s+/g, " ");
     var sspi = doc.createProcessingInstruction(
       'xml-stylesheet',
@@ -296,6 +323,15 @@ var ucjsDownloadsStatusModoki = {
     box.appendChild(closebtn);
     ref.parentNode.insertBefore(vbox, ref);
 
+	// xxx Bug 1279329 "Copy Download Link" of context menu in Library is grayed out
+    var listBox = doc.getElementById("downloadsRichListBox");
+    var placesView = listBox._placesView;
+    if (placesView) {
+      var place = placesView.place;
+      placesView.place= null;
+      placesView.place = place;
+    }
+	
     win.ucjsDownloadsStatusModoki_clearDownloads = function ucjs_clearDownloads() {
       var DO_NOT_DELETE_HISTORY = true; /* custmizable true or false */
 

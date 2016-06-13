@@ -3,21 +3,26 @@
 // @description    Greasemonkey Scripte laden
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @include        main
-// @compatibility  Firefox 32-37
+// @compatibility  Firefox 38 - Firefox 46+
 // @license        MIT License
-// @version        0.1.8.4
+// @version        0.1.8.4.6 
+// @note           0.1.8.4.6 2016/05/09 USL.getFocusedWindow und Export Funktion geändert
+// @note           0.1.8.4.5 2016/04/29 Fx46+ see potato.2ch.net/test/read.cgi/software/1454577742/467
+// @note           0.1.8.4.4 2016/04/28 Fx46+
+// @note           0.1.8.4.3 2016/04/26 Fx46+
+// @note           0.1.8.4.2 re-add persistFlags for PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION to fix @require save data
+// @note           0.1.8.4.1 fix GM_safeHTMLParser
+// @note           0.1.8.4 add persistFlags for PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION to fix @require save data
+// @note           0.1.8.4 Firefox 35 Kompatibilität
 // @note           0.1.8.4 Scratchpad als Standardeditor verwenden
 // @note           0.1.8.4 Implementierung der GM_ Benachrichtigungen 
-// @note           0.1.8.3 + add persistFlags for PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION to fix @require save data
-// @note           0.1.8.3 + Bug 704320 
-// @note           0.1.8.3 + fix unsafeWindow + __proto__ (Bug 1061853)
-// @note           0.1.8.3 Firefox 32 で GM_xmlhttpRequest が動かないのを修正
-// @note           0.1.8.3 Mithilfe der integrierten Konsole.
-// @note           0.1.8.3 observer nicht verwenden
-// @note           0.1.8.2 Fix für Firefox 22
-// @note           0.1.8.2 require が機能していないのを修正
-// @note           0.1.8.1 Save Script が機能していないのを修正
-// @note           0.1.8.0 Remove E4X
+// @note           0.1.8.3 Firefox 32 GM_xmlhttpRequest Update funktionierte nicht
+// @note           0.1.8.3 Integrierte Verwaltungskonsole verwenden
+// @note           0.1.8.3 obsever wurde nicht verwendet
+// @note           0.1.8.2 Firefox 22 Kompatibilität
+// @note           0.1.8.2 Update erfordern funktionierte nicht
+// @note           0.1.8.1 Scripte speichern funktionierte nicht mehr
+// @note           0.1.8.0 E4X wurde entfernt
 // @note           0.1.8.0 @match, @unmatch に超テキトーに対応
 // @note           0.1.8.0 .tld を Scriptish を参考にテキトーに改善
 // @note           0.1.7.9 __exposedProps__ を付けた
@@ -67,12 +72,13 @@ if (window.USL) {
 var USL = {};
 
 // mögliche Positionen des Icons
-USL.POSITION_MOVABLE = 0;		// verschiebbar
-USL.POSITION_URLBAR = 1;		// URL-Leiste
-USL.POSITION_STATUSBAR = 2;	// Statusleiste
+USL.POSITION_MOVABLE = 0;       // verschiebbar
+USL.POSITION_URLBAR = 1;        // URL-Leiste
+USL.POSITION_STATUSBAR = 2;	    // Statusleiste
 
-// Festlegen der Position
-USL.position = USL.POSITION_MOVABLE;
+// Festlegen der Position, Standardposition ist URL-Leiste, mögliche Positionen:  
+// USL.POSITION_MOVABLE =  verschiebbar, USL.POSITION_URLBAR = in URL-Leiste, USL.POSITION_STATUSBAR = in Statusleiste
+USL.position = USL.POSITION_URLBAR;
 
 // Class
 USL.PrefManager = function (str) {
@@ -358,10 +364,8 @@ USL.API = function(script, sandbox, win, doc) {
 
 	this.GM_listValues = function() {
 		var p = script.pref.listValues();
-//		var s = [x for(x in USL.database.pref[script.prefName + name])];
-		var s = [];
-		for (let x in USL.database.pref[script.prefName + name])
-			s.push(x);
+		//var s = [x for(x in USL.database.pref[script.prefName + name])];
+		var s = Object.keys(USL.database.pref[script.prefName + name]);
 		s.forEach(function(e, i, a) a[i] = e.replace(script.prefName, ''));
 		p.push.apply(p, s);
 		return p;
@@ -417,7 +421,7 @@ USL.API = function(script, sandbox, win, doc) {
 	this.GM_getMetadata = function(key) {
 		return script.metadata[key] ? script.metadata[key].slice() : void 0;
 	};
-	
+
 	this.GM_notification = function(msg, title, icon, callback) {
 		if (!icon) {
 			icon = 'data:image/png;base64,\
@@ -457,6 +461,20 @@ wPSoRE/nvv3/xIQQEnivgeRpBDdcg5W3BWB68s27gn/xDDdUjejAZfheqxOezrzdtRJCiNeamxPo\
 			notificationBox.PRIORITY_INFO_MEDIUM,
 			buttons);
 	};
+
+	this.GM_safeHTMLParser = function(code) {
+    let doc1 = doc.implementation.createDocument("", "",
+        doc.implementation.createDocumentType("html", "", ""));
+    doc1.appendChild(doc1.createElement("html"));
+    doc1.documentElement.appendChild(doc1.createElement("body"));
+
+    let gUnescapeHTML = Components.classes["@mozilla.org/feed-unescapehtml;1"]
+                              .getService(Components.interfaces.nsIScriptableUnescapeHTML);
+    let frag = gUnescapeHTML.parseFragment(code, false, null, doc1.body);
+    doc1.adoptNode(frag);
+    doc1.body.appendChild(frag);
+    return doc1;
+  };
 };
 USL.API.prototype = {
 	GM_openInTab: function(url, loadInBackground, reuseTab) {
@@ -467,15 +485,17 @@ USL.API.prototype = {
 			Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper).copyString(str);
 		}
 	},
+/*
 	GM_safeHTMLParser: function(code) {
 		let HTMLNS = "http://www.w3.org/1999/xhtml";
 		let gUnescapeHTML = Cc["@mozilla.org/feed-unescapehtml;1"].getService(Ci.nsIScriptableUnescapeHTML);
 		let doc = document.implementation.createDocument(HTMLNS, "html", null);
 		let body = document.createElementNS(HTMLNS, "body");
-		doc.documentElement.appendChild(body);
 		body.appendChild(gUnescapeHTML.parseFragment(code, false, null, body));
+		doc.documentElement.appendChild(body);
 		return doc;
 	},
+*/
 	GM_generateUUID: function() {
 		return Cc["@mozilla.org/uuid-generator;1"].getService(Ci.nsIUUIDGenerator).generateUUID().toString();
 	},
@@ -548,11 +568,11 @@ USL.__defineGetter__("disabled", function() DISABLED);
 USL.__defineSetter__("disabled", function(bool){
 	if (bool) {
 		this.icon.setAttribute("state", "disable");
-	  // gBrowser.mPanelContainer.removeEventListener("DOMWindowCreated", this, false);
+		// gBrowser.mPanelContainer.removeEventListener("DOMWindowCreated", this, false);
 		this.icon.setAttribute("tooltiptext", "inaktiv: Mit Linksklick aktivieren, Rechtsklick Menü öffnen");
 	} else {
 		this.icon.setAttribute("state", "enable");
-	  // gBrowser.mPanelContainer.addEventListener("DOMWindowCreated", this, false);
+		// gBrowser.mPanelContainer.addEventListener("DOMWindowCreated", this, false);
 		this.icon.setAttribute("tooltiptext", "aktiv: Mit Linksklick deaktivieren, Rechtsklick Menü öffnen");
 	}
 	return DISABLED = bool;
@@ -595,15 +615,14 @@ USL.__defineSetter__("MY_EDITOR", function(bool){
 });
 
 USL.getFocusedWindow = function () {
-	var win = document.commandDispatcher.focusedWindow;
-	return (!win || win == window) ? content : win;
+  return  Services.focus.focusedWindow;
 };
 
 USL.init = function(){
 	USL.loadSetting();
 	USL.style = addStyle(css);
-
-	if (this.position == this.POSITION_STATUSBAR) {
+	
+    if (this.position == this.POSITION_STATUSBAR) {
 		USL.icon = $('status-bar').appendChild($C("statusbarpanel", {
 			id: "UserScriptLoader-icon",
 			class: "statusbarpanel-iconic",
@@ -733,7 +752,6 @@ USL.destroy = function () {
 	USL.saveSetting();
 	USL.uninit();
 
-
 	var e = document.getElementById("UserScriptLoader-icon");
 	if (e) e.parentNode.removeChild(e);
 	var e = document.getElementById("UserScriptLoader-popup");
@@ -750,7 +768,7 @@ USL.handleEvent = function (event) {
 			win.USL_run = [];
 			if (USL.disabled) return;
 			if (USL.readScripts.length === 0) return;
-			this.injectScripts(win);
+			USL.injectScripts(win);
 			break;
 		case 'TabOpen':
 			event.target.linkedBrowser.addEventListener('DOMWindowCreated', USL, false);
@@ -786,13 +804,8 @@ USL.createMenuitem = function () {
 };
 
 USL.rebuild = function() {
-//	USL.disabled_scripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
-	USL.disabled_scripts = [];
-	for (let x of USL.readScripts) {
-		if (x.disabled) {
-			USL.disabled_scripts.push(x.leafName);
-		};
-	};
+	//USL.disabled_scripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+	USL.disabled_scripts = USL.readScripts.map(function(x){ if(x.disabled) return x.leafName });
 	USL.pref.setValue('script.disabled', USL.disabled_scripts.join('|'));
 
 	let newScripts = [];
@@ -870,7 +883,11 @@ USL.saveScript = function() {
 			var loadContext = win.QueryInterface(Ci.nsIInterfaceRequestor)
 				.getInterface(Ci.nsIWebNavigation)
 				.QueryInterface(Ci.nsILoadContext);
-			wbp.saveURI(uri, null, uri, Ci.nsIHttpChannel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE, null, null, fp.file, loadContext);
+		  try {
+		  	wbp.saveURI(uri, null, uri, null, null, fp.file, loadContext);
+			} catch(ex) {
+	  		wbp.saveURI(uri, null, uri, Ci.nsIHttpChannel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE, null, null, fp.file, loadContext);
+			}
 		}
 	}
 	fp.open(callbackObj);
@@ -878,10 +895,8 @@ USL.saveScript = function() {
 
 USL.deleteStorage = function(type) {
 	var data = USL.database[type];
-//	var list = [x for(x in data)];
-	var list = [];
-	for (let x in data)
-		list.push(x);
+	//var list = [x for(x in data)];
+	var list = Object.keys(data);
 	if (list.length == 0)
 		return alert(type + ' is none.');
 
@@ -1038,9 +1053,9 @@ USL.injectScripts = function(safeWindow, rsflag) {
 	// document-start でフレームを開いた際にちょっとおかしいので…
 	if (!rsflag && locationHref == ""/* && safeWindow.frameElement*/)
 		return USL.retryInject(safeWindow);
-/*	// target="_blank" で about:blank 状態で開かれるので…
+	// target="_blank" In about:blank öffnen
 	if (!rsflag && locationHref == 'about:blank')
-		return USL.retryInject(safeWindow);*/
+		return USL.retryInject(safeWindow);
 
 	if (USL.GLOBAL_EXCLUDES_REGEXP.test(locationHref)) return;
 
@@ -1079,20 +1094,20 @@ USL.injectScripts = function(safeWindow, rsflag) {
 				run(s));
 		}, 300);
 	} else {
-	if (documentEnds.length) {
-		safeWindow.addEventListener("DOMContentLoaded", function(event){
-			event.currentTarget.removeEventListener(event.type, arguments.callee, false);
-			documentEnds.forEach(function(s) "delay" in s ? 
-				safeWindow.setTimeout(run, s.delay, s) : run(s));
-		}, false);
-	}
-	if (windowLoads.length) {
-		safeWindow.addEventListener("load", function(event) {
-			event.currentTarget.removeEventListener(event.type, arguments.callee, false);
-			windowLoads.forEach(function(s) "delay" in s ? 
-				safeWindow.setTimeout(run, s.delay, s) : run(s));
-		}, false);
-      }	
+		if (documentEnds.length) {
+			safeWindow.addEventListener("DOMContentLoaded", function(event){
+				event.currentTarget.removeEventListener(event.type, arguments.callee, false);
+				documentEnds.forEach(function(s) "delay" in s ? 
+					safeWindow.setTimeout(run, s.delay, s) : run(s));
+			}, false);
+		}
+		if (windowLoads.length) {
+			safeWindow.addEventListener("load", function(event) {
+				event.currentTarget.removeEventListener(event.type, arguments.callee, false);
+				windowLoads.forEach(function(s) "delay" in s ? 
+					safeWindow.setTimeout(run, s.delay, s) : run(s));
+			}, false);
+		}
 	}
 
 	function run(script) {
@@ -1116,14 +1131,18 @@ USL.injectScripts = function(safeWindow, rsflag) {
       unsafeWindowGetter = new sandbox.Function('return window.wrappedJSObject || window;');
       Object.defineProperty(sandbox, 'unsafeWindow', {get: unsafeWindowGetter});
     }
-	
+
 		let GM_API = new USL.API(script, sandbox, safeWindow, aDocument);
 		for (let n in GM_API)
 			sandbox[n] = GM_API[n];
+    sandbox["exportFunction"] = Cu.exportFunction;
+
 		sandbox.XPathResult  = Ci.nsIDOMXPathResult;
+		// sandbox.unsafeWindow = safeWindow.wrappedJSObject;
 		sandbox.document     = safeWindow.document;
 		sandbox.console      = safeWindow.console;
 		sandbox.window       = safeWindow;
+
     if (parseInt(Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).version) < 35)
 	  	sandbox.__proto__ = safeWindow;
 		USL.evalInSandbox(script, sandbox);
@@ -1194,20 +1213,15 @@ USL.loadSetting = function() {
 		data = JSON.parse(data);
 		USL.database.pref = data.pref;
 		//USL.database.resource = data.resource;
-		USL.debug('loaded UserScriptLoader.json');
+		USL.debug('UserScriptLoader.json geladen');
 	} catch(e) {
-		USL.debug('UserScriptLoader.json Datei kann nicht geladen werden');
+		USL.debug('UserScriptLoader.json kann nicht geladen werden');
 	}
 };
 
 USL.saveSetting = function() {
-//	let disabledScripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
-	let disabledScripts = [];
-	for (let x of USL.readScripts) {
-		if (x.disabled) {
-			disabledScripts.push(x.leafName);
-		};
-	};
+	//let disabledScripts = [x.leafName for each(x in USL.readScripts) if (x.disabled)];
+	let disabledScripts = USL.readScripts.map(function(x){ if(x.disabled) return x.leafName });
 	USL.pref.setValue('script.disabled', disabledScripts.join('|'));
 	USL.pref.setValue('disabled', USL.disabled);
 	USL.pref.setValue('HIDE_EXCLUDE', USL.HIDE_EXCLUDE);
@@ -1228,7 +1242,7 @@ USL.getContents = function(aURL, aCallback){
 	}
 	var uri = Services.io.newURI(aURL, null, null);
 	if (uri.scheme != 'http' && uri.scheme != 'https')
-		return USL.error('getContents is "http" or "https" only');
+		return USL.error('getContents nur "http" oder "https" möglich');
 
 	let aFile = USL.REQUIRES_FOLDER.clone();
 	aFile.QueryInterface(Ci.nsILocalFile);
@@ -1252,9 +1266,13 @@ USL.getContents = function(aURL, aCallback){
 			onLinkIconAvailable: function(aIconURL) {},
 		}
 	}
-    wbp.persistFlags = Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
-    wbp.persistFlags |= Ci.nsIWebBrowserPersist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
-	wbp.saveURI(uri, null, null, Ci.nsIHttpChannel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE, null, null, aFile, null);
+	wbp.persistFlags = Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
+	wbp.persistFlags |= Ci.nsIWebBrowserPersist.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
+	try {
+    wbp.saveURI(uri, null, null, null, null, aFile, null);
+  } catch(ex) {
+    wbp.saveURI(uri, null, null, Ci.nsIHttpChannel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE, null, null, aFile, null);
+  }
 	USL.debug("getContents: " + aURL);
 };
 
@@ -1284,8 +1302,8 @@ USL.init();
 window.USL = USL;
 
 
-function log(str) { Services.console.logStringMessage(Array.slice(arguments)); }
-function debug() { if (USL.DEBUG) Services.console.logStringMessage('[USL DEBUG] ' + Array.slice(arguments));}
+function log(str) { console.log(Array.slice(arguments)); }
+function debug() { if (USL.DEBUG) console.log('[USL DEBUG] ' + Array.slice(arguments));}
 
 function $(id) document.getElementById(id);
 function $C(name, attr) {
