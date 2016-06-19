@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 33. - 45
+// @compatibility  Firefox 33. - 47
 // @include        main
-// @version        1.0.20160526
+// @version        1.0.20160618
 // ==/UserScript==
 
 var wetterfuchs = {
@@ -25,7 +25,7 @@ var wetterfuchs = {
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     WE_WetterAktuell: {url:"http://www.meteocentrale.ch/de/wetter/weltwetter.html#sytl",width:575,height:360},
     RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp",width:680,height:655},
-    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/land.asp?c=BB",width:850,height:480},
+    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp",width:850,height:480},
     RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
     RE_RegenradarPrognose: {url:"http://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html",width:640,height:690},
   },

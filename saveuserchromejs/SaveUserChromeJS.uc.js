@@ -383,30 +383,8 @@ var ns = window.saveUserChromeJS = {
 	      .QueryInterface(Ci.nsIDOMChromeWindow);
 	},
     restartApp: function() {
-        const appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"].getService(Components.interfaces.nsIAppStartup);
-
-        // Notify all windows that an application quit has been requested.
-        var os = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-        var cancelQuit = Components.classes["@mozilla.org/supports-PRBool;1"].createInstance(Components.interfaces.nsISupportsPRBool);
-        os.notifyObservers(cancelQuit, "quit-application-requested", null);
-
-        // Something aborted the quit process.
-        if (cancelQuit.data) return;
-
-        // Notify all windows that an application quit has been granted.
-        os.notifyObservers(null, "quit-application-granted", null);
-
-        // Enumerate all windows and call shutdown handlers
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-        var windows = wm.getEnumerator(null);
-        var win;
-        while (windows.hasMoreElements()) {
-            win = windows.getNext();
-            if (("tryToClose" in win) && !win.tryToClose()) return;
-        }
-        let XRE = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
-        if (typeof XRE.invalidateCachesOnRestart == "function") XRE.invalidateCachesOnRestart();
-        appStartup.quit(appStartup.eRestart | appStartup.eAttemptQuit);
+        Services.appinfo.invalidateCachesOnRestart();
+        BrowserUtils.restartApplication();   
     }
 };
 
