@@ -1,6 +1,7 @@
 # Web Developer Toolbar Button
-Dieses Skript basiert auf der gleichnamigen Erweiterung und platziert in der Menüleiste einen Menübutton mit 
-den Funktionen der "Web-Entwickler" unter "Extras".
+Dieses Skript basiert auf der gleichnamigen Erweiterung und platziert in der Navigationsleiste einen Menübutton mit
+den Funktionen der "Web-Entwickler" unter "Extras". Der Button kann allerdings auch frei verschoben werden oder man passt die
+Zeile 11 an (z.B. CustomizableUI.AREA_NAVBAR durch CustomizableUI.AREA_MENUBAR ersetzen).
 
 Das **Ergebnis des Skripts**:
 
