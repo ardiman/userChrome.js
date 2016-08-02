@@ -11,6 +11,7 @@
 // @version			0.1_fx4	:	10/07/13 Fx4 専用版
 // @version			0.2			10/07/29 Fx3.6/Fx4 用をマージ
 // @version						10/02/08 default テーマが表示されない時の処理の改善とリスト表示を整理した。
+// @version         0.2a :      02/08/16 Anpassung für Firefox 48 
 // @version			auf github/ardiman - Anpassung fuer Benutzer, die nur mit einfacher userChrome.js arbeiten
 // @Note			-----------------------------------------------------------------------------------------------------------
 // @Note			【制限事項】
@@ -61,7 +62,7 @@ var ucjs_copysysinfo = {
 		menu.setAttribute("id", "ucjs_copysysinfo-menu");
 		menu.setAttribute("label", "Firefox Infos");
 
-		var target = document.getElementById("javascriptConsole"); 
+		var target = document.getElementById("menu_pageSource"); 
 		target.parentNode.insertBefore(menu, target);
 
 		// サブ・メニューの作成
