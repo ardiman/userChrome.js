@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name           zzzz-MultiRowTab_LiteforFx44.uc.js
+// @name           zzzz-MultiRowTab_LiteforFx48.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    Mehrzeilige Tableiste, Experimentelle CSS Version
 // @include        main
-// @compatibility  Firefox 44, 45
+// @compatibility  Firefox 48
 // @author         Alice0775
+// @version        2016/08/05 00:00 Firefox 48
 // @version        2016/05/01 00:01 hide favicon if busy
 // @version        2016/03/09 00:01 Bug 1222490 - Actually remove panorama for Fx45+
 // @version        2016/02/09 00:01 workaround css for lwt
@@ -132,6 +133,7 @@ function zzzz_MultiRowTabLite(){
         text-shadow: 0 0 4px rgba(255,255,255,.75) !important; \
         /*xx background: rgba(255,255,255,.27) !important; */\
         background-clip: padding-box !important; \
+        margin: 0 !important; \
 \
         height:{TAB_HEIGHT}px; \
     } \
@@ -145,7 +147,7 @@ function zzzz_MultiRowTabLite(){
     #TabsToolbar .tabbrowser-tab:not([image]) .tab-icon-image { \
       display: -moz-box !important; \
     } \
-	#TabsToolbar .tabbrowser-tab[busy] .tab-icon-image { \
+    #TabsToolbar .tabbrowser-tab[busy] .tab-icon-image { \
       display: none !important; \
     } \
 \
@@ -252,7 +254,7 @@ function zzzz_MultiRowTabLite(){
       this._window.UI.exit();
       setTabWidthAutomatically({type:"resize"});
       setTimeout(function(){setTabWidthAutomatically({type:"resize"});}, 250);
-    }    
+    }
 
   //Anpassung für Drag&Drop
 /*
@@ -590,31 +592,15 @@ console.log("onDrop");
   };
 
   gBrowser.tabContainer.MultiRowTabsScroll = function(event) {
-    var tab = null
-    let containerTop = gBrowser.tabContainer.boxObject.screenY;
-    let containerBottom = containerTop + gBrowser.tabContainer.boxObject.height;
-    if (event.detail > 0) {
-      for (let i=0, len=gBrowser.tabs.length; i<len; i++) {
-        tab = gBrowser.tabs.item(i);
-        let tabBottom = tab.boxObject.screenY + tab.boxObject.height;
-        if (tabBottom > containerBottom) {
-          break;
-        }
-      }
-    } else {
-      for (let i=gBrowser.tabs.length - 1; i > -1; i--) {
-        tab = gBrowser.tabs.item(i);
-        let tabTop = tab.boxObject.screenY;
-        if (tabTop < containerTop) {
-          break;
-        }
-      }
-    }
-    if (tab)
-      this.ensureVisibleElement(tab);
+      if (event.ctrlKey || event.altKey  || event.shiftKey)
+        return;
+      var arrowscrollbox = gBrowser.tabContainer.mTabstrip;
+      var scrollbox = document.getAnonymousElementByAttribute(arrowscrollbox, "class", "arrowscrollbox-scrollbox");
+      //userChrome_js.debug(scrollbox.scrollTop);
+      scrollbox.scrollTop += (event.deltaY > 0 ? 1 : -1) * TAB_HEIGHT;
   }
 
-  document.getElementById("TabsToolbar").addEventListener("DOMMouseScroll", gBrowser.tabContainer.MultiRowTabsScroll, true);
+  document.getElementById("TabsToolbar").addEventListener("wheel", gBrowser.tabContainer.MultiRowTabsScroll, true);
 
 
 //Tableistenbreite automatisch anpassen

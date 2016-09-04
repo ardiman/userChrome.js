@@ -7,7 +7,8 @@
 // @compatibility  Firefox 40
 // @charset        UTF-8
 // @include        main
-// @version        0.0.10
+// @version        0.0.10a
+// @note           0.0.10a Weelscroll fixed
 // @note           0.0.10 Firefox 40 で動かなくなった部分を修正
 // @note           0.0.9 細部を修正
 // @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
@@ -54,6 +55,10 @@ window.gWHT = {
 			url: '.*\\btbm=isch\\b.*',
 			keyword: ' '
 		},
+		{
+            url: '^https?://duckduckgo\\.com/',
+            input: 'input[name="q"]'
+        },		
 		{
 			url: '^https?://\\w+\\.google\\.[a-z.]+/search',
 			input: 'input[name="q"]'
@@ -104,7 +109,7 @@ window.gWHT = {
 	init: function() {
 		this.xulstyle = addStyle(CSS);
 
-		var icon = $("urlbar-icons").appendChild(document.createElement("image"));
+		var icon = $("main-menubar").appendChild(document.createElement("image"));
 		icon.setAttribute("id", PREFIX + "icon");
 		icon.setAttribute("class", PREFIX + "icon");
 		icon.setAttribute("onclick", "gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD");
@@ -219,7 +224,7 @@ window.gWHT = {
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
 				setTimeout(function() {
 					this.launch(doc, keywords);
-				}.bind(this), 500);
+				}.bind(this), 800);
 				break;
 			case "pageshow":
 				var doc = event.target;
@@ -485,7 +490,7 @@ window.gWHT = {
 			button = document.createElement('toolbarbutton');
 			button.style.setProperty('-moz-appearance', 'none', 'important');
 			button.setAttribute('oncommand', 'gWHT.find(this.getAttribute("word"), event.shiftKey);');
-			button.setAttribute('onDOMMouseScroll', 'event.stopPropagation(); gWHT.find(this.getAttribute("word"), event.detail < 0);');
+			button.setAttribute('onwheel', 'event.stopPropagation(); gWHT.find(this.getAttribute("word"), event.deltaY < 0);');
 			button.setAttribute('onclick', 'if (event.button != 1) return; this.hidden = true; gWHT.removeWord(this.getAttribute("word"));');
 			button.setAttribute('class', CLASS_ITEM);
 			button.setAttribute('tooltiptext', [

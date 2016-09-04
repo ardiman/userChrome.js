@@ -6,7 +6,7 @@
 // @exclude       chrome://global/content/alerts/alert.xul
 // @exclude       chrome://global/content/commonDialog.xul
 // @exclude       javascript:*
-// @compatibility 3.5+
+// @compatibility 3.5+ - 48 - 51
 // @author        LouCypher Alice0775 satyr
 // ==/UserScript==
 /* ***** BEGIN LICENSE BLOCK *****
@@ -59,7 +59,7 @@
   }
   function addMenuitem(popup, index){
     if (popup.id == "backForwardMenu") return;
-    var id = "context-inspector";
+    var id = "contexpector";
     if(index != null){
       id += "-" + index;
       popup.appendChild(document.createElement("menuseparator"))
@@ -82,22 +82,30 @@
     document.querySelectorAll("popupset > menupopup, popupset > popup"),
     addMenuitem);
 
-  var newPopup = document.createElement("menupopup");
-  addMenuitem(newPopup);
-  var mainPS = document.getElementById("mainPopupSet");
-  if (!mainPS) {
-    mainPS = document.createElement("popupset");
-    mainPS.id = "mainPopupSet";
-    document.documentElement.appendChild(mainPS);
+  var contextMenu = document.getElementById("contentAreaContextMenu");
+  if (contextMenu) {
+    contextMenu.addEventListener("popupshowing", function() {
+      this.querySelector('menuitem[id^="contexpector-"]').label =
+        "DOMInspect " + ((!content) ? "Chrome " : "") + "Element";
+    });
+  } else {
+    var newPopup = document.createElement("menupopup");
+    addMenuitem(newPopup);
+    var mainPS = document.getElementById("mainPopupSet");
+    if (!mainPS) {
+      mainPS = document.createElement("popupset");
+      mainPS.id = "mainPopupSet";
+      document.documentElement.appendChild(mainPS);
+    };
+    document.documentElement.setAttribute(
+      "context",
+      mainPS.appendChild(newPopup).id = "chrome-inspector-popup");
+    // Fx3.6 / Stylish 1.0+ statusbar icon
+    newPopup.setAttribute(
+      "onpopupshowing",
+      "var it = document._contexpected;" +
+      "return !(it instanceof HTMLElement) && it.id != 'stylish-panel'");
   };
-  document.documentElement.setAttribute(
-    "context",
-    mainPS.appendChild(newPopup).id = "chrome-inspector-popup");
-  // Fx3.6 / Stylish 1.0+ statusbar icon
-  newPopup.setAttribute(
-    "onpopupshowing",
-    "var it = document._contexpected;" +
-    "return !(it instanceof HTMLElement) && it.id != 'stylish-panel'");
 
   var tabContextMenu = document.getElementById('tabContextMenu') || (
     self.gBrowser &&

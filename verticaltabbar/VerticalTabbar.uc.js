@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name           zzzz-VerticalTabbarforFx44.uc.js
+// @name           zzzz-VerticalTabbarforFx48.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    Vertikale Tabbar CSS Version
 // @include        main
-// @compatibility  Firefox44
+// @compatibility  Firefox48
 // @author         Alice0775
 // @note           zzzz-removeTabMoveAnimationFx44.uc.js funktioniert nur mit Standardtheme
+// @version        2016/08/05 00:00 Firefox 48
 // @version        2016/02/09 14:30 fix Fullscreen toggler and drag tab effect
 // @license        The MIT License
 // ==/UserScript==
@@ -143,7 +144,7 @@ function zzzz_VerticalTabbar(){
         max-width: 100% !important; \
         } \
  \
-        /*Vollbild*/ \
+        /*フルスクリーン*/ \
         #verticalTabToolBox[moz-collapsed="true"], \
         #vtb_splitter[moz-collapsed="true"] \
         { \
@@ -306,7 +307,7 @@ function zzzz_VerticalTabbar(){
         } \
       ';
 
-      /* Remove exstra padding with vertical tabs */
+      /* Remove extra padding with vertical tabs */
       style += ' \
 \
         .tab-background, \
@@ -403,7 +404,7 @@ function zzzz_VerticalTabbar(){
         return document.documentElement.getAttribute(name);
       };
 
-      /* Hintergrund Färbung der dünnen vertikalen Scrollbar*/
+      /* Hintergrund Färbung der dünnen vertikalen Scrollbar */
       style = ' \
       @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
       #tabbrowser-tabs > arrowscrollbox * scrollbar[orient="vertical"], \
@@ -828,13 +829,13 @@ function zzzz_VerticalTabbar(){
     gBrowser.tabContainer.mTabstrip.ensureElementIsVisible = ensureVisibleElement;
 
     // Scroll Tabbar
-    gBrowser.tabContainer.mTabstrip.addEventListener("DOMMouseScroll", function(event){
+    gBrowser.tabContainer.mTabstrip.addEventListener("wheel", function(event){
       if (event.ctrlKey || event.altKey  || event.shiftKey)
         return;
       var arrowscrollbox = gBrowser.tabContainer.mTabstrip;
       var scrollbox = document.getAnonymousElementByAttribute(arrowscrollbox, "class", "arrowscrollbox-scrollbox");
       //userChrome_js.debug(scrollbox.scrollTop);
-      scrollbox.scrollTop += (event.detail > 0 ? 1 : -1) * 50;
+      scrollbox.scrollTop += (event.deltaY > 0 ? 1 : -1) * 50;
     });
 
 
