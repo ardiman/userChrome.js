@@ -6,7 +6,7 @@ Alternative zu dem veralteten Skript Eyedropper.
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot Eyedropper2](https://github.com/ardiman/userChrome.js/raw/master/eyedropper/scr_eyedropper2.png)
+![Screenshot Eyedropper2](https://github.com/ardiman/userChrome.js/raw/master/eyedropper2/scr_eyedropper2.png)
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils.
