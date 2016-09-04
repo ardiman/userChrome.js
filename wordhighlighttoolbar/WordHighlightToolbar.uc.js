@@ -7,8 +7,7 @@
 // @compatibility  Firefox 40
 // @charset        UTF-8
 // @include        main
-// @version        0.0.10a
-// @note           0.0.10a Weelscroll fixed
+// @version        0.0.10b
 // @note           0.0.10 Firefox 40 で動かなくなった部分を修正
 // @note           0.0.9 細部を修正
 // @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
@@ -56,15 +55,11 @@ window.gWHT = {
 			keyword: ' '
 		},
 		{
-            url: '^https?://duckduckgo\\.com/',
-            input: 'input[name="q"]'
-        },		
-		{
 			url: '^https?://\\w+\\.google\\.[a-z.]+/search',
 			input: 'input[name="q"]'
 		},
 		{
-			url: '^http?://[\\w.]+\\.yahoo\\.co\\.jp/search',
+			url: '^https?://[\\w.]+\\.yahoo\\.com(/.*)?/search',
 			input: 'input[name="p"]'
 		},
 		{
@@ -72,14 +67,19 @@ window.gWHT = {
 			input: 'input[name="q"]'
 		},
 		{
+			url: '^https?://duckduckgo\\.com/',
+			input: 'input[name="q"]'
+		},
+		{
 			url: '^http://[\\w.]+\\.nicovideo\\.jp/(?:search|tag)/.*',
 			input: '#search_united, #bar_search'
 		},
-//		{// MICROFORMAT
-//			url: '^https?://.*[?&](?:q|word|keyword|search|query|search_query)=([^&]+)',
-//			input: 'input[type="text"]:-moz-any([name="q"],[name="word"],[name="keyword"],[name="search"],[name="query"],[name="search_query"]), input[type="search"]'
-//		},
-	],
+		// allgemeines Schema, funktioniert für viele Suchmaschinen
+/*		{// MICROFORMAT
+			url: '^https?://.*[?&](?:q|word|keyword|search|query|search_query)=([^&]+)',
+			input: 'input[type="text"]:-moz-any([name="q"],[name="word"],[name="keyword"],[name="search"],[name="query"],[name="search_query"]), input[type="search"]'
+		},
+*/	],
 
 	FIND_FOUND   : 0,
 	FIND_NOTFOUND: 1,
@@ -109,7 +109,7 @@ window.gWHT = {
 	init: function() {
 		this.xulstyle = addStyle(CSS);
 
-		var icon = $("main-menubar").appendChild(document.createElement("image"));
+		var icon = $("urlbar-icons").appendChild(document.createElement("image"));
 		icon.setAttribute("id", PREFIX + "icon");
 		icon.setAttribute("class", PREFIX + "icon");
 		icon.setAttribute("onclick", "gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD");
@@ -224,7 +224,10 @@ window.gWHT = {
 				var keywords = this.GET_KEYWORD ? this.getKeyword(this.SITEINFO, doc) : [];
 				setTimeout(function() {
 					this.launch(doc, keywords);
-				}.bind(this), 800);
+				// Falls auf Suchergebnisseiten zwar die farbigen Schaltflächen mit den
+				// Suchausdrücken, aber keine Hervorhebungen vorhanden sind,
+				// ersetze man 500 durch eine grössere Zahl, z.B. 800 oder 1000.
+				}.bind(this), 500);
 				break;
 			case "pageshow":
 				var doc = event.target;
@@ -715,6 +718,28 @@ window.gWHT.ContentClass.prototype = {
 		}
 		this.doc.addEventListener("keypress", this, false);
 		this.doc.addEventListener("GM_AutoPagerizeNextPageLoaded", this, false);
+
+		// Auf den Suchergebnisseiten von Duckduckgo werden beim Erreichen des
+		// Seitenendes automatisch weitere Suchergebnisse nachgeladen.
+		// Mit dem folgenden Teil erfolgen auch dort die Hervorhebungen.
+/*		if (this.doc.location.host == 'duckduckgo.com') {
+			this.links = this.doc.getElementById('links');
+			this.last = this.links.lastChild;
+			this.win.observer = new MutationObserver(function() {
+				if (this.links.lastChild.nodeName != 'DIV')
+					return;
+				var range = this.doc.createRange();
+				range.setStartAfter(this.last);
+				this.last = this.links.lastChild;
+				range.setEndAfter(this.last);
+				this.highlightAll(range);
+			}.bind(this));
+			this.win.observer.observe(this.links, {childList: true});
+			this.win.addEventListener('unload', function() {
+				this.win.observer.disconnect();
+			}.bind(this));
+		};
+*/
 		this.win.setTimeout(function() {
 			this.fireEvent('initialized', this.doc);
 		}.bind(this), 100);
