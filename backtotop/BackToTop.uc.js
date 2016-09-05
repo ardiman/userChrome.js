@@ -1,7 +1,8 @@
+//    BackToTop.uc.js
+
 (function() {
    if (location != 'chrome://browser/content/browser.xul')
       return;
-
    try {
       CustomizableUI.createWidget({
          id: 'addBackToTop-panel',
@@ -9,10 +10,10 @@
          label: 'Seite nach oben',
          tooltiptext: 'Seite nach oben',
          onCommand: function(event) {
-            event.target.ownerGlobal.content.scrollTo(0,0);
+            var tabMM = event.target.ownerGlobal.gBrowser.selectedBrowser.messageManager;
+            tabMM.loadFrameScript('data:, content.scrollTo(0,0)', false);
          }
       });
-
       var css = '\
       @-moz-document url("chrome://browser/content/browser.xul") { \
          #addBackToTop-panel { \
@@ -28,8 +29,10 @@
    item.id = 'addBackToTop-context';
    item.setAttribute('label', 'Seite nach oben');
    item.setAttribute('accesskey', 'O');
-   item.setAttribute('oncommand', 'content.scrollTo(0,0)');
+   item.setAttribute('oncommand',
+      'var tabMM = gBrowser.selectedBrowser.messageManager;' +
+      'tabMM.loadFrameScript("data:, content.scrollTo(0,0)", false);'
+   );
    document.getElementById('contentAreaContextMenu').appendChild(item);
-
 })();
 
