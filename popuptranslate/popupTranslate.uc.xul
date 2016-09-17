@@ -20,6 +20,9 @@ display: none;
 // @include        chrome://messenger/content/messageWindow.xul
 // @compatibility  Firefox 27+
 // @author         Alice0775
+// @version        2016/09/10 23:30 revert "Excite"
+// @version        2016/09/10 11:30 Modify Google and remove "Excite", "@nifty翻訳"
+// @version        2014/10/08 11:30 delete bing
 // @version        2014/07/23 09:30 delete debug print
 // @version        2014/07/23 09:30 Weblio 翻訳
 // @version        2014/07/23 06:30 タイムアウト
@@ -91,39 +94,22 @@ display: none;
 
 	{
 	  Description:"Google Auto DE",
-	  method:'POST',
+	  method:'GET',
 	  Referer:'https://translate.google.com/?tab=yT#en',
-	  action:"https://translate.google.com/",
-	  post:"client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
+	  action:"https://translate.google.com/?client=t&hl=de&sl=auto&tl=de&multires=1&prev=btn&ssel=0&tsel=0&uptl=de&sc=1&text=%%SEL%%",
+	  post:"",
 	  code:"UTF-8",
 	  xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
 	},
 
 	{
 	  Description:"Google Auto EN",
-	  method:'POST',
+	  method:'GET',
 	  Referer:'https://translate.google.com/?tab=yT#de',
-	  action:"https://translate.google.com/",
-	  post:"client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
+	  action:"https://translate.google.com/?client=t&hl=de&sl=auto&tl=en&multires=1&prev=btn&ssel=0&tsel=0&sc=1&text=%%SEL%%",
+	  post:"",
 	  code:"UTF-8",
 	  xpath:'.//span[@id="result_box"]|.//div[@id="result_box"]',
-	},
-	{
-	Description:"Bing Auto DE",
-	method:'GET',
-	Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22de%22&loc=de&ctr=&text=%%SEL%%",
-	code:"UTF-8",
-	start:'^"',
-	end:'"$',
-	},
-
-	{
-	Description:"Bing Auto EN",
-	method:'GET',
-	Referer:"http://www.microsofttranslator.com/", action:"http://api.microsofttranslator.com/V2/Ajax.svc/Translate?appId=46846E697D3BC6FA50998483EF31894654002928&from=%22%22&to=%22en%22&loc=en&ctr=&text=%%SEL%%",
-	code:"UTF-8",
-	start:'^"',
-	end:'"$',
 	}
       ],
 
@@ -456,7 +442,7 @@ display: none;
                 res = RegExp.$1;
               } else {
      //self.debug(txt)
-                var hdoc = self.str2dom(txt); 
+                var hdoc = self.str2dom(txt);
                 var result = hdoc.evaluate(xpath, hdoc, null,
                              XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
      //self.debug(result.snapshotItem(0));
@@ -683,7 +669,7 @@ display: none;
       }
     }
     popupTranslate.init();
-	
+
 	// Popup Übersetzung aus dem Kontextmenü heraus
 	(function (){
 	var contextMenu = document.getElementById("contentAreaContextMenu");
@@ -738,13 +724,13 @@ display: none;
   <window id="main-window">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
   <window id="messengerWindow">
     <keyset id="mainKeyset2">
       <key id="key_Translate" key="P" oncommand="popupTranslate.onCommand(false);" modifiers="shift"/>
-      <key id="key_Translate2" key="P" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
+      <key id="key_Translate2" key="y" oncommand="popupTranslate.onCommand(true);" modifiers="shift,alt"/>
     </keyset>
   </window>
 </overlay>
