@@ -7,18 +7,19 @@
 // @compatibility  Firefox 40
 // @charset        UTF-8
 // @include        main
-// @version        0.0.10b
-// @note           0.0.10 Firefox 40 で動かなくなった部分を修正
-// @note           0.0.9 細部を修正
-// @note           0.0.8 Firefox 25 でエラーが出ていたのを修正
-// @note           0.0.7 ツールバーが自動で消えないことがあったのを修正
-// @note           0.0.6 アイコンを作って検索時の強調を ON/OFF できるようにした
-// @note           0.0.6 背面のタブを複数開いた際の引き継ぎを修正
-// @note           0.0.5 大幅に変更（変更し過ぎてどこを変更したのかすら忘れた）
-// @note           0.0.5 外部からイベントでハイライトできるようにした
-// @note           0.0.5 "戻る"動作にツールバーが連動するようにした
-// @note           0.0.5 色を選んで強調できるようにしてみた
-// @note           0.0.5 ツールバーが無駄にスペースをとる場合があるのを修正
+// @version        0.0.10c
+// @note           0.0.10c Frei verschiebbare Schaltfläche von Aborix hinzugefügt
+// @note           0.0.10  Firefox 40 で動かなくなった部分を修正
+// @note           0.0.9   細部を修正
+// @note           0.0.8   Firefox 25 でエラーが出ていたのを修正
+// @note           0.0.7   ツールバーが自動で消えないことがあったのを修正
+// @note           0.0.6   アイコンを作って検索時の強調を ON/OFF できるようにした
+// @note           0.0.6   背面のタブを複数開いた際の引き継ぎを修正
+// @note           0.0.5   大幅に変更（変更し過ぎてどこを変更したのかすら忘れた）
+// @note           0.0.5   外部からイベントでハイライトできるようにした
+// @note           0.0.5   "戻る"動作にツールバーが連動するようにした
+// @note           0.0.5   色を選んで強調できるようにしてみた
+// @note           0.0.5   ツールバーが無駄にスペースをとる場合があるのを修正
 // @note           0.0.5
 // ==/UserScript==
 
@@ -38,6 +39,13 @@ const CLASS_ITEM  = PREFIX + 'item';
 const CLASS_SPAN  = PREFIX + 'span';
 const CLASS_INDEX = PREFIX + 'index';
 const EVENT_RESPONSE = 'RESPONSE_' + UID;
+
+// mögliche Positionen des Icons
+const POSITION_MOVABLE = 0;   // verschiebbar
+const POSITION_URLBAR  = 1;   // in URL-Leiste
+// Festlegen der Position, Standardposition ist URL-Leiste, mögliche Positionen:
+// POSITION_MOVABLE = verschiebbar, POSITION_URLBAR = in URL-Leiste
+const iconPosition = POSITION_URLBAR;
 
 var GET_KEYWORD = true;
 var wmap = new WeakMap();
@@ -109,12 +117,31 @@ window.gWHT = {
 	init: function() {
 		this.xulstyle = addStyle(CSS);
 
-		var icon = $("urlbar-icons").appendChild(document.createElement("image"));
-		icon.setAttribute("id", PREFIX + "icon");
-		icon.setAttribute("class", PREFIX + "icon");
-		icon.setAttribute("onclick", "gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD");
-		icon.setAttribute("context", "");
-		icon.setAttribute("style", "padding: 0px 2px;");
+		if (iconPosition == POSITION_URLBAR) {
+			var icon = $("urlbar-icons").appendChild(document.createElement("image"));
+			icon.id = PREFIX + "icon";
+			icon.className = PREFIX + "icon";
+			icon.setAttribute("onclick",
+				"if (event.button == 2) return; gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD");
+			icon.style.padding = "0px 2px";
+		} else {
+			try {
+				CustomizableUI.createWidget({
+					id: PREFIX + "icon",
+					defaultArea: CustomizableUI.AREA_NAVBAR,
+					label: "Word Highlight Toolbar",
+					tooltiptext: "",
+					onCreated: function(icon) {
+						icon.classList.add(PREFIX + "icon");
+						icon.style.padding = "0px 2px";
+					},
+					onCommand: function(event) {
+						var gWHT = event.target.ownerGlobal.gWHT;
+						gWHT.GET_KEYWORD = !gWHT.GET_KEYWORD;
+					}
+				});
+			} catch(e) { };
+		};
 
 		var bb = document.getElementById("appcontent");
 		var container = bb.appendChild(document.createElement("hbox"));
