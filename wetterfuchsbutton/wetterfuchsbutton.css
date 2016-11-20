@@ -459,7 +459,7 @@
                    url-prefix(http://www.wetter.de/deutschland/regenradar-karte-schleswig-holstein-c49p1.html),
                    url-prefix(http://www.wetter.de/deutschland/regenradar-karte-thueringen-c49p16.html){
 
-	#wrapper-site > DIV:first-child, #wrapper-site > DIV:nth-child(2), .osm-map-legend.map-engine.body, .billboard-background,
+	#wrapper-site > DIV:first-child, #wrapper-site > DIV:nth-child(2), .billboard-background,
 	#wrapper-site > DIV:nth-child(3), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H1, #site-footer,
 	#wrapper-site > DIV:nth-child(6) > DIV:last-child > DIV:nth-child(2), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H2,
 	#wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > UL, #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:last-child,
@@ -467,10 +467,12 @@
 
 	body {
 	overflow: hidden !important;
-	margin-top: -265px !important;
 	}
 
 	/*   Verschiebt Steuerung, von ober dem Bild nach unten   */
+
+	.osm-map-legend.map-engine.body{margin-top: 670px !important; margin-left: -20px !important; }
+
 	.MGMapControls.cL_90_x_30, .webmapengine-controls-before,  .webmapengine-controls-after {margin-top: 691px !important;}
 	.MGMapHeader{margin-top: 690px !important; background: #E2DBCB !important;}
 	.MGMapTimeDisplay {margin-left: 20px !important; margin-top: 4px !important; font-weight: bold !important;color: black! important;}
@@ -480,3 +482,4 @@
 	/*   Bild nach links und oben schieben   */
 	.mapengine {margin-top: -150px !important; }
 	}
+
