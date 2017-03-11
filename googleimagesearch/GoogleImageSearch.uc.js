@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name            googleImageSearch.uc.js
 // @namespace       googleImageSearch@zbinlin
-// @description     google 以图搜图脚本
+// @description     Google-Bildersuche
 // @include         chrome://browser/content/browser.xul
 // @author          zbinlin
+// @versionsinfo    Anpassung für Firefox 52+ von aborix
 // @homepage        http://www.czcp.co.cc
-// @version         0.0.2.2
-// @compatibility   firefox 4.0+
-// @updateURL     https://j.mozest.com/ucscript/script/43.meta.js
+// @version         0.0.2.3
+// @compatibility   firefox 4.0 - 52.0+
 // ==/UserScript==
 
 var googleImageSearch = {
@@ -23,18 +23,18 @@ var googleImageSearch = {
         imagesearch.setAttribute("onclick", "googleImageSearch.onSearch(event);");
         cacm.insertBefore(imagesearch, sendimage);
         cacm.addEventListener("popupshowing", function () {
-            // 暂不支持 canvas
+            // bei Canvas deaktivieren
             imagesearch.hidden = gContextMenu.onCanvas || !gContextMenu.onImage;
         }, false);
     },
     onSearch: function (e) {
-        var imageURL = e.target.parentNode.triggerNode.src;
+        if (!gContextMenu)
+            return;
+        var imageURL = gContextMenu.mediaURL;
         var url = "http://www.google.com/searchbyimage?image_url=";
         var where = (e.type == "click" && e.button == 1) ? "tabshifted" : "tab";
         url += encodeURIComponent(imageURL);
-        var that = gContextMenu;
-        var doc = that ? that.target.ownerDocument : '';
-        openUILinkIn(url, where, null, null, doc.documentURIObject);
+        openUILinkIn(url, where);
         closeMenus(e.target);
     }
 }

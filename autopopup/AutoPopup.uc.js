@@ -2,8 +2,8 @@
 // @name           AutoPopup.uc.js
 // @description    Auto popup menulist/menupopup
 // @compatibility  Firefox 30.0+
-// @author         GOLF-AT, modify by gsf
-// @version        2015.1.30
+// @author         GOLF-AT, modify by gsf & aborix
+// @version        2017.3.09
 // ==UserScript==
 
 (function() {
@@ -216,11 +216,14 @@
 		}
 		!PopElt && (PopElt = overElt);
 
-		if (overElt.localName == 'dropmarker')
-			PopElt.showPopup();
-		else if (overElt.localName == 'menulist')
+		if (overElt.localName == 'dropmarker') {
+			if (overElt.classList.contains('urlbar-history-dropmarker'))
+				overElt.click();
+			else
+				PopElt.showPopup();
+		} else if (overElt.localName == 'menulist') {
 			overElt.open = true;
-		else if (IsNewMenuBtn(overElt)) {
+		} else if (IsNewMenuBtn(overElt)) {
 			PanelUI.show();
 			PopElt = document.getElementById(menuPanelID);
 		} else if (IsWidgetBtn(overElt)) {
