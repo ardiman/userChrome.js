@@ -1,1 +1,8 @@
-location=="chrome://browser/content/browser.xul"&&eval("gURLBar.handleCommand="+gURLBar.handleCommand.toString().replace(/^\s*(load.+);/gm,"/^javascript:/.test(url)||content.location=='about:blank'?$1:gBrowser.loadOneTab(url, {postData: postData, inBackground: false, allowThirdPartyFixup: true});"))
+    if (location == 'chrome://browser/content/browser.xul') {
+        if (typeof gURLBar.handleCommand !== 'undefined') {
+            let str = gURLBar.handleCommand.toString();
+            str = str.replace('&& !isTabEmpty', '|| isTabEmpty');
+            str = str.replace('where = altEnter', 'where = !altEnter');
+            (new Function('gURLBar.handleCommand = ' + str)());
+        }
+    }
