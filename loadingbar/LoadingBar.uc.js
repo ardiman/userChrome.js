@@ -1,187 +1,190 @@
-/* LoadingBar.uc.js */
-
-(function(){
-//Location Bar Enhancer5.1;Loading Bar0.3.0
-	var cssStr = (function(){/*
-			#urlbar {
-				background-image: -moz-repeating-linear-gradient(top -45deg, rgba(255,255,255,0), rgba(255,255,255,0) 6px, rgba(255,255,255,1) 6px, rgba(255,255,255,1) 12px), -moz-linear-gradient(left, rgba(255,255,255,0) 0%, rgba(17,238,238,.7) 100%);
-				background-size:0 0;
-				background-repeat:repeat-x, no-repeat;
-				transition: background-size 350ms ease 0s !important;
-			}
-			#urlbar:not([style="background-size: 0% 100%;"]) {
-				animation: progress-bar-stripes 2s linear infinite;
-			}
-			@-moz-keyframes progress-bar-stripes {
-				from {
-					background-position: 0, 0;
+// ==UserScript==
+// @include			main
+// @version			0.3.3
+// @note			[20141128]兼容E10S
+// @note			[20150206]添加connecting动画
+// @note			[20150404]尝试改善某些情况下的CPU占用
+// @note			[20150711]更新CSS linear-gradient(),radial-gradient()标准语法(nightly 150710)。
+// ==/UserScript==
+location == "chrome://browser/content/browser.xul" && (function () {
+	//Location Bar Enhancer5.1;Loading Bar0.3.0
+	var loadingBar = {
+		progress: new WeakMap(),
+		init: function () {
+			if(document.getElementById('UCloadingBar')) return;
+			var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+			sss.loadAndRegisterSheet(Services.io.newURI('data:text/css;base64,' + btoa((function () {/*
+				@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+				@-moz-document url("chrome://browser/content/browser.xul"){
+					@keyframes UCloadingBarPulse {
+						0% {opacity:1}
+						50% {opacity:0}
+						100% {opacity:1}
+					}
+					@keyframes loadingBarConnecting {
+						0% {transform: translateX(300%)}
+						100% {transform: translateX(-300%)}
+					}
+					#UCloadingBar, #UCloadingBar[connecting]::after{
+						background-size: 100% 5px;
+						background-repeat: repeat-x;
+						height: 10px;
+					}
+					#UCloadingBar{
+						position: fixed;
+						pointer-events:none;
+						border-left:2px transparent;
+						border-right:2px transparent;
+						overflow: hidden;
+						opacity:1;
+						transform: translateX(-100%);
+						background-image:linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 25%, rgba(254,178,53,1) 100%);
+						width:100%;
+					}
+					#UCloadingBar:not([style*="translateX(-100%)"]){
+						transition: transform 800ms ease 0s;
+					}
+					#UCloadingBar:not([connecting])::after {
+						display:none;
+					}
+					#UCloadingBar[connecting]::after {
+						content:'';
+						animation: loadingBarConnecting 2500ms infinite linear;
+						background-image: radial-gradient(ellipse farthest-corner at center top, rgba(254,178,53, 1) 25%, rgba(255,255,255,0.25) 100%);
+						width: 30%;
+						position: absolute;
+					}
+					#UCloadingBar[connecting]{
+						background-image:none;
+					}
+					#UCloadingBar[complete]{
+						opacity:0;
+					}
+					#UCloadingBar[complete][style*="translateX(0%)"]{
+						transition: opacity 800ms ease 100ms;
+					}
+					#UCloadingBar[style]:not([connecting]):not([complete])::before{
+						content:'';
+						position: absolute;
+						top:-10px;
+						right: 0px;
+						width: 100px;
+						height: 100%;
+						box-shadow: 0px 0px 10px 3px rgba(254,178,53,1), 0px 0px 5px 2px rgba(254,178,53,1);
+						transform: rotate(3deg) translate(0px, -4px);
+						animation:UCloadingBarPulse 2s ease-out 0s infinite;
+					}
 				}
-				to {
-					background-position: 51px 0, 0;
-				}
-			}
-	*/}).toString().replace(/^.+\s|.+$/,"");
-	
-	var style = document.createProcessingInstruction("xml-stylesheet", "type=\"text/css\"" + " href=\"data:text/css;base64," + btoa(cssStr) + "\"");
-	var mainW = document.getElementById("main-window");
-	document.insertBefore(style, mainW);
-
-	function main(window) {
-	  var {document, gBrowser} = window;
-	  function $(id) document.getElementById(id);
-	  var urlbar = $("urlbar");
-	  let pageProgress = 0;
-	  let async = makeWindowHelpers(window).async;
-	  var LoadingBar = {
-		listener: {
-		  onChangeTab: function(e) {
-			urlbar.style.backgroundSize = '0% 100%';
-			pageProgress = 0;
-		  },
-		  onProgressChange: function(aBrowser,webProgress,request,curSelfProgress,maxSelfProgress,curTotalProgress,maxTotalProgress) {
-			if (gBrowser.contentDocument === aBrowser.contentDocument) {
-				var val = (curTotalProgress-1)/(maxTotalProgress-1);
-				pageProgress = val;
-				urlbar.style.backgroundSize = (100*val) + '% 100%';
-				if (val > 0.9)
-				  async(function() {
-					if (pageProgress > 0.95)
-						urlbar.style.backgroundSize = '100% 100%';
-				}, 1000);
-			}
-		  },
-		  onStateChange: function() {
-			if (pageProgress > 0.95){
-				async(function() {
-					urlbar.style.backgroundSize = '0% 100%';
-					pageProgress = 0;
-				}, 1000);
+			*/}).toString().replace(/^.+\s|.+$|\t+\/\/.*/g, '')), null, null), sss.USER_SHEET);
+			var appcontent = document.getElementById('appcontent'),
+				lb  = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'hbox');
+			lb.id = 'UCloadingBar';
+			appcontent.insertBefore(lb, appcontent.firstChild);
+			this.progressBar = lb;
+			gBrowser.tabContainer.addEventListener('TabSelect', this, false);
+			gBrowser.addTabsProgressListener(this);
+		},
+		setConnecting: function(connecting){
+			if(connecting){
+				this.progressBar.hasAttribute('connecting') || this.progressBar.setAttribute('connecting', 'true');
 			}else{
-				urlbar.style.backgroundSize = '0% 100%';
+				this.progressBar.hasAttribute('connecting') && this.progressBar.removeAttribute('connecting');
 			}
-		  }
+		},
+		setComplete: function(complete){
+			if(complete){
+				this.progressBar.hasAttribute('complete') || this.progressBar.setAttribute('complete', 'true');
+			}else{
+				this.progressBar.hasAttribute('complete') && this.progressBar.removeAttribute('complete');
+			}
+			return complete;
+		},
+		handleEvent: function (e) {
+			if (e.type == 'TabSelect') {
+				this.onChangeTab();
+			}
+		},
+		onChangeTab: function () {
+			var cd = gBrowser.selectedBrowser,
+				val = this.progress.get(cd);
+			if (!val) {
+				val = [0, false];
+				newTab = true;
+				this.progress.set(cd, val);
+			}
+			if(!this.progressBar) return;
+
+			this.setConnecting(val[1]);
+			this.progressBar.style.transition = 'none';
+			if (val[0] > 0.95) {
+				if(!this.setComplete(val[0] == 1)){
+					this.progressBar.style.transform = 'translateX(0%)';
+				}
+			}else{
+				this.setComplete(false);
+				this.progressBar.style.transform = 'translateX('+((!val[0] && val[1] ? 1 : val[0]) * 100 - 100) + '%)';
+			}
+			setTimeout(function(){
+				this.progressBar.style.transition = '';
+			}.bind(this), 50);
+		},
+		onProgressChange: function (aBrowser, webProgress, request, curSelfProgress, maxSelfProgress, curTotalProgress, maxTotalProgress) {
+			var val = (curTotalProgress - 1) / (maxTotalProgress - 1);
+			if (!/^((ht|f)tps?\:|about:blank)/.test((aBrowser.registeredOpenURI || {asciiSpec: 'about:blank'}).asciiSpec)){
+				return this.progress.set(aBrowser, [val, false]);
+			}
+			this.progress.set(aBrowser, [val, false]);
+			if (this.progressBar && gBrowser.selectedBrowser === aBrowser) {
+				this.setConnecting(false);
+
+				if (val > 0.95) {
+					this.progressBar.style.transform = 'translateX(0%)';
+				}else{
+					this.progressBar.style.transform = 'translateX('+((val * 100) - 100) + '%)';
+				}
+			}
+		},
+		onStateChange: function (aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
+			var val = this.progress.get(aBrowser),
+				isCBrowser = gBrowser.selectedBrowser === aBrowser;
+			if(!val){
+				val = [0, false];
+				this.progress.set(aBrowser, val);
+			}
+
+			if (aStateFlags & 1 && aStateFlags & 262144){
+				if (!(aStateFlags & 16777216)){
+					val = [0, /^((ht|f)tps?\:|about:blank)/.test((aBrowser.registeredOpenURI || {asciiSpec: 'about:blank'}).asciiSpec)];
+					if(isCBrowser) {
+						this.progressBar.style.transform = 'translateX(0%)';
+						val[1] && this.setComplete(false);
+						this.setConnecting(val[1]);
+					}
+					this.progress.set(aBrowser, val);
+				}
+			}else if(aStateFlags & 16){
+				if(isCBrowser) {
+					this.timer(function(){
+						this.progress.get(aBrowser)[0] == 1 && this.setComplete(true);
+					}.bind(this), 1000);
+					this.setConnecting(false);
+				}
+				this.progress.set(aBrowser, [1, false]);
+			}
+		},
+		timer: function (callback, delay) {
+			delay = delay || 0;
+			var stopTimer = function (){
+				if (this._timer == null) return;
+				clearTimeout(this._timer);
+				this._timer = null;
+			}.bind(this);
+			this._timer = setTimeout(function(){
+				stopTimer();
+				callback();
+			}, delay);
+
 		}
-	  };
-
-	  gBrowser.tabContainer.addEventListener('TabSelect',LoadingBar.listener.onChangeTab,false);
-	  gBrowser.addTabsProgressListener(LoadingBar.listener);
-
-	  unload(function() {
-		gBrowser.tabContainer.removeEventListener('TabSelect',LoadingBar.listener.onChangeTab,false);
-
-		gBrowser.removeTabsProgressListener(LoadingBar.listener);
-	  }, window);
-	}
-
-
-
-	watchWindows(main, "navigator:browser");
-
-	function runOnLoad(window, callback, winType) {
-	  window.addEventListener("load", function() {
-		window.removeEventListener("load", arguments.callee, false);
-
-		if (window.document.documentElement.getAttribute("windowtype") == winType)
-		  callback(window);
-	  }, false);
-	}
-
-	function runOnWindows(callback, winType) {
-	  function watcher(window) {
-		try {
-		  callback(window);
-		}
-		catch(ex) {}
-	  }
-
-	  let browserWindows = Services.wm.getEnumerator(winType);
-	  while (browserWindows.hasMoreElements()) {
-		let browserWindow = browserWindows.getNext();
-		if (browserWindow.document.readyState == "complete")
-		  watcher(browserWindow);
-		else
-		  runOnLoad(browserWindow, watcher, winType);
-	  }
-	}
-
-	function watchWindows(callback, winType) {
-	  function watcher(window) {
-		try {
-		  callback(window);
-		}
-		catch(ex) {}
-	  }
-
-	  runOnWindows(callback, winType);
-
-	  function windowWatcher(subject, topic) {
-		if (topic == "domwindowopened")
-		  runOnLoad(subject, watcher, winType);
-	  }
-	  Services.ww.registerNotification(windowWatcher);
-
-	  unload(function() Services.ww.unregisterNotification(windowWatcher));
-	}
-
-	function unload(callback, container) {
-	  let unloaders = unload.unloaders;
-	  if (unloaders == null)
-		unloaders = unload.unloaders = [];
-
-	  if (callback == null) {
-		unloaders.slice().forEach(function(unloader) unloader());
-		unloaders.length = 0;
-		return null;
-	  }
-
-	  if (container != null) {
-		container.addEventListener("unload", removeUnloader, false);
-
-		let origCallback = callback;
-		callback = function() {
-		  container.removeEventListener("unload", removeUnloader, false);
-		  origCallback();
-		}
-	  }
-
-	  function unloader() {
-		try {
-		  callback();
-		}
-		catch(ex) {}
-	  }
-	  unloaders.push(unloader);
-
-
-	function removeUnloader() {
-		let index = unloaders.indexOf(unloader);
-		if (index != -1)
-		  unloaders.splice(index, 1);
-	  }
-	  return removeUnloader;
-	}
-	
-	function makeWindowHelpers(window) {
-	  let {clearTimeout, setTimeout} = window;
-
-	  function async(callback, delay) {
-		delay = delay || 0;
-		let timer = setTimeout(function() {
-		  stopTimer();
-		  callback();
-		}, delay);
-
-		function stopTimer() {
-		  if (timer == null)
-			return;
-		  clearTimeout(timer);
-		  timer = null;
-		}
-	  }
-
-	  return {
-		async: async,
-	  };
-	}
-
+	};
+	loadingBar.init();
 })();

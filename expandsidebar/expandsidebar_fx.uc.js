@@ -1,13 +1,14 @@
 // ==UserScript==
-// @name           expandsidebar_fx38.uc.js
+// @name           expandsidebar_fx.uc.js
 // @description    Automatisches Öffnen und Schließen der Seitenleiste
 // @namespace      http://forums.mozillazine.org/viewtopic.php?p=2592073#2592073
 // @include        chrome://browser/content/browser.xul
-// @compatibility  Firefox 38
+// @compatibility  Firefox 54+
 // @author         Alice0775
 // @Note           _SIDEBARPOSITION = Seitenleiste Position angeben
 // @Note           keycongigやmousegesture等には SidebarUI.toggle(何タラ);
 // @Note
+// @version        2017/07/06 06.58 fix for Firefox 54+ by aborix
 // @version        2015/08/29 00:00 fix lastused command
 // @version        2015/05/13 19:00 fix lastused command
 // @version        2015/02/20 22:00 fix due to Bug 1123517
@@ -41,7 +42,7 @@ var ucjs_expand_sidebar = {
   _OPEN_DELAY_DRAGOVER: 400, //Öffnen Verzögerung beim ziehen
   _CLOSE_DELAY: 800,         //Schließen Verzögerung
   _SCROLLBAR_DELAY: 1000,    //Scroll-Balken Bewegung, benötigte Zeitverzögerung, zum automatischen öffnen und schließen 
-  _DEFAULTCOMMAND: "viewBookmarksSidebar", //Standard-Seitenleiste
+  _DEFAULTCOMMAND: "viewBookmarksSidebar", //Standard-Seitenleiste: Lesezeichenleiste
   _TOLERANCE: 0,             //Erkennung von Fenster Bereich auf der linken Seite (empfohlener Wert bei Verwendung von TreeStyleTab Erweiterung =0)
   _DONOTCLOSE_XULELEMENT: true, //Maus auf einem XUL-Element, nicht schließen (bei XUL-Inhalt nicht schließen)
   _CLOSEWHENGOOUT:  false, //Wenn die Maus bewegt wird, vor das Fenster: true: Schließen, [false]: Nicht schließen
@@ -148,12 +149,14 @@ var ucjs_expand_sidebar = {
       })(this);
     }
 
-    eval("PrintUtils.printPreview = " + PrintUtils.printPreview.toString().replace(
-      '{',
-      '$& \
-      if(document.getElementById("sidebar-box") && \
-         !!document.getElementById("sidebar-box").getAttribute("sidebarcommand")) \
-        window.ucjs_expand_sidebar.toggleSidebar("");'
+    eval("PrintUtils.printPreview = " + PrintUtils.printPreview.toString()	
+      .replace('printPreview(aListenerObj)', 'function $&')   // for Firefox version >= 54
+      .replace(
+        '{',
+        '$& \
+        if(document.getElementById("sidebar-box") && \
+           !!document.getElementById("sidebar-box").getAttribute("sidebarcommand")) \
+          window.ucjs_expand_sidebar.toggleSidebar("");'
     ));
 
     /**
