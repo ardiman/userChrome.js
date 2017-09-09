@@ -3,7 +3,7 @@
 // @description    Auto popup menulist/menupopup
 // @compatibility  Firefox 30.0+
 // @author         GOLF-AT, modify by gsf & aborix
-// @version        2017.3.09
+// @version        2017.9.04
 // ==UserScript==
 
 (function() {
@@ -107,9 +107,9 @@
 		if (whitesInx > -1 && PopElt)
 			return PopElt;
 		var nodes = elt ? elt.ownerDocument.getAnonymousNodes(elt) : null;
-		for (let [i, k] in Iterator(nodes)) {
-			if (k.localName == 'menupopup')
-				return k;
+		for (let node of nodes) {
+			if (node.localName == 'menupopup')
+				return node;
 		}
 
 		var s = elt.getAttribute('popup');
@@ -282,7 +282,6 @@
 		whitesInx = -1;
 		// gsf ：some,forEach,filter等数组遍历方法接受第二个参数，表作用域this，可不用call了
 		if (n.hasAttribute('id') && whiteIDs.some(function(k,i,me) {
-			//for (let [i, k] in Iterator(whiteIDs)) {
 			if (k.id == n.id) {
 				overElt = n;
 				whitesInx = i;
