@@ -33,6 +33,11 @@ Das **Ergebnis des Skripts**:
 
 ![Screenshot Extras Config Menu als Button neben Hilfe](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_btn2.png)
 
+Falls die mitgeliefrte css-Datei eingebunden wird, wird das Menü mit folgenden Icons verziert:
+
+![Screenshot Extras Config Menu mit Icons durch CSS](https://github.com/ardiman/userChrome.js/raw/master/extras_config_menu/scr_extras_config_menu_with_css.png)
+
+
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
 
