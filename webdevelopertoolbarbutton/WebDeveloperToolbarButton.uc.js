@@ -29,6 +29,12 @@
    } catch(e) { };
 
    setTimeout(function() {
+      if (document.getElementById('menuWebDeveloperPopup').childElementCount <= 1) {
+         // s. DevToolsStartup.prototype.initDevTools
+         // https://dxr.mozilla.org/mozilla-central/source/devtools/shim/devtools-startup.js
+         let { require } = Cu.import("resource://devtools/shared/Loader.jsm", {});
+         require("devtools/client/framework/devtools-browser");
+      };
       var button = document.getElementById('Webdeveloper-button');
       var dblMenuPopup = document.getElementById('menuWebDeveloperPopup').cloneNode(true);
       button.appendChild(dblMenuPopup);

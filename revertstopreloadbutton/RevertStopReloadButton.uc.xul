@@ -30,6 +30,7 @@
 // @include        main
 // @compatibility  Firefox 55+
 // @author         Alice0775
+// @version        2017/09/10 11.22 fix by aborix
 // @version        2014/05/15 01:30 fix color
 // @version        2014/05/13 10:30 fix second window
 // @version        2014/05/13 09:50 remove config
@@ -55,7 +56,7 @@ var revertStopReloadButton = {
           var props = {
             id: "ucjs_reload-button",
             class: "toolbarbutton-1 chromeclass-toolbar-additional",
-            label: "Reload",
+            label: "Neu laden",
             removable: "true",
             command: "Browser:ReloadOrDuplicate",
             onclick: "checkForMiddleClick(this, event);",
