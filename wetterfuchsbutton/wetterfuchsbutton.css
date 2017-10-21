@@ -3,40 +3,41 @@
 
     /*  Vorhersage klick auf Fahnen   */
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/wetter/schweden/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/norwegen/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/finnland/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/daenemark/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/niederlande/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/belgien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/grossbritannien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/irland/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/island/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/luxemburg/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/frankreich/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/spanien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/oesterreich/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/schweiz/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/italien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/tschechische-republik/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/slowakei/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/slowenien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/polen/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/russische-foederation/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/estland/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/lettland/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/litauen/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/ukraine/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/ungarn/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/rumaenien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/bulgarien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/tuerkei/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/serbien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/kroatien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/bosnien-herzegowina/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/montenegro/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/mazedonien/"),
-                   url-prefix("http://www.wetterkontor.de/de/wetter/albanien/")
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/wetter/schweden/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/norwegen/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/finnland/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/daenemark/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/niederlande/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/belgien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/grossbritannien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/irland/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/island/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/luxemburg/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/frankreich/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/spanien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/oesterreich/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/schweiz/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/italien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/tschechische-republik/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/slowakei/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/slowenien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/polen/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/russische-foederation/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/estland/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/lettland/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/litauen/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/ukraine/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/ungarn/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/rumaenien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/bulgarien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/tuerkei/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/serbien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/kroatien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/bosnien-herzegowina/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/montenegro/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/mazedonien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/albanien/"),
+                   url-prefix("https://www.wetterkontor.de/de/wetter/portugal/")
                    {
     #header, H1,H2, HR, P,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child,
     .uk-breadcrumb, .uk-width-large-2-5.uk-width-medium-1-3, .uk-panel.uk-panel-box.uk-margin, .uk-grid.uk-grid-small.uk-grid-divider,
@@ -49,13 +50,14 @@
     #content > DIV > DIV:first-child > ARTICLE > DIV:last-child,
     #content > DIV > DIV:first-child > UL:nth-child(8) > LI > A,
     #content > DIV > DIV:first-child > DIV:nth-child(8) > A,
-    .uk-width-small-1-2.uk-width-medium-1-2,
+    .uk-width-small-1-2.uk-width-medium-1-2, .uk-panel,
     .uk-width-large-1-6.uk-hidden-small.uk-hidden-medium,
     .uk-panel.uk-panel-box{display: none !important;}
-
+    #page{box-shadow: none!important; border: none !important;}
+ 
     #content {height: 670px !important; }
 
-                            HTML, #start, .uk-grid {background: #FFFFFF !important;}
+									 HTML, #start, .uk-grid {background: #FFFFFF !important;}
 
 
     #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > UL:last-child {margin-top: 100px !important; margin-bottom: -45px !important;}
@@ -66,7 +68,7 @@
     body {overflow: hidden !important;}
     }
 
-    @-moz-document url("http://www.wetterkontor.de/de/wetter/deutschland/") {
+    @-moz-document url("https://www.wetterkontor.de/de/wetter/deutschland/") {
     #header, H1,H2, P,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child,
     .uk-breadcrumb, .uk-width-large-2-5.uk-width-medium-1-3, .uk-panel.uk-panel-box.uk-margin, #wkFooter2, .div_part,
     .uk-grid.uk-grid-small.uk-grid-divider,  .uk-text-right.uk-text-small.uk-text-muted, #start > IMG {display: none !important;}
@@ -93,18 +95,18 @@
     body {overflow: hidden !important;}
     }
 
-    @-moz-document url("http://www.wetterkontor.de/de/wetter/deutschland/bayern.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/schleswigholstein-hamburg.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/badenwuerttemberg.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/niedersachsen-bremen.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/hessen.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/mecklenburgvorpommern.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/nordrheinwestfalen.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/rheinlandpfalz-saarland.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/sachsen.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/sachsenanhalt.asp"),
-                   url("http://www.wetterkontor.de/de/wetter/deutschland/thueringen.asp"){
+    @-moz-document url("https://www.wetterkontor.de/de/wetter/deutschland/bayern.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/schleswigholstein-hamburg.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/badenwuerttemberg.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/niedersachsen-bremen.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/hessen.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/mecklenburgvorpommern.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/nordrheinwestfalen.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/rheinlandpfalz-saarland.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/sachsen.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/sachsenanhalt.asp"),
+                   url("https://www.wetterkontor.de/de/wetter/deutschland/thueringen.asp"){
 
     #header, H1,H2, HR, P,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child,
     .uk-breadcrumb, .uk-width-large-2-5.uk-width-medium-1-3, .uk-panel.uk-panel-box.uk-margin, .uk-grid.uk-grid-small.uk-grid-divider,
@@ -128,7 +130,7 @@
     }
 
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/wetter/deutschland/wetter-vorhersage-ort.asp"){
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/wetter/deutschland/wetter-vorhersage-ort.asp"){
     #header, H1, HR,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child,
     .uk-breadcrumb, .uk-width-large-2-5.uk-width-medium-1-3,  .uk-grid.uk-grid-small.uk-grid-divider,
     #wkFooter2, .cc_banner.cc_container.cc_container--open  {display: none !important;}
@@ -155,7 +157,7 @@
     #content > DIV > DIV:first-child > UL:nth-child(17) > LI:nth-child(2),
     #content > DIV > DIV:first-child > UL:nth-child(17) > LI:nth-child(3),
     #content > DIV > DIV:first-child > UL:nth-child(17) > LI:last-child
-       {max-width: 150px !important; margin-left: 15px !important; margin-right: -15px !important;}
+    {max-width: 150px !important; margin-left: 15px !important; margin-right: -15px !important;}
 
 
     #warnungen > H2{margin-left: 10px !important;}
@@ -176,19 +178,19 @@
     body {overflow: hidden !important;}
     }
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-wind.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-wetter.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-niederschlag.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-temperatur.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-sonnenscheindauer.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-druck.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-feuchte.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-gefuehlte-temperatur.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/aktuelle-werte-deutschland-sichtweite.asp"){
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-wind.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-wetter.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-niederschlag.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-temperatur.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-sonnenscheindauer.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-druck.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-feuchte.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-gefuehlte-temperatur.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/aktuelle-werte-deutschland-sichtweite.asp"){
     #header, H1, H2, P, .uk-breadcrumb, .uk-width-large-2-5.uk-width-medium-1-3, #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(5),
     .uk-text-right.uk-text-small.uk-text-muted, #content > DIV > DIV:first-child > ARTICLE > UL > LI:last-child, #content > DIV > DIV:first-child >
     ARTICLE > UL > LI:first-child > A, .uk-panel.uk-panel-box.uk-margin, #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child
-      > UL > LI:first-child > A, .cc_banner.cc_container.cc_container--open, #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(4) > HR,
+   	> UL > LI:first-child > A, .cc_banner.cc_container.cc_container--open, #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(4) > HR,
     #start > IMG {display: none !important;}
 
     #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(4) > UL:last-child > LI:first-child {margin-top: -30px !important; }
@@ -207,7 +209,7 @@
 
     }
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/bio/uv-index.asp")   {
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/bio/uv-index.asp")	{
 
     #header, H1, H2, P,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child, .uk-breadcrumb,
     .uk-width-large-2-5.uk-width-medium-1-3,  #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(5), .uk-text-right.uk-text-small.uk-text-muted,
@@ -217,14 +219,14 @@
     body {overflow: hidden !important; }
     }
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-hasel.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-erle.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-birke.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-graeser.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-ambrosia.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-beifuss.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-roggen.asp"),
-                   url-prefix("http://www.wetterkontor.de/de/bio/pollenflug-esche.asp")   {
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-hasel.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-erle.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-birke.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-graeser.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-ambrosia.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-beifuss.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-roggen.asp"),
+                   url-prefix("https://www.wetterkontor.de/de/bio/pollenflug-esche.asp")	{
 
     #header, H1, H2, P,  #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child, .uk-breadcrumb,
     .uk-width-large-2-5.uk-width-medium-1-3,  #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(5), .uk-text-right.uk-text-small.uk-text-muted,
@@ -234,34 +236,75 @@
     body {overflow: hidden !important; }
     }
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-bayern.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-badenwuerttemberg.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-hessen.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-mecklenburgvorpommern.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-niedersachsen-bremen.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-nordrheinwestfalen.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-rheinlandpfalz-saarland.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-sachsen.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-sachsenanhalt.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-schleswigholstein-hamburg.asp"),
-                   url-prefix("http://www.wetterkontor.de/warnungen/wetterwarnungen-thueringen.asp"){
+    @-moz-document url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-bayern.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-badenwuerttemberg.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-hessen.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-mecklenburgvorpommern.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-niedersachsen-bremen.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-nordrheinwestfalen.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-rheinlandpfalz-saarland.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-sachsen.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-sachsenanhalt.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-schleswigholstein-hamburg.asp"),
+                   url-prefix("https://www.wetterkontor.de/warnungen/wetterwarnungen-thueringen.asp"){
 
     #header,H1, .uk-width-large-2-5.uk-width-medium-1-3.uk-hidden-small, .uk-text-right, #content > DIV > DIV:first-child > P:nth-child(6),
     #content > DIV > DIV:first-child > ARTICLE > DIV:nth-child(3) > DIV:first-child > UL > LI:last-child, .uk-breadcrumb,
     #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(5), .uk-panel.uk-panel-box.uk-margin,
     #content > DIV > DIV:first-child > P:nth-child(3), #content > DIV > DIV:first-child > P:nth-child(2),
-    .cc_banner.cc_container.cc_container--open   {display: none !important;}
+    .cc_banner.cc_container.cc_container--open	{display: none !important;}
 
     body {overflow: hidden !important; }
-
+    
+    #page{box-shadow: none!important; border: none !important;}
+    
     DIV[class="warnungen_box uk-panel uk-panel-box uk-panel-box-primary"]{margin-top: -300px !important;}
 
     #karte {margin-left: -100px !important;}
     }
 
+    @-moz-document url-prefix("https://www.wetterkontor.de/warnungen/warnung.asp"){
+		
+    #header, .uk-width-large-2-5.uk-width-medium-1-3.uk-hidden-small, .uk-text-right,  
+    .uk-breadcrumb,  #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(7),
+    .banner728x90, #shr-admin-badge, #content > DIV > DIV:first-child > DIV:nth-child(8),
+    .cc_banner.cc_container.cc_container--open {display: none !important;}	
 
-    @-moz-document url-prefix("http://www.wetterkontor.de/de/wetter/europa/"){
+    body {overflow: hidden !important; margin-left: 20px !important;}	
+	
+    #content {height: 700px !important; width: 1200px !important;}
+    
+    #page{box-shadow: none!important; border: none !important;}	
+	
+    .uk-grid.uk-grid-width-medium-1-2 {margin-left: 0px !important;}
+	
+    HTML, #start, .uk-grid {background: #FFFFFF !important; }
+	
+    #karte {margin-left: -110px !important; margin-top: 80px !important;}
+    }
+
+    @-moz-document url("https://www.wetterkontor.de/warnungen/"){
+	
+    #header, .uk-width-large-2-5.uk-width-medium-1-3.uk-hidden-small, .uk-text-right,  
+    .uk-breadcrumb,  #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(10),
+    .banner728x90, #shr-admin-badge,
+    .cc_banner.cc_container.cc_container--open {display: none !important;}	
+	
+    body {overflow: hidden !important; margin-left: 25px !important;}	
+	
+    #content {height: 700px !important; width: 1200px !important;}
+  
+    #page{box-shadow: none!important; border: none !important;}	
+	
+    .uk-grid.uk-grid-width-medium-1-2 {margin-left: 0px !important;}
+	
+    HTML, #start, .uk-grid {background: #FFFFFF !important; }
+	
+    #karte {margin-left: -110px !important; margin-top: 80px !important;}
+    }
+
+    @-moz-document url-prefix("https://www.wetterkontor.de/de/wetter/europa/"){
     #header,H1, H2, .uk-width-large-2-5.uk-width-medium-1-3, .uk-text-right, .uk-text-muted, #content > DIV > DIV:first-child > ARTICLE >
     DIV:nth-child(3) > DIV:first-child > UL > LI:last-child, .uk-breadcrumb,  #wkFooter2, #content > DIV > DIV:first-child > DIV:nth-child(5),
     .uk-panel, .div_part,#content > DIV > DIV:first-child > P:nth-child(2), .uk-grid.uk-grid-small.uk-grid-match,
@@ -437,49 +480,48 @@
     }
     }
 
-    @-moz-document url-prefix(http://www.dwd.de/DWD/wetter/wv_allg/deutschland/),
-                   url-prefix(http://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/) {
+    @-moz-document url-prefix(https://www.dwd.de/DWD/wetter/wv_allg/deutschland/),
+                   url-prefix(https://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/) {
 
     body {
     overflow: hidden !important;
     }
     }
 
-    @-moz-document url-prefix(http://www.wetter.de/deutschland/regenradar-karte-baden-wuerttemberg-c49p8.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-bayern-c49p9.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-hessen-c49p6.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-mecklenburg-vorpommern-c49p13.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-niedersachsen-c49p3.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-nordrhein-westfalen-c49p5.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-rheinland-pfalz-c49p7.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-saarland-c49p10.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-sachsen-c49p14.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-sachsen-anhalt-c49p15.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-schleswig-holstein-c49p1.html),
-                   url-prefix(http://www.wetter.de/deutschland/regenradar-karte-thueringen-c49p16.html){
+    @-moz-document url-prefix(https://www.wetter.de/deutschland/regenradar-karte-baden-wuerttemberg-c49p8.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-bayern-c49p9.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-hessen-c49p6.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-mecklenburg-vorpommern-c49p13.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-niedersachsen-c49p3.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-nordrhein-westfalen-c49p5.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-rheinland-pfalz-c49p7.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-saarland-c49p10.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-sachsen-c49p14.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-sachsen-anhalt-c49p15.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-schleswig-holstein-c49p1.html),
+                   url-prefix(https://www.wetter.de/deutschland/regenradar-karte-thueringen-c49p16.html){
 
-   #wrapper-site > DIV:first-child, #wrapper-site > DIV:nth-child(2), .billboard-background, #wrapper-site > DIV:nth-child(4), #technical-service,
-   #wrapper-site > DIV:nth-child(3), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H1, #site-footer,
-   #wrapper-site > DIV:nth-child(6) > DIV:last-child > DIV:nth-child(2), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H2,
-   #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > UL, #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:last-child,
-   .cc_banner.cc_container.cc_container--open {display: none! important;}
+	#wrapper-site > DIV:first-child, #wrapper-site > DIV:nth-child(2), .billboard-background, #wrapper-site > DIV:nth-child(4), #technical-service,
+	#wrapper-site > DIV:nth-child(3), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H1, #site-footer,
+	#wrapper-site > DIV:nth-child(6) > DIV:last-child > DIV:nth-child(2), #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > H2,
+	#wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:nth-child(2) > UL, #wrapper-site > DIV:nth-child(6) > DIV:first-child > DIV:last-child,
+	.cc_banner.cc_container.cc_container--open {display: none! important;}
 
-   body {
-   overflow: hidden !important;
-   }
+	body {
+	overflow: hidden !important;
+	}
 
-   /*   Verschiebt Steuerung, von ober dem Bild nach unten   */
+	/*   Verschiebt Steuerung, von ober dem Bild nach unten   */
 
-   .osm-map-legend.map-engine.body{margin-top: 670px !important; margin-left: -20px !important; }
+	.osm-map-legend.map-engine.body{margin-top: 670px !important; margin-left: -20px !important; }
 
-   .MGMapControls.cL_90_x_30, .webmapengine-controls-before,  .webmapengine-controls-after {margin-top: 691px !important;}
-   .MGMapHeader{margin-top: 690px !important; background: #E2DBCB !important;}
-   .MGMapTimeDisplay {margin-left: 20px !important; margin-top: 4px !important; font-weight: bold !important;color: black! important;}
-   .MGMapSpeedSliderLabel.hide-for-small{margin-left: 20px !important; margin-top: 4px !important; font-weight: bold !important;
-   color: black! important;}
+	.MGMapControls.cL_90_x_30, .webmapengine-controls-before,  .webmapengine-controls-after {margin-top: 691px !important;}
+	.MGMapHeader{margin-top: 690px !important; background: #E2DBCB !important;}
+	.MGMapTimeDisplay {margin-left: 20px !important; margin-top: 4px !important; font-weight: bold !important;color: black! important;}
+	.MGMapSpeedSliderLabel.hide-for-small{margin-left: 20px !important; margin-top: 4px !important; font-weight: bold !important;
+	color: black! important;}
 
-   /*   Bild nach links und oben schieben   */
-   .mapengine {margin-top: -150px !important; }
-   }
-
+	/*   Bild nach links und oben schieben   */
+	.mapengine {margin-top: -150px !important; }
+	}
