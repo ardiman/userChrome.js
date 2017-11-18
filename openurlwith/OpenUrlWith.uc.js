@@ -7,10 +7,10 @@
     const MENU_LABEL = "Öffnen mit...";
     const MENU_ACCESSKEY = "ö";
 
-    const FIREFOX_PATH = "D:\\Programme\\Mozilla Firefox\\firefox.exe";
-    const IE_PATH = "C:\\Programme\\Internet Explorer\\iexplore.exe";
-    const OPERA_PATH = "D:\\Programme\\Opera\\Opera.exe";
-    const CHROME_PATH = "C:\\Documents and Settings\\Administrator\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe";
+    const FIREFOX_PATH = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
+    const IE_PATH = "C:\\Program Files\\Internet Explorer\\iexplore.exe";
+    const OPERA_PATH = "C:\\Program Files (x86)\\Opera\\launcher.exe";
+    const CHROME_PATH = "C:\\Program Files (x86)\\PortableGoogleChrome\\Chrome\\chrome.exe";
 
     var mMenus = [
         {
@@ -49,25 +49,25 @@
             label: "Firefox (Seite)",
             accesskey: "F",
             application: FIREFOX_PATH,
-            get url() { return content.location.href; },
+            get url() { return gBrowser.currentURI.spec; },
         },
         {
             label: "IE (Seite)",
             accesskey: "I",
             application: IE_PATH,
-            get url() { return content.location.href; },
+            get url() { return gBrowser.currentURI.spec; },
         },
         {
             label: "Opera (Seite)",
             accesskey: "O",
             application: OPERA_PATH,
-            get url() { return content.location.href; },
+            get url() { return gBrowser.currentURI.spec; },
         },
         {
             label: "Chrome (Seite)",
             accesskey: "C",
             application: CHROME_PATH,
-            get url() { return content.location.href; },
+            get url() { return gBrowser.currentURI.spec; },
         },
         {
             label: "-",
@@ -138,7 +138,7 @@
 function openApplication(aEvent) {
     var menu = aEvent.target.ouwMenu;
 
-    var app = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+    var app = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     app.initWithPath(menu.application);
     if (!app.exists()) {
         alert("Die Datei existiert nicht: " + menu.application);
