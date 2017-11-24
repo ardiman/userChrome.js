@@ -3,7 +3,7 @@
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description
 // @include        chrome://browser/content/aboutDialog.xul
-// @compatibility  Firefox 3.0 3.1
+// @compatibility  Firefox 3.0 3.1 - 59
 // @author         Alice0775
 // @version        2013/02/11 23:00 Bug 755724
 // @version        2008/11/22 12:00
@@ -84,7 +84,7 @@ var addBuildid = {
     var file = ds.get("CurProcD", Ci.nsIFile);
     if (/browser$/.test(file.path)) {
 	    var path = file.path.replace(/browser$/,"");
-			file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+			file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
 			file.initWithPath(path);
     }
     file.append("application.ini");

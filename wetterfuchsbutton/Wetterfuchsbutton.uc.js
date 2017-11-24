@@ -1,33 +1,33 @@
 // ==UserScript==
 // @name           wetterfuchsbutton.uc.js
-// @compatibility  Firefox 33. - 47
+// @compatibility  Firefox 33. - 58
 // @include        main
-// @version        1.0.20160618
+// @version        1.0.20171110
 // ==/UserScript==
 
 var wetterfuchs = {
   urlobj: {
-    MO_Doppelklick: {url:"http://www.msn.com/de-de/wetter/heute/de/Berlin,BE,Deutschland/we-city-52.520,13.380",width:700,height:640},
-    MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:442},
-    MO_Mittelklick: {url:"http://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:800,height:620},
-    DED_WetterAktuell: {url:"http://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:625,height:865},
-    DED_Vorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland.asp",width:670,height:780},
-    DED_Pollenbelastung: {url:"http://www.wetterkontor.de/de/bio/pollenflug-erle.asp",width:478,height:590},
-    DED_UVIndexVorhersage: {url:"http://www.wetterkontor.de/de/bio/uv-index.asp",width:478,height:590},
-    DE_WetterAktuell: {url:"http://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/wx_deutschland.jpg",width:780,height:520},
-    DE_Vorhersage: {url:"http://www.dwd.de/DWD/wetter/wv_allg/deutschland/film/vhs_deutschland.jpg",width:780,height:485},
+    MO_Doppelklick: {url:"https://www.msn.com/de-de/wetter/heute/de/Berlin,BE,Deutschland/we-city-52.520,13.380",width:700,height:640},
+    MO_Rechtsklick: {url:"http://www.wetter.net/47/Berlin",width:820,height:440},
+    MO_Mittelklick: {url:"https://www.daswetter.com/wetter_Berlin-Europa-Deutschland-Berlin--1-26301.html",width:800,height:638},
+    DED_WetterAktuell: {url:"https://www.wetterkontor.de/de/deutschland_aktuell.asp?id=0&page=0&sort=0",width:625,height:865},
+    DED_Vorhersage: {url:"https://www.wetterkontor.de/de/wetter/deutschland.asp",width:670,height:780},
+    DED_Pollenbelastung: {url:"https://www.wetterkontor.de/de/bio/pollenflug-erle.asp",width:478,height:590},
+    DED_UVIndexVorhersage: {url:"https://www.wetterkontor.de/de/bio/uv-index.asp",width:478,height:590},
+    DE_WetterAktuell: {url:"https://www.dwd.de/DWD/wetter/aktuell/deutschland/bilder/wx_deutschland.jpg",width:780,height:520},
+    DE_Vorhersage: {url:"https://www.dwd.de/DWD/wetter/wv_allg/deutschland/film/vhs_deutschland.jpg",width:780,height:485},
     DE_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/deutschland_index.png",width:572,height:572},
-    DE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx",width:568,height:530},
-    DE_RegenradarPrognose: {url:"http://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
-    EU_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/europa/",width:680,height:690},
+    DE_RegenradarAktuell: {url:"https://www.niederschlagsradar.de/image.ashx",width:568,height:530},
+    DE_RegenradarPrognose: {url:"https://www.niederschlagsradar.de/images.aspx?srt=loopvorhersage&jaar=-3&regio=homepage&tijdid=&m=&d=&uhr=&mi=",width:568,height:530},
+    EU_AktuellVorhersage: {url:"https://www.wetterkontor.de/de/wetter/europa/",width:680,height:690},
     EU_Unwetterwarnung: {url:"http://www.unwetterzentrale.de/images/map/europe_index.png",width:572,height:572},
     EU_RegenradarAktuell: {url:"http://www.meteox.de/images.aspx?jaar=-3&voor=&soort=loop-bliksem&c=&n=&tijdid=20128241541",width:570,height:570},
     EU_RegenradarPrognose: {url:"http://db.eurad.uni-koeln.de/prognose/data/aktuell/trh_eur_1h_movd1.gif",width:518,height:518},
     WE_WetterAktuell: {url:"http://www.meteocentrale.ch/de/wetter/weltwetter.html#sytl",width:575,height:360},
-    RE_AktuellVorhersage: {url:"http://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp",width:680,height:655},
-    RE_Unwetterwarnung: {url:"http://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp",width:850,height:480},
-    RE_RegenradarAktuell: {url:"http://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"http://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html",width:640,height:690},
+    RE_AktuellVorhersage: {url:"https://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp",width:675,height:640},
+    RE_Unwetterwarnung: {url:"https://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp",width:850,height:480},
+    RE_RegenradarAktuell: {url:"https://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
+    RE_RegenradarPrognose: {url:"https://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html",width:640,height:690},
   },
   wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",  // alternativ z.B. wfthrobber: "chrome://global/skin/media/throbber.png",
   createBtn: function() {
@@ -39,7 +39,7 @@ var wetterfuchs = {
             var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
             var attributes = {
                id: 'wetterfuchs-toolbarbutton',
-               class: 'toolbarbutton-1 chromeclass-toolbar-additional',
+               class: 'chromeclass-toolbar-additional',
                type: 'menu',
                removable: 'true',
                label: 'Wetterfuchs',
@@ -53,16 +53,30 @@ var wetterfuchs = {
             return toolbaritem;
          }
       });
+	  var css =
+        '@-moz-document domain(daswetter.com), \
+                        domain(dwd.de), \
+                        domain(meteocentrale.ch), \
+                        domain(niederschlagsradar.de), \
+                        domain(www.meteox.de), \
+                        domain(msn.com), \
+                        domain(wetter.faz.net), \
+                        domain(wetter.de), \
+                        domain(wetter.net), \
+                        domain(wetterkontor.de) { \
+          scrollbar {display: none !important} \
+        }';
+      if (gAppInfo.version.split('.')[0] <= 56) {
+        css +=
+          '@-moz-document url(chrome://browser/content/browser.xul) { \
+            #wetterfuchs-toolbarbutton .toolbarbutton-icon {max-width: none !important} \
+          }';
+      };
+      var cssUri = Services.io.newURI('data:text/css,' + encodeURIComponent(css), null, null);
+      var SSS = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
+      SSS.loadAndRegisterSheet(cssUri, SSS.AGENT_SHEET);
    } catch(e) { };
-   
-   var css = '\
-      #wetterfuchs-toolbarbutton .toolbarbutton-icon {max-width: none !important;}\
-   ';
-	   
-   var stylesheet = document.createProcessingInstruction('xml-stylesheet', 'type="text/css" href="data:text/css;utf-8,' + encodeURIComponent(css) + '"');
-
-   document.insertBefore(stylesheet, document.documentElement);
-   
+    
    this.$F('wetterfuchs-toolbarbutton','\
 		<menupopup id="wetterfuchsmenu">\
 			<menu label="DE Wetterdaten">\

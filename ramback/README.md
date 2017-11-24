@@ -7,4 +7,4 @@ Das **Ergebnis des Skripts**:
 ![Screenshot RAM Back](https://github.com/ardiman/userChrome.js/raw/master/ramback/scr_ramback.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.

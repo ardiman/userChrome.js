@@ -1,12 +1,17 @@
 // ==UserScript==
-// @name           openbookModokiFor4.0.uc.js
+// @name           openbookModokiFor40.uc.js
 // @namespace      https://addons.mozilla.org/firefox/addon/3885
-// @description    Edit Bookmark Panelにリサイザ追加すると共に, フォルダツリーとタグセレクタのエキスパンダ開閉状態を記憶する。および 設定によりdescription, location, loadInSidebar, keywordを表示/非表示
+// @description    Lesezeichen Bearbeiten Panel: Veränderbare Panelgröße hinzugefügt. Schlüsselwort und Ordner-Struktur  
+// @description    Felder sind geschlossen. Weitere Einstellungen:  Beschreibung, Ordner, Dieses Lesezeichen in der Sidebar laden,
+// @description    und Schlüsselwort können ein-/ausgeblendet werden.
 // @include        main
 // @author         Alice0775
+// @version        2017/11/17 02:30 Fx57
+// @version        2016/03/20 02:30 remove tst hack
+// ==/UserScript==
+// @version        2015/08/31 02:30 Fx40
 // @version        2013/07/07 02:30 fix onFolderMenuListCommand
 // @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
-// ==/UserScript==
 // @version        2012/07/24 14:30 Bug 761723 implement toString of function objects by saving source
 // @version        2010/12/06 10:30 Bug Bug 597557 - Bookmarks & Identity panels should use an Arrowpanel
 // @version        2010/04/01 00:00 Bug 556342  - Invalid Treeview in bookmark menu via star pane
@@ -122,45 +127,11 @@ var openbookResizer = {
     this.folderTreeRow   = this.isFx35 ? "folderTreeRow"   : "folderTree";
     this.tagsSelectorRow = this.isFx35 ? "tagsSelectorRow" : "tagsSelector";
 
-    // default all show
-    StarUI._doShowEditBookmarkPanel = Task.async(function* (aNode, aAnchorElement, aPosition) {
-      if (this.panel.state != "closed")
-        return;
-      this._blockCommands();
-      this._element("editBookmarkPanelTitle").value =
-        this._batching ?
-          gNavigatorBundle.getString("editBookmarkPanel.pageBookmarkedTitle") :
-          gNavigatorBundle.getString("editBookmarkPanel.editBookmarkTitle");
-      this._element("editBookmarkPanelDescription").textContent = "";
-      this._element("editBookmarkPanelBottomButtons").hidden = false;
-      this._element("editBookmarkPanelContent").hidden = false;
-      this._element("editBookmarkPanelRemoveButton").hidden = this._batching;
-      let bookmarks = PlacesUtils.getBookmarksForURI(gBrowser.currentURI);
-      let forms = gNavigatorBundle.getString("editBookmark.removeBookmarks.label");
-      let label = PluralForm.get(bookmarks.length, forms).replace("#1", bookmarks.length);
-      this._element("editBookmarkPanelRemoveButton").label = label;
-      this._element("editBookmarkPanelStarIcon").removeAttribute("unstarred");
-      this._itemId = aNode.itemId;
-      this.beginBatch();
-      if (aAnchorElement) {
-        let parent = aAnchorElement.parentNode;
-        while (parent) {
-          if (parent.localName == "toolbarbutton") {
-            break;
-          }
-          parent = parent.parentNode;
-        }
-        if (parent) {
-          this._anchorToolbarButton = parent;
-          parent.setAttribute("open", "true");
-        }
-      }
-      this.panel.openPopup(aAnchorElement, aPosition);
-      gEditItemOverlay.initPanel({ node: aNode,
-                                   hiddenRows: openbookResizer.getHideRow });
-    });
-
-    var func;
+    gEditItemOverlay.initPanel_org = gEditItemOverlay.initPanel;
+    gEditItemOverlay.initPanel = function(aInfo) {
+      aInfo.hiddenRows = openbookResizer.getHideRow;
+      gEditItemOverlay.initPanel_org(aInfo);
+    }
 
     // selected tree visible
     func = gEditItemOverlay.toggleFolderTreeVisibility.toString();
@@ -190,7 +161,12 @@ var openbookResizer = {
         tree.setAttribute("onselect", onselect); \
       }, 0, this._folderTree);'
     );
-    eval("gEditItemOverlay.toggleFolderTreeVisibility = " + func);
+    try{
+      gEditItemOverlay.toggleFolderTreeVisibility = new Function(
+         func.match(/\((.*)\)\s*\{/)[1],
+         func.replace(/^function\s*.*\s*\(.*\)\s*\{/, '').replace(/}$/, '')
+      );
+    } catch(ex){}
     
     // selected tree visible
     func = gEditItemOverlay.onFolderMenuListCommand.toString();
@@ -211,8 +187,12 @@ var openbookResizer = {
         tree.setAttribute("onselect", onselect); \
       }, 0, this._folderTree);}'
     );
-
-    eval("gEditItemOverlay.onFolderMenuListCommand = " + func);
+    try{
+      gEditItemOverlay.onFolderMenuListCommand = new Function(
+         func.match(/\((.*)\)\s*\{/)[1],
+         func.replace(/^function\s*.*\s*\(.*\)\s*\{/, '').replace(/}$/, '')
+      );
+    } catch(ex){}
 
 
     this.editBookmarkPanel.addEventListener('popupshowing', this, false);
@@ -295,30 +275,13 @@ var openbookResizer = {
 
       panel.setAttribute('onmousemove', 'openbookResizer.mousemove(event)');
       panel.setAttribute('onmouseup', 'openbookResizer.mouseup(event)');
-
-      if ("TreeStyleTabBookmarksServiceEditable" in window) {
-        with (window)
-        eval('gEditItemOverlay._showHideRows = '+window.gEditItemOverlay._showHideRows.toSource().replace(
-          'TreeStyleTabBookmarksServiceEditable.parentRow.collapsed = this._element("keywordRow").collapsed && this._element("folderRow").collapsed;',
-          ''
-        ).replace(
-          "TreeStyleTabBookmarksServiceEditable.parentRow.collapsed = this._element('keywordRow').collapsed && this._element('folderRow').collapsed;",
-          ''
-        ));
-
-        TreeStyleTabBookmarksServiceEditable.parentRow.collapsed = true;
-      }
     }
-    if ("TreeStyleTabBookmarksServiceEditable" in window)
-      TreeStyleTabBookmarksServiceEditable.parentRow.collapsed = true;
   },
 
   popupshown: function(event){
     if (this.editBookmarkPanel != event.originalTarget)
       return;
-    setTimeout(function(self){
-      if ("TreeStyleTabBookmarksServiceEditable" in window)
-        TreeStyleTabBookmarksServiceEditable.parentRow.collapsed = true;
+    setTimeout(function(self) {
       if (self.getPrefOpenTree &&
           gEditItemOverlay._element(self.folderTreeRow).collapsed ) {
         gEditItemOverlay.toggleFolderTreeVisibility();

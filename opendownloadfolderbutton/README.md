@@ -9,4 +9,4 @@ Möchte man einen anderen Dateimanager verwenden, so müssen einige Änderungen 
 Der Anhang unter http://www.camp-firefox.de/forum/viewtopic.php?p=769863#p769863 öffnet z.B. den "TotalCommander" mit dem Download Ordner.
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.

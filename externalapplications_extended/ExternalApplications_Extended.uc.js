@@ -1,10 +1,11 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name           externalApplications.uc.js
 // @namespace      ithinc#mozine.cn
 // @description    External Applications
 // @include        main
-// @compatibility  Firefox 3.5.x 3.6.x
+// @compatibility  Firefox 3.5.x 3.6.x 17.01 58.0
 // @author         ithinc
+// @Version        20170911.0.0.3 Fix by aborix
 // @version        20091216.1.0.0 Final release
 // @version        20091215.0.0.2 Handle toolbar apps and menu apps separately
 // @version        20091212.0.0.1 Initial release
@@ -14,35 +15,29 @@
 
 var gExternalApplications = {
   toolbar: {
-    apps: [
-      //{name: 'Notepad', path: '/WINDOWS/system32/notepad.exe'},
-      {name: 'Calculator', path: 'C:\\WINDOWS\\system32\\calc.exe'},
-     {name: 'freegate', path: 'F:\\360download\\fg709a.exe'},
-     //{name: 'separator'},
-     {name: 'Internet Explorer', path: 'C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE', args: ['%u']},
-      //{name: 'Command Prompt', path: 'C:\\WINDOWS\\system32\\cmd.exe'},
-    ],
+  apps: [
+    {name: 'Notepad', path: '/WINDOWS/system32/notepad.exe'},
+    {name: 'Rechner', path: '.\\.\\..\\..\\WINDOWS\\system32\\calc.exe'},
+    {name: 'DOS', path: 'C:\\WINDOWS\\system32\\cmd.exe'},
+    {name: 'separator'},
+    {name: 'Internet Explorer', path: 'C:\\Programme\\Internet Explorer\\IEXPLORE.EXE', args: ['%u']},
+    {name: 'Maxthon', path: 'C:\\Program Files\\Maxthon\\Maxthon.exe', args: ['%u']},
+  ], 
     insertafter: 'menubar-items'  //'menubar-items' or 'home-button'
   },
 
   menu: {
     apps: [
-      //{name: 'Notepad', path: '/WINDOWS/system32/notepad.exe'},
-      {name: 'Calculator', path: 'C:\\WINDOWS\\system32\\calc.exe'},
-      //{name: 'Command Prompt', path: 'C:\\WINDOWS\\system32\\cmd.exe'},
-      //{name: 'separator'},
-      //{name: 'UltraEdit', path: 'C:\\Program Files\\IDM Computer Solutions\\UltraEdit-32\\uedit32.exe'},
-      //{name: 'Total Commander', path: 'U:\\Programs\\Total Commander\\TOTALCMD.EXE'},
-      //{name: 'separator'},
-     //{name: 'My Computer', path: 'c:\\windows\\explorer.exe'},/*x?????*/
-      {name: 'Internet Explorer', path: 'C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE', args: ['%u']},//??????????,????%u
-     // {name: 'Maxthon', path: 'C:\\Program Files\\Maxthon\\Maxthon.exe', args: ['%u']},
-     // {name: 'Namoroka', path: 'D:\\Program Files\\Namoroka3.6b5pre\\firefox.exe', args: ['-no-remote', '-P blank']},
-     // {name: 'separator'},
-      //{name: 'Profile', path: 'C:\\Documents and Settings\\linus\\Application Data\\Mozilla\\Firefox\\Profiles\\c4r67s72.default'},
+      {name: 'Notepad', path: 'C:\\WINDOWS\\system32\\notepad.exe'},
+      {name: 'Rechner', path: 'C:\\WINDOWS\\system32\\calc.exe'},
+      {name: 'DOS', path: 'C:\\WINDOWS\\system32\\cmd.exe'},
+      {name: 'separator'},
+      {name: 'Windows Explorer', path: 'c:\\windows\\explorer.exe'},/*x为系统盘符*/
+      {name: 'Internet Explorer', path: 'C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE', args: ['%u']},//外部浏览器打开当前页，使用参数%u
     ],
-    insertafter: 'browserToolsSeparator', //'helpMenu', 'tools-menu' or 'browserToolsSeparator'
-    label: 'Start',
+	id: 'ExternalApplicationsMenu',
+    insertafter: 'menu_openAddons', //'helpMenu', 'tools-menu' oder 'menu_openAddons'
+    label: 'Externe Anwendungen',
     accesskey: 'A'
   },
 
@@ -61,6 +56,7 @@ var gExternalApplications = {
       var refNode = document.getElementById(this.menu.insertafter);
       if (refNode) {
         var menu = refNode.parentNode.insertBefore(document.createElement('menu'), refNode.nextSibling);
+        menu.setAttribute('id', this.menu.id);
         menu.setAttribute('label', this.menu.label);
         menu.setAttribute('accesskey', this.menu.accesskey);
         menu.appendChild(this.createMenupopup(this.menu.apps));
@@ -90,7 +86,7 @@ var gExternalApplications = {
       args[i] = args[i].replace(/%u/g, gBrowser.currentURI.spec);
     }
 
-    var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+    var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
     file.initWithPath(path);
     if (!file.exists()) {
       Cu.reportError('File Not Found: ' + path);
@@ -109,6 +105,7 @@ var gExternalApplications = {
 
   createToolbaritem: function(apps) {
     var toolbaritem = document.createElement('toolbaritem');
+    toolbaritem.id = 'ExtAppButtons';
     toolbaritem.setAttribute('class', 'chromeclass-toolbar-additional');
     toolbaritem.setAttribute('orient', 'horizontal');
 
@@ -123,7 +120,7 @@ var gExternalApplications = {
         item.setAttribute('image', 'moz-icon:file://' + apps[i].path + '?size=16;');
         item.setAttribute('oncommand', 'gExternalApplications.exec(this.path, this.args);');
         item.setAttribute('tooltiptext', apps[i].name);
-      item.setAttribute('style','margin: 0px 0px;background: none;box-shadow: none;border-color: transparent;'); //dawlen add
+        item.setAttribute('style','margin: 0px 0px;background: none;box-shadow: none;border-color: transparent;'); //dawlen add
         item.path = apps[i].path;
         item.args = apps[i].args;
       }

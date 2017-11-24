@@ -1,11 +1,12 @@
 // ==UserScript==
-// @name           externalApplications.uc.js
+// @name           External-Aplication.uc.js
 // @namespace      ithinc#mozine.cn
 // @description    External Applications
 // @include        main
 // @compatibility  Firefox 3.5.x
 // @author         ithinc
 // @version        20091212.0.0.1 Initial release
+// @version        20170911.0.0.2  Fix by aborix
 // ==/UserScript==
 
 /* :::: External Applications :::: */
@@ -14,13 +15,13 @@ var gExternalApplications = {
   type: 'button', //'menu' or 'button'
   insertafter: 'menubar-items',
 
-  apps: [
-    {name: 'Notepad', path: '/WINDOWS/system32/notepad.exe'},
+  apps: [    
+    {name: 'Notepad', path: 'C:\\WINDOWS\\system32\\notepad.exe'},
+    {name: 'Notepad++', path: 'C:\\Program Files (x86)\\Notepad++\\notepad++.exe'},
     {name: 'Calculator', path: '.\\.\\..\\..\\WINDOWS\\system32\\calc.exe'},
     {name: 'Command Prompt', path: 'C:\\WINDOWS\\system32\\cmd.exe'},
     {name: 'separator'},
-    {name: 'Internet Explorer', path: 'C:\\Programme\\Internet Explorer\\IEXPLORE.EXE', args: ['%u']},
-    {name: 'Maxthon', path: 'C:\\Program Files\\Maxthon\\Maxthon.exe', args: ['%u']},
+    {name: 'Windows Explorer', path: 'C:\\Windows\\explorer.exe'},  
   ],
 
   init: function() {
@@ -53,6 +54,7 @@ var gExternalApplications = {
     else {
       var menubarItems = document.getElementById(this.insertafter);
       var toolbaritem = menubarItems.parentNode.insertBefore(document.createElement('toolbaritem'), menubarItems.nextSibling);
+	  toolbaritem.id = 'ExtAppButtons';
       toolbaritem.setAttribute("class", "chromeclass-toolbar-additional");
       toolbaritem.setAttribute("orient", "horizontal");
       for (var i=0; i<this.apps.length; i++) {
@@ -66,7 +68,7 @@ var gExternalApplications = {
       args[i] = args[i].replace(/%u/g, gBrowser.currentURI.spec);
     }
 
-    var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+    var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
     file.initWithPath(path);
     if (!file.exists()) {
       throw 'File Not Found: ' + path;
@@ -91,7 +93,7 @@ var gExternalApplications = {
     item.setAttribute('label', app.name);
     item.setAttribute('image', 'moz-icon:file:///' + app.path + '?size=16');
     item.setAttribute('oncommand', 'gExternalApplications.exec(this.path, this.args);');
-    item.setAttribute('tooltiptext', app.name);
+   // item.setAttribute('tooltiptext', app.name);
     item.path = app.path;
     item.args = app.args;
     return item;
