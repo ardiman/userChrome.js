@@ -1,4 +1,4 @@
-# userChromeJS Verwendung mit Firefox 57
+# userChromeJS Verwendung ab Firefox 57
 
 userChromeJS-Skripte konnten  bis Firefox 57 mit einer Erweiterung geladen werden. Nun muss folgendermaßen vorgegangen werden.
 
