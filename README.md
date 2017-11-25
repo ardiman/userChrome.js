@@ -1,6 +1,7 @@
 # userChromeJS Verwendung ab Firefox 57
 
-userChromeJS-Skripte konnten  bis Firefox 57 mit einer Erweiterung geladen werden. Nun muss folgendermaßen vorgegangen werden.
+userChromeJS-Skripte konnten  bis Firefox 57 mit einer Erweiterung geladen werden. Nun muss folgendermaßen vorgegangen werden (am besten alle Dateien per Rechtsklick 
+und "Ziel speichern unter..." runterladen).
 
 Kopiere die 2 Dateien:
 
@@ -22,5 +23,5 @@ Zum Schluss muss die Datei:
 - [4. userChrome.js](https://raw.githubusercontent.com/ardiman/userChrome.js/master/_userChrome/userChrome.js)
 
 in den Ordner **chrome** des Firefox-Profilordners, der üblicherweise unter  
-`%appdata%\Mozilla\Firefox\Profiles\xxx.default` zu finden ist
+`%appdata%\Mozilla\Firefox\Profiles\xxx.default` zu finden ist. S. auch: [Wie ich finde ich mein Profil?](https://support.mozilla.org/de/kb/benutzerprofile-mit-ihren-persoenlichen-daten#w_wie-finde-ich-mein-profil).
 
