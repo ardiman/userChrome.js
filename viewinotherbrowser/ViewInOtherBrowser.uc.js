@@ -70,7 +70,7 @@ var LaunchBrowser = {
 	},
 
 	launch: function(path) {
-		var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsiFile);
+		var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
 		file.initWithPath(path);
 		if (!file.exists()) {
 			alert("Fehler beim öffnen des Browsers. Einstellungen überprüfen. Pfad stimmt nicht!");
@@ -87,7 +87,7 @@ var LaunchBrowser = {
 	},
 
 	setIcon: function(path) {
-		var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsiFile);
+		var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
 		file.initWithPath(path);
 		if (!file.exists()) return;
 		let fileURL = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromFile(file);
