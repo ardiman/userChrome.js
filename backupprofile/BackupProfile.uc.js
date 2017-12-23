@@ -4,8 +4,9 @@
 // @description    备份配置按钮，更适合配置较小情况
 // @charset        UTF-8
 // @author         ywzhaiqi、defpt
-// @version        v2014.07.26
+// @version        v2017.12.23
 // @note           Vorlage Script von ywzhaiqi
+// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23)
 // @reviewURL      http://bbs.kafan.cn/thread-1758785-1-1.html
 (function () {
 	CustomizableUI.createWidget({
@@ -40,19 +41,19 @@
 			var fu = Cu.import('resource://gre/modules/FileUtils.jsm').FileUtils;
 			var dir = fu.getFile('ProfD', []);
 			var localnow = new Date().toLocaleFormat("%d%m%Y");
-			var archiveName = 'Profil_' + localnow + '.zip';
+			var archiveName = 'Profil_' + bupgetCurrentProfileName()+ '_' + localnow + '.zip';
 			var xpi = fu.File(path + '\\' + archiveName);
-			
+
 			zw.open(xpi, pr.PR_RDWR | pr.PR_CREATE_FILE | pr.PR_TRUNCATE);
 			var dirArr = [dir];
 			for (var i=0; i<dirArr.length; i++) {
 				var dirEntries = dirArr[i].directoryEntries;
 				while (dirEntries.hasMoreElements()) {
-					var entry = dirEntries.getNext().QueryInterface(Ci.nsIFile);         
+					var entry = dirEntries.getNext().QueryInterface(Ci.nsIFile);
 					if (entry.path == xpi.path) {
 						continue;
 					}
-		   
+
 					if (entry.isDirectory()) {
 					   dirArr.push(entry);
 					}
@@ -63,7 +64,7 @@
 					}
 
 					var saveInZipAs = relPath.substr(1);
-					saveInZipAs = saveInZipAs.replace(/\\/g,'/'); 
+					saveInZipAs = saveInZipAs.replace(/\\/g,'/');
 					// Konfigurationsdateien können gesperrt werden
 					try {
 						zw.addEntryFile(saveInZipAs, Ci.nsIZipWriter.COMPRESSION_FASTEST, entry, false);
@@ -71,10 +72,38 @@
 				}
 			}
 			zw.close();
-			alert('Die aktuelle Konfiguration wurde gesichert auf ' + path);
+			alert('Die aktuelle Konfiguration wurde als:\n'+ archiveName +'\ngesichert in:\n' + path);
 
 			function alert(aString, aTitle) {
 				Cc['@mozilla.org/alerts-service;1'].getService(Ci.nsIAlertsService).showAlertNotification("", aTitle, aString, false, "", null);
+			}
+
+			function bupgetCurrentProfileName(){
+				function readFile(aFile){
+					var stream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);    stream.init(aFile, 0x01, 0, 0);
+					var cvstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
+					cvstream.init(stream, "UTF-8", 1024, Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+					var content = "", data = {};
+					while (cvstream.readString(4096, data)) {
+						content += data.value;
+					}
+					cvstream.close();
+					return content.replace(/\r\n?/g, "\n");
+				}
+				var PrefD = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("PrefD", Components.interfaces.nsIFile);
+				var ini = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("AppRegD", Components.interfaces.nsIFile);
+
+				ini.append("profiles.ini");
+				var ini = readFile(ini);
+				var profiles = ini.match(/Name=.+/g);
+				var profilesD = ini.match(/Path=.+/g);
+				for ( var i = 0; i < profiles.length;i++) {
+				if ((profilesD[i]+"$").indexOf(PrefD.leafName+"$") >= 0) {
+					profiles[i].match(/Name=(.+)$/);
+					return RegExp.$1;
+					}
+				}
+				return null;
 			}
 		},
 	});
