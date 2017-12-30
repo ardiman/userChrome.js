@@ -4,11 +4,12 @@
 // @description    备份配置按钮，更适合配置较小情况
 // @charset        UTF-8
 // @author         ywzhaiqi、defpt
-// @version        v2017.12.23
+// @version        v2017.12.28
 // @note           Vorlage Script von ywzhaiqi
-// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23)
+// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23); Ersatz veralteter Funktionen (v2017.12.28)
 // @reviewURL      http://bbs.kafan.cn/thread-1758785-1-1.html
 (function () {
+	Components.utils.import("resource:///modules/CustomizableUI.jsm");
 	CustomizableUI.createWidget({
 		id : "Backup-button",
 		defaultArea : CustomizableUI.AREA_NAVBAR,
@@ -19,7 +20,8 @@
 			var path = "E:\\Firefox";
 			// var path = "";
 			// Ausschlussliste
-			var excludes = 'bookmarkbackups *cache* crashes fftmp *healthreport* minidumps safebrowsing *webapps* saved-telemetry-pings *thumbnails* *session* *Telemetry* *hotfix* *.sqlite-shm *.sqlite-wal *.bak parent.lock blocklist.xml *content* directoryLinks.json mimeTypes.rdf compatibility.ini parent.lock formhistory.sqlite';
+			var excludes = 'bookmarkbackups *cache* crashes fftmp *healthreport* minidumps safebrowsing *webapps* saved-telemetry-pings *thumbnails* *session* *Telemetry* *hotfix* *.sqlite-shm *.sqlite-wal *.bak parent.lock blocklist.xml content-prefs.sqlite directoryLinks.json mimeTypes.rdf compatibility.ini parent.lock formhistory.sqlite';
+
 
 			if (!path) {
 				var nsIFilePicker = Ci.nsIFilePicker;
@@ -40,7 +42,8 @@
 			var pr = {PR_RDONLY: 0x01, PR_WRONLY: 0x02, PR_RDWR: 0x04, PR_CREATE_FILE: 0x08, PR_APPEND: 0x10, PR_TRUNCATE: 0x20, PR_SYNC: 0x40, PR_EXCL: 0x80};
 			var fu = Cu.import('resource://gre/modules/FileUtils.jsm').FileUtils;
 			var dir = fu.getFile('ProfD', []);
-			var localnow = new Date().toLocaleFormat("%d%m%Y");
+			var localnow = new Date().toLocaleString();
+			localnow = localnow.replace(/\W+/g, "_");
 			var archiveName = 'Profil_' + bupgetCurrentProfileName()+ '_' + localnow + '.zip';
 			var xpi = fu.File(path + '\\' + archiveName);
 
