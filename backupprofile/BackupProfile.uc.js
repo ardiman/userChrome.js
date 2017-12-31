@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name           BackupProfile29+_JS版.uc.js
-// @namespace      BackupProfile29+_JS版@github.com
-// @description    备份配置按钮，更适合配置较小情况
+// @name           BackupProfile.uc.js
+// @namespace      BackupProfile.github.com
+// @description    Schaltfläche zum Sichern des Firefoxprofils
 // @charset        UTF-8
 // @author         ywzhaiqi、defpt
-// @version        v2017.12.28
+// @version        v2017.12.28b
 // @note           Vorlage Script von ywzhaiqi
-// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23); Ersatz veralteter Funktionen (v2017.12.28)
+// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23); Ersatz veralteter Funktionen (v2017.12.28b)
 // @reviewURL      http://bbs.kafan.cn/thread-1758785-1-1.html
 (function () {
 	Components.utils.import("resource:///modules/CustomizableUI.jsm");
@@ -17,7 +17,7 @@
 		tooltiptext : "Sichern der aktuellen Konfiguration",
 		onClick: function(){
 			// Speicherort - Ordner festlegen - Sichern funktioniert nur wenn Speicherort- bzw. Ordner vorhanden ist!!
-			var path = "E:\\Firefox";
+			var path = "E:\\Firefox\\";
 			// var path = "";
 			// Ausschlussliste
 			var excludes = 'bookmarkbackups *cache* crashes fftmp *healthreport* minidumps safebrowsing *webapps* saved-telemetry-pings *thumbnails* *session* *Telemetry* *hotfix* *.sqlite-shm *.sqlite-wal *.bak parent.lock blocklist.xml content-prefs.sqlite directoryLinks.json mimeTypes.rdf compatibility.ini parent.lock formhistory.sqlite';
