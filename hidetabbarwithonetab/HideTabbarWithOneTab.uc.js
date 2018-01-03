@@ -1,11 +1,16 @@
-//	HideTabbarWithOneTab.uc.js
-//	v. 0.1
+//  HideTabbarWithOneTab.uc.js
+//  v. 0.2
 
-Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).setBoolPref("browser.tabs.drawInTitlebar", false);
-var tabbar = document.getElementById("TabsToolbar");	
-function showHideTabbar (mutations) {
-	tabbar.collapsed = (gBrowser.visibleTabs.length == 1);
-};			
-showHideTabbar();						
-var observer = new MutationObserver(showHideTabbar);		
-observer.observe(document.querySelector('#tabbrowser-tabs'), {attributes: true});
+(function() {
+  if (!window.gBrowser)
+    return;
+  let tabbar = document.getElementById("TabsToolbar");
+  function showHideTabbar() {
+    tabbar.collapsed = (gBrowser.visibleTabs.length == 1);
+  };
+  setTimeout(function() {
+    showHideTabbar();
+  }, 0);
+  let observer = new MutationObserver(showHideTabbar);
+  observer.observe(document.getElementById("tabbrowser-tabs"), {childList: true});
+})();
