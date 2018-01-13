@@ -1,10 +1,10 @@
 # JSOff
-Basiert auf gleichnamiger Erweiterung. Es gibt einen neuen Button in der Status-/Addonbar, mit dem man JavaScript im Browser 
-ein -und ausschalten kann. JS aktiviert: Button ist grün, JS deaktiviert: Button ist rot.
+Basiert auf gleichnamiger Erweiterung. Es gibt einen neuen Button mit dem Schriftzug *JS* in der Navigationsleiste, mit dem man JavaScript im Browser 
+aus -und einschalten kann. JS deaktiviert: Buttonfarbe ist rot.
 
 Das **Ergebnis des Skripts**:
 
-![Screenshot JSOff](https://github.com/ardiman/userChrome.js/raw/master/jsoff/scr_jsoff.png)
+![Screenshot JSOff mit deaktiviertem JS](https://github.com/ardiman/userChrome.js/raw/master/jsoff/scr_jsoff.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.
