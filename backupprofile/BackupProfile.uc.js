@@ -4,9 +4,9 @@
 // @description    Schaltfläche zum Sichern des Firefoxprofils
 // @charset        UTF-8
 // @author         ywzhaiqi、defpt
-// @version        v2017.12.28b
+// @version        v2018.01.10
 // @note           Vorlage Script von ywzhaiqi
-// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23); Ersatz veralteter Funktionen (v2017.12.28b)
+// @note           Sicherungsdatei enthaelt auch Profilname (v2017.12.23); Ersatz veralteter Funktionen (v2017.12.28b); bei Bedarf verbessertes Datumsformat [s. Zeile 48+49] im Dateinamen (v2018.01.10)
 // @reviewURL      http://bbs.kafan.cn/thread-1758785-1-1.html
 (function () {
 	Components.utils.import("resource:///modules/CustomizableUI.jsm");
@@ -44,6 +44,9 @@
 			var dir = fu.getFile('ProfD', []);
 			var localnow = new Date().toLocaleString();
 			localnow = localnow.replace(/\W+/g, "_");
+			// Alternative fuer Dateinamen (enthaelt Datum in der Form JJJJ_MM_TT_hh_mm_nn)
+			// var localnow = new Date().toISOString().slice(0,19);
+			// localnow = localnow.replace(/T/g, "_").replace(/\W+/g, "_");
 			var archiveName = 'Profil_' + bupgetCurrentProfileName()+ '_' + localnow + '.zip';
 			var xpi = fu.File(path + '\\' + archiveName);
 

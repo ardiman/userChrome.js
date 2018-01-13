@@ -1,28 +1,31 @@
 // ==UserScript==
 // @name         resetSearchbar
-// @description  検索バーをダブルクリックで文字列消去 & 検索エンジンをリセット
+// @description  Doppelklicken auf Suchmaschine, zum Löschen des Suchtextes und zurücksetzen der Suchmaschine 
+// @include      main
 // ==/UserScript==
-(function () {
+(function() {
 
-    const clearSearchHistory = false;  // 検索履歴も消去するか
+	const clearSearchHistory = false;  // Suchverlauf löschen? (true=ja - false=nein)
 
-    var searchbar = BrowserSearch.searchBar;
-    if (!searchbar) return;
+	var searchBar = BrowserSearch.searchBar;
+	if (!searchBar) return;
 
-    searchbar.addEventListener("dblclick", function (e) {
-        if (e.button !== 0) return;
-        if (!searchbar.textbox.focused) return;
+	var searchIcon = document.getAnonymousElementByAttribute(searchBar, 'anonid', 'searchbar-search-button');
+	if (!searchIcon) return;
 
-        if (searchbar.textbox.value != '') {
-            searchbar.value = '';
-        }
+	searchIcon.addEventListener('click', function (event) {
+		if (event.target !== this) return;
+		if (event.button !== 1) return;
 
-        searchbar.currentEngine = searchbar.engines[0];
+		if (searchBar.textbox.value !== '') {
+			searchBar.value = '';
+		}
 
-        if (clearSearchHistory) {
-            goDoCommand('cmd_clearhistory');
-        }
+		Services.search.currentEngine = searchBar.engines[0];
 
-    }, false);
+		if (clearSearchHistory) {
+			goDoCommand('cmd_clearhistory');
+		}
+	}, false);
 
 }());

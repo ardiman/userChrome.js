@@ -1,14 +1,17 @@
 // ==UserScript==
-// @name           expandsidebar_fx.uc.js
+// @name           expandsidebar_fx45.uc.js
 // @description    Automatisches Öffnen und Schließen der Seitenleiste
 // @namespace      http://forums.mozillazine.org/viewtopic.php?p=2592073#2592073
 // @include        chrome://browser/content/browser.xul
-// @compatibility  Firefox 54+
+// @compatibility  Firefox 45 - 59
 // @author         Alice0775
-// @Note           _SIDEBARPOSITION = Seitenleiste Position angeben
-// @Note           keycongigやmousegesture等には SidebarUI.toggle(何タラ);
+// @Note           Seitenleiste Position auswählbar
+// @Note           Für keyconfig, mousgesture usw. (selber Code) wie bei SidebarUI.toggle;
 // @Note
-// @version        2017/07/06 06.58 fix for Firefox 54+ by aborix
+// @version        2017/11/18 Fx57
+// @version        2017/11/18 nsIPrefBranch2 to nsIPrefBranch
+// @version        2017/02/01 00:00 enable floating(overlay) sidebar
+// @version        2017/01/19 00:00 change event phase,target
 // @version        2015/08/29 00:00 fix lastused command
 // @version        2015/05/13 19:00 fix lastused command
 // @version        2015/02/20 22:00 fix due to Bug 1123517
@@ -37,22 +40,22 @@
 // @version        2009/04/14 22:00 fx2削除
 var ucjs_expand_sidebar = {
 // --- config ---
-  //ここから
+  //Einstellungen:
   _OPEN_DELAY: 400,          //Öffnen Verzögerung bei Maushover
   _OPEN_DELAY_DRAGOVER: 400, //Öffnen Verzögerung beim ziehen
   _CLOSE_DELAY: 800,         //Schließen Verzögerung
   _SCROLLBAR_DELAY: 1000,    //Scroll-Balken Bewegung, benötigte Zeitverzögerung, zum automatischen öffnen und schließen 
-  _DEFAULTCOMMAND: "viewBookmarksSidebar", //Standard-Seitenleiste: Lesezeichenleiste
+  _DEFAULTCOMMAND: "viewBookmarksSidebar", //Standard-Seitenleiste
   _TOLERANCE: 0,             //Erkennung von Fenster Bereich auf der linken Seite (empfohlener Wert bei Verwendung von TreeStyleTab Erweiterung =0)
-  _DONOTCLOSE_XULELEMENT: true, //Maus auf einem XUL-Element, nicht schließen (bei XUL-Inhalt nicht schließen)
-  _CLOSEWHENGOOUT:  false, //Wenn die Maus bewegt wird, vor das Fenster: true: Schließen, [false]: Nicht schließen
+  _DONOTCLOSE_XULELEMENT: true, // Maus auf einem XUL-Element, nicht schließen (bei XUL-Inhalt nicht schließen)
+  _CLOSEWHENGOOUT:  false, // Wenn die Maus bewegt wird, vor das Fenster: true: Schließen, [false]: Nicht schließen
+  _FLOATING_SIDEBAR: false, //enable floating(overlay) sidebar, (known issue:can't resize sidebar.)
   _SIDEBARPOSITION: "L",   //Seitenleiste: Links :L  Rechts :R
-                           //Mit, vertikaler Symbolleiste von Gomita, Version VerticalToolbar.uc.js 0.1 verwenden.
+                           //Mit, vertikaler Symbolleiste von Gomita, Version VerticalToolbar.uc.js 0.1 verwendbar.
                            //(http://www.xuldev.org/blog/?p=113)
   _KEEP_SIZES:true,        //Seitenleiste Breite merken
   _defaultWidth: 234,      //Seitenleiste Standardbreite
   _inFullscreen: true,     //Auch bei Vollbild anzeigen, funktioniert in Firefox 31, in neueren Versionen bisher nicht getestet.
-  
 // --- config ---
 
   _MOUSEMOVEINTERVAL: 10,    //Mausbewegungsintervall Überprüfung
@@ -80,6 +83,7 @@ var ucjs_expand_sidebar = {
   init: function(){
     if ("EzSidebarService" in window)
       return;
+    this._sidebar_box = document.getElementById('sidebar-box');
 
     var style = ' \
     @namespace url(http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul); \
@@ -118,7 +122,91 @@ var ucjs_expand_sidebar = {
     return document.documentElement.getAttribute(name);
     };
 
-    this._sidebar_box = document.getElementById('sidebar-box');
+    if (this._FLOATING_SIDEBAR) {
+      // floating css
+      var floatingStyle = ' \
+        @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); \
+        #sidebar-box { \
+        position: fixed ; \
+        z-index: 55555; \
+        background-color: -moz-dialog; \
+        left: 4px; \
+        } \
+        #sidebar-box #sidebar-header \
+        { \
+        width :100%; \
+        } \
+        #sidebar-box #sidebar \
+        { \
+        position: fixed ; \
+        height: calc(100vh - 180px); \
+        border-left:3px solid -moz-dialog; \
+        border-right:3px solid -moz-dialog; \
+        border-bottom:3px solid -moz-dialog; \
+        } \
+\
+\
+        #sidebar-box { \
+          border-right: 1px solid ThreeDShadow; \
+          border-bottom: 1px solid ThreeDShadow; \
+        } \
+        #sidebar-box:-moz-locale-dir(rtl) { \
+          border-left: 1px solid ThreeDHighlight; \
+        } \
+        #sidebar-box:-moz-lwtheme { \
+          background-color: -moz-Dialog; \
+        } \
+        #sidebar-box sidebarheader:-moz-lwtheme { \
+        	color: -moz-dialogtext; \
+          text-shadow: none; \
+          background-color: -moz-Dialog; \
+          -moz-appearance: toolbox; \
+          border-bottom: 1px solid ThreeDShadow; \
+          border-top: 1px solid ThreeDHighlight; \
+        } \
+        #sidebar-box #sidebarpopuppanel-bottom { \
+        background-color: -moz-dialog; \
+        width:100%; \
+        }';
+
+      if (this._SIDEBARPOSITION="L") {
+        floatingStyle += '#sidebar-box .PopupResizerGripper { \
+        list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABG0lEQVQ4jZXT2ytEURTH8U8UIjNESh5kQq4zGIpci+LBg8vkMhgkl+RhMo0Uf7yHWWo8jDlzXvbZv32+a63fr31o7WnHEDaxj6VW4TTW8YgHbLUC92E2wDKKWEgCtyEVcAEfsc6gJwmcxgpKqGIPExhAd7OxUwFf4QknmMYadrD8H/zruRTwEbLI4za0g0Zj13uuRud5ZGKaL7xiNYnnXUyqJV7EN05D+5NBI8+ToZ2jEnAeI+ht5nk+Op/jDfexX8NGvDf1XIzOd1jEXIRYxgX0J/D8W3Aaz/iM72cFfBljH2MMufBaCTgbWgHvOIschmE7Dg6jcypGLeAa4xiMIjdROBd6Xl1QGXSho+5wCp2hj6ndvlG1XzqPlx+JJSwSgQwohgAAAABJRU5ErkJggg=="); \
+        cursor: se-resize; \
+        }';
+      } else {
+        floatingStyle += '#sidebar-box:-moz-locale-dir(rtl) .PopupResizerGripper { \
+        list-style-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABIUlEQVQ4jZXRwUsUYRzG8Q8Jthi6SiKEB1lZJdvWXUtBKW3BIA8dajfSUjdlMSU6RFII9cd7mGdBPM3MYYaZ9/0983y/L7TxBluYwwMVry4+4UtCZjBRJWAZ7/EdQ7QwWyWkhlV8xJ+0aaVJKZzJbG5gPyFDBU69TEgTG+ikST84x0o6eZnaA4XQNj6o4OQpTnCNrwqp7TQp5eRhMPr4n5BucEo5qWEe6wm5xmEGSjlpZLiT6mf4mZBSTno4Deua4kTO7zkZt7vrpD4OWVKcwG9c4nn+PIiTY8VJreEt/mKEV1iQWwefcYNv2MnQAP/ufFtJg1+4wK5sbOY5zOJrLEbij/D38BjPgjbCO7jK8JOwHQVhGlPYxgE28/4o63t4cQuE/SwSa1JPlgAAAABJRU5ErkJggg=="); \
+        cursor: sw-resize; \
+        }';
+      }
+
+       sspi = document.createProcessingInstruction(
+        'xml-stylesheet',
+        'type="text/css" href="data:text/css,' + encodeURIComponent(floatingStyle) + '"'
+      );
+      document.insertBefore(sspi, document.documentElement);
+      sspi.getAttribute = function(name) {
+      return document.documentElement.getAttribute(name);
+      };
+
+      var overlay = ' \
+        <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" \
+                 xmlns:html="http://www.w3.org/1999/xhtml"> \
+          <vbox id="sidebar-box"> \
+            <hbox id="sidebarpopuppanel-bottom"> \
+              <spacer flex="1"/> \
+              <image class="PopupResizerGripper" \
+                   onmousedown="if (event.target == this) sidebarpopuppanelResize.start(event);"/> \
+            </hbox> \
+          </vbox> \
+        </overlay>';
+      overlay = "data:application/vnd.mozilla.xul+xml;charset=utf-8," + encodeURI(overlay);
+      window.userChrome_js.loadOverlay(overlay, this);
+    }
+
+
+
     if (this._sidebar_box.hasAttribute('hidden') ||
         this._CLOSE_AT_STARTUP) {
       this._sidebar_box.collapsed = true;
@@ -131,7 +219,8 @@ var ucjs_expand_sidebar = {
     if (this._sidebar_splitter.hasAttribute('hidden')) {
       this._sidebar_splitter.removeAttribute('hidden');
     }
-    this._sidebar_splitter.setAttribute('collapsed', false);
+    this._sidebar_splitter.removeAttribute('state');
+    this._sidebar_splitter.removeAttribute('collapsed');
 
     var checkbox = document.createElement('checkbox');
     checkbox.setAttribute("id", "sidebar-checkbox");
@@ -149,15 +238,14 @@ var ucjs_expand_sidebar = {
       })(this);
     }
 
-    eval("PrintUtils.printPreview = " + PrintUtils.printPreview.toString()	
-      .replace('printPreview(aListenerObj)', 'function $&')   // for Firefox version >= 54
-      .replace(
-        '{',
-        '$& \
-        if(document.getElementById("sidebar-box") && \
-           !!document.getElementById("sidebar-box").getAttribute("sidebarcommand")) \
-          window.ucjs_expand_sidebar.toggleSidebar("");'
-    ));
+    window.PrintUtils.printPreview_org = PrintUtils.printPreview;
+    PrintUtils.printPreview = function(arg) {
+      if(document.getElementById("sidebar-box") && 
+         !!document.getElementById("sidebar-box").getAttribute("sidebarcommand")) { 
+        window.ucjs_expand_sidebar.toggleSidebar(""); 
+      }
+      window.PrintUtils.printPreview_org(arg);
+    };
 
     /**
      * helper functions
@@ -192,7 +280,6 @@ var ucjs_expand_sidebar = {
      */
 		defineGetter(SidebarUI, "isOpen", function isOpen(){return !this._box.collapsed;})
 
-		/*
 		SidebarUI.toggle =
 		function toggle(commandID = this.currentID) {
 		    if (this.isOpen && commandID == this.currentID) {
@@ -202,7 +289,6 @@ var ucjs_expand_sidebar = {
 		      return this.show(commandID);
 		    }
 		  }
-		*/
 
 		SidebarUI.show =
 		function show(commandID) {
@@ -313,14 +399,25 @@ var ucjs_expand_sidebar = {
 	    gBrowser.selectedBrowser.focus();
 	  }
 
-    //fireSidebarFocusedEventの置き換え
+    //ersetzt durch fireSidebarFocusedEvent
     //
-    var func = fireSidebarFocusedEvent.toString();
-    var new_cmd = "ucjs_expand_sidebar._focused(); $& ";
-    func = func.replace(/}$/, new_cmd);
-    eval('fireSidebarFocusedEvent = ' + func + ';');
+    if (typeof fireSidebarFocusedEvent == "function") {
+      window.fireSidebarFocusedEvent_org = fireSidebarFocusedEvent;
+      fireSidebarFocusedEvent = function () {
+        fireSidebarFocusedEvent_org();
+        ucjs_expand_sidebar._focused();
+      }
+    }
 
-    //Seitenleiste bei Firefoxstart geschlossen?
+    if (typeof SidebarUI._fireFocusedEvent == "function") {
+      SidebarUI._fireFocusedEvent_org = SidebarUI._fireFocusedEvent;
+      SidebarUI._fireFocusedEvent = function () {
+        SidebarUI._fireFocusedEvent_org();
+        ucjs_expand_sidebar._focused();
+      }
+    }
+
+    //Seitenleiste bei Firefoxstart nicht öffnen?
 
     setTimeout(function(self) {
       var command = self._sidebar_box.getAttribute("sidebarcommand");
@@ -366,10 +463,11 @@ var ucjs_expand_sidebar = {
     }
 
     //this._content.addEventListener("mouseover", ucjs_expand_sidebar._mousemove, true);
-    document.getElementById("browser").addEventListener("mousemove", ucjs_expand_sidebar._mousemove, false);
-    this._sidebar_box.addEventListener("mouseover", ucjs_expand_sidebar._mouseover, false);
-    this._sidebar_splitter.addEventListener("dblclick", this, false);
-    this._sidebar_splitter.addEventListener("dragover", this, false);
+    document.getElementById("browser").addEventListener("mousemove", ucjs_expand_sidebar._mousemove, true);
+    this._sidebar_box.addEventListener("mouseover", ucjs_expand_sidebar._mouseover, true);
+    window.addEventListener("dblclick", this, true);
+    //window.addEventListener("click", this, true);
+    this._sidebar_splitter.addEventListener("dragover", this, true);
 
     Services.obs.addObserver(this, "private-browsing", false);
   },
@@ -389,10 +487,11 @@ var ucjs_expand_sidebar = {
     }
 
     //this._content.removeEventListener("mouseover", ucjs_expand_sidebar._mousemove, true);
-    document.getElementById("browser").removeEventListener("mousemove", ucjs_expand_sidebar._mousemove, false);
-    this._sidebar_box.removeEventListener("mouseover", ucjs_expand_sidebar._mouseover, false);
-    this._sidebar_splitter.removeEventListener("dblclick", this, false);
-    this._sidebar_splitter.removeEventListener("dragover", this, false);
+    document.getElementById("browser").removeEventListener("mousemove", ucjs_expand_sidebar._mousemove, true);
+    this._sidebar_box.removeEventListener("mouseover", ucjs_expand_sidebar._mouseover, true);
+    window.removeEventListener("dblclick", this, true);
+    //window.removeEventListener("click", this, true);
+    this._sidebar_splitter.removeEventListener("dragover", this, true);
 
      Services.obs.removeObserver(this, "private-browsing");
   },
@@ -447,10 +546,20 @@ var ucjs_expand_sidebar = {
           this._mouse_Timeout = null;
           this._clearOpenCloseTimer();
           break;
+      case "click":
+        if (event.button != 2) {
+          //return;
+        }
+        event.preventDefault();
       case "dblclick":
+          if(event.originalTarget != this._sidebar_splitter)
+            return;
+          event.preventDefault();
+          event.stopPropagation();
           if (this._mouse_Timeout)
             clearTimeout(this._mouse_Timeout);
           this._mouse_Timeout = null;
+          SidebarUI.toggle(this._getDefaultCommandID());
           this._openSidebar(this._getDefaultCommandID());
           this._mousedown = false;
           break;
@@ -464,12 +573,18 @@ var ucjs_expand_sidebar = {
             this._close_Timeout = null;
             if(!this._open_Timeout){
               this._open_Timeout = setTimeout(function(self){
-                 self._openSidebar(self._getDefaultCommandID(), true);
+                 var hidden = (self._sidebar_box.hasAttribute('hidden')?true:false) ||
+                               self._sidebar_box.getAttribute('collapsed') == "true";
+                 if (hidden) {
+                   SidebarUI.toggle(self._getDefaultCommandID(), true);
+                   self._openSidebar(self._getDefaultCommandID(), true);
+                 }
               }, this._OPEN_DELAY_DRAGOVER, this);
             }
-            //this._openSidebar();
           break;
       case "resize":
+        if (this._FLOATING_SIDEBAR)
+          return;
         if (this._resizeTimer)
           clearTimeout(this._resizeTimer);
         if (this._startup) {
@@ -477,11 +592,11 @@ var ucjs_expand_sidebar = {
           return;
         }
         this._resizeTimer = setTimeout(function(self) {
-          //サイドバーが開いているならそのサイズを保存しておく
+          //Größe speichern, wenn Seitenleiste geöffnet ist
           var hidden = self._sidebar_box.hasAttribute('hidden') ? true : false;
           if (!hidden && self._sidebar_box.getAttribute('collapsed') != "true" ) {
             var size = self._sidebar_box.width;
-            //現在のコマンドをget
+            //Aktuelle Befehlsumgebung verlassen
             var _command =  self.getCommandId();
             if (!!_command){
               self._saveKeepItSizes(_command, size);
@@ -506,11 +621,14 @@ var ucjs_expand_sidebar = {
     setTimeout(function(self){
       self._mtimer = false;
     }, self._MOUSEMOVEINTERVAL, self);
+    
+    //self..debug("_mousemove " +event.originalTarget);
 
     if (event.originalTarget == self._sidebar_splitter) {
       self._checkWindowSideOrNot(event);
       return;
     }
+    //self.debug("_mousemove self._mousedown=" +self._mousedown);
 
     if (self._mousedown) {
       return;
@@ -579,20 +697,30 @@ var ucjs_expand_sidebar = {
         if (!_command)
           _command = this.getCommandId();
         if(!!_command) {
-          this.sizes = this.getPref(this.prefKeepItSizes, 'str', '').split('|');
+          this.sizes = this.getPref(this.prefKeepItSizes, 'str', 'viewBookmarksSidebar|178|viewHistorySidebar|286|viewGrepSidebar|157|viewUpdateScanSidebar|230|viewWebPanelsSidebar|371|viewWebPageSidebar|371|viewScrapBookSidebar|182|viewAdd-onsSidebar|371|viewStylishSidebar|379|viewMozgestSidebar|234|viewConsole2Sidebar|234|viewGoogleTransitSidebar|371|viewGoogleDocSidebar|371|viewIGoogleSidebar|371|viewPasswordManagerSidebar|371').split('|');
           var index = this.sizes.indexOf(_command);
           if (index < 0 ){
             this.sizes.push(_command);
             index = this.sizes.length - 1;
             this.sizes.push(this._defaultWidth);
           }
-          this._sidebar_box.width = this.sizes[index + 1];
+          if (this.sizes[index + 1] <= 0)
+            this.sizes[index + 1] = this._defaultWidth
+
+          if (this._FLOATING_SIDEBAR)
+            this._sidebar.style.setProperty('width', this.sizes[index + 1] + "px", "important");
+          else
+            this._sidebar_box.width = this.sizes[index + 1];
           return;
         }
       }
 
       if (this._sidebar_box.width == 0) {
-        this._sidebar_box.width = this._defaultWidth;
+        if (this._FLOATING_SIDEBAR) {
+          this._sidebar.style.setProperty('width', this._defaultWidth + "px", "important");
+        } else {
+          this._sidebar_box.width = this._defaultWidth;
+        }
       }
   },
 
@@ -615,7 +743,7 @@ var ucjs_expand_sidebar = {
 
   _openSidebar: function(_command, _forceOpen){
     this._clearOpenCloseTimer();
-    this.toggleSidebar(_command, _forceOpen);
+    //this.toggleSidebar(_command, _forceOpen);
     //mouseoutを処理するかどうかのフラグオープン直後はtrue
     this._opend = true;
     if(this._mouseoutTimer)
@@ -671,6 +799,9 @@ var ucjs_expand_sidebar = {
 
   _checkMouseIsSidebarEdge: function(x){
     var sw = this._sidebar_splitter.boxObject.width;
+
+    //this.debug("_checkMouseIsSidebarEdge " +(sw + this._TOLERANCE+"px ") + (x+"px "));
+
     if (this._SIDEBARPOSITION == "L") {
       //ウインドウの左端x座標
       if(sw + this._TOLERANCE < x)
@@ -683,15 +814,16 @@ var ucjs_expand_sidebar = {
     return false;
   },
 
-  _checkWindowSideOrNot: function(event){
+  _checkWindowSideOrNot: function(event){ 
     var sidebar_box = this._sidebar_box;
     if (sidebar_box.width == 0)
       sidebar_box.width = this._defaultWidth;//デフォルトサイドバー幅
 //this.debug(event.target.localName);
+/*
     if(/tabbrowser/.test(event.target.localName)){
       return
     }
-
+*/
     //コンテンツエリアの上下範囲外かどうか
     var y = event.screenY - gBrowser.mPanelContainer.boxObject.screenY;
     if(y < 0 || y > gBrowser.mPanelContainer.boxObject.height){
@@ -712,6 +844,7 @@ var ucjs_expand_sidebar = {
         this._close_Timeout = null;
         if (!this._open_Timeout) {
           this._open_Timeout = setTimeout(function(self){
+            SidebarUI.toggle(self._getDefaultCommandID());
             self._openSidebar(self._getDefaultCommandID());
           }, this._OPEN_DELAY, this);
         }
@@ -724,6 +857,7 @@ var ucjs_expand_sidebar = {
     }
     //サイドバーのコンテンツ側のx座標
     if (!this._checkbox.checked && !hidden) {
+//this.debug("this.isChrome(event) "+ this.isChrome(event));
       if (event.originalTarget != this._sidebar_splitter &&
           this._checkMouseIsSidebarEdge(x) &&
           !(this._DONOTCLOSE_XULELEMENT && this.isChrome(event)) /*||
@@ -748,13 +882,17 @@ var ucjs_expand_sidebar = {
   },
 
   isChrome: function(aEvent) {
-    if (aEvent.target instanceof HTMLElement)
-      return false;
-    if (/^(tabbrowser|splitter|grippy|menu|panel|notification)/.test(aEvent.target.localName))
-      return true;
-    var box = gBrowser.mPanelContainer.boxObject;
     var x = aEvent.screenX;
     var y = aEvent.screenY;
+    var sidebarBox = this._sidebar_box.boxObject;
+    if (sidebarBox.screenX <= x && x <= sidebarBox.screenX + sidebarBox.width &&
+        sidebarBox.screenY <= y && y <= sidebarBox.screenY + sidebarBox.height)
+      return true;
+    if (aEvent.target instanceof HTMLElement)
+      return false;
+    if (/^(splitter|grippy|menu|panel|notification)/.test(aEvent.target.localName))
+      return true;
+    var box = gBrowser.mPanelContainer.boxObject;
     var bx = box.screenX;
     var by = box.screenY;
     if (bx <= x && x <= bx + box.width &&
@@ -767,7 +905,7 @@ var ucjs_expand_sidebar = {
   //prefを読み込み
   getPref: function(aPrefString, aPrefType, aDefault){
     var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch2);
+                  .getService(Components.interfaces.nsIPrefBranch);
     try{
       switch (aPrefType){
         case 'complex':
@@ -787,7 +925,7 @@ var ucjs_expand_sidebar = {
   //prefを書き込み
   setPref: function(aPrefString, aPrefType, aValue){
     var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch2);
+                  .getService(Components.interfaces.nsIPrefBranch);
     try{
       switch (aPrefType){
         case 'complex':
@@ -817,5 +955,117 @@ var ucjs_expand_sidebar = {
 };
 
 // エントリポイント
-  ucjs_expand_sidebar.init();
-  window.addEventListener("unload", function(){ ucjs_expand_sidebar.uninit(); }, false);
+ucjs_expand_sidebar.init();
+window.addEventListener("unload", function(){ ucjs_expand_sidebar.uninit(); }, false);
+
+var sidebarpopuppanelResize = {
+  drag   : false,
+  size   : null,
+  offset : null,
+
+  PREF_SIZE : "extensions.sidebarpopuppanelResize.size.",
+
+  get isRTL() {
+    return document.defaultView
+                .getComputedStyle(document.getElementById("nav-bar"), "")
+                .direction == "rtl";
+  },
+
+  get sidebar() {
+    return document.getElementById("sidebar");;
+  },
+  
+  get sidebarbox() {
+    return document.getElementById("sidebar-box");;
+  },
+
+  get sidebarcommand() {
+    return this.sidebarbox.getAttribute('sidebarcommand');
+  },
+
+  init: function(){
+    window.addEventListener("unload", this, false);
+  },
+
+  uninit: function(){
+    window.removeEventListener("unload", this, false);
+    window.removeEventListener("mouseup", this, true);
+    window.removeEventListener("mousemove", this, true);
+  },
+
+  handleEvent: function (event) {
+    switch (event.type) {
+      case "load":
+        this.init();
+        break;
+      case "unload":
+        this.uninit();
+        break;
+      case "mouseup":
+        this.mouseup(event);
+        break;
+      case "mousemove":
+        if (this.timer) {
+            clearTimeout(this.timer);
+        }
+        this.timer = setTimeout(function (event, self) {
+          self.mousemove(event);
+        }, 10, event, this);
+        break;
+      default:;
+    }
+  },
+
+  start: function(event){
+    this.drag = true;
+    this.size = {height:parseInt(this.sidebar.boxObject.height),
+                 width:parseInt(this.sidebar.boxObject.width)};
+    this.offset = {x: event.screenX, y: event.screenY};
+    window.addEventListener("mouseup", this, true);
+    window.addEventListener("mousemove", this, true);
+  },
+
+  mouseup: function(event) {
+    this.drag = false;
+    window.removeEventListener("mousemove", this, true);
+    window.removeEventListener("mouseup", this, true);
+    ucjs_expand_sidebar._saveKeepItSizes(this.sidebarcommand, this.sidebar.boxObject.width);
+  },
+
+  mousemove: function(event) {
+    if (this.drag) {
+      var newValue;
+      var h = this.sidebar.boxObject.height;
+      newValue = this.size.height + event.screenY - this.offset.y;
+      if (newValue <= screen.height - 50 && newValue >= 10) {
+        h = newValue;
+      }
+
+      var w = this.sidebar.boxObject.width;
+      if (this.isRTL)
+        newValue = this.size.width - (event.screenX - this.offset.x);
+      else
+        newValue = this.size.width + event.screenX - this.offset.x;
+      if (newValue <= screen.width && newValue >= 100) {
+        w = newValue;
+      }
+      this.setSize(h, w);
+    }
+  },
+
+  setSize: function(h, w){
+    var bx = this.sidebar.boxObject;
+
+    if (h && h + bx.screenY <= screen.height - 50 && h >= 10) {
+//      this.sidebar.style.setProperty('height', h + "px", "important");
+    }
+
+    var x = this.sidebar.boxObject.screenX;
+    var y = this.sidebar.boxObject.screenY;
+    if (w && w <= screen.width && w >= 100) {
+      this.sidebar.style.setProperty('width', w + "px", "important");
+      //this.sidebarbox.width = w;
+    }
+  }
+};
+sidebarpopuppanelResize.init();

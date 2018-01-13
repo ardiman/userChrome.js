@@ -22,14 +22,14 @@
 
 location == "chrome://browser/content/browser.xul" && (function(){
 
-    var iconURL = "";  // uc 脚本列表的图标
+    var iconURL = "";  // uc Symbol für Scriptliste
 
     var Config = {
         debug: 0,  // 1 则uc管理界面右键菜单会有 "重载 uc 脚本" 的菜单
-        detailView: 1,  // 详细信息页面是否添加安装链接
+        detailView: 1,  // Auf Details-Seite Installation-Link hinzufügen
     };
 
-    if(window.AM_Helper){  // 修改调试用，重新载入无需重启
+    if(window.AM_Helper){  // Debuggen ändern, Neuladen ohne Neustart
         window.AM_Helper.uninit();
         delete window.AM_Helper;
     }
@@ -75,7 +75,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         }
 
         function addHomePage(){
-            // 添加 Scriptish 脚本的主页
+            // Scriptish Skripte-Homepage hinzufügen 
             if (window.Scriptish_config) {
                 Scriptish_config.scripts.forEach(function(script){
                     if(script.homepageURL) return;
@@ -85,7 +85,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 });
             }
 
-            // 添加 Greasemonkey 脚本的主页
+            // Greasemonkey Skripte-Homepage hinzufügen
             AddonManager.getAddonsByTypes(['greasemonkey-user-script'], function (aAddons) {
                 aAddons.forEach(function (aAddon) {
                     if (aAddon.homepageURL) return;
@@ -128,7 +128,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
                     this.addPopupMenu(doc);
 
-                    // 给菜单调用
+                    // Menü-Aufruf
                     win.AM_Helper = AM_Helper;
                     this.win = win;
 
@@ -165,7 +165,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
             menuitem = $C("menuitem", {
                 id: "AM-inspect-addon",
-                label: isCN ? "查看附加组件" : "Objektdaten inspizieren",
+                label: isCN ? "查看附加组件" : "Erweiterung inspizieren",
                 accesskey: "i",
                 tooltipText: isCN ? "调用 DOM Inspector 查看 addon 对象" : "Addon mit Dom Inspector inspizieren",
                 oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.inspectAddon);"
@@ -184,7 +184,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             menuitem = $C("menuitem", {
                 id: "AM-reload-uc",
                 hidden: true,
-                label: isCN ? "重载 uc 脚本（慎用）" : "uc Script nachladen",
+                label: isCN ? "重载 uc 脚本（慎用）" : "uc Script neuladen",
                 style: "font-weight:bold",
                 tooltiptext: "Nur teilweise Skriptunterstützung. Bei Problemen Firefox Neustarten.",
                 oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.reloadUserChromeJS);"
@@ -194,7 +194,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             menuitem = $C("menuitem", {
                 id: "AM-browse-dir",
                 label: isCN ? "查看所在目录" : "Installations-Verzeichnis",
-                accesskey: "v",
+                accesskey: "V",
                 oncommand: "AM_Helper.getAddon(AM_Helper.getPopupNode(this).value, AM_Helper.browseDir);"
             });
             popup.insertBefore(menuitem, ins);
@@ -220,7 +220,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             //     id: "AM-go-uso",
             //     class: "greasemonkey",
             //     hidden: true,
-            //     label: isCN ? "在 Userscripts.org 上查看" : "Script auf Userscripts.org anzeigen",
+            //     label: isCN ? "在 Userscripts.org 上查看" : "Script bei Userscripts.org anzeigen",
             //     oncommand: "openURL(this.tooltipText);"
             // });
             // popup.appendChild(menuitem);
@@ -229,7 +229,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             //     id: "AM-find-uso",
             //     class: "greasemonkey",
             //     hidden: true,
-            //     label: isCN ? "在 Userscripts.org 上查找" : "Script auf Userscripts.org finden",
+            //     label: isCN ? "在 Userscripts.org 上查找" : "Script bei Userscripts.org finden",
             //     oncommand: "openURL(this.getAttribute('find-on-uso'));"
             // });
             // popup.appendChild(menuitem);
@@ -361,7 +361,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             dir.append("extensions");
             dir.append(aAddon.id);
             var fileOrDir = dir.path + (dir.exists() ? "" : ".xpi");
-            //Services.console.logStringMessage(fileOrDir);
+            //Application.console.log(fileOrDir);
             try {
                 (new nsLocalFile(fileOrDir)).reveal();
             } catch (ex) {
@@ -387,7 +387,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         reloadUserChromeJS: function (aAddon) {
             if(aAddon.type != "userchromejs") return;
 
-            var result = confirm("Wirklich neu laden？");
+            var result = confirm("Wirklich neu laden");
             if(!result) return;
 
             var script = aAddon._script;
@@ -407,7 +407,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             UI.charset = platform.indexOf('win') > -1 ? 'GB2312' : 'UTF-8';
             path = UI.ConvertFromUnicode(path);
 
-            var appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+            var appfile = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
             appfile.initWithPath(editor);
             var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
             process.init(appfile);
@@ -500,7 +500,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
             }
         },
         revealPath: function(path){
-            var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
+            var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsIFile);
             file.initWithPath(path);
             if(file.exists())
                 file.reveal();
@@ -598,7 +598,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         this.description = this._script.description;
         this.enabled = !userChrome_js.scriptDisable[this.name];
 
-        // 我修改过的 userChrome.js 新增的
+        // Änderung - Anpassung für userChrome.js
         this.version = this._script.version || null;
         this.author = this._script.author || null;
         this.homepageURL = this._script.homepageURL || null;
@@ -628,9 +628,17 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 return this._script.optionsURL;
         },
 
-        get isActive() !this.userDisabled,
-        get userDisabled() !this.enabled,
-        set userDisabled(val) {
+//        get isActive() !this.userDisabled,
+//        get userDisabled() !this.enabled,
+        get isActive(){
+        if (!this.userDisabled) return true;
+        return false;
+        },
+        get userDisabled(){
+        if(!this.enabled) return true;
+        return false;
+       },
+      set userDisabled(val) {
             if (val == this.userDisabled) {
                 return val;
             }
@@ -678,7 +686,8 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
     function $C(name, attr) {
         var el = document.createElement(name);
-        if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+//        if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+        if (attr) Object.keys(attr).forEach(function(n){ el.setAttribute(n, attr[n])});
         return el;
     }
 })();
