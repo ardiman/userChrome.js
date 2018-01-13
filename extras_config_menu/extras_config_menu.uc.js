@@ -2,7 +2,7 @@
 // @name           extras_config_menu.uc.js
 // @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*, 13.*, 14.*, 15.*, 16.*, 17.*, 57.*
 // @include        main
-// @version        1.0.20170826
+// @version        1.0.20180113
 // ==/UserScript==
 
 var uProfMenu = {
@@ -16,20 +16,20 @@ var uProfMenu = {
   // In der folgenden Zeile (19) 'menu' eintragen, damit es unter "Extras" als Menue erscheint, sonst die id des gewuenschten
   // Elements *nach* dem der Button erscheinen soll (z.B. 'urlbar', 'searchbar', 'undoclosetab-button','abp-toolbarbutton')
   // Bitte nicht so etwas wie die Menue- oder Navigationsleiste (sondern einen Menuepunkt oder einen Button mit id auf diesen Leisten) eintragen:
-  warpmenuto: 'urlbar-container',
+  warpmenuto: 'searchbar',
  // Unter Linux sollte/kann versucht werden, die userChromeJS-Skripte zu sortieren, unter Windows ist das evtl. nicht noetig (die Sortierung wird Gross- und Kleinschreibung *nicht* beruecksichtigen - dazu wird die sort()-Funktion entsprechend mit einer Vergleichsfunktion aufgerufen)
   sortScripts: 0,   // 1 zum Erzwingen der Sortierung
   // Einbindung GM-Skripte-Ordner (0: nein, 1: Greasemonkey [Profil-Verzeichnis], 2: UserScriptLoader [Chrome-Verzeichnis], 3: Scriptish [Profil-Verzeichnis]):
-  gmOrdner: 1,
+  gmOrdner: 0,
   // Einbindung CSS-Ordner (0: nein, 1: UserCSSLoader-Ordner im Chrome-Verzeichnis):
-  cssOrdner: 1,
+  cssOrdner: 0,
   // In Zeile 30 gueltige about:Adressen eintragen, die ebenfalls aufgerufen werden sollen.
   // - Zum Ausblenden: abouts: [],
   // - Damit die about:-Seiten nicht als Untermenue, sondern direkt als Menuepunkte aufgefuehrt werden, muss das erste Element '0' sein:
   // abouts: ['0','about:about','about:addons','about:cache','about:config','about:support'],
    abouts: ['about:about','about:addons','about:cache','about:config','about:crashes','about:home','about:memory','about:healthreport','about:plugins','about:support','about:preferences','about:performance'],
   // Die normalen Firefox-Einstellungen auch zur Verfuegung stellen (0: nein, 1: ja):
-  showNormalPrefs: 0,
+  showNormalPrefs: 1,
   // Stellt "Skriptliste in Zwischenablage" zur Verfuegung (1: ja, 2: mit getrennter Nummerierung, 3: mit gemeinsamer Nummerierung) oder nicht (0):
   enableScriptsToClip: 0,
   // Um den Eintrag "Neustart" zu erzwingen (falls z.B. das andere Skript zu spaet eingebunden und nicht erkannt wird), auf 1 setzen:
@@ -372,7 +372,7 @@ var uProfMenu = {
     if (e.button==2){
       // Rechtsklick - Suche auf GitHub starten (funktioniert nur, wenn der Dateiname im Code hinterlegt ist):
       e.preventDefault();
-      var sUrl="https://github.com/search?type=Everything&language=&q="+sScript+"&repo=&langOverride=&start_value=1";
+      var sUrl="https://github.com/search?langOverride=&language=&q="+sScript+"&repo=&start_value=1&type=Code";
       getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
     }
   },
