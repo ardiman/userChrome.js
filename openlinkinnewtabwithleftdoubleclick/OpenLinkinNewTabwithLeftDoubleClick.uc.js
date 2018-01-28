@@ -1,136 +1,94 @@
+// OpenLinkinNewTabWithLeftDoubleClick.uc.js
+
 (function() {
-  var gTimer = null;
 
-  function findLink(element) {
-    switch (element.tagName) {
-    case 'A': return element;
+  if (location != 'chrome://browser/content/browser.xul')
+    return;
 
-    case 'B': case 'I': case 'SPAN': case 'SMALL':
-    case 'STRONG': case 'EM': case 'BIG': case 'SUB':
-    case 'SUP': case 'IMG': case 'S':
-      var parent = element.parentNode;
-      return parent && findLink(parent);
+  // neuen Tab öffnen im Hintergrund: true, im Vordergrund: false
+  const inBackground = true;
+  let where = inBackground ? 'tabshifted' : 'tab';
 
-    default:
-      return null;
+  let frameScript = function() {
+
+    /* maximale Zeitdauer des Doppelklicks */
+    const delay = 500;
+    let delayedClick = false;
+    let clickTarget = null;
+    let timeout;
+
+    addEventListener('click', onClick, true);
+
+    function onClick(event) {
+
+      if (delayedClick) {
+        /* emulated delayed click */
+        delayedClick = false;
+        return;
+      };
+
+      clearTimeout(timeout);
+
+      if (event.button != 0 || event.ctrlKey || event.shiftKey
+                            || event.altKey || event.metaKey) {
+        clickTarget = null;
+        return;
+      };
+
+      let link = findLink(event.target);
+      if (!link) {
+        clickTarget = null;
+        return;
+      };
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.target == clickTarget) {
+        /* 2nd click on link */
+        sendAsyncMessage('OpenLinkinNewTabWithLeftDoubleClick.uc.js', link.href);
+        clickTarget = null;
+        return;
+      };
+
+      /* 1st click on link */
+      clickTarget = event.target;
+      timeout = setTimeout(function() {
+        delayedClick = true;
+        clickTarget = null;
+        link.click();
+      }, delay);
+    };
+
+    function findLink(element) {
+      if (!element || !element.tagName)
+        return null;
+      switch (element.tagName.toUpperCase()) {
+        case 'A':
+          return element;
+        case 'AREA':
+          if (element.href) {
+            return element;
+          } else {
+            return findLink(element.parentNode);
+          };
+        case 'B': case 'BIG': case 'CODE': case 'DIV': case 'EM':
+        case 'H1': case 'I': case 'IMG': case 'NOBR': case 'P':
+        case 'S': case 'SMALL': case 'SPAN': case 'STRONG':
+        case 'SUB': case 'SUP':
+          return findLink(element.parentNode);
+        default:
+          return null;
+      };
+    };
+  };
+
+  let frameScriptURI = 'data:,(' + frameScript.toString() + ')()';
+  window.messageManager.loadFrameScript(frameScriptURI, true);
+  window.messageManager.addMessageListener('OpenLinkinNewTabWithLeftDoubleClick.uc.js',
+    function(message) {
+      openUILinkIn(message.data, where);
     }
-  }
+  );
 
-  function click(element, view) {
-    var e = document.createEvent('MouseEvents');
-    e.initMouseEvent('click', true, true, view, 0,
-                     0, 0, 0, 0, false, false, false, false, 0, element);
-    return !element.dispatchEvent(e);
-  }
-
-  function openTab(href) {
-    if ('TreeStyleTabService' in window)
-      TreeStyleTabService.readyToOpenChildTab(gBrowser.selectedTab, false);
-    return gBrowser.addTab(href);
-  }
-
-
-  function findFrames(frame) {
-    var frames = frame.frames;
-    var fs = {};
-
-    for (var i = 0, len = frames.length; i < len; ++i) {
-      var f = frames[i];
-      fs[f.name] = f;
-
-      var children = findFrames(f);
-      for (k in children) {
-        var f = children[k];
-        fs[f.name] = f;
-      }
-    }
-
-    return fs;
-  }
-
-  function followLink(args) {
-    var link = args.link;
-    var newTab = args.newTab;
-    var window = args.window;
-    var activate = args.activate;
-    var href = link.href;
-    var target = link.target;
-
-    if (newTab) {
-      var tab = openTab(href);
-      if (activate) {
-        gBrowser.selectedTab = tab;
-      }
-    } else if (!target || target == '_self') {
-      window.location.href = href;
-    } else {
-      switch (target) {
-      case '_top':
-        window.top.location.href = href;
-        break;
-
-      case '_parent':
-        window.parent.location.href = href;
-        break;
-
-      case '_blank':
-        gBrowser.selectedTab = gBrowser.addTab(href);
-        break;
-
-      default:
-        var frames = findFrames(window.top);
-        var frame = frames[target];
-
-        if (frame) {
-          frame.location.href = href;
-        } else {
-          gBrowser.selectedTab = gBrowser.addTab(href);
-        }
-      }
-    }
-  }
-
-  gBrowser.mPanelContainer.addEventListener('click', function(e) {
-    if (e.button == 0 && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
-      var link = findLink(e.target);
-      if (link) {
-        var href = link.href;
-
-        if (href && href.match(/^(https?|ftp):\/\//)) {
-          e.preventDefault();
-          e.stopPropagation();
-
-          if (!gTimer) {
-            gTimer = setTimeout(function() {
-              try {
-                if (click(link, e.view)) {
-                  followLink({ link: link, window: e.view, newTab: false });
-                }
-                clearTimeout(gTimer);
-              } finally {
-                gTimer = null;
-              }
-            }, 200);
-          }
-        }
-      }
-    }
-  }, false);
-
-  gBrowser.mPanelContainer.addEventListener('dblclick', function(e) {
-    if (gTimer) {
-      try {
-        clearTimeout(gTimer);
-        var link = findLink(e.target);
-        if (link) {
-          var href = link.href;
-          if (href.match(/^(https?|ftp):\/\//) && click(link, e.view)) {
-            followLink({ link: link, window: e.view, newTab: true, activate: false });
-          }
-        }
-      } finally {
-        gTimer = null;
-      }
-    }
-  }, false);
 })();
