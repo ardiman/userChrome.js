@@ -1,5 +1,5 @@
 # Preferences Button
-Erstellt einen Button in der Menüleiste zum schnellen Zugriff auf die Firefox-Einstellungen.
+Erstellt einen Button zum schnellen Zugriff auf die Firefox-Einstellungen. Der Button muss über "Anpassen" an den gewünschten Ort gezogen werden.
 
 Das **Ergebnis des Skripts**:
 
@@ -7,4 +7,4 @@ Das **Ergebnis des Skripts**:
 
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.
