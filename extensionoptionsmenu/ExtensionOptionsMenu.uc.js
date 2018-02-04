@@ -3,6 +3,7 @@
 // @description   Symbolleistenschaltfläche zur Add-ons-Verwaltung
 // @include       main
 // @charset       UTF-8
+// @version       3.1.2 Auf Grund von Problemen, wurde die Fensteranzeige der Erweiterungseinstellungen entfernt
 // @version       3.1.1 Öffnen des Erweiterungen-Ordners funktionierte nicht
 // @version       3.1.0 Unterstützt Fx 57 oder später. System Add-ons, konnten nicht deaktiviert werden
 // @version       3.0.10 Fx52以降で右クリック時に出る既存メニューを出ないように修正 (2ch該当スレより拝借)
@@ -30,12 +31,11 @@ Strg + Mittelklick: Erweiterungs-ID in Zwischenablage kopieren
 Strg + Rechtsklick: Erweiterung entfernen / Deinstallation rückgängig machen 
 *Nach Firefox-Neustart kann dies nicht mehr Rückgängig gemacht werden.
 
-Bei "blackListArray" in Zeile 49 können Add-ons, die nicht im Menü angezeigt werden sollen,
+Bei "blackListArray" in Zeile 50 können Add-ons, die nicht im Menü angezeigt werden sollen,
 mit der ID des Add-ons eingegeben werden. Sie können die ID mit Strg + Mittelklick kopieren.
 Einige Systemerweiterungen werden standardmäßig hinzugefügt.
 
 */
-
 
 'use strict';
 
@@ -337,9 +337,6 @@ var EOM = {
 			return;
 		}
 		switch (Number(addon.optionsType)) {
-			case 2:
-				BrowserOpenAddonsMgr('addons://detail/' + encodeURIComponent(addon.id) + '/preferences');
-			break;
 			case 3:
 				"switchToTabHavingURI" in window ? switchToTabHavingURI(optionsURL, true) : openTab("contentTab", { contentPage: optionsURL });
 			break;
