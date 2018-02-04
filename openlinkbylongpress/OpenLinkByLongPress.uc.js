@@ -1,41 +1,110 @@
 // ==UserScript==
-// @name			openLinkByLongPress.uc.js
-// @description		リンクを左ボタン長押しで新しいタブで開く
-// @include			main
-// @namespace		http://d.hatena.ne.jp/rikuba/20100403/1270228018
-// @note			tips:  browser.link.open_newwindowを1に設定すればリンクをその場で開くか新しいタブで開くかをこちら側で制御できるようになる
+// @name                openLinkByLongPress.uc.js
+// @description         Links in einem neuen Tab öffnen dazu linke Maustaste gedrückt halten
+// @include             main
+// @version             0.0.1  Fx58 Kompatibel
 // ==/UserScript==
 (function() {
-    var tid, opened;
-    var loadInBackground = true;  // "false" für das Öffnen im Vordergrund
+	'use strict';
 
-    function isLink(node) {
-        if ((node instanceof HTMLAnchorElement || node instanceof HTMLAreaElement) && node.hasAttribute('href')) return node;
-        return false;
-    }
-    if (location != "chrome://browser/content/browser.xul") return;
-    gBrowser.mPanelContainer.addEventListener('mousedown', function(e) {
-        if (e.button != 0) return;
-        var node = isLink(e.target) || isLink(e.target.parentNode);
-        if (!node) return;
-        tid = setTimeout(function() {
-            openLinkIn(node.href, loadInBackground ? "tab" : "tabshifted", {});
-            opened = true;
-        }, 500);
-    }, false);
+	if (location != 'chrome://browser/content/browser.xul') {
+		return;
+	}
+	
+	const IN_BACKGROUND = true; //  Tab in Hintergrund öffnen
+	const RELATED_TO_CURRENT = true; // Link oder Lesezeichen neben dem aktuellen Tab öffnen?
+	// WAIT = Wartezeit zum Öffnen in einem neuen Tab in Millisekunden
+	
+	let frameScript = function() {
+		const WAIT = 300;
 
-    gBrowser.mPanelContainer.addEventListener('mouseup', function(e) {
-        clearTimeout(tid);
-    }, false);
+		let timeoutID;
+		let longPress = false;
 
-    gBrowser.mPanelContainer.addEventListener('click', function(e) {
-        if (tid == null) return;
-        if (opened) {
-            e.preventDefault();
-            opened = false;
-        } else {
-            clearTimeout(tid);
-        }
-        tid = null;
-    }, false);
-})();
+		['mousedown', 'mouseup', 'dragstart'].forEach(function(type) {
+			addEventListener(type, onClick, true);
+		});
+
+		function onClick(event) {
+			if (timeoutID) {
+				clearTimeout(timeoutID);
+				timeoutID = null;
+			}
+
+			if (event.button !== 0) return;
+			if (event.altKey || event.ctrlKey || event.shiftKey) return;
+
+			let node = event.target || event.originalTarget;
+			if (!node) return;
+
+			let url = findLink(node);
+			if (!url) return;
+
+			if (event.type === 'mousedown') {
+				timeoutID = setTimeout(function() {
+					addEventListener('click', function clk(event) {
+						removeEventListener('click', clk, true);
+						event.preventDefault();
+						event.stopPropagation();
+					}, true);
+					sendAsyncMessage('openLinkByLongPress.uc.js', url.href);
+					longPress = true;
+				}, WAIT);
+			} else {
+				clearTimeout(timeoutID);
+				if (longPress && event.type === 'mouseup') {
+					event.preventDefault();
+					longPress = false;
+				}
+			}
+		}
+
+		function findLink(node) {
+			if (!node || !node.tagName) {
+				return null;
+			}
+			switch (node.tagName.toUpperCase()) {
+				case 'A':
+					return node;
+				case 'AREA':
+					if (node.href) {
+						return node;
+					} else {
+						return findLink(node.parentNode);
+					};
+				case 'B':
+				case 'BIG':
+				case 'CODE':
+				case 'DIV':
+				case 'EM':
+				case 'H1':
+				case 'I':
+				case 'IMG':
+				case 'NOBR':
+				case 'P':
+				case 'S':
+				case 'SMALL':
+				case 'SPAN':
+				case 'STRONG':
+				case 'SUB':
+				case 'SUP':
+					return findLink(node.parentNode);
+				default:
+					return null;
+			};
+		}
+	};
+
+	let frameScriptURI = 'data:,(' + frameScript.toString() + ')()';
+	window.messageManager.loadFrameScript(frameScriptURI, true);
+	window.messageManager.addMessageListener('openLinkByLongPress.uc.js',
+		function(message) {
+			gBrowser.loadOneTab(message.data, {
+				relatedToCurrent: RELATED_TO_CURRENT,
+				inBackground: IN_BACKGROUND,
+				referrerURI: makeURI(gBrowser.currentURI.spec)
+			});
+		}
+	);
+
+}());
