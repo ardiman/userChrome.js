@@ -24,8 +24,7 @@
 					toolbaritem.setAttribute(p, props[p]);
 				return toolbaritem;
 			}
-});
-
+                });
 	} catch(e) { };
 
 })();
