@@ -1,7 +1,7 @@
 
-//  ChromeFolder.uc.js
+  //  ChromeFolder.uc.js
 
-(function() {
+  (function() {
 
    if (location != 'chrome://browser/content/browser.xul') return;
 
@@ -9,7 +9,7 @@
 		CustomizableUI.createWidget({
 			id: 'profilefolder-ToolBarButton',
 			type: 'custom',
-			defaultArea: CustomizableUI.AREAS_NAVBAR,
+			defaultArea: CustomizableUI.AREA_NAVBAR,
 			onBuild: function(aDocument) {			
 				var toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbarbutton');
 				var props = {
