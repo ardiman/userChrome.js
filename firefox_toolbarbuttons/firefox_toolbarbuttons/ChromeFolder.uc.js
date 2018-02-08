@@ -1,7 +1,7 @@
 
   //  ChromeFolder.uc.js
 
-(function() {
+  (function() {
 
    if (location != 'chrome://browser/content/browser.xul') return;
 
