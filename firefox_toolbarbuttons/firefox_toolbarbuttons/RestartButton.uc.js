@@ -1,5 +1,5 @@
 
-  //  ChromeFolder.uc.js
+  //  RestartButton.uc.js
 
   (function() {
 
