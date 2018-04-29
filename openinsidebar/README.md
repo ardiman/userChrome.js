@@ -2,7 +2,6 @@
 
 Dieses Skript fügt das Menü Seitenleiste ins Hauptkontextmenü ein.
 
-![Screenshot](https://github.com/Endor8/userChrome.js/blob/master/Firefox-57/OpenInSidebar/Bild%20001.png)
 ![Screenshot 1 Openinsidebar](https://github.com/ardiman/userChrome.js/raw/master/openinsidebar/scr_openinsidebar_1.png)
 
 Dieses Menü bietet vier verschiedene Einträge zum Öffnen in der Seitenleiste:
@@ -28,4 +27,4 @@ Nach Klick auf Enter wird die eingegebene Adresse dann in der Seitenleiste geöf
 
 ## Installation
 
-Kopiere die uc.js-Datei in den Chromeordner des Profils und ziehe den Button an die gewünschte Stelle.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.
