@@ -7,4 +7,4 @@ Das **Ergebnis des Skripts** (Kontextmenü und Toolbarbutton):
 ![Screenshot Print Preview](https://github.com/ardiman/userChrome.js/raw/master/printpreview/scr_printpreview.png)
 
 ## Installation
-Kopiere die uc.xul-Datei in den Chromeordner des Profils.
+Kopiere die uc.js-Datei in den Chromeordner des Profils.
