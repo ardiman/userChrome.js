@@ -2,24 +2,25 @@
 //Einstellungen	- true = ein(aktiviert) false = aus(deaktiviert)
 
 //Namen und Symbol der Suchmaschine in der Suchleiste anzeigen
-  let label = true;//Namen anzeigen
-  let img = true;	//Symbol - Favicon anzeigen
-//Doppelklick auf Suchleiste, um zur Standard Suchmaschine zurück zukehren
-  let only = false;	//Suchleiste leeren und nicht zur Standardsuchmaschine zurückkehren [Neu in Version 0.6]
-  let dbl = true;	//Funktion aktivieren
-  let zero = false;	//Bei Klick zur obersten Suchmaschine zurückkehren
-  let select = 'Google'; //Standard Suchmaschine angeben, zum Beispiel 'DuckDuckGo'.
-  let erase = true; //Nach Suche Suchleiste leeren
+  const BUTTON_ONLY = false	//Nur bei Suchleisten Suchschaltfläche anwenden - Suchmaschinen wechseln mit Scrollrad im Hauptkontextmenü deaktivieren
+  const label = true; //Namen anzeigen
+  const img = true;	//Symbol - Favicon anzeigen
+//Doppelklick auf Suchleiste, um zur Standard Suchmaschine zurück zu kehren
+  const only = false; //Suchleiste leeren und nicht zur Standardsuchmaschine zurückkehren [Neu in Version 0.6]
+  const dbl = true;	//Funktion aktivieren
+  const zero = false; //Bei Klick zur obersten Suchmaschine zurückkehren
+  const select = 'Google'; //Standard Suchmaschine angeben, zum Beispiel 'DuckDuckGo'.
+  const erase = true; //Nach Suche Suchleiste leeren
 //[Aktion nach dem Suchen mit der Suchleiste]
-  let auto = true;	//Andere Einstellungen verwenden, durch einen Doppelklick auf die Suchleiste  
+  const auto = true; //Andere Einstellungen verwenden, durch einen Doppelklick auf die Suchleiste  
 //Kontextmenü Suche wechseln mit[～～Suchen]
-  let cxt = true;	//Funktion aktivieren
-  let icon = true;	//Symbol - Favicon anzeigen
-  let clk = true;	//Klicken, um zur Standard Suchmaschine zurückzukehren (Andere Einstellungen verwenden ~ mit Doppelklick auf die Suchleiste)
-  let sync = false;	//Suchwort an die Suchleiste senden [Neu in Version 0.7]
-  let hist = true;	//Suchwort der Suchchronik der Suchleiste hinzufügen * Es ist OK, wenn die Synchronisation inkorrekt ist [Neu in Version 0.8]
+  const cxt = true;	//Funktion aktivieren
+  const icon = true; //Symbol - Favicon anzeigen
+  const clk = true;	//Klicken, um zur Standard Suchmaschine zurückzukehren (Andere Einstellungen verwenden ~ mit Doppelklick auf die Suchleiste)
+  const sync = false; //Suchwort an die Suchleiste senden [Neu in Version 0.7]
+  const hist = true; //Suchwort der Suchchronik der Suchleiste hinzufügen * Es ist OK, wenn die Synchronisation inkorrekt ist [Neu in Version 0.8]
 //[Verhalten beim Start] * Gilt auch beim Neustart
-  let start0 = false; //Andere Einstellungen verwenden, durch Doppelklick auf die Suchleiste
+  const start0 = false; //Andere Einstellungen verwenden, durch Doppelklick auf die Suchleiste
 
 //Konfiguration
 
@@ -70,7 +71,7 @@
   		let truncChar = selectedText[15].charCodeAt(0);
   		if (truncChar >= 0xDC00 && truncChar <= 0xDFFF)
   			truncLength++;
-  		selectedText = selectedText.substr(0, truncLength) + 'Suchen mit ';
+  		selectedText = selectedText.substr(0, truncLength) + '\u2026';
   	}
   	var menuLabel = gNavigatorBundle.getFormattedString('contextMenuSearch',[BSS.currentEngine.name, selectedText]);
   	menu.setAttribute('label', menuLabel);
@@ -99,6 +100,7 @@
   }
   
   function ChangeE(event) {
+  	if(BUTTON_ONLY && event.originalTarget.className !== 'searchbar-search-button' && event.originalTarget !== menu) return;
     let dir = (scrollRight ? 1 : -1) * Math.sign(event.detail || event.deltaY);
   	this.engines = BSS.getVisibleEngines({});
   	let index = this.engines.indexOf(BSS.currentEngine);

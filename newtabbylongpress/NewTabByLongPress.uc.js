@@ -1,17 +1,18 @@
 // ==UserScript==
 // @name                newTabByLongPress.uc.js
-// @description         リンクやブックマークを左ボタン長押しで新しいタブに開く
+// @description         Lesezeichen mit länger gedrückter Linken Maustaste in neuem Tab öffnen
 // @include             main
-// @version             0.8.3  リンクに関する修正
-// @version             0.8.2  リンクになってない画像に対応
-// @version             0.8.1  タイマーに関する修正
+// @version             0.8.4  Nur bei Lesezeichen ändern
+// @version             0.8.3  Link-Korrekturen
+// @version             0.8.2  Für Links aber nicht von Bildern
+// @version             0.8.1  Timer-Korrektur
 // ==/UserScript==
 (function () {
 	'use strict';
 
-	const WAIT = 500; // 長押しと判定するまでの時間
-	const IN_BACKGROUND = true; // タブを背面に開くか
-	const RELATED_TO_CURRENT = true; // リンク(ブックマーク)を現在のタブの右隣に開くか
+	const WAIT = 250; // Zeitspanne die die Maustaste gedrückt werden muss, in Millisekunden
+	const IN_BACKGROUND = true; // Tab im Hintergrund öffnen
+	const RELATED_TO_CURRENT = true; // Link oder Lesezeichen direkt neben dem aktuellen Tab öffnen?
 
 	var timeoutID;
 	var longPress = false;
@@ -28,16 +29,15 @@
 		var node = e.target || e.originalTarget;
 		if (!node) return;
 
-		var [href, ] = hrefAndLinkNodeForClickEvent(e);
-
-		var url = href || getPlacesURI(e, node) || node.src;
+		var url = getPlacesURI(e, node);
 		if (!url) return;
 
 		if (e.type === 'mousedown') {
 			timeoutID = setTimeout(function () {
 				addEventListener('click', function clk(e) {
 					removeEventListener('click', clk, true);
-					stopEvent(e);
+					e.preventDefault();
+					e.stopPropagation();
 				}, true);
 				gBrowser.loadOneTab(url, {
 					relatedToCurrent: RELATED_TO_CURRENT,
@@ -99,11 +99,6 @@
 
 	function isPlacesTree(tree) {
 		return tree.getAttribute("type") === "places";
-	}
-
-	function stopEvent (e) {
-		e.preventDefault();
-		e.stopPropagation();
 	}
 
 	['mousedown', 'mouseup', 'dragstart'].forEach(function (type) {

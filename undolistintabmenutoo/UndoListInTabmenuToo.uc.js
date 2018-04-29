@@ -3,8 +3,10 @@
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description    UndoListInTabmenuToo.uc.js
 // @include        main
-// @compatibility  Firefox 4.0
+// @compatibility  Firefox 4.0 - 60+
 // @author         Alice0775
+// @version        2018/04/11 Update for Firefox 60+ by aborix
+// @version        2017/11/18 nsIPrefBranch to nsIPrefBranch
 // @version        2010/09/18 00:00 4.0b7pre
 // @version        2009/02/03 13:00 ツールチップにタブ内履歴を表示するようにした
 // @Note           タブやコンテキストメニューにもUndoClose Tab Listを追加するもの
@@ -21,57 +23,66 @@
 
 var UndoListInTabmenu = {
 // -- config --
-  TABCONTEXTMENU : true ,  //タブコンテキストメニューに             追加する:[true], しない: false
-  CONTEXTMENU    : true,  //コンテンツアリアコンテキストメニューに  追加する: true , しない:[false]
+  TABCONTEXTMENU : true , //Im Tabkontextmenü: anzeigen: true, nicht anzeigen: false
+  CONTEXTMENU    : true,  //Im Hauptkontextmenü: anzeigen: true , nicht anzeigen: false
 // -- config end--
   ss: null,
 
   get tabContext() {
-    return document.getAnonymousElementByAttribute(
+/*  return document.getAnonymousElementByAttribute(
                         gBrowser, "anonid", "tabContextMenu")||
            gBrowser.tabContainer.contextMenu;
-;
+*/  return gBrowser.tabContainer.contextMenu;
   },
 
   init: function(){
 
     if (this.TABCONTEXTMENU){
-      //タブコンテキスト
+      //Eintrag für Tabkontextmenü
       var tabContext = this.tabContext;
       this.makePopup(tabContext, null, "tabContextUndoList");
     }
     if (this.CONTEXTMENU){
-      //コンテンツエリアコンテキスト
+      //Eintrag für Hauptkontextmenü
       var contextMenu = document.getElementById("contentAreaContextMenu");
       var refItem = document.getElementById("context-sep-stop");
       this.makePopup(contextMenu, refItem, "ContextUndoList");
     }
     // get closed-tabs from nsSessionStore
-    this._ss = Cc["@mozilla.org/browser/sessionstore;1"].
+/*  this._ss = Cc["@mozilla.org/browser/sessionstore;1"].
                getService(Ci.nsISessionStore);
+*/  this._ss = SessionStore;
 
   },
 
   makePopup: function(popup, refItem, id){
     var menu;
     //label
-    const locale = Components.classes["@mozilla.org/preferences-service;1"]
+/*  const locale = Components.classes["@mozilla.org/preferences-service;1"]
                    .getService(Components.interfaces.nsIPrefBranch).getCharPref("general.useragent.locale");
+*/  const locale = '';
     if (this.getVer() > 3.0) {
       // "Recently Closed Windows"
+      let idPrefix = id.substring(0, id.length - 15);
       menu = document.createElement("menu");
-      menu.setAttribute("id", "historyUndoWindowMenu3");
+      //menu.setAttribute("id", "historyUndoWindowMenu3");
+      menu.setAttribute("id", idPrefix + "HistoryUndoWindowMenu3");
       menu.setAttribute("label", "K\u00FCrzlich geschlossene Fenster");
       menu.setAttribute("accesskey", "F");
       menu.setAttribute("disabled", "true");
       popup.insertBefore(menu, refItem);
-
+/*
       this.historyUndoWindowPopup3 = menu = menu.appendChild(document.createElement("menupopup"));
       menu.setAttribute("id", "historyUndoWindowPopup3");
       menu.setAttribute("onpopupshowing", "UndoListInTabmenu.populateUndoWindowSubmenu();");
+*/
+      var undoPopup = (document.createElement("menupopup"));
+      undoPopup.setAttribute("id", idPrefix + "HistoryUndoWindowPopup3");
+      undoPopup.setAttribute("onpopupshowing", "UndoListInTabmenu.populateUndoWindowSubmenu(this);");
+      menu.appendChild(undoPopup);
     }
 
-    //UndoClose Tab List  最近閉じたタブ
+    //UndoClose Tab List - Liste kürzlich geschosener Tabs
     const LABELTEXT = locale.indexOf("ja") == -1?"K\u00FCrzlich geschlossene Tabs":"\u6700\u8fd1\u9589\u3058\u305f\u30bf\u30d6";    //create menu
     menu = document.createElement("menu");
     menu.setAttribute("label", LABELTEXT);
@@ -93,7 +104,7 @@ var UndoListInTabmenu = {
     //add event listener
     popup.addEventListener('popupshowing',function(event) {
       if (UndoListInTabmenu.getVer() > 3.0)
-        UndoListInTabmenu.toggleRecentlyClosedWindows();
+        UndoListInTabmenu.toggleRecentlyClosedWindows(undoPopup);
       // no restorable tabs, so make sure menu is disabled, and return
       if (UndoListInTabmenu._ss.getClosedTabCount(window) == 0) {
         menu.setAttribute("disabled", true);
@@ -204,7 +215,7 @@ var UndoListInTabmenu = {
 
     m = undoPopup.appendChild(document.createElement("menuitem"));
     m.setAttribute("label", "Liste der letzten Tabs l\u00F6schen");
-    m.setAttribute("accesskey", "T");
+    m.setAttribute("accesskey", "l");
     m.addEventListener("command", function() {
       var max_undo = UndoListInTabmenu.getPref("browser.sessionstore.max_tabs_undo", "int", 10);
       UndoListInTabmenu.setPref("browser.sessionstore.max_tabs_undo", "int", 0);
@@ -228,7 +239,7 @@ var UndoListInTabmenu = {
     m = undoPopup.appendChild(document.createElement("menuitem"));
     m.setAttribute("label", strings.getString("menuRestoreAllTabs.label"));
     //m.setAttribute("class", "menuitem-iconic bookmark-item");
-    m.setAttribute("accesskey", "T" /*strings.getString("menuRestoreAllTabs.accesskey")*/);
+    m.setAttribute("accesskey", "R" /*strings.getString("menuRestoreAllTabs.accesskey")*/);
     m.addEventListener("command", function() {
       for (var i = 0; i < undoItems.length; i++)
         undoCloseTab();
@@ -266,7 +277,7 @@ var UndoListInTabmenu = {
     m = undoPopup.appendChild(document.createElement("menuitem"));
     m.setAttribute("label", "Liste der letzten Tabs l\u00F6schen");
     m.setAttribute("class", "menuitem-iconic bookmark-item");
-    m.setAttribute("accesskey", "T");
+    m.setAttribute("accesskey", "l");
     m.addEventListener("command", function() {
       var max_undo = UndoListInTabmenu.getPref("browser.sessionstore.max_tabs_undo", "int", 10);
       UndoListInTabmenu.setPref("browser.sessionstore.max_tabs_undo", "int", 0);
@@ -276,21 +287,28 @@ var UndoListInTabmenu = {
     }, false);
   },
 
-  toggleRecentlyClosedWindows: function PHM_toggleRecentlyClosedWindows() {
+  toggleRecentlyClosedWindows: function PHM_toggleRecentlyClosedWindows(undoPopup) {
     // enable/disable the Recently Closed Windows sub menu
+/*
     let undoPopup = this.historyUndoWindowPopup3;
     // no restorable windows, so disable menu
     if (this._ss.getClosedWindowCount() == 0)
       this.historyUndoWindowPopup3.parentNode.setAttribute("disabled", true);
     else
       this.historyUndoWindowPopup3.parentNode.removeAttribute("disabled");
+*/
+    // no restorable windows, so disable menu
+    if (this._ss.getClosedWindowCount() == 0)
+      undoPopup.parentNode.setAttribute("disabled", true)
+    else
+      undoPopup.parentNode.removeAttribute("disabled");
   },
 
   /**
    * Populate when the history menu is opened
    */
-  populateUndoWindowSubmenu: function PHM_populateUndoWindowSubmenu() {
-    let undoPopup = this.historyUndoWindowPopup3;
+  populateUndoWindowSubmenu: function PHM_populateUndoWindowSubmenu(undoPopup) {
+    //let undoPopup = this.historyUndoWindowPopup3;
     let menuLabelString = gNavigatorBundle.getString("menuUndoCloseWindowLabel");
     let menuLabelStringSingleTab =
       gNavigatorBundle.getString("menuUndoCloseWindowSingleTabLabel");
@@ -311,7 +329,7 @@ var UndoListInTabmenu = {
     let m = undoPopup.appendChild(document.createElement("menuitem"));
     m.setAttribute("label", gNavigatorBundle.getString("menuRestoreAllWindows.label"));
     //m.setAttribute("class", "menuitem-iconic bookmark-item");
-    m.setAttribute("accesskey", "F"/*gNavigatorBundle.getString("menuRestoreAllWindows.accesskey")*/);
+    m.setAttribute("accesskey", "W"/*gNavigatorBundle.getString("menuRestoreAllWindows.accesskey")*/);
     m.setAttribute("oncommand",
       "for (var i = 0; i < " + undoItems.length + "; i++) UndoListInTabmenu.undoCloseWindow();");
     undoPopup.appendChild(document.createElement("menuseparator"));
@@ -349,8 +367,9 @@ var UndoListInTabmenu = {
    * @returns a reference to the reopened window.
    */
   undoCloseWindow: function (aIndex) {
-    let ss = Cc["@mozilla.org/browser/sessionstore;1"].
+/*  let ss = Cc["@mozilla.org/browser/sessionstore;1"].
              getService(Ci.nsISessionStore);
+*/  let ss = SessionStore;
     let window = null;
     if (ss.getClosedWindowCount() > (aIndex || 0))
       window = ss.undoCloseWindow(aIndex || 0);
@@ -360,7 +379,7 @@ var UndoListInTabmenu = {
 
   getPref: function(aPrefString, aPrefType, aDefault){
     var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch2);
+                  .getService(Components.interfaces.nsIPrefBranch);
     try{
       switch (aPrefType){
         case 'complex':
@@ -380,7 +399,7 @@ var UndoListInTabmenu = {
 
   setPref: function(aPrefString, aPrefType, aValue){
     var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                  .getService(Components.interfaces.nsIPrefBranch2);
+                  .getService(Components.interfaces.nsIPrefBranch);
     try{
       switch (aPrefType){
         case 'complex':
@@ -399,8 +418,8 @@ var UndoListInTabmenu = {
     return null;
   },
 
-  //Fxのバージョンを得る
-    //Fxのバージョン
+  //Fx Version ermitteln
+    //FxVersion
   getVer: function(){
     const Cc = Components.classes;
     const Ci = Components.interfaces;
@@ -411,3 +430,4 @@ var UndoListInTabmenu = {
 };
 
 if(!('TM_init' in window)) UndoListInTabmenu.init();
+
