@@ -38,7 +38,7 @@ var UndoListInTabmenu = {
   init: function(){
 
     if (this.TABCONTEXTMENU){
-      //Eintrag für Tabkontextmenü
+      //タブコンテキスト
       var tabContext = this.tabContext;
       this.makePopup(tabContext, null, "tabContextUndoList");
     }
@@ -239,7 +239,7 @@ var UndoListInTabmenu = {
     m = undoPopup.appendChild(document.createElement("menuitem"));
     m.setAttribute("label", strings.getString("menuRestoreAllTabs.label"));
     //m.setAttribute("class", "menuitem-iconic bookmark-item");
-    m.setAttribute("accesskey", "R" /*strings.getString("menuRestoreAllTabs.accesskey")*/);
+    m.setAttribute("accesskey", "A" /*strings.getString("menuRestoreAllTabs.accesskey")*/);
     m.addEventListener("command", function() {
       for (var i = 0; i < undoItems.length; i++)
         undoCloseTab();

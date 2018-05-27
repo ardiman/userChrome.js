@@ -1,35 +1,38 @@
 // ==UserScript==
 // @name         AddonsPage.uc.js
-// @description  附件组件页面右键新增查看所在目录，详细信息页面新增安装地址或路径，新增 uc脚本管理页面。
+// @description  Bei about:addons (Add-ons Verwaltung) rechtsklick auf installierte Ereiterung
+// @description  zum Anzeigen der neu hinzugefügen Kontextmenüeinträge.
+// @description  Bei Detailseite (klick auf Mehr) wird die Installationsadresse - Pfad, hinzugefügt			
 // @author       ywzhaiqi
 // @include      main
 // @charset      utf-8
-// @version      2014.09.11
+// @version      2018.05.10
 // @downloadURL  https://raw.github.com/ywzhaiqi/userChromeJS/master/AddonsPage/AddonsPage.uc.js
 // @homepageURL  https://github.com/ywzhaiqi/userChromeJS/tree/master/AddonsPage
 // @reviewURL    http://bbs.kafan.cn/thread-1617407-1-1.html
 // @optionsURL   about:config?filter=view_source.editor.path
-// @note         - 附件组件页面右键新增查看所在目录（支持扩展、主题、插件）、复制名字。Greasemonkey、Scriptish 自带已经存在
-// @note         - 附件组件详细信息页面新增GM脚本、扩展、主题安装地址和插件路径，右键即复制
-// @note         - 新增 uc脚本管理页面
-// @note         - 右键菜单 "查看附加组件" 需要 DOM Inspector
-// @note         uc脚本管理界面
-// @note         - 启用禁用需要 rebuild_userChrome.uc.xul
-// @note         - 编辑命令需要首先设置 view_source.editor.path 的路径
-// @note         - 图标请自行添加样式，详细信息见主页
-// @note         其它信息见主页
+// @note         - Rechtsklick bei Add-On, um das Menü anzuzeigen bei (Erweiterungen, Themes, Plug-Ins), und kopieren Sie den Namen. 
+// @note         - Greasemonkey und Scriptish verfügen schon über dieses Menü.
+// @note         - Bei GM-Skript, Erweiterungen und Themen die Installationsadresse und den Plug-in-Pfad zum Kontextmenü hinzugefügt
+// @note         - Seite für die Skriptverwaltung wurde hinzugefügt
+// @note         - Rechtsklickmenü "Add-ons anzeigen" erfordert DOM Inspector, geht nur bis Firefox 56.0.2
+// @note         - UC-Skript-Verwaltungsschnittstelle
+// @note         - Aktivieren deaktivieren von Scripten erfordert rebuild_userChrome.uc.xul Script
+// @note         - Für Editor unter about:config bei view_source.editor.path den Pfad zum Editor eingeben
+// @note         - Icon Style hinzugefügt，siehe Homepage für Details
+// @note         - Weitere Informationen finden Sie auf der Homepage
 // ==/UserScript==
 
 location == "chrome://browser/content/browser.xul" && (function(){
 
-    var iconURL = "";  // uc Symbol für Scriptliste
+    var iconURL = "";  // uc Skriptlisten-Symbol
 
     var Config = {
-        debug: 0,  // 1 则uc管理界面右键菜单会有 "重载 uc 脚本" 的菜单
+        debug: 0,  // 1 = Rechtsklickmenü UC Scriptverwaltung - Menüeinträge anzeigen, 0 = nicht anzeigen 
         detailView: 1,  // Auf Details-Seite Installation-Link hinzufügen
     };
 
-    if(window.AM_Helper){  // Debuggen ändern, Neuladen ohne Neustart
+    if(window.AM_Helper){  // Debugging ändern, neu laden ohne neu zu starten
         window.AM_Helper.uninit();
         delete window.AM_Helper;
     }
@@ -41,7 +44,15 @@ location == "chrome://browser/content/browser.xul" && (function(){
     Cu.import("resource://gre/modules/Services.jsm");
     Cu.import("resource://gre/modules/AddonManager.jsm");
 
-    const isCN = Services.prefs.getCharPref("general.useragent.locale").indexOf("zh") != -1;
+    let isCN = false;
+    try {
+        isCN = Services.prefs.getCharPref("general.useragent.locale").indexOf("zh") != -1;
+    } catch (e) {
+        try {
+            isCN = Services.prefs.getCharPref("intl.locale.requested").indexOf("zh") != -1;
+        } catch (e) {
+        }
+    }
 
     var ApplyPatchForScript = (function(){
         const USO_URL_RE = /(^https?:\/\/userscripts.org.*\/scripts\/source\/\d+)\.\w+\.js$/i;
@@ -75,7 +86,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         }
 
         function addHomePage(){
-            // Scriptish Skripte-Homepage hinzufügen 
+            // 添加 Scriptish 脚本的主页
             if (window.Scriptish_config) {
                 Scriptish_config.scripts.forEach(function(script){
                     if(script.homepageURL) return;
@@ -85,7 +96,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 });
             }
 
-            // Greasemonkey Skripte-Homepage hinzufügen
+            // Greasemonkey Skripte Homepage hinzufügen
             AddonManager.getAddonsByTypes(['greasemonkey-user-script'], function (aAddons) {
                 aAddons.forEach(function (aAddon) {
                     if (aAddon.homepageURL) return;
@@ -387,7 +398,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         reloadUserChromeJS: function (aAddon) {
             if(aAddon.type != "userchromejs") return;
 
-            var result = confirm("Wirklich neu laden");
+            var result = confirm("Sind Sie sicher, dass Sie neu laden möchten? \ n Mit Vorsicht dies wird nur von einigen Skripten unterstützt.Ununterstützte Skripte haben Probleme wie das wiederholte Hinzufügen von Schaltflächen oder Menüs oder Ereignissen. \ nBei Problemen, Firefox neu starten.");
             if(!result) return;
 
             var script = aAddon._script;
@@ -551,7 +562,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
                     9000)];
             }
 
-            let provider = {
+            const provider = parseInt(Services.appinfo.version) < 61.0? {
                 getAddonByID: function(aId, aCallback) {
                     let script = userChromeJSAddon.getScriptById(aId);
                     aCallback(script);
@@ -562,6 +573,18 @@ location == "chrome://browser/content/browser.xul" && (function(){
                         aCallback([]);
                     } else {
                         aCallback(userChromeJSAddon.scripts);
+                    }
+                }
+            }: {
+                getAddonByID: async function(aId) {
+                    return userChromeJSAddon.getScriptById(aId);
+                },
+
+                getAddonsByTypes: async function(aTypes) {
+                    if (aTypes && aTypes.indexOf("userchromejs") < 0) {
+                        return [];
+                    } else {
+                        return userChromeJSAddon.scripts;
                     }
                 }
             };
@@ -619,7 +642,7 @@ location == "chrome://browser/content/browser.xul" && (function(){
         scope: AddonManager.SCOPE_PROFILE,
         name: null,
         creator: null,
-        pendingOperations: AddonManager.PENDING_NONE,  // 必须，否则所有都显示 restart
+        pendingOperations: AddonManager.PENDING_NONE,  // Muss neu gestartet werden, sonst werden alle angezeigt
         operationsRequiringRestart: 6,
         // operationsRequiringRestart: AddonManager.OP_NEEDS_RESTART_DISABLE,
 
@@ -628,17 +651,13 @@ location == "chrome://browser/content/browser.xul" && (function(){
                 return this._script.optionsURL;
         },
 
-//        get isActive() !this.userDisabled,
-//        get userDisabled() !this.enabled,
-        get isActive(){
-        if (!this.userDisabled) return true;
-        return false;
+        get isActive() {
+            return !this.userDisabled? true: false;
         },
-        get userDisabled(){
-        if(!this.enabled) return true;
-        return false;
-       },
-      set userDisabled(val) {
+        get userDisabled() {
+            return !this.enabled? true: false;
+        },
+        set userDisabled(val) {
             if (val == this.userDisabled) {
                 return val;
             }
@@ -686,7 +705,6 @@ location == "chrome://browser/content/browser.xul" && (function(){
 
     function $C(name, attr) {
         var el = document.createElement(name);
-//        if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
         if (attr) Object.keys(attr).forEach(function(n){ el.setAttribute(n, attr[n])});
         return el;
     }

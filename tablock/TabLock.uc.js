@@ -1,156 +1,89 @@
-// ==UserScript==
-// @name           tabLock_mod1.uc.js
+﻿// ==UserScript==
+// @name           tabLock_mod2.uc.js
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    tabLock
+// @description    Tab sperren
 // @include        *
-// @compatibility  17-25
-// @version        2016/03/19 00:00 TST
-// @version        2016/03/18 00:00 update scanner
-// @version        2014/10/18 00:00 skip to check isNext/Prev/Hash for some url 
-// @version        2014/06/21 07:00 Fixed due to Bug 996053 
-// @version        2014/02/21 23:00  Multiple Tab Handler #66 
-// @version        2013/12/21 23:00 exclude "prevent"
-// @version        2013/11/06 10:20 Bug 846635 - Use asynchronous getCharsetForURI in getShortcutOrURI in Firefox25 and later
-// @version        2013/04/06 09:00 Bug 748740
-// @version        2012/12/08 22:30 Bug 788290 Bug 788293 Remove E4X 
+// @exclude        chrome://mozapps/content/downloads/unknownContentType.xul
+// @compatibility  60+
+// @version        2018/05/23 00:00 Fixed typo(status is undeled when unlock)
+// @version        2018/05/12 15:30 workaround restore session for all window
+// @version        2018/05/05 23:00 cleanup (fix ancestor click event)
+// @version        2018/05/04 22:00 Make link handling of locked tab more safer
+// @version        2018/05/04 21:00 xxxx for <a href = ""> something
+// @version        2018/05/04 12:00 cleanup for 60
+// @version        2018/05/04 00:00 for 60
 // ==/UserScript==
-// @version        2012/08/12 22:00 init変更
-// @version        2012/02/06 07:00  sidebar 修正
-// @version        2012/01/04 22:00  gURLBar.handleCommand 修正
-// @version        2011/07/21 22:00  Bug 658383
-// @version        2011/03/30 22:00  undefined error
-// @version        2011/02/15 22:00  xxx paste and go 
-// @version        2011/02/11 11:00  xxx Bug 633260 bookmark menu does not open (involves app tabs and feeds) 
-// @Note           about:config Einstellungen:
-// userChrome.tabLock.ignoreNextPrevLink - Wen Tab gesperrt ist, die Sperre auf der nächsten, vorherige Seite, etc. ignorieren [true]/false
-// userChrome.tabLock.ignoreHashLink - Wenn Tab gesperrt ist, href ="#xxx" Sperre ignorieren [true]/false
-// userChrome.tabLock.ignoreBrowserBack_Forward - Wenn Tab gesperrt ist, BrowserBack/Forward [0]:Normalbetrieb, 1:Neuen Tab öffnen, 2:Keine Funktion
+// @Note           about:config Einstellung
+//  userChrome.tabLock.ignoreBrowserBack_Forward Bei gesperrten Tab, setzen Sie Browser zurück/ vorwärt auf:
+//  [0]: Normalbetrieb, 1: um in neuem Tab zu öffnen, 2: um die Funktion zu beenden
 
-// browser.tabs.loadInBackground - Tab im Hintergrund öffnen [true]/false
-// browser.tabs.loadBookmarksInBackground - Lesezeichen im Hintergrund öffnen true/[false]
-// browser.tabs.loadUrlInBackground - Adressleiste im Hintergrund öffnen true/[false]
-// [Noch nicht implementiert] browser.tabs.loadSearchInBackground - Suchleiste im Hintergrund öffnen [true]/false
+//  browser.tabs.loadInBackground           Tab im Hintergrund öffnen [true]/false
+//  browser.tabs.loadBookmarksInBackground  Lesezeichen in Hintergrundtab öffnen true/[false]
+//  browser.tabs.loadUrlInBackground        Adressleiste in Hintergrundtab öffnen true/[false]
 
 patch: {
-  if (location.href == "chrome://updatescan/content/updatescan.xul") {
-    if ("USc" in window) {
-      var func = window.USc_updatescan._diffItemThisWindow.toString();
-      func = func.replace(
-        'if (diffURL) {',
-        '$& \
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"] \
-                           .getService(Components.interfaces.nsIWindowMediator); \
-        var mainWindow = wm.getMostRecentWindow("navigator:browser"); \
-        if (mainWindow.gBrowser.isLockTab(mainWindow.gBrowser.selectedTab) && \
-            !/^\s*(javascript:|data:)/.test(diffURL)) { \
-          mainWindow.gBrowser.loadOneTab(diffURL, null, null, null, false, null); \
-          return; \
-        }'
-      );
-      eval ("window.USc_updatescan._diffItemThisWindow = " + func);
-    } else if ("UpdateScanner" in window) {
-      var func = window.UpdateScanner.Updatescan._diffItemThisWindow.toString();
-      func = func.replace(
-        'if (diffURL) {',
-        '$& \
-        var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"] \
-                           .getService(Components.interfaces.nsIWindowMediator); \
-        var mainWindow = wm.getMostRecentWindow("navigator:browser"); \
-        if (mainWindow.gBrowser.isLockTab(mainWindow.gBrowser.selectedTab) && \
-            !/^\s*(javascript:|data:)/.test(diffURL)) { \
-          mainWindow.gBrowser.loadOneTab(diffURL, null, null, null, false, null); \
-          return; \
-        }'
-      );
-      eval ("window.UpdateScanner.Updatescan._diffItemThisWindow = " + func);
-    }    
-  }
-
   if ("openLinkIn" in window) {
-    var func = openLinkIn.toString();
-    if (!/isLockTab/.test(func)) {
-     if (/aUrl/.test(func) && /aWhere/.test(func)) {
-        func = func.replace(
-          /{/,
-          '{ \
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"] \
-                               .getService(Components.interfaces.nsIWindowMediator); \
-            var mainWindow = wm.getMostRecentWindow("navigator:browser"); \
-            if (aUrl && aWhere == "current" && "isLockTab" in mainWindow.gBrowser && \
-                mainWindow.gBrowser.isLockTab(mainWindow.gBrowser.selectedTab) && \
-                !/^\s*(javascript:|data:)/.test(aUrl)) { \
-              aWhere = "tab"; \
-            }'
-        );
-      } else {
-        func = func.replace(
-          /{/,
-          '{ \
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"] \
-                               .getService(Components.interfaces.nsIWindowMediator); \
-            var mainWindow = wm.getMostRecentWindow("navigator:browser"); \
-            if (url && where  == "current" && "isLockTab" in mainWindow.gBrowser && \
-                mainWindow.gBrowser.isLockTab(mainWindow.gBrowser.selectedTab) && \
-                !/^\s*(javascript:|data:)/.test(url)) { \
-              where  = "tab"; \
-            }'
-        );
-      } 
-      eval ("openLinkIn = " + func);
+    if (!/isLockTab/.test(window.openLinkIn.toString())) {
+      window.openLinkIn_lockorg = window.openLinkIn;
+      window.openLinkIn = function(url, where, params) {
+        var mainWindow = Services.wm.getMostRecentWindow("navigator:browser");
+        if (url && where  == "current" && "isLockTab" in mainWindow.gBrowser &&
+            mainWindow.gBrowser.isLockTab(mainWindow.gBrowser.selectedTab) &&
+            !/^\s*(javascript:|data:|moz-extension:)/.test(url) &&
+            !mainWindow.gBrowser.isHashLink(url, mainWindow.gBrowser.currentURI.spec)) {
+          where  = "tab";
+        }
+        window.openLinkIn_lockorg(url, where, params);
+      }
     }
   }
 
   if (location.href != "chrome://browser/content/browser.xul")
     break patch;
 
-
-
   window.tabLock = {
-    ignoreNextPrevLink: true, //タブをロックしている状態で, 次のページ, 前のページ などは ロックを無視するかどうかデフォルト値
-    ignoreHashLink: true, //タブをロックしている状態で,  href ="#xxx" などは ロックを無視するかどうかデフォルト値
-    ignoreBrowserBackForward: 0, //タブをロックしている状態で, BrowserBack/Forwardを [0]:通常動作, 1:新規タブに開く, 2:機能しなくする
+    ignoreNextPrevLink: true, //Wenn Tab gesperrt ist, die Sperre auf der nächsten, vorherige Seite, etc. ignorieren Standardwert
+    ignoreHashLink: true, //Bei gesperrtem Tab,  href ="#xxx" Sperre ignorieren. Standardwert
+    ignoreBrowserBackForward: 0, //Bei gesperrtem Tab, Browser Vor/ Zurück [0]:Normalbetrieb, 1:Neuen Tab öffnen, 2:Keine Funktion
+    sessionStore: {
+      get ss() {
+        try { 
+          return Components.classes["@mozilla.org/browser/sessionstore;1"].
+                                 getService(Components.interfaces.nsISessionStore)
+        } catch(e) {
+          return;
+        }
+      },
+      
+      getTabValue : function(aTab, aKey) {
+        if (typeof SessionStore.getCustomTabValue == "function")
+          return SessionStore.getCustomTabValue(aTab, aKey);
+        else
+          return this.ss.getTabValue(aTab, aKey);
+      },
 
-    init: function(){
+      setTabValue : function(aTab, aKey, aValue) {
+        if (typeof SessionStore.setCustomTabValue == "function")
+          return SessionStore.setCustomTabValue(aTab, aKey, aValue);
+        else
+          return this.ss.setTabValue(aTab, aKey, aValue);
 
-      //Hack Second Search tohoho
-      if ('SecondSearchBrowser' in window){
-        eval("SecondSearchBrowser.prototype.loadForSearch = " +
-            SecondSearchBrowser.prototype.loadForSearch.toSource().replace(
-         'if (this.browser.localName == "tabbrowser"',
-         'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(aURI)){ \
-            newTab = true; \
-            isManual = false; \
-          } \
-          $&'
-        ));
-
-      eval("SecondSearchBrowser.prototype.checkToDoSearch = " +
-
-      SecondSearchBrowser.prototype.checkToDoSearch.toSource().replace(
-         'switch (aWhere)',
-         'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(aURI)){ \
-            aWhere = "tab"; \
-          } \
-          $&'
-        ));
+      },
+      deleteTabValue : function(aTab, aKey) {
+        if (typeof SessionStore.deleteCustomTabValue == "function")
+          return SessionStore.deleteCustomTabValue(aTab, aKey);
+        else
+          return this.ss.deleteTabValue(aTab, aKey);
       }
-
-      func = window.loadURI.toString();
-        func = func.replace(
-          /(getBrowser\(\)|gBrowser)\.loadURIWithFlags/,
-          'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(uri)) { \
-            gBrowser.loadOneTab(uri, referrer, null, postData, false, flags); \
-              return; \
-           } \
-           $&'
-        );
-      eval("window.loadURI="+func);
+    },
+  
+    init: function(){
 
       //BrowserBack/Forward
       window.BrowserForward_org = BrowserForward;
       BrowserForward = function(aEvent, aIgnoreAlt){
         try{
-          var ignoreBrowserBackForward = gPrefService.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
+          var ignoreBrowserBackForward = Services.prefs.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
         }catch(ex){
           var ignoreBrowserBackForward = tabLock.ignoreBrowserBackForward;
         }
@@ -165,7 +98,7 @@ patch: {
           var entry = sessionHistory.getEntryAtIndex(currentIndex + 1, false);
           var url = entry.URI.spec;
           try{
-            var loadInBackground = gPrefService.getBoolPref("browser.tabs.loadUrlInBackground");
+            var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadUrlInBackground");
           }catch(ex){
             var loadInBackground = false;
           }
@@ -179,7 +112,7 @@ patch: {
       window.BrowserBack_org = BrowserBack;
       BrowserBack = function(aEvent, aIgnoreAlt){
         try{
-          var ignoreBrowserBackForward = gPrefService.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
+          var ignoreBrowserBackForward = Services.prefs.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
         }catch(ex){
           var ignoreBrowserBackForward = tabLock.ignoreBrowserBackForward;
         }
@@ -194,7 +127,7 @@ patch: {
           var entry = sessionHistory.getEntryAtIndex(currentIndex - 1, false);
           var url = entry.URI.spec;
           try{
-            var loadInBackground = gPrefService.getBoolPref("browser.tabs.loadUrlInBackground");
+            var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadUrlInBackground");
           }catch(ex){
             var loadInBackground = false;
           }
@@ -212,7 +145,7 @@ patch: {
         if (!index)
           return false;
         try{
-          var ignoreBrowserBackForward = gPrefService.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
+          var ignoreBrowserBackForward = Services.prefs.getIntPref("userChrome.tabLock.ignoreBrowserBack_Forward");
         }catch(ex){
           var ignoreBrowserBackForward = tabLock.ignoreBrowserBackForward;
         }
@@ -228,7 +161,7 @@ patch: {
           var entry = sessionHistory.getEntryAtIndex(index, false);
           var url = entry.URI.spec;
           try{
-            var loadInBackground = gPrefService.getBoolPref("browser.tabs.loadUrlInBackground");
+            var loadInBackground = Services.prefs.getBoolPref("browser.tabs.loadUrlInBackground");
           }catch(ex){
             var loadInBackground = false;
           }
@@ -239,249 +172,26 @@ patch: {
         return gotoHistoryIndex_org(aEvent);
       }
 
-      //locationbar
-      func = gURLBar.handleCommand.toString();
-      // xxx 
-      func = func.replace(
-       'altEnter = altEnter && !isTabEmpty(gBrowser.selectedTab);',
-       '$& \
-        altEnter = gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(url) || altEnter'
-      );
-/*Fx6+ xxx Bug 658383*/
-      func = func.replace(
-        'where = whereToOpenLink(aTriggeringEvent, false, false);',
-        '$& \
-        if (where == "current" && \
-            gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(url) ) { \
-          where = "tab"; \
-        }'
-      );
-      func = func.replace(
-        'if (aTriggeringEvent &&',
-        'if ((aTriggeringEvent &&'
-      );
-      func = func.replace(
-        'aTriggeringEvent.altKey && !isTabEmpty(gBrowser.selectedTab)) {',
-        'aTriggeringEvent.altKey && !isTabEmpty(gBrowser.selectedTab) || \
-        gBrowser.isLockTab(gBrowser.selectedTab)) && !/^\s*(javascript:|data:)/.test(url) ) {'
-      );
-/**/      
-      func = func.replace(
-        'openUILinkIn(url, where, {allowThirdPartyFixup: true, postData: postData});',
-        'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(url) ) { \
-          this.handleRevert(); \
-          content.focus(); \
-          where = "tab"; \
-        } \
-        $&'
-      );
-      func = func.replace(
-        'loadURI(url, null, postData, true);',
-        'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(url) ) { \
-          this.handleRevert(); \
-          content.focus(); \
-          where = "tab"; \
-          openUILinkIn(url, where, {allowThirdPartyFixup: true, postData: null}); \
-        } else { \
-          $& \
-        }'
-      );
-      eval("gURLBar.handleCommand =" + func);
-
-	  
-    //Left Click (Home Button, WizzRSS)
-  //this.debug('gBrowser.loadURI: \n'+gBrowser.loadURI.toString());
-      eval("gBrowser.loadURI ="+gBrowser.loadURI.toString().replace(
-        '{',
-        '{ \
-        if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(aURI)){ \
-          try{ \
-            var loadInBackground = gPrefService.getBoolPref("browser.tabs.loadBookmarksInBackground"); \
-          }catch(ex){ \
-            var loadInBackground = false; \
-          } \
-          return gBrowser.loadOneTab(aURI, null, null, null, loadInBackground, false ); \
-        }'
-      ));
-  //this.debug('gBrowser.loadURI: \n'+gBrowser.loadURI.toString());
-
-      //Bookmark, History, searchBar, D&D form sidebar and from outside window.
-  //this.debug('loadURI: \n'+loadURI.toString());
-      eval("loadURI ="+loadURI.toString().replace(
-        'getWebNavigation',
-        'if (gBrowser.isLockTab(gBrowser.selectedTab) && !/^\s*(javascript:|data:)/.test(uri)){ \
-          try{ \
-            var loadInBackground = gPrefService.getBoolPref("browser.tabs.loadBookmarksInBackground"); \
-          }catch(ex){ \
-            var loadInBackground = false; \
-          } \
-          gBrowser.loadOneTab(uri, null, null, postData, loadInBackground, true ); \
-        }else \
-         $&'
-      ));
-
-  //this.debug('loadURI: \n'+loadURI.toString());
-      if ("openLinkIn" in window) {
-        var func = openLinkIn.toString();
-        func = func.replace(
-          'switch (where) {',
-          'if (where == "current" && gBrowser.isLockTab(gBrowser.selectedTab) && \
-               !/^\s*(javascript:|data:)/.test(url)){ \
-            where = "tab"; \
-          } \
-          $&'
-        );
-        eval("openLinkIn =" + func);
-      }
-      
-      // xxx Bug 633260 bookmark menu does not open (involves app tabs and feeds) 
-      var p = document.getElementById('bookmarksMenuPopup');
-      p.addEventListener('command',function(event){
-        p.hidePopup();
-      }, false);
-
-      /*
-      eval("PlacesUtils.openNodeWithEvent =" + PlacesUtils.openNodeWithEvent.toString().replace(
-      '{',
-      '{alert("openNodeWithEvent");'
-      ));
-      */
-      try{
-        var doc = document.getElementById("sidebar").contentDocument;
-        if (doc) {
-          var win = doc.defaultView;
-          if(win.location == 'chrome://browser/content/bookmarks/bookmarksPanel.xul' || win.location == 'chrome://browser/content/history/history-panel.xul'){
-              eval("win.SidebarUtils.handleTreeClick =" + win.SidebarUtils.handleTreeClick.toString());
-              eval("win.SidebarUtils.handleTreeKeyPress =" + win.SidebarUtils.handleTreeKeyPress.toString());
-          }
-        }
-      }catch(e){}
-
-
-      //link click, through the event to window.handleLinkClick.
-  //this.debug('contentAreaClick: \n'+window.contentAreaClick.toString());
-      // Firefox22+
-      if (!gBrowser.hasAttribute("onclick")) {
-        Cc["@mozilla.org/eventlistenerservice;1"]
-            .getService(Ci.nsIEventListenerService)
-            .removeSystemEventListener(gBrowser, "click", contentAreaClick, true);
-      }
-      
-      var func = contentAreaClick.toString();
-      func = func.replace(
-        'let target = linkNode.target;',
-        '$& \
-        if ( \
-          ( !linkNode.getAttribute("onclick") && \
-            gBrowser.isLockTab(gBrowser.selectedTab) && \
-            !/^\s*(javascript:|data:)/.test((typeof wrapper != "undefined") ? wrapper.href : href) && \
-             !( \
-               gBrowser.isNextLink(linkNode) || \
-               gBrowser.isPrevLink(linkNode) || \
-               gBrowser.isHashLink(linkNode) \
-             )  \
-           ) \
-        ) { \
-            try { \
-                urlSecurityCheck(href, linkNode.ownerDocument.nodePrincipal); \
-            } catch (ex) { \
-                event.preventDefault(); \
-                return true; \
-            } \
-            let postData = {}; \
-            let url = tabLock.getShortcutOrURI(href, postData); \
-            if (!url) { \
-                return true; \
-            } \
-            var doc = linkNode.ownerDocument; \
-            if ("TreeStyleTabService" in window) \
-              TreeStyleTabService.readyToOpenChildTab(gBrowser.selectedTab,false); \
-            openLinkIn(url, "tab", { referrerURI: doc.documentURIObject, \
-                             charset: doc.characterSet }); \
-            event.preventDefault(); \
-            return true; \
-        }'
-        );
-      eval("contentAreaClick ="+func);
-  //this.debug('contentAreaClick: \n'+window.contentAreaClick.toString());
-      // Firefox22+
-      if (!gBrowser.hasAttribute("onclick")) {
-        Cc["@mozilla.org/eventlistenerservice;1"]
-            .getService(Ci.nsIEventListenerService)
-            .addSystemEventListener(gBrowser, "click", contentAreaClick, true);
-      }
-
-
       //D&D on TAB
-      func = gBrowser.swapBrowsersAndCloseOther.toString();
-        func = func.replace(
-        /}$/,
-        'if (aOtherTab.hasAttribute("tabLock")) { \
-          aOurTab.setAttribute("tabLock", true); \
-          gBrowser.lockTabIcon(aOurTab); \
-        } \
-        $&'
-        );
-      eval("gBrowser.swapBrowsersAndCloseOther = "+ func);
       gBrowser.tabContainer.addEventListener('drop', this.onDrop, true);
-
-
-      // #66
-      if ("MultipleTabService" in window) {
-        func = MultipleTabService.toggleTabsLocked.toString();
-        func = func.replace(
-        /this\._isTabLocked\(aTab\)\)/,
-        'this._isTabLocked(tab))'
-        );
-      eval("MultipleTabService.toggleTabsLocked = "+ func);
-        
-      }
 
 
       this.tabContextMenu();
 
-      // CSSを適用
+      // CSS übernehmen
       var stack = document.getAnonymousElementByAttribute(
-                              gBrowser.mTabContainer.firstChild, "class", "tab-stack") ||
-                  document.getAnonymousElementByAttribute(
-                              gBrowser.mTabContainer.firstChild, "class", "tab-stack");;
-      if(this.getVer()<3 ||
-         typeof TreeStyleTabService !='undefined' ||
-         typeof MultipleTabService !='undefined' ||
-         stack) {
+                            gBrowser.tabContainer.firstChild, "class", "tab-stack");
+
         var style = " \
         .tab-icon-lock{ \
+          margin-top: 6px; /*Notwendige Anpassung*/  \
+          margin-left: 6px; /*Notwendige Anpassung*/ \
           list-style-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAjElEQVQ4je3RsQ7CMAyE4S9pURl5/6csGxKJw1AKFBARK+IkD3Fyv86OQouHOhNBqzQcdJSPzCKIEMgkKFTMXcDmMI6LGzuGnvkFoBRQiWtn/x1g5dwBpx4gnalDxAZUcm4jad3HxwTpzaNxmtZef4RMkrNbDQPTtN53AanSniM0S6y8/ES82v76MV0AlREpDobXTpUAAAAASUVORK5CYII='); \
         } \
         .tab-icon-lock[hidden='true'] { \
           display: none !important; \
         }".replace(/\s+/g, " ");
-      } else if(stack) {
-        var style = ' \
-          .tabbrowser-tab[fadein] .tab-stack, \
-          .tabbrowser-tab[fadein]:hover .tab-stack, \
-          .tabbrowser-tab[fadein][selected="true"] .tab-stack, \
-          .tabbrowser-tab[fadein][selected="true"]:hover .tab-stack  { \
-            border-top: transparent solid 1px; \
-          } \
-          .tabbrowser-tab[tabLock="true"][fadein] .tab-stack, \
-          .tabbrowser-tab[tabLock="true"][fadein]:hover .tab-stack, \
-          .tabbrowser-tab[tabLock="true"][fadein][selected="true"] .tab-stack, \
-          .tabbrowser-tab[tabLock="true"][fadein][selected="true"]:hover .tab-stack  { \
-            border-top: red solid 1px; \
-          }'.replace(/\s+/g, " ");
-      } else {
-        var style = ' \
-          .tabbrowser-tab[tabLock="true"], \
-          .tabbrowser-tab[tabLock="true"]:hover, \
-          .tabbrowser-tab[tabLock="true"][selected="true"], \
-          .tabbrowser-tab[tabLock="true"][selected="true"]:hover  { \
-            /*border-top: 2px solid !important;*/ \
-            -moz-border-top-colors: red !important; \
-            -moz-border-right-colors: red !important; \
-            -moz-border-left-colors: red !important; \
-          }'.replace(/\s+/g, " ");
-      }
+
       var sspi = document.createProcessingInstruction(
         'xml-stylesheet',
         'type="text/css" href="data:text/css,' + encodeURIComponent(style) + '"'
@@ -491,47 +201,34 @@ patch: {
       return document.documentElement.getAttribute(name);
       };
 
-      //起動時のタブ状態復元
-      var that = this;
-      setTimeout(function(){that.restoreForTab(gBrowser.selectedTab);},0);
-      init(0);
-      function init(i){
-        if(i < gBrowser.mTabs.length){
-          var aTab = gBrowser.mTabs[i];
-          if(false && (aTab.linkedBrowser.docShell.busyFlags
-            || aTab.linkedBrowser.docShell.restoringDocument) ){
-            setTimeout(init,1000,i);
-          }else{
-            that.restoreForTab(aTab);
-            i++;
-            init(i);
-            //setTimeout(init,0,i);
-          }
-        }else{
-        }
-      }
-
+      //Wiederherstellung des Tabstatus beim Start
+      this.restoreAll();
       gBrowser.tabContainer.addEventListener('TabMove', tabLock.TabMove, false);
       gBrowser.tabContainer.addEventListener('SSTabRestoring', tabLock.restore,false);
       window.addEventListener('unload',function(){ tabLock.uninit();},false)
     },
 
+    restoreAll: function() {
+      var that = this;
+      setTimeout(init, 2000, 0);
+      function init(i){
+        if(i < gBrowser.tabs.length){
+          var aTab = gBrowser.tabs[i];
+          that.restoreForTab(aTab);
+          i++;
+          arguments.callee(i);
+        }else{
+        }
+      }
+    },
+
     uninit: function(){
+      window.removeEventListener('unload',function(){ tabLock.uninit();},false)
       gBrowser.tabContainer.removeEventListener('drop', this.onDrop, true);
       gBrowser.tabContainer.removeEventListener('TabMove', tabLock.TabMove, false);
       gBrowser.tabContainer.removeEventListener('SSTabRestoring', tabLock.restore,false);
-    // document.documentElement.removeEventListener('SubBrowserFocusMoved', function(){ tabLock.init(); }, false);
     },
-
-    getVer: function(){
-      const Cc = Components.classes;
-      const Ci = Components.interfaces;
-      var info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
-      // このコードを実行しているアプリケーションの名前を取得する
-      var ver = parseInt(info.version.substr(0,3) * 10,10) / 10;
-      return ver;
-    },
-
+/*
      //acync to sync
     getShortcutOrURI : function getShortcutOrURI(aURI) {
       // Firefox 24 and older
@@ -557,7 +254,7 @@ patch: {
 
       return aURI;
     },
-
+*/
     //TAB D&D
     onDrop: function(aEvent) {
       function _getDropIndex(aEvent){
@@ -595,7 +292,7 @@ patch: {
           // valid urls don't contain spaces ' '; if we have a space it isn't a valid url.
           // Also disallow dropping javascript: or data: urls--bail out
           if (!url || !url.length || url.indexOf(" ", 0) != -1 ||
-              /^\s*(javascript|data):/.test(url))
+              /^\s*(javascript:|data:|moz-extension:)/.test(url))
             return;
 
           // urlSecurityCheck
@@ -604,7 +301,7 @@ patch: {
 
           var bgLoad = true;
           try {
-            bgLoad = gBrowser.tabContainer.mPrefs.getBoolPref("browser.tabs.loadInBackground");
+            bgLoad = Services.prefs.getBoolPref("browser.tabs.loadInBackground");
           }
           catch (e) { }
           aEvent.stopPropagation();
@@ -622,16 +319,14 @@ patch: {
 
     tabContextMenu: function(){
       //tab context menu
-      var tabContext = document.getAnonymousElementByAttribute(
-                        gBrowser, "anonid", "tabContextMenu") ||
-                       gBrowser.tabContainer.contextMenu;
+      var tabContext = gBrowser.tabContainer.contextMenu;;
       var menuitem = this.tabLockMenu
                    = tabContext.appendChild(
                           document.createElement("menuitem"));
       menuitem.id = "tabLock";
       menuitem.setAttribute("type", "checkbox");
-      menuitem.setAttribute("label", "Diesen Tab sperren");
-      menuitem.setAttribute("accesskey", "r");
+      menuitem.setAttribute("label", "Tab sperren");
+      menuitem.setAttribute("accesskey", "s");
       menuitem.setAttribute("oncommand","tabLock.toggle(event);");
       tabContext.addEventListener('popupshowing',function(event){tabLock.setCheckbox(event);},false);
     },
@@ -642,9 +337,7 @@ patch: {
     },
 
     restoreForTab: function(aTab){
-      var ss = Components.classes["@mozilla.org/browser/sessionstore;1"].
-                             getService(Components.interfaces.nsISessionStore);
-      var retrievedData = ss.getTabValue(aTab, "tabLock") == "true";
+      var retrievedData = this.sessionStore.getTabValue(aTab, "tabLock") == "true";
       if(retrievedData)
         aTab.setAttribute('tabLock',true);
       else
@@ -652,16 +345,8 @@ patch: {
       gBrowser.lockTabIcon(aTab);
     },
 
-    checkCachedSessionDataExpiration : function(aTab) {
-      var data = aTab.linkedBrowser.__SS_data; // Firefox 3.6-
-      if (data &&
-         data._tabStillLoading &&
-         aTab.getAttribute('busy') != 'true')
-        data._tabStillLoading = false;
-    },
-
     toggle: function(event){
-      var aTab =  gBrowser.mContextTab || gBrowser.tabContainer._contextTab;
+      var aTab =  TabContextMenu.contextTab;
       if (!aTab)
         aTab = event.target;
       while( aTab && aTab instanceof XULElement && aTab.localName !='tab'){
@@ -683,7 +368,7 @@ patch: {
 
     setCheckbox: function(event){
       var menuitem = this.tabLockMenu;
-      var aTab =  gBrowser.mContextTab || gBrowser.tabContainer._contextTab;
+      var aTab =  TabContextMenu.contextTab;
       if (!aTab)
         aTab = event.target;
       while( aTab && aTab instanceof XULElement && aTab.localName !='tab'){
@@ -702,7 +387,7 @@ patch: {
     },
 
     getIndexForTab: function(aTab){
-      var mTabChilds = gBrowser.mTabs;
+      var mTabChilds = gBrowser.tabs;
       for (var i = 0,len = mTabChilds.length; i < len; i++)
         if (mTabChilds[i] == aTab)
            var index = i;
@@ -711,7 +396,7 @@ patch: {
 
     getPref: function(aPrefString, aPrefType, aDefault){
       var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefBranch2);
+                    .getService(Components.interfaces.nsIPrefBranch);
       try{
         switch (aPrefType){
           case 'complex':
@@ -731,11 +416,11 @@ patch: {
 
     setPref: function(aPrefString, aPrefType, aValue){
       var xpPref = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefBranch2);
+                    .getService(Components.interfaces.nsIPrefBranch);
       try{
         switch (aPrefType){
           case 'complex':
-            return xpPref.setComplexValue(aPrefString, Components.interfaces.nsILocalFile, aValue); break;
+            return xpPref.setComplexValue(aPrefString, Components.interfaces.nsIFile, aValue); break;
           case 'str':
             return xpPref.setCharPref(aPrefString, aValue); break;
           case 'int':
@@ -764,18 +449,15 @@ patch: {
   }
 
   gBrowser.lockTab = function (aTab){
-    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"].
-                               getService(Components.interfaces.nsISessionStore);
     if ( aTab.hasAttribute("tabLock") ){
       aTab.removeAttribute("tabLock");
-      tabLock.checkCachedSessionDataExpiration(aTab);
       try {
-        ss.deleteTabValue(aTab, "tabLock");
+        tabLock.sessionStore.deleteTabValue(aTab, "tabLock");
       } catch(e) {}
       var isLocked = false;
     }else{
       aTab.setAttribute("tabLock", "true");
-      ss.setTabValue(aTab, "tabLock", "true");
+      tabLock.sessionStore.setTabValue(aTab, "tabLock", "true");
       var isLocked = true;
     }
     this.lockTabIcon(aTab);
@@ -790,8 +472,6 @@ patch: {
     if ( aTab.hasAttribute("tabLock") ){
       if(!image){
         var stack = document.getAnonymousElementByAttribute(
-                               aTab, "class", "tab-icon") ||
-                    document.getAnonymousElementByAttribute(
                                aTab, "class", "tab-stack");
         var image = document.createElementNS(kXULNS,'image');
         image.setAttribute('class','tab-icon-lock');
@@ -809,151 +489,14 @@ patch: {
     }
   }
 
-  gBrowser.isNextLink = function (aNode){
-    if (/^https?:\/\/hg\.mozilla\.org/.test(aNode.href) || 
-        /^https?:\/\/ftp\.mozilla\.org/.test(aNode.href) ||
-        /^https?:\/\/bugzilla\.mozilla\.org/.test(aNode.href))
+
+  gBrowser.isHashLink = function (aUrl, aDocumentUrl){
+    if(!tabLock.getPref('userChrome.tabLock.ignoreHashLink','bool', tabLock.ignoreHashLink))
       return false;
-
-    if(!tabLock.getPref('userChrome.tabLock.ignoreNextPrevLink','bool',tabLock.ignoreNextPrevLink) || !aNode) return false;
-    var b = gBrowser.getBrowserForDocument(aNode.ownerDocument);
-    if (!b || b.docShell.busyFlags || b.docShell.restoringDocument)
-      return false;
-
-    const XPATH = 'descendant::text()';
-    var result = aNode.ownerDocument.evaluate(XPATH,aNode,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
-    for(var j=0,link='';j<result.snapshotLength;j++){
-      link = link.concat(result.snapshotItem(j).textContent);
-    }
-    if (link!=''){
-
-      if (link.match(/^\n?\u6b21(\u306e?(\s?\d+?\s?)?(\u30da\u30fc\u30b8|\u9801|\u8a18\u4e8b|\u4ef6|\u7d50\u679c|\u30b9\u30ec\u30c3\u30c9|\u30c4\u30ea\u30fc)?(\s?\d+?\s?)?\u3078?)?\s?[\u2192\u00bb]?\n?$/)
-               || link.match(/\u9032\u3080\s?[\u2192\u00bb]?\n?$/)
-              /* || link.match(/\u7d9a\u304f\n?$/)*/
-               || link.match(/\u3064\u3065\u304f\n?$/)
-               || (link.match(/[\uff1e\u203a>]{1}\n?$/) && !link.match(/[\uff1c\u2039<]{1}/))
-               || link.match(/^[>\s\(]?next(\s?\d+?\s?)?(search)?\s?(pages?|results?)?/i) )
-
-      {
-        return true;
-      }
-    }
-    var arr = ['\u6B21','\u7D9A\u304D','\u9032\u3080','next','\u3082\u3063\u3068\u8AAD\u3080','>>','\xBB','\uFF1E'];
-    var before = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\t ';
-    var after  = 'abcdefghijklmnopqrstuvwxyz';
-    var nextLink = arr.map(function(str){
-      if (str.indexOf('"') >= 0) return '';
-      return '//text()[starts-with(translate( self::text(), "'+ before +'", "'+ after +'"),"' + str + '")]/ancestor-or-self::a'
-      +'|//img[starts-with(translate( @alt, "'+ before +'", "'+ after +'"),"' + str + '")]/ancestor-or-self::a';
-    }).join('|');
-    var x = aNode.ownerDocument.evaluate(nextLink, aNode.ownerDocument, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    if (x.snapshotLength){
-      next = x.snapshotItem(x.snapshotLength-1);
-      //this._openURL(next.href,win,-1);
-      if (aNode.href == next.href)
-        return true;
-    }
-    if(aNode.href==gBrowser._numberedPage(gBrowser.currentURI.spec, 1) )
-      return true;
-    return false;
-  }
-
-  gBrowser.isPrevLink = function (aNode){
-    if (/^https?:\/\/hg\.mozilla\.org/.test(aNode.href) || 
-        /^https?:\/\/ftp\.mozilla\.org/.test(aNode.href) ||
-        /^https?:\/\/bugzilla\.mozilla\.org/.test(aNode.href))
-      return false;
-
-    if(!tabLock.getPref('userChrome.tabLock.ignoreNextPrevLink','bool',tabLock.ignoreNextPrevLink) || !aNode) return false;
-    var b = gBrowser.getBrowserForDocument(aNode.ownerDocument);
-    if (!b || b.docShell.busyFlags || b.docShell.restoringDocument)
-      return false;
-
-    const XPATH = 'descendant::text()';
-    var result = aNode.ownerDocument.evaluate(XPATH,aNode,null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
-    for(var j=0,link='';j<result.snapshotLength;j++){
-      link = link.concat(result.snapshotItem(j).textContent);
-    }
-    if (link!=''){
-
-      if (link.match(/^\n?[\u2190\u00ab]?\s?\u524d(\u306e?(\s?\d+?\s?)?(\u30da\u30fc\u30b8|\u9801|\u8a18\u4e8b|\u4ef6|\u7d50\u679c|\u30b9\u30ec\u30c3\u30c9|\u30c4\u30ea\u30fc)?(\s?\d+?\s?)?\u3078?)?\n?$/)
-       || link.match(/^\n?[\u2190\u00ab]?\s?\u623b\u308b/)
-       || (link.match(/^\n?[\uff1c\u2039<]{1}/) && !link.match(/[\uff1e\u203a>]{1}/))
-       || link.match(/^[<\s\(]?prev(ious)?(\s|(\s?\d+\s?))(search)?\s?(pages?|results?)?/i) )
-
-      {
-        if (/Prevent/i.test(link)) {
-          return false;
-        }
-        return true;
-      }
-    }
-    var arr = ['\u524D','\u623B\u308B','prev','<<','\xAB'];
-    var before = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\t ';
-    var after  = 'abcdefghijklmnopqrstuvwxyz';
-    var nextLink = arr.map(function(str){
-      if (str.indexOf('"') >= 0) return '';
-      return '//text()[starts-with(translate( self::text(), "'+ before +'", "'+ after +'"),"' + str + '")]/ancestor-or-self::a'
-      +'|//img[starts-with(translate( @alt, "'+ before +'", "'+ after +'"),"' + str + '")]/ancestor-or-self::a';
-    }).join('|');
-
-    var x = aNode.ownerDocument.evaluate(nextLink, aNode.ownerDocument, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    if (x.snapshotLength){
-      next = x.snapshotItem(x.snapshotLength-1);
-      //this._openURL(next.href,win,-1);
-      if (/prevent/i.test(next.textContent)) {
-        return false;
-      }
-      if (aNode.href == next.href)
-        return true;;
-    }
-    if(aNode.href==gBrowser._numberedPage(gBrowser.currentURI.spec, -1) )
-      return true;
-    return false;
-  }
-  gBrowser._numberedPage = function(aURL, direction){
-    //dump('Parsing numbered Page of url : ' + aURL);
-    var urlParts = aURL.match(/^(.+?:\/\/)([^\/]+@)?([^\/]*)(.*)$/);
-    if (!urlParts) return false;
-    for(var i=0; i<urlParts.length; i++){
-      if(!urlParts[i]) urlParts[i] = '';
-    }
-    var path= urlParts[4];
-    //dump(path);
-    var w = path.split(/(%[0-7|a-f]+)|(\d+)/i);
-    for(var i = w.length-1; i>=0; i--){
-      if (typeof w[i] != 'undefined' && w[i].match(/^\d+/)) break;
-    }
-    if (i >= 0) {
-      var l = w[i].length;
-      if(w[i].match(new RegExp('^0')))
-        w[i] = ( parseInt(w[i],10)+1000000000 + (direction>0 ? +1 : -1) ).toString().substr(-l);
-      else
-        w[i] = parseInt(w[i]) + (direction>0 ? +1 : -1);
-      return urlParts[1]+urlParts[2]+urlParts[3]+w.join('');
-    }
-    return false
-  }
-
-  gBrowser.isHashLink = function (aNode){
-    if (/^https?:\/\/hg\.mozilla\.org/.test(aNode.href) || 
-        /^https?:\/\/ftp\.mozilla\.org/.test(aNode.href) ||
-        /^https?:\/\/bugzilla\.mozilla\.org/.test(aNode.href))
-      return false;
-
-    if(!tabLock.getPref('userChrome.tabLock.ignoreHashLink','bool',tabLock.ignoreHashLink) || !aNode) return false;
-    var b = gBrowser.getBrowserForDocument(aNode.ownerDocument);
-    if (!b || b.docShell.busyFlags || b.docShell.restoringDocument)
-      return false;
-
-    if (aNode.href && aNode.hash && aNode.ownerDocument && aNode.ownerDocument.location){
-      var doc = aNode.ownerDocument;
-      var docprotocol = doc.location.protocol;
-      var dochostname = doc.location.hostname;
-      var docport = doc.location.port;
-      var docpathname = doc.location.pathname;
-      if(docprotocol == aNode.protocol && dochostname == aNode.hostname && docport == aNode.port && docpathname == aNode.pathname)
-      {
+    let aURI = new URL(aUrl);
+    let aDocumentURI = new URL(aDocumentUrl);
+    if (aURI.hash || aDocumentURI.hash) {
+      if(aURI.href.replace(aURI.hash, "") == aDocumentURI.href.replace(aDocumentURI.hash, "")) {
         return true;
       }
     }
@@ -961,4 +504,150 @@ patch: {
   }
 
   tabLock.init();
+
+
+
+(function() {
+  'use strict';
+
+  let frameScript = function() {
+    addEventListener("click", onClick, false);  /*Da die EventListener-Priorität des Vorgängerelements auf true gesetzt ist, wird sie ignoriert*/
+
+    function onClick(event) {
+      if (event.button !== 0) return;
+      if (event.altKey || event.ctrlKey || event.shiftKey) return;
+
+      if (!sendSyncMessage("linkclick_isLockedTab", {  })[0].isLockedTab)
+        return;
+      /*Priorität des click eventListener des Vorfahrenelements*/
+      if (event.defaultPrevented)
+        return;
+
+      let [url, node, principal] = _hrefAndLinkNodeForClickEvent(event);
+      let ownerDoc = event.originalTarget.ownerDocument;
+
+      if (!url || !node || node.getAttribute("href") == "" ||    /*xxxx fix ""*/
+           /^\s*(javascript:|data:|moz-extension:)/.test(url))
+        return;
+
+     if (sendSyncMessage("linkclickByLockTab_isHash", {url: url, documentURI: ownerDoc.documentURI})[0].isHash)
+        return;
+
+      if (node.hasAttribute("onclick"))
+        return;
+
+      if (node.getAttribute("rel") == "sidebar")
+        return;
+
+      let target = node.target;
+      if (target)
+        return;
+  
+      event.preventDefault();
+      event.stopPropagation();
+
+      let referrerPolicy = ownerDoc.referrerPolicy;
+      if (node) {
+        let referrerAttrValue = Services.netUtils.parseAttributePolicyString(node.
+                                getAttribute("referrerpolicy"));
+        if (referrerAttrValue !== Components.interfaces.nsIHttpChannel.REFERRER_POLICY_UNSET) {
+          referrerPolicy = referrerAttrValue;
+        }
+      }
+
+      let referrerURI = node.referrer || ownerDoc.documentURI;
+      let noreferrer = BrowserUtils.linkHasNoReferrer(node);
+      if (noreferrer)
+         referrerURI = null;
+
+      let userContextId = null;
+      if (ownerDoc.nodePrincipal.originAttributes.userContextId) {
+        userContextId = ownerDoc.nodePrincipal.originAttributes.userContextId;
+      }
+
+      sendAsyncMessage('openLinkByLockTab', 
+        {url: url, 
+         target: target,
+         documentURI: ownerDoc.documentURI,
+         referrerURI: referrerURI,
+         noReferrer: noreferrer,
+         referrerPolicy: referrerPolicy,
+         userContextId: userContextId,
+         originPrincipal: ownerDoc.nodePrincipal,
+         triggeringPrincipal: ownerDoc.nodePrincipal,
+        });
+    }
+
+    function _hrefAndLinkNodeForClickEvent(event) {
+      function isHTMLLink(aNode) {
+        return ((aNode instanceof content.HTMLAnchorElement && aNode.href) ||
+                (aNode instanceof content.HTMLAreaElement && aNode.href) ||
+                aNode instanceof content.HTMLLinkElement);
+      }
+
+      let node = event.originalTarget;
+      while (node && !isHTMLLink(node)) {
+        node = node.parentNode;
+      }
+
+      if (node)
+        return [node.href, node, node.ownerDocument.nodePrincipal];
+
+      let href, baseURI;
+      node = event.target;
+      while (node && !href) {
+        if (node.nodeType == content.Node.ELEMENT_NODE &&
+            (node.localName == "a" ||
+             node.namespaceURI == "http://www.w3.org/1998/Math/MathML")) {
+          href = node.getAttribute("href") ||
+                 node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+          if (href) {
+            baseURI = node.ownerDocument.baseURIObject;
+            break;
+          }
+        }
+        node = node.parentNode;
+      }
+
+      return [href ? Services.io.newURI(href, null, baseURI).spec : null, null,
+              node && node.ownerDocument.nodePrincipal];
+    }
+  };
+
+  let frameScriptURI = 'data:,(' + frameScript.toString() + ')()';
+  window.messageManager.loadFrameScript(frameScriptURI, true);
+  window.messageManager.addMessageListener("linkclick_isLockedTab",
+    function(message) {
+        return { isLockedTab: gBrowser.selectedTab.hasAttribute('tabLock') };
+    }
+  );
+  window.messageManager.addMessageListener("linkclickByLockTab_isHash",
+    function(message) {
+      return { isHash: gBrowser.isHashLink(message.data.url, message.data.documentURI) };
+    }
+  );
+  window.messageManager.addMessageListener('openLinkByLockTab',
+    function(message) {
+      let referrerURI = message.data.referrerURI;
+      try {
+        referrerURI = Services.io.newURI(message.data.referrerURI)
+      } catch(e) {
+        referrerURI = null;
+      }
+      let params = {
+          relatedToCurrent: Services.prefs.getBoolPref("browser.tabs.insertRelatedAfterCurrent"),
+          inBackground: Services.prefs.getBoolPref("browser.tabs.loadInBackground"),
+          referrerURI: referrerURI,
+          noReferrer: message.data.noReferrer,
+          referrerPolicy: message.data.referrerPolicy,
+          userContextId: message.data.userContextId,
+          originPrincipal: message.data.originPrincipal,
+          triggeringPrincipal: message.data.triggeringPrincipal
+      };
+      window.openLinkIn(message.data.url, "tab", params);
+    }
+  );
+
+}());
+
 }

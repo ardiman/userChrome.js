@@ -6,9 +6,12 @@ location == "chrome://browser/content/browser.xul" && (function () {
 	repBM.setAttribute("label", "Mit aktueller URL ersetzen");
 	repBM.setAttribute("accesskey", "U");
 	repBM.addEventListener("command", function () {
-		var itemId = document.popupNode._placesNode.itemId;
-		PlacesUtils.bookmarks.changeBookmarkURI(itemId, gBrowser.currentURI);  // Adresse aktualisieren
-		PlacesUtils.bookmarks.setItemTitle(itemId, gBrowser.contentTitle);     // Titel aktualisieren
+		var itemGuid = document.popupNode._placesNode.bookmarkGuid;
+		PlacesUtils.bookmarks.update({
+			guid: itemGuid,
+			url: gBrowser.currentURI,
+			title: gBrowser.contentTitle
+		});
 	}, false);
 	var obs = document.createElement("observes");
 	obs.setAttribute("element", "placesContext_open");
