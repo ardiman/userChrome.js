@@ -1,12 +1,16 @@
 // ==UserScript==
 // @name           ToggleFindBar
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
-// @description    ステータスバーおよび検索エンジンの虫めがねアイコンの右クリックでページ内検索バーをON/OFFを切り替える
+// @description    Ein- bzw. Ausblenden der Suchleiste mit Rechtsklick auf
+// @description    Lupen-Symbol in Suchleiste, Statusleiste - bzw. Add-onsleiste
 // @include        main
 // @include        chrome://global/content/viewSource.xul
 // @include        chrome://global/content/viewPartialSource.xul
 // @compatibility  Firefox 25
 // @author         Alice0775
+// @version        2018/07/05 00:00 fix by aborix
+// @version        2016/05/18 00:00 fix toggleFindbar
+// @version        2016/04/02 00:00 status4evar
 // @version        2014/04/25 00:00 ctr changed id
 // @version        2013/11/19 08:00 ctr
 // @version        2013/05/11 12:00 Bug537013, Bug 893349
@@ -59,8 +63,10 @@ var ucjs_toggleFindBar = {
   isInit: false,
 
   init: function(){
-
-    var dummy = gFindBar;
+/*
+    try {
+      gFindBar;
+    } catch(ee) {}
     if (!document.getElementById("FindToolbar") &&
         typeof gFindBarInitialized != 'undefined' &&
         !gFindBarInitialized) {
@@ -72,14 +78,14 @@ var ucjs_toggleFindBar = {
     if (typeof gFindBar == 'undefined') {
       gFindBar = document.getElementById("FindToolbar");
     }
-
+*/
     if ('BrowserSearch' in window)
       this.searchBar = BrowserSearch.searchBar;  //fx3
 
     if (!this.isInit && this.searchBar){
       this.isInit = true;
       var func = this.searchBar.handleSearchCommand.toString();
-      if('gFindBar' in window && 'onFindAgainCommand' in gFindBar ) { // Fx3
+    //if('gFindBar' in window && 'onFindAgainCommand' in gFindBar ) { // Fx3
         if( /\(aEvent\)/.test(func)){
           eval('this.searchBar.handleSearchCommand = ' + func.replace(
             '{',
@@ -91,31 +97,40 @@ var ucjs_toggleFindBar = {
             '{if(event && event.button==2) return;'
           ));
         }
-      }
-   }
+    //}
+    }
 
     window.addEventListener("aftercustomization", this, false);
     window.addEventListener("unload", this, false);
 
-    this.addonbar = document.getElementById("ctraddon_addon-bar") ||
+    this.addonbar = document.getElementById("bottom-toolbar") ||    //Voraussetzung: Script RevertAddonBarStatusBar.uc.js
+                    document.getElementById("ctraddon_addon-bar") ||
                     document.getElementById("ctr_addon-bar") ||
+                    document.getElementById("status4evar-status-bar") ||
                     document.getElementById("addon-bar") ||
                     document.getElementById("statusbar-line-col") ||
                     document.getElementById("viewSource-main-menubar");
     this.statusbarDisplay = document.getElementById("statusbar-display");
-    if (this.OPENFINDBAR_RCLICK_STATUSBAR && this.addonbar)
+    if (this.OPENFINDBAR_RCLICK_STATUSBAR && this.addonbar) {
       this.addonbar.addEventListener("click", this, false);
+      this.addonbar.setAttribute("oncontextmenu", "return false");
+    }
     if (this.OPENFINDBAR_RCLICK_STATUSBAR && this.statusbarDisplay)
       this.statusbarDisplay.addEventListener("click", this, false);
 
+    if (document.getElementById("status4evar-status-widget"))
+      document.getElementById("status4evar-status-widget").setAttribute("mousethrough", "always");
 
     if(this.OPENFINDBAR_DARGOVER_STATUSBAR && this.statusbarDisplay)
       this.statusbarDisplay.addEventListener("dragover", this, false);
     if(this.searchBar)
-      this.goButton = document.getAnonymousElementByAttribute(this.searchBar, "anonid", "search-go-button") || 
-      document.getAnonymousElementByAttribute(this.searchBar, "anonid", "search-go-label");
-    if(this.OPENFINDBAR_RCLICK_SEARCHGOBUTTON && this.goButton)
+    //this.goButton = document.getAnonymousElementByAttribute(this.searchBar, "anonid", "search-go-button") ||
+    //document.getAnonymousElementByAttribute(this.searchBar, "anonid", "search-go-label");
+      this.goButton = document.getAnonymousElementByAttribute(this.searchBar, "anonid", "searchbar-search-button");
+    if(this.OPENFINDBAR_RCLICK_SEARCHGOBUTTON && this.goButton) {
       this.goButton.addEventListener("click", this, true);
+      this.goButton.setAttribute("oncontextmenu", "return false");
+    }
   },
 
   uninit: function(){
@@ -144,6 +159,7 @@ var ucjs_toggleFindBar = {
           case this.goButton:
             this.goButtonClick(event);
             break;
+          case document.getElementById("bottom-toolbar-vbox"):
           case document.getElementById("ctraddon_flexible_space_ab"):
           case document.getElementById("ctr_flexible_space_ab"):
           case document.getElementById("status4evar-status-text"):
@@ -205,20 +221,37 @@ var ucjs_toggleFindBar = {
       }
     }
   },
-
+/*
   toggleFindbar: function(aValue){
     var findToolbar = document.getElementById("FindToolbar");
     if ('gFindBar' in window && 'onFindAgainCommand' in gFindBar ){ // Fx3
       if (gFindBar.hidden){
+        gFindBar.open();
         content.focus();
-        if(aValue)
+        if(aValue) {
           gFindBar._findField.value = aValue;
-//window.userChrome_js.debug("cmd_find " + gFindBar._findField.value);
-        document.getElementById("cmd_find").doCommand();
-        if (gFindBar._findField.value)
-          gFindBar._enableFindButtons(true);
+        }
+        var event = document.createEvent("UIEvents");
+        event.initUIEvent("input", true, false, window, 0);
+        gFindBar._findField.dispatchEvent(event);
       } else
         gFindBar.close();
+    }
+  },
+*/
+  toggleFindbar: function(aValue){
+    if (!gFindBar || gFindBar.hidden) {
+      gLazyFindCommand("onFindCommand");
+      setTimeout(function() {
+        if (aValue) {
+          gFindBar._findField.value = aValue;
+        };
+        var event = document.createEvent("UIEvents");
+        event.initUIEvent("input", true, false, window, 0);
+        gFindBar._findField.dispatchEvent(event);
+      }, 100);
+    } else {
+      gFindBar.close();
     }
   },
 
@@ -255,7 +288,7 @@ var ucjs_toggleFindBar = {
   getVer: function(){
     const Cc = Components.classes;
     const Ci = Components.interfaces;
-    var info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
+    var info = Services.appinfo;
     var ver = parseInt(info.version.substr(0,3) * 10,10) / 10;
     return ver;
   }

@@ -28,7 +28,7 @@
 
 	function main(window) {
 	  var {document, gBrowser} = window;
-	  function $(id) document.getElementById(id);
+	  function $(id) { return document.getElementById(id) };
 	  var urlbar = $("urlbar");
 	  let pageProgress = 0;
 	  let async = makeWindowHelpers(window).async;
@@ -120,7 +120,7 @@
 	  }
 	  Services.ww.registerNotification(windowWatcher);
 
-	  unload(function() Services.ww.unregisterNotification(windowWatcher));
+	  unload(function() { Services.ww.unregisterNotification(windowWatcher) });
 	}
 
 	function unload(callback, container) {
@@ -129,7 +129,7 @@
 		unloaders = unload.unloaders = [];
 
 	  if (callback == null) {
-		unloaders.slice().forEach(function(unloader) unloader());
+		unloaders.slice().forEach(function(unloader) { unloader() });
 		unloaders.length = 0;
 		return null;
 	  }

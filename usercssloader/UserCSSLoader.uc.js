@@ -1,46 +1,43 @@
 // ==UserScript==
 // @name           UserCSSLoader
-// @description    Stylish みたいなもの
+// @description    CSS Codes - Styles laden und verwalten
 // @namespace      http://d.hatena.ne.jp/Griever/
 // @author         Griever
 // @include        main
 // @license        MIT License
 // @compatibility  Firefox 4
 // @charset        UTF-8
-// @version        0.0.4e
+// @version        0.0.4f
 // @note           0.0.4 Remove E4X
-// @note           CSSEntry クラスを作った
-// @note           スタイルのテスト機能を作り直した
-// @note           ファイルが削除された場合 rebuild 時に CSS を解除しメニューを消すようにした
-// @note           uc で読み込まれた .uc.css の再読み込みに仮対応
-// @note           Version 0.0.4.b ermoeglicht "Styles importieren" per Mittelklick und anderen Dateimanager (s. vFileManager in Zeile 54)
-// @note           Version 0.0.4.c ermoeglicht Darstellung als Button und Einstellung der Zielleiste (s. showAs und showWhere in Zeile 56 bzw. 57)
-//                 sowie Uebernahme des CSS-Pfades in die Zwischenablage per Strg+Rechtsklick, Version 0.0.4.e: Alt+Rechtsklick verschiebt css-Datei in den TEMP-Ordner
+// @note           CSSEntry-Klasse erstellt
+// @note           Style-Test-Funktion überarbeitet
+// @note           Wenn die Datei gelöscht wurde, CSS beim Neu erstellen und Löschen des Menüs abbrechen
+// @note           uc einlesen .uc.css temporäre Korrespondenz zum erneuten Lesen
 // ==/UserScript==
 
-/****** 使い方 ******
+/****** Bedienungsanleitung ******
 
-chrome フォルダに CSS フォルダが作成されるのでそこに .css をぶち込むだけ。
-ファイル名が "xul-" で始まる物、".as.css" で終わる物は AGENT_SHEET で、それ以外は USER_SHEET で読み込む。
-ファイルの内容はチェックしないので @namespace 忘れに注意。
+Da der CSS-Ordner im Chrome-Ordner erstellt wurde, CSS-Dateien dort ablegen - speichern.
+Diejenigen, deren Dateiname mit "xul-" beginnen, diejenigen, die mit ".as.css" enden, sind AGENT_SHEET, 
+andere außer USER_SHEET werden gelesen. Da der Inhalt der Datei nicht überprüft wird,
+darauf achten, @ Namespace Angabe nicht zu vergessen!
 
-メニューバーに CSS メニューが追加される
-メニューを左クリックすると ON/OFF
-          中クリックするとメニューを閉じずに ON/OFF
-          右クリックするとエディタで開く
+CSS-Menü wird zur Menüleiste hinzugefügt
+Linksklick auf Stil, zum aktivieren/deaktivieren
+Mittelklick auf Stil zum aktivieren/deaktivieren, ohne Menü zu schließen
+Rechtsklick auf Stil zum Öffnen im Editor
 
-エディタは "view_source.editor.path" に指定されているものを使う
-フォルダは "UserCSSLoader.FOLDER" にパスを入れれば変更可能
+Verwenden des in "view_source.editor.path" angegebenen Editors
+Ordner kann geändert werden, indem ein Pfad in "UserCSSLoader.FOLDER" eingefügt wird
 
- **** 説明終わり ****/
+ **** Anleitung Ende ****/
 
 (function(){
 
 let { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
 if (!window.Services)
 	Cu.import("resource://gre/modules/Services.jsm");
-
-// 起動時に他の窓がある（２窓目の）場合は抜ける
+// Wenn beim Start ein anderes Fenster angezeigt wird (das zweite Fenster), wird es beendet
 let list = Services.wm.getEnumerator("navigator:browser");
 while(list.hasMoreElements()){ if(list.getNext() != window) return; }
 
@@ -50,13 +47,6 @@ if (window.UCL) {
 }
 
 window.UCL = {
-	// vFileManager: 'C:\\Programme\\totalcmd\\TOTALCMD.EXE',
-	vFileManager: '',
-	//etwas anderes als 'button' zeigt den Loader als Menue:
-	showAs: 'menu',
-	showWhere: 'main-menubar',
-	//Automatische Aktualisierung der Menüliste nach Verschieben einer CSS Datei in den TEMP Ordner mit "rechte Maustatste + Alt"
-	AUTO_REBUILD:  true,
 	USE_UC: "UC" in window,
 	AGENT_SHEET: Ci.nsIStyleSheetService.AGENT_SHEET,
 	USER_SHEET : Ci.nsIStyleSheetService.USER_SHEET,
@@ -64,7 +54,7 @@ window.UCL = {
 	get disabled_list() {
 		let obj = [];
 		try {
-			obj = this.prefs.getComplexValue("disabled_list", Ci.nsISupportsString).data.split("|");
+			obj = this.prefs.getCharPref("disabled_list").split("|");
 		} catch(e) {}
 		delete this.disabled_list;
 		return this.disabled_list = obj;
@@ -80,12 +70,12 @@ window.UCL = {
 	get FOLDER() {
 		let aFolder;
 		try {
-			// UserCSSLoader.FOLDER があればそれを使う
+			// UserCSSLoader.FOLDER verwenden
 			let folderPath = this.prefs.getCharPref("FOLDER");
-			aFolder = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile)
+			aFolder = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile)
 			aFolder.initWithPath(folderPath);
 		} catch (e) {
-			aFolder = Services.dirsvc.get("UChrm", Ci.nsILocalFile);
+			aFolder = Services.dirsvc.get("UChrm", Ci.nsIFile);
 			aFolder.appendRelativePath("CSS");
 		}
 		if (!aFolder.exists() || !aFolder.isDirectory()) {
@@ -99,67 +89,90 @@ window.UCL = {
 		if (!win || win == window) win = content;
 		return win;
 	},
-	init: function() {
-		var xmlStart = '<menu id="usercssloader-menu"';
-		var xmlEnd = '</menu>';
-		if (UCL.showAs === 'button') {
-			xmlStart = '<toolbarbutton type="menu" id="usercssloader-menu" class="toolbarbutton-1"';
-			xmlEnd = '</toolbarbutton>';
-		}
-		var xml = xmlStart + ' \
-			label="CSS" accesskey="C" onclick="if (event.button === 1) {UCL.rebuild()};">\
-				<menupopup id="usercssloader-menupopup">\
-					<menu label="Style Loader Menü"\
-					      accesskey="M">\
-						<menupopup id="usercssloader-submenupopup">\
-							<menuitem label="Styles importieren"\
-							          accesskey="R"\
-							          acceltext="Alt + R"\
-							          oncommand="UCL.rebuild();" />\
-							<menuseparator />\
-							<menuitem label="CSS Datei erstellen"\
-							          accesskey="D"\
-							          oncommand="UCL.create();" />\
-							<menuitem label="CSS Ordner öffnen"\
-							          accesskey="O"\
-							          oncommand="UCL.openFolder();" />\
-							<menuitem label="userChrome.css bearbeiten"\
-							          hidden="true"\
-							          oncommand="UCL.editUserCSS(\'userChrome.css\')" />\
-							<menuitem label="userContent.css bearbeiten"\
-							          hidden="true"\
-							          oncommand="UCL.editUserCSS(\'userContent.css\')" />\
-							<menuseparator />\
-							<menuitem label="Style Test (Chrome)"\
-							          id="usercssloader-test-chrome"\
-							          accesskey="C"\
-							          oncommand="UCL.styleTest(window);" />\
-							<menuitem label="Style Test (Web)"\
-							          id="usercssloader-test-content"\
-							          accesskey="W"\
-							          oncommand="UCL.styleTest();" />\
-							<menuitem label="Styles dieser Seite auf userstyles.org finden"\
-							          accesskey="S"\
-							          oncommand="UCL.searchStyle();" />\
-						</menupopup>\
-					</menu>\
-					<menu label=".uc.css" accesskey="U" hidden="'+ !UCL.USE_UC +'">\
-						<menupopup id="usercssloader-ucmenupopup">\
-							<menuitem label="Importieren(.uc.js)"\
-							          oncommand="UCL.UCrebuild();" />\
-							<menuseparator id="usercssloader-ucsepalator"/>\
-						</menupopup>\
-					</menu>\
-					<menuseparator id="ucl-sepalator"/>\
-				</menupopup>\
-		';
-		xml = xml + xmlEnd;
 
-		var range = document.createRange();
-		range.selectNodeContents($(UCL.showWhere));
-		range.collapse(false);
-		range.insertNode(range.createContextualFragment(xml.replace(/\n|\t/g, '')));
-		range.detach();
+
+
+	init: function() {
+		const cssmenu = $C("menu", {
+			id: "usercssloader-menu",
+			label: "CSS",
+			accesskey: "C"
+		});
+		const menupopup = $C("menupopup", {
+			id: "usercssloader-menupopup"
+		});
+		cssmenu.appendChild(menupopup);
+
+		let menu = $C("menu", {
+			label: "Style Loader Menü",
+			accesskey: "M"
+		});
+		menupopup.appendChild(menu);
+		let mp = $C("menupopup", { id: "usercssloader-submenupopup" });
+		menu.appendChild(mp);
+		mp.appendChild($C("menuitem", {
+			label: "Styles importieren",
+			accesskey: "R",
+			acceltext: "Alt + R",
+			oncommand: "UCL.rebuild();"
+		}));
+		mp.appendChild($C("menuseparator"));
+		mp.appendChild($C("menuitem", {
+			label: "CSS Datei erstellen",
+			accesskey: "D",
+			oncommand: "UCL.create();"
+		}));
+		mp.appendChild($C("menuitem", {
+			label: "CSS Ordner öffnen",
+			accesskey: "O",
+			oncommand: "UCL.openFolder();"
+		}));
+		mp.appendChild($C("menuitem", {
+			label: "userChrome.css bearbeiten",
+			hidden: false,
+			oncommand: "UCL.editUserCSS(\'userChrome.css\');"
+		}));
+		mp.appendChild($C("menuitem", {
+			label: "userContent.css bearbeiten",
+			hidden: false,
+			oncommand: "UCL.editUserCSS(\'userContent.css\');"
+		}));
+		mp.appendChild($C("menuseparator"));
+		mp.appendChild($C("menuitem", {
+			label: "Style Test (Chrome)",
+			id: "usercssloader-test-chrome",
+			hidden: true,
+			accesskey: "C",
+			oncommand: "UCL.styleTest(window);"
+		}));
+		mp.appendChild($C("menuitem", {
+			label: "Style Test (Web)",
+			id: "usercssloader-test-content",
+			hidden: true,
+			accesskey: "W",
+			oncommand: "UCL.styleTest();"
+		}));
+		mp.appendChild($C("menuitem", {
+			label: "Styles dieser Seite auf userstyles.org finden",
+			accesskey: "S",
+			oncommand: "UCL.searchStyle();"
+		}));
+
+		menu = $C("menu", {
+			label: ".uc.css",
+			accesskey: "U",
+			hidden: !UCL.USE_UC
+		});
+		menupopup.appendChild(menu);
+		mp = $C("menupopup", { id: "usercssloader-ucmenupopup" });
+		menu.appendChild(mp);
+		mp.appendChild($C("menuitem", {
+			label: "Importieren(.uc.js)",
+			oncommand: "UCL.UCrebuild();"
+		}));
+		mp.appendChild($C("menuseparator", { id: "usercssloader-ucsepalator" }));
+
+		$('main-menubar').appendChild(cssmenu);
 
 		$("mainKeyset").appendChild($C("key", {
 			id: "usercssloader-rebuild-key",
@@ -178,16 +191,12 @@ window.UCL = {
 		window.addEventListener("unload", this, false);
 	},
 	uninit: function() {
-//		var dis = [x for(x in this.readCSS) if (!this.readCSS[x].enabled)];
-		var dis = [];
-		for (let x in this.readCSS) {
-			if (!this.readCSS[x].enabled) {
+		const dis = [];
+		for (let x of Object.keys(this.readCSS)) {
+			if (!this.readCSS[x].enabled)
 				dis.push(x);
-			};
-		};
-		var str = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
-		str.data = dis.join("|");
-		this.prefs.setComplexValue("disabled_list", Ci.nsISupportsString, str);
+		}
+		this.prefs.setCharPref("disabled_list", dis.join("|"));
 		window.removeEventListener("unload", this, false);
 	},
 	destroy: function() {
@@ -213,7 +222,8 @@ window.UCL = {
 			let CSS = this.loadCSS(file);
 			CSS.flag = true;
 		}
-		for (let [leafName, CSS] in Iterator(this.readCSS)) {
+		for (let leafName of Object.keys(this.readCSS)) {
+			const CSS = this.readCSS[leafName];
 			if (!CSS.flag) {
 				CSS.enabled = false;
 				delete this.readCSS[leafName];
@@ -221,8 +231,12 @@ window.UCL = {
 			delete CSS.flag;
 			this.rebuildMenu(leafName);
 		}
-		if (this.initialized)
-			XULBrowserWindow.statusTextField.label = "Styles importieren";
+		if (this.initialized) {
+			if (typeof(StatusPanel) !== "undefined")
+				StatusPanel._label = "Style importiert";
+			else
+				XULBrowserWindow.statusTextField.label = "Styles importieren";
+		}
 	},
 	loadCSS: function(aFile) {
 		var CSS = this.readCSS[aFile.leafName];
@@ -274,24 +288,14 @@ window.UCL = {
 		if (event.button == 1) {
 			this.toggle(label);
 		}
-		// Kopieren des Pfades einer CSS-Datei in die Zwischenablage mit Strg + rechte Maustaste
-		else if (event.ctrlKey && event.button == 2) {
-			var clipboard = Cc['@mozilla.org/widget/clipboardhelper;1'].getService(Ci.nsIClipboardHelper);
-			clipboard.copyString(this.getFileFromLeafName(label).path);
-		}
-		// Automatische Aktualisierung der Menüliste nach Verschieben einer CSS Datei in den TEMP Ordner mit "rechte Maustatste + Alt"
-		else if (event.altKey && event.button == 2){
-			this.moveFile(this.getFileFromLeafName(label).path);
-			if (this.AUTO_REBUILD) this.rebuild();
-		}
-		else if (!event.ctrlKey && !event.altKey && event.button == 2){
+		else if (event.button == 2) {
 			closeMenus(event.target);
 			this.edit(this.getFileFromLeafName(label));
 		}
 	},
 	getFileFromLeafName: function(aLeafName) {
 		let f = this.FOLDER.clone();
-		f.QueryInterface(Ci.nsILocalFile); // use appendRelativePath
+		f.QueryInterface(Ci.nsIFile); // use appendRelativePath
 		f.appendRelativePath(aLeafName);
 		return f;
 	},
@@ -303,34 +307,19 @@ window.UCL = {
 		});
 	},
 	searchStyle: function() {
-		let win = this.getFocusedWindow();
-		let word = win.location.host || win.location.href;
-		// openLinkIn("http://userstyles.org/styles/browse/site/" + word, "tab", {});
-		openLinkIn("http://userstyles.org/styles/browse_r?search_terms=" + word, "tab", {});
+		let word;
+		try {
+			word = gBrowser.currentURI.host;
+		} catch {
+			word = gBrowser.currentURI.spec;
+		}
+		openLinkIn("https://userstyles.org/styles/search/" + word, "tab", {});
 	},
 	openFolder: function() {
-		if (this.vFileManager.length != 0) {
-			var file = Cc['@mozilla.org/file/local;1'].createInstance(Ci.nsILocalFile);
-			var process = Cc['@mozilla.org/process/util;1'].createInstance(Ci.nsIProcess);
-			var args=[this.FOLDER.path];
-			file.initWithPath(this.vFileManager);
-			process.init(file);
-			// Verzeichnis mit anderem Dateimanager oeffnen
-			process.run(false, args, args.length);
-		} else {
-			// Verzeichnis mit Dateimanager des Systems oeffnen
-			this.FOLDER.launch();
-		}
-	},
-	// Verschieben einer CSS Datei in den TEMP Ordner
-	moveFile: function(aFile){
-		var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-		var destDir = Services.dirsvc.get("Trsh", Ci.nsILocalFile);
-			file.initWithPath(aFile);
-			file.moveTo(destDir, "");
+		this.FOLDER.launch();
 	},
 	editUserCSS: function(aLeafName) {
-		let file = Services.dirsvc.get("UChrm", Ci.nsILocalFile);
+		let file = Services.dirsvc.get("UChrm", Ci.nsIFile);
 		file.appendRelativePath(aLeafName);
 		this.edit(file);
 	},
@@ -341,7 +330,7 @@ window.UCL = {
 			var UI = Cc["@mozilla.org/intl/scriptableunicodeconverter"].createInstance(Ci.nsIScriptableUnicodeConverter);
 			UI.charset = window.navigator.platform.toLowerCase().indexOf("win") >= 0? "Shift_JIS": "UTF-8";
 			var path = UI.ConvertFromUnicode(aFile.path);
-			var app = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+			var app = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
 			app.initWithPath(editor);
 			var process = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
 			process.init(app);
@@ -349,7 +338,7 @@ window.UCL = {
 		} catch (e) {}
 	},
 	create: function(aLeafName) {
-		if (!aLeafName) aLeafName = prompt("Name des Styles", new Date().toLocaleFormat("Neuer Style"));
+		if (!aLeafName) aLeafName = prompt("Name des Styles", dateFormat(new Date(), "%Y_%m%d_%H%M%S"));
 		if (aLeafName) aLeafName = aLeafName.replace(/\s+/g, " ").replace(/[\\/:*?\"<>|]/g, "");
 		if (!aLeafName || !/\S/.test(aLeafName)) return;
 		if (!/\.css$/.test(aLeafName)) aLeafName += ".css";
@@ -419,8 +408,8 @@ function CSSEntry(aFile) {
 	this.path = aFile.path;
 	this.leafName = aFile.leafName;
 	this.lastModifiedTime = 1;
-	this.SHEET = /^xul-|\.as\.css$/i.test(this.leafName) ?
-		Ci.nsIStyleSheetService.AGENT_SHEET:
+	this.SHEET = /^xul-|\.as\.css$/i.test(this.leafName) ? 
+		Ci.nsIStyleSheetService.AGENT_SHEET: 
 		Ci.nsIStyleSheetService.USER_SHEET;
 }
 CSSEntry.prototype = {
@@ -430,34 +419,34 @@ CSSEntry.prototype = {
 		return this._enabled;
 	},
 	set enabled(isEnable) {
-		var aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile)
+		var aFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile)
 		aFile.initWithPath(this.path);
-
-		var isExists = aFile.exists(); // ファイルが存在したら true
+	
+		var isExists = aFile.exists(); // Wenn die Datei existiert true
 		var lastModifiedTime = isExists ? aFile.lastModifiedTime : 0;
-		var isForced = this.lastModifiedTime != lastModifiedTime; // ファイルに変更があれば true
+		var isForced = this.lastModifiedTime != lastModifiedTime; // Wenn es eine Änderung in der Datei gibt true
 
 		var fileURL = Services.io.getProtocolHandler("file").QueryInterface(Ci.nsIFileProtocolHandler).getURLSpecFromFile(aFile);
 		var uri = Services.io.newURI(fileURL, null, null);
 
 		if (this.sss.sheetRegistered(uri, this.SHEET)) {
-			// すでにこのファイルが読み込まれている場合
+			// Wenn diese Datei bereits gelesen wurde
 			if (!isEnable || !isExists) {
 				this.sss.unregisterSheet(uri, this.SHEET);
 			}
 			else if (isForced) {
-				// 解除後に登録し直す
+				// Nach Stornierung erneut einlesen
 				this.sss.unregisterSheet(uri, this.SHEET);
 				this.sss.loadAndRegisterSheet(uri, this.SHEET);
 			}
 		} else {
-			// このファイルは読み込まれていない
+			// Datei wurde nicht gelesen
 			if (isEnable && isExists) {
 				this.sss.loadAndRegisterSheet(uri, this.SHEET);
 			}
 		}
 		if (this.lastModifiedTime !== 1 && isEnable && isForced) {
-			log(this.leafName + " の更新を確認しました。");
+			log(this.leafName + " wurde aktualisiert");
 		}
 		this.lastModifiedTime = lastModifiedTime;
 		return this._enabled = isEnable;
@@ -561,7 +550,7 @@ CSSTester.prototype = {
 		var uri = Services.io.newURI(code, null, null);
 		this.sss.loadAndRegisterSheet(uri, Ci.nsIStyleSheetService.AGENT_SHEET);
 		this.preview_code = code;
-		this.log("Vorschau");
+		this.log("Preview");
 	},
 	preview_end: function() {
 		if (this.preview_code) {
@@ -593,21 +582,29 @@ CSSTester.prototype = {
 		this.saved = true;
 	},
 	log: function() {
-		this.logField.textContent = new Date().toLocaleFormat("%H:%M:%S") + ": " + $A(arguments);
+		this.logField.textContent = dateFormat(new Date(), "%H:%M:%S") + ": " + $A(arguments);
 	}
 };
 
 UCL.init();
 
 function $(id) { return document.getElementById(id); }
-function $A(arr) Array.slice(arr);
+function $A(arr) { return Array.slice(arr); }
 function $C(name, attr) {
 	var el = document.createElement(name);
-	if (attr) Object.keys(attr).forEach(function(n) el.setAttribute(n, attr[n]));
+	if (attr) Object.keys(attr).forEach(function(n) { el.setAttribute(n, attr[n]) });
 	return el;
 }
+function dateFormat(date, format) {
+	format = format.replace("%Y", ("000" + date.getFullYear()).substr(-4));
+	format = format.replace("%m", ("0" + (date.getMonth()+1)).substr(-2));
+	format = format.replace("%d", ("0" + date.getDay()).substr(-2));
+	format = format.replace("%H", ("0" + date.getHours()).substr(-2));
+	format = format.replace("%M", ("0" + date.getMinutes()).substr(-2));
+	format = format.replace("%S", ("0" + date.getSeconds()).substr(-2));
+	return format;
+}
 
-function log() { Services.console.logStringMessage(Array.slice(arguments)); }
+function log() { Application.console.log(Array.slice(arguments)); }
 
 })();
-

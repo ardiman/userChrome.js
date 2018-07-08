@@ -15,9 +15,11 @@
 	}, false);
 
 	function toggleFindBar() {
-		if (!closeOnly && gFindBar.hidden) {
-			gFindBar.onFindCommand();
-			gFindBar._findField.value = '';
+		if (!closeOnly && (!gFindBar || gFindBar.hidden)) {
+			gLazyFindCommand('onFindCommand');
+			setTimeout(function() {
+				gFindBar._findField.value = '';
+			}, 100);
 		} else {
 			gFindBar.close();
 		}

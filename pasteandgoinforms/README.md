@@ -1,5 +1,5 @@
 # Paste and Go in Forms
-Erzeugt einen neuen Kontetxmenüeintrag "Paste & Go" bzw. in der Urlbar "Einfügen und los". 
+Erzeugt einen neuen Kontextmenüeintrag "Paste & Go" bzw. in der Urlbar "Einfügen und los". 
 Damit lassen sich Suchformulare mit dem Inhalt der Zwischenablage ausfüllen und direkt ausführen 
 bzw. über die Urlbar startet somit die Googlesuche.
 
