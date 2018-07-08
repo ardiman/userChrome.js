@@ -1,5 +1,6 @@
 # Update Bookmark 2
-Ein etwas veränderter, aber funktionierender Ersatz für Nr 76. Update Bookmark.
+Ein etwas veränderter, aber funktionierender Ersatz für Nr 76. Update Bookmark. Die  zusätzliche mod-Version zeigt auch in der Sidebar im Lesezeichenkontextmenü den Eintrag 
+„Mit aktueller URL ersetzen“ an.
 
 Das **Ergebnis des Skripts**:
 
