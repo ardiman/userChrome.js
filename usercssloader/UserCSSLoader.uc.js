@@ -172,7 +172,19 @@ window.UCL = {
 		}));
 		mp.appendChild($C("menuseparator", { id: "usercssloader-ucsepalator" }));
 
-		$('main-menubar').appendChild(cssmenu);
+		CustomizableUI.createWidget({
+			id: 'usercssloader-menu-item',
+			type: 'custom',
+			defaultArea: CustomizableUI.AREA_MENUBAR,
+			onBuild: function(aDocument) {
+				let toolbaritem = aDocument.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'toolbaritem');
+				toolbaritem.id = 'usercssloader-menu-item';
+				toolbaritem.className = 'chromeclass-toolbar-additional';   
+				return toolbaritem;            
+			}
+		});
+		
+		$('usercssloader-menu-item').appendChild(cssmenu);
 
 		$("mainKeyset").appendChild($C("key", {
 			id: "usercssloader-rebuild-key",

@@ -8,8 +8,5 @@ Das **Ergebnis des Skripts**:
 
 ## Installation
 Kopiere die uc.js-Datei in den Chromeordner des Profils. 
-Evtl. muss über `about:config` noch der externe Editor definiert (Wert für `view_source.editor.path` eintragen) werden. Bei Bedarf kann in Zeile 54 
-ein anderer Dateimanager zum Öffnen des CSS-Ordners eingetragen werden - ein Beispiel für den Eintrag von `vFileManager` ist in der Zeile 
-darüber zu sehen. Soll der User CSS Loader als Toolbarbutton erscheinen, stellt man darunter `showAs` auf `button`. Das Icon für den Toolbarbutton 
-setzt man dann per CSS ein (Beispiel. s. http://www.camp-firefox.de/forum/viewtopic.php?p=856804#p856804). Mit `showWhere` kann eingestellt 
-werden, in welcher Leiste der Button oder das Menü auftauchen soll. 
+
+Evtl. muss über `about:config` noch der externe Editor definiert (Wert für `view_source.editor.path` eintragen) werden. 
