@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name           extras_config_menu.uc.js
-// @compatibility  Firefox 8.*, 9.*, 10.*, 11.*, 12.*, 13.*, 14.*, 15.*, 16.*, 17.*, 57.*
+// @compatibility  Firefox 6*.*
 // @include        main
-// @version        1.0.20180113
+// @version        1.0.20190504
 // ==/UserScript==
 
 var uProfMenu = {
   // Beginn der Konfiguration
   // In der folgenden Zeile (11) den Pfad zum Texteditor eintragen (unter Ubuntu 10.04 z.B.: '/usr/bin/gedit'). Bei Fehleintrag wird view_source.editor.path ausgelesen:
-  TextOpenExe : 'C:\\Program Files (x86)\\Notepad++\\notepad++.exe',
+  TextOpenExe : 'C:\\Program Files\\Notepad++\\notepad++.exe',
   // Falls gewuenscht, in Zeile 15 einen Dateimanager eintragen (komplett leer lassen fuer Dateimanager des Systems) Beispiele:
   // vFileManager: 'E:\\Total Commander\\Totalcmd.exe',
   // vFileManager: 'C:\\Program Files (x86)\\FreeCommander\\FreeCommander.exe'
@@ -48,7 +48,7 @@ var uProfMenu = {
       }
       var menu = zielmenu.appendChild(this.createME("menu","Config Men\u00FC",0,0,"ExtraConfigMenu"));
       menu.setAttribute("class","menu-iconic");
-      menu.setAttribute("ondblclick","getBrowser (). selectedTab = getBrowser (). addTab ('about:config');");
+      menu.setAttribute("ondblclick","openTrustedLinkIn('about:config','tab');");
      } else {
       // als Button nach dem per warpmenuto gewaehlten Element anlegen (s. Kommentar ueber warpmenuto im Konfigurationsabschnitt)
       var zielmenu = document.getElementById(this.warpmenuto);
@@ -63,7 +63,7 @@ var uProfMenu = {
       menu.setAttribute("class", "toolbarbutton-1");
       menu.setAttribute("type", "menu");
       menu.setAttribute("tooltiptext", "Extra Config Menü\nMittelklick \öffnet about:config");
-      menu.setAttribute("onclick","if (event.button === 1 && !this.open) {getBrowser (). selectedTab = getBrowser (). addTab ('about:config')};");
+      menu.setAttribute("onclick","if (event.button === 1 && !this.open) {openTrustedLinkIn('about:config','tab')};");
     }
     //ab hier ist alles gleich, egal ob Button oder Menue
     var css = " \
@@ -82,8 +82,8 @@ var uProfMenu = {
     // Anlegen von Untermenues fuer die userChromeJS-Skripte (befuellt werden sie spaeter)
     var submenu=menupopup.appendChild(this.createME("menu","uc.js",0,0,"submenu-ucjs"));
     var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucjs-items"));
-    var submenu=menupopup.appendChild(this.createME("menu","uc.xul",0,0,"submenu-ucxul"));
-    var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucxul-items"));
+    // var submenu=menupopup.appendChild(this.createME("menu","uc.xul",0,0,"submenu-ucxul"));
+    // var submenupopup = submenu.appendChild(this.createME("menupopup",0,0,0,"submenu-ucxul-items"));
     if (this.enableScriptsToClip) menupopup.appendChild(this.createME("menuitem","Skriptliste in Zwischenablage","uProfMenu.getScripts(1)","uProfMenu_clipboard",0));
      // Ende Anlegen von Untermenues fuer die userChromeJS-Skripte
     menupopup.appendChild(document.createElement('menuseparator'));
@@ -121,7 +121,7 @@ var uProfMenu = {
       // falls der erste Eintrag des arrays ='0' ist, dann kein Untermenue anlegen, sondern direkt als Menuepunkte einbinden
       if (this.abouts[0]=='0') {
         for (var i = 1; i < this.abouts.length; i++) {
-         menupopup.appendChild(this.createME("menuitem",this.abouts[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+this.abouts[i]+"')","uProfMenu_about"),0);
+         menupopup.appendChild(this.createME("menuitem",this.abouts[i],"openTrustedLinkIn('"+this.abouts[i]+"','tab')","uProfMenu_about"),0);
         }
        } else {
         // der erste Eintrag des arrays ist ungleich '0', deshalb als Untermenue einrichten
@@ -302,7 +302,7 @@ var uProfMenu = {
         mitem.setAttribute("onclick","uProfMenu.openAtGithub(event,'"+scriptArray[i]+"')");
         mitem.setAttribute("tooltiptext"," Linksklick: Bearbeiten,\n Mittelklick: https://github.com/.../"+this.cleanFileName(scriptArray[i])+" \u00F6ffnen,\n Rechtsklick: Suche auf GitHub");
        } else {
-        var mitem = this.createME("menuitem",scriptArray[i],"getBrowser (). selectedTab = getBrowser (). addTab ('"+scriptArray[i]+"')",sClass,0);
+        var mitem = this.createME("menuitem",scriptArray[i],"openTrustedLinkIn('"+scriptArray[i]+"','tab')",sClass,0);
       }
       popup.insertBefore(mitem, popup.firstChild);
     }
@@ -365,15 +365,15 @@ var uProfMenu = {
 
   openAtGithub:function(e,sScript) {
     if (e.button==1){
-      // Mittelklick - Seite auf GitHub oeffnen (funktionier nur, wenn Ordner- und bereinigter Dateiname [ohne Erweiterung] uebereinstimmen):
+      // Mittelklick - Seite auf GitHub oeffnen (funktioniert nur, wenn Ordner- und bereinigter Dateiname [ohne Erweiterung] uebereinstimmen):
       var sUrl="https://github.com/ardiman/userChrome.js/tree/master/"+this.cleanFileName(sScript);
-      getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
+      openWebLinkIn(sUrl, 'tab');
     }
     if (e.button==2){
       // Rechtsklick - Suche auf GitHub starten (funktioniert nur, wenn der Dateiname im Code hinterlegt ist):
       e.preventDefault();
       var sUrl="https://github.com/search?langOverride=&language=&q="+sScript+"&repo=&start_value=1&type=Code";
-      getBrowser (). selectedTab = getBrowser (). addTab (sUrl);
+      openWebLinkIn(sUrl, 'tab');
     }
   },
 
