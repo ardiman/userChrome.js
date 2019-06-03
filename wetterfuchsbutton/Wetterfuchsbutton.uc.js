@@ -28,7 +28,7 @@ var wetterfuchs = {
     RE_AktuellVorhersage: {url:"https://www.wetterkontor.de/de/wetter/deutschland/brandenburg-berlin.asp",width:675,height:640},
     RE_Unwetterwarnung: {url:"https://www.wetterkontor.de/warnungen/wetterwarnungen-brandenburg-berlin.asp",width:850,height:480},
     RE_RegenradarAktuell: {url:"https://www.niederschlagsradar.de/image.ashx?type=regioloop&regio=bln&j=&m=&d=&mi=&uhr=&bliksem=0&voor=&srt=loop1stunde&tijdid=201194154",width:568,height:530},
-    RE_RegenradarPrognose: {url:"https://www.wetter.de/deutschland/regenradar-karte-brandenburg-c49p12.html",width:640,height:690},
+    RE_RegenradarPrognose: {url:"https://www.wetteronline.de/regenradar/berlin-bundesland?mode=interactive&wrx=52.51,13.41&wrm=8",width:850,height:850},
   },
 
   wfthrobber: "https://raw.github.com/ardiman/userChrome.js/master/wetterfuchsbutton/loading51.gif",
@@ -121,7 +121,8 @@ var wetterfuchs = {
                         domain(wetter.faz.net), \
                         domain(wetter.de), \
                         domain(wetter.net), \
-                        domain(wetterkontor.de) { \
+                        domain(wetterkontor.de), \
+						domain(wetteronline.de) { \
           scrollbar {display: none !important} \
         }';
       if (Services.appinfo.version.split('.')[0] <= 56) {

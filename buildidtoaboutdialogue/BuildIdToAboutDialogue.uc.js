@@ -3,26 +3,17 @@
 // @namespace      http://space.geocities.yahoo.co.jp/gl/alice0775
 // @description
 // @include        chrome://browser/content/aboutDialog.xul
-// @compatibility  Firefox 3.0 3.1 - 59
+// @compatibility  Firefox 3.0 3.1 69.*
 // @author         Alice0775
+// @version        2019/05/29 22.00 Anpassung von milupo - Reparatur der mehrzeiligen Darstellung
 // @version        2013/02/11 23:00 Bug 755724
 // @version        2008/11/22 12:00
-// @Note           Help > About画面に にBuilsIDを付加するとともにクリップボードにUA+IDをコピー
+// @Note           Unter Firefox Hilfe - Über Firefox Textfeld mit BuildsID hinzufügen 
+// @Note           und automatisches Kopieren in die Zwischenablage der BuildsID.
 // ==/UserScript==
 var addBuildid = {
   buildid: function (){
     return navigator.buildID;
-    /*
-    // after Fx1.5
-    if ("@mozilla.org/xre/app-info;1" in Components.classes &&
-        Components.classes["@mozilla.org/xre/app-info;1"]
-          .getService(Components.interfaces.nsIXULAppInfo) &&
-        Components.classes["@mozilla.org/xre/app-info;1"]
-          .getService(Components.interfaces.nsIXULAppInfo).appBuildID)
-     var buildid = Components.classes["@mozilla.org/xre/app-info;1"]
-                         .getService(Components.interfaces.nsIXULAppInfo).appBuildID;
-    return buildid;
-    */
   },
 
   addBuildid: function () {
@@ -31,7 +22,7 @@ var addBuildid = {
     var userAgentField = document.getElementById("userAgent");
     if (!userAgentField) {
       userAgentField = document.getElementById("rightBox");
-      var label = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 'textbox');
+      var label = document.createElementNS("http://www.w3.org/1999/xhtml", 'textarea');
       userAgentField = userAgentField.appendChild(label);
       userAgentField.setAttribute("id", "agent");
       userAgentField.setAttribute("value", navigator.userAgent);
